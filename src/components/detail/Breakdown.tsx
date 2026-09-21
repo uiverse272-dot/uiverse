@@ -3,35 +3,13 @@
 import Link from "next/link";
 import type { Item } from "@/lib/data";
 import { CopyValue } from "./CopyValue";
+import { colorRoles, layoutSpec, SPACING, typeScale } from "@/lib/spec";
 
 /**
  * The Breakdown is the "Understand" step of the journey, and the reason this is
  * a tool rather than a gallery. Everything here is derived from the capture:
  * section order, colour roles, type scale, spacing rhythm.
  */
-
-const ROLE_ORDER: [keyof Item["palette"], string][] = [
-  ["bg", "Background"],
-  ["surface", "Surface"],
-  ["raised", "Raised"],
-  ["border", "Border"],
-  ["text", "Text"],
-  ["muted", "Text muted"],
-  ["accent", "Accent"],
-  ["accentFg", "Accent foreground"],
-];
-
-const TYPE_SCALE = [
-  ["Display", 68, 600, "Hero headline"],
-  ["H1", 48, 600, "Section header"],
-  ["H2", 38, 600, "Sub-section"],
-  ["H3", 22, 560, "Card title"],
-  ["Body", 15, 430, "Paragraph"],
-  ["Small", 13, 450, "Meta, labels"],
-  ["Caption", 11.5, 500, "Eyebrow, badges"],
-] as const;
-
-const SPACING = [4, 8, 12, 16, 24, 32, 48, 64, 96];
 
 function Panel({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -47,6 +25,9 @@ function Panel({ title, note, children }: { title: string; note?: string; childr
 
 export function Breakdown({ item }: { item: Item }) {
   const p = item.palette;
+  const roles = colorRoles(item);
+  const scale = typeScale(item);
+  const layout = layoutSpec(item);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -95,10 +76,9 @@ export function Breakdown({ item }: { item: Item }) {
 
       <Panel title="Colour roles" note="extracted from computed styles">
         <div className="space-y-1">
-          {ROLE_ORDER.map(([key, label]) => {
-            const hex = p[key] as string;
+          {roles.map(({ token, label, value: hex }) => {
             return (
-              <div key={key} className="flex items-center gap-3 rounded-[8px] px-1 py-1.5">
+              <div key={token} className="flex items-center gap-3 rounded-[8px] px-1 py-1.5">
                 <span
                   className="h-7 w-7 shrink-0 rounded-[6px] border border-border"
                   style={{ background: hex }}
@@ -113,13 +93,13 @@ export function Breakdown({ item }: { item: Item }) {
           <CopyValue
             mono={false}
             label="Copy as CSS variables"
-            value={ROLE_ORDER.map(([k, l]) => `  --${l.toLowerCase().replace(/ /g, "-")}: ${p[k]};`).join("\n")}
+            value={roles.map((r) => `  --${r.token}: ${r.value};`).join("\n")}
             className="border border-border"
           />
           <CopyValue
             mono={false}
             label="Copy as Tailwind theme"
-            value={`@theme {\n${ROLE_ORDER.map(([k, l]) => `  --color-${l.toLowerCase().replace(/ /g, "-")}: ${p[k]};`).join("\n")}\n}`}
+            value={`@theme {\n${roles.map((r) => `  --color-${r.token}: ${r.value};`).join("\n")}\n}`}
             className="border border-border"
           />
         </div>
@@ -128,7 +108,7 @@ export function Breakdown({ item }: { item: Item }) {
       <div className="space-y-4">
         <Panel title="Type scale">
           <div className="space-y-2.5">
-            {TYPE_SCALE.map(([label, size, weight, use]) => (
+            {scale.map(({ name: label, size, weight, use }) => (
               <div key={label} className="flex items-baseline gap-3">
                 <span className="w-16 shrink-0 text-[11.5px] text-text-3">{label}</span>
                 <span
@@ -153,10 +133,10 @@ export function Breakdown({ item }: { item: Item }) {
             ))}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-[12.5px]">
-            <Row label="Radius" value={item.device === "mobile" ? "14 / 20px" : "8 / 12 / 16px"} />
-            <Row label="Grid" value={item.device === "mobile" ? "1 col, 22px gutter" : "12 col, 1440 max"} />
-            <Row label="Body" value="15px / 1.55" />
-            <Row label="Container" value={item.device === "mobile" ? "390px" : "1440px"} />
+            <Row label="Radius" value={layout.radius} />
+            <Row label="Grid" value={`${layout.columns}, ${layout.gutter}`} />
+            <Row label="Body" value={layout.body} />
+            <Row label="Container" value={layout.container} />
           </div>
         </Panel>
       </div>

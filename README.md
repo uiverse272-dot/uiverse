@@ -40,13 +40,29 @@ tab, which are the three things the architecture stands or falls on.
 | `/screen/[slug]`, `/component/[slug]` | Detail shell: Overview · **Breakdown** · Responsive · Code · Similar |
 | `/source/[slug]` | One product's whole system: screens, components, inferred palette |
 | `/search` | Dictionary-first NL parsing with the interpretation shown as removable chips |
+| Prompt generator | On any screen or component: 7 target tools x 5 stacks, built from the Breakdown data |
 | `/saved` | One-click saves, collections, `Move to…` toast |
 | `/layouts`, `/palettes`, `/3d`, `/creators` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
 | `/dev-measure` | Dev tool — re-derives archetype heights (see the file header) |
 
-Stubbed on purpose: auth, billing, teams, the layout builder, real AI calls, and the capture
+Stubbed on purpose: auth, billing, teams, the layout builder, visual search, and the capture
 pipeline. Those are Phase 2–3 in [09-roadmap.md](docs/09-roadmap.md).
+
+### The prompt generator
+
+The **Prompt** button on any detail page produces a structured implementation spec — section order
+with a note on how each block actually looks, colour tokens in the syntax of the chosen stack, the
+type scale, the spacing and responsive rules, and accessibility requirements. It is templated, not
+model-generated: there is no API call, and the same input always gives the same output.
+
+It works because the capture was decomposed first. `lib/spec.ts` is the single derivation of a
+screen's design facts; the Breakdown tab and the prompt generator both read from it, so the prompt
+can never drift from what the Breakdown shows. A competitor without that decomposition can only hand
+a model an image.
+
+Free plan is metered at 3 prompts a month — the one place in the app where output is gated. Browsing,
+saving and the Breakdown have no counter near them.
 
 ## Notes on the prototype
 

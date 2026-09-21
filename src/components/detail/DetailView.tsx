@@ -10,6 +10,7 @@ import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
 import { Code, External, Sparkle } from "../ui/icons";
+import { PromptDialog } from "../prompt/PromptDialog";
 
 type Tab = "overview" | "breakdown" | "responsive" | "code" | "similar";
 
@@ -25,6 +26,7 @@ export function DetailView({
   presentation?: "page" | "overlay";
 }) {
   const [tab, setTab] = useState<Tab>("overview");
+  const [promptOpen, setPromptOpen] = useState(false);
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">(
     item.device === "mobile" ? "mobile" : "desktop",
   );
@@ -122,7 +124,10 @@ export function DetailView({
             >
               <External size={14} /> Open live
             </a>
-            <button className="inline-flex h-10 items-center gap-1.5 rounded-[8px] border border-border px-3.5 text-[13.5px] font-medium hover:bg-bg-subtle">
+            <button
+              onClick={() => setPromptOpen(true)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-[8px] border border-border px-3.5 text-[13.5px] font-medium hover:bg-bg-subtle"
+            >
               <Sparkle size={14} /> Prompt
             </button>
           </div>
@@ -183,7 +188,7 @@ export function DetailView({
           {tab === "overview" ? <Overview item={item} /> : null}
           {tab === "breakdown" ? <Breakdown item={item} /> : null}
           {tab === "responsive" ? <Responsive item={item} /> : null}
-          {tab === "code" ? <CodeTab item={item} /> : null}
+          {tab === "code" ? <CodeTab item={item} onPrompt={() => setPromptOpen(true)} /> : null}
           {tab === "similar" ? <Grid items={similar} /> : null}
         </div>
 
@@ -196,6 +201,8 @@ export function DetailView({
           </section>
         ) : null}
       </div>
+
+      {promptOpen ? <PromptDialog item={item} onClose={() => setPromptOpen(false)} /> : null}
     </div>
   );
 }
@@ -236,14 +243,15 @@ function Overview({ item }: { item: Item }) {
       </div>
       <div className="rounded-[12px] border border-border bg-surface p-5">
         <h3 className="pb-3 text-[14px] font-semibold">Palette</h3>
+        {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
         <div className="flex overflow-hidden rounded-[8px] border border-border">
-          {item.colors.map((c) => (
-            <div key={c} className="h-16 flex-1" style={{ background: c }} />
+          {item.colors.map((c, i) => (
+            <div key={i} className="h-16 flex-1" style={{ background: c }} />
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-1">
-          {item.colors.map((c) => (
-            <CopyValue key={c} value={c} className="border border-border" />
+          {item.colors.map((c, i) => (
+            <CopyValue key={i} value={c} className="border border-border" />
           ))}
         </div>
       </div>
@@ -306,7 +314,7 @@ function Responsive({ item }: { item: Item }) {
   );
 }
 
-function CodeTab({ item }: { item: Item }) {
+function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
   if (!item.hasCode) {
     return (
       <div className="rounded-[12px] border border-border bg-surface p-6">
@@ -323,7 +331,10 @@ function CodeTab({ item }: { item: Item }) {
               </Link>
               .
             </p>
-            <button className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-[8px] border border-border px-3 text-[13px] font-medium hover:bg-bg-subtle">
+            <button
+              onClick={onPrompt}
+              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-[8px] border border-border px-3 text-[13px] font-medium hover:bg-bg-subtle"
+            >
               <Sparkle size={14} /> Generate an implementation prompt instead
             </button>
           </div>

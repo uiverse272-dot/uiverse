@@ -22,8 +22,8 @@ export default function PalettesPage() {
           return (
             <div key={p.slug} className="overflow-hidden rounded-[12px] border border-border bg-surface">
               <div className="flex h-28">
-                {swatches.map(([, hex]) => (
-                  <div key={hex} className="flex-1" style={{ background: hex }} />
+                {swatches.map(([role, hex]) => (
+                  <div key={role} className="flex-1" style={{ background: hex }} />
                 ))}
               </div>
               <div className="p-3.5">
