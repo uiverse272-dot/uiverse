@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { compact, timeAgo, type Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
+import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
+import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
@@ -27,38 +29,43 @@ export function DetailView({
 }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [promptOpen, setPromptOpen] = useState(false);
-  const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">(
-    item.device === "mobile" ? "mobile" : "desktop",
-  );
+  const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
+  const [device, setDevice] = useState<Viewport>(native);
+  const frameRef = useRef<HTMLDivElement>(null);
   const isComponent = item.kind === "component";
+  const showDevice = (d: Viewport) => {
+    setDevice(d);
+    frameRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const tabs: [Tab, string][] = [
     ["overview", "Overview"],
     ["breakdown", "Breakdown"],
-    ["responsive", isComponent ? "In the wild" : "Responsive"],
+    ["responsive", "Responsive"],
     ["code", "Code"],
     ["similar", "Similar"],
   ];
 
-  const frameWidth = device === "desktop" ? "100%" : device === "tablet" ? "62%" : "30%";
+  /* tablet and phone frames are drawn at real size (capped to the column); laptop fills it */
+  const frameWidth = device === "desktop" ? "100%" : `min(100%, ${VIEWPORTS[device].w}px)`;
 
   return (
     <div className={presentation === "overlay" ? "" : "pb-16"}>
       <div className="mx-auto grid max-w-[1700px] gap-6 px-4 pt-5 md:px-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* ---------------------------------------------------------- media */}
         <div>
-          <div className="flex items-center justify-between pb-3">
-            <div className="flex items-center gap-1 border border-border p-0.5">
-              {(["desktop", "tablet", "mobile"] as const).map((d) => (
+          <div ref={frameRef} className="flex scroll-mt-20 items-center justify-between gap-3 pb-3">
+            <div role="group" aria-label="Device" className="flex items-center gap-1 border border-border p-0.5">
+              {(Object.keys(VIEWPORTS) as Viewport[]).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDevice(d)}
-                  disabled={item.device === "mobile" && d !== "mobile"}
-                  className={`px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-30 ${
+                  aria-pressed={device === d}
+                  className={`px-2.5 py-1 text-[12px] font-medium transition-colors ${
                     device === d ? "bg-accent text-accent-fg" : "text-text-2 hover:text-text"
                   }`}
                 >
-                  {d}
+                  {VIEWPORTS[d].label}
                 </button>
               ))}
             </div>
@@ -73,11 +80,13 @@ export function DetailView({
               className="max-h-[76vh] overflow-y-auto overscroll-contain border border-border transition-[width] duration-200"
               style={{ width: frameWidth }}
             >
-              <MockScreen item={item} full={!isComponent} />
+              <MockScreen key={device} item={item} viewport={device} />
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
-            Scroll inside the frame to see the full page
+            {VIEWPORTS[device].label} · {VIEWPORTS[device].w} × {VIEWPORTS[device].h} ·{" "}
+            {device === native ? "original design" : `adapted from the ${VIEWPORTS[native].label.toLowerCase()} design`}
+            {" "}· scroll inside the frame
           </p>
 
           {!isComponent ? (
@@ -204,7 +213,7 @@ export function DetailView({
         <div className="py-6">
           {tab === "overview" ? <Overview item={item} /> : null}
           {tab === "breakdown" ? <Breakdown item={item} /> : null}
-          {tab === "responsive" ? <Responsive item={item} /> : null}
+          {tab === "responsive" ? <Responsive item={item} onPick={showDevice} /> : null}
           {tab === "code" ? <CodeTab item={item} onPrompt={() => setPromptOpen(true)} /> : null}
           {tab === "similar" ? <Grid items={similar} /> : null}
         </div>
@@ -255,7 +264,7 @@ function Overview({ item }: { item: Item }) {
         <ul className="mt-4 space-y-2 text-[13.5px] text-text-2">
           <li>· Accent used sparingly, on {item.blocks.some((b) => b.type === "cta") ? "CTAs and one metric band" : "primary actions only"}.</li>
           <li>· Type hierarchy carried by size and weight rather than colour.</li>
-          <li>· {item.responsive ? "Responsive captures available at three widths." : "Native mobile capture — no desktop equivalent."}</li>
+          <li>· {item.device === "mobile" ? "Designed for phones; adapted up to tablet and laptop — switch device above." : "Designed for laptop; adapted down to tablet and mobile — switch device above."}</li>
         </ul>
       </div>
       <div className="border border-border bg-surface p-5">
@@ -276,53 +285,41 @@ function Overview({ item }: { item: Item }) {
   );
 }
 
-function Responsive({ item }: { item: Item }) {
-  if (item.device === "mobile") {
-    return (
-      <div className="border border-border bg-surface p-5">
-        <h3 className="pb-2 text-[14px] font-bold">Where this pattern appears</h3>
-        <p className="text-[13.5px] text-text-2">
-          Native capture — this screen has no desktop equivalent. In Phase 2 this tab becomes the flow
-          viewer: the ordered run of screens this one belongs to.
-        </p>
-      </div>
-    );
-  }
+function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => void }) {
+  const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {(
-          [
-            ["Desktop", "1440px", 1],
-            ["Tablet", "834px", 0.72],
-            ["Mobile", "390px", 0.42],
-          ] as const
-        ).map(([label, w, scale]) => (
-          <div key={label} className="border border-border bg-surface p-4">
-            <div className="flex items-baseline justify-between pb-3">
-              <span className="text-[13px] font-bold">{label}</span>
-              <span className="font-mono text-[11px] text-text-3">{w}</span>
-            </div>
-            <div className="mx-auto overflow-hidden border border-border" style={{ width: `${scale * 100}%` }}>
-              <MockScreen item={item} />
-            </div>
-          </div>
-        ))}
+      {/* first screen of each viewport, side by side, at a shared scale */}
+      <div className="grid items-start gap-4 md:grid-cols-[1.9fr_1.25fr_0.75fr]">
+        {(Object.keys(VIEWPORTS) as Viewport[]).map((d) => {
+          const vp = VIEWPORTS[d];
+          return (
+            <button
+              key={d}
+              onClick={() => onPick(d)}
+              className="block border border-border bg-surface p-3 text-left transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--border)]"
+            >
+              <span className="flex items-baseline justify-between gap-2 pb-3">
+                <span className="text-[13px] font-bold">{vp.label}</span>
+                <span className="text-[11px] text-text-3">
+                  {vp.w}px{d === native ? " · original" : ""}
+                </span>
+              </span>
+              <span className="block overflow-hidden border border-border" style={{ aspectRatio: `${vp.w} / ${vp.h}` }}>
+                <MockScreen item={item} viewport={d} />
+              </span>
+            </button>
+          );
+        })}
       </div>
       <div className="mt-4 border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-bold">Documented behaviour</h3>
-        <dl className="grid gap-x-8 gap-y-2.5 text-[13px] sm:grid-cols-2">
-          {[
-            ["Navigation", "Full nav → condensed → hamburger at 760px"],
-            ["Feature grid", "3 columns → 2 → 1"],
-            ["Hero type", "68px → 44px → 32px"],
-            ["Container", "1440 max → fluid with 24px gutters"],
-            ["Tables", "All columns → horizontal scroll → stacked rows"],
-            ["Sticky rail", "Sticky → inline above content"],
-          ].map(([k, v]) => (
-            <div key={k} className="flex justify-between gap-4 border-b border-border py-1.5">
-              <dt className="shrink-0 text-text-3">{k}</dt>
-              <dd className="text-right">{v}</dd>
+        <h3 className="pb-1 text-[14px] font-bold">How it adapts</h3>
+        <p className="pb-3 text-[12px] text-text-3">Laptop → tablet → mobile</p>
+        <dl className="text-[13px]">
+          {responsiveRules(item).map(([k, v]) => (
+            <div key={k} className="grid gap-1 border-b border-rule py-2.5 last:border-b-0 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-6">
+              <dt className="text-text-3">{k}</dt>
+              <dd>{v}</dd>
             </div>
           ))}
         </dl>

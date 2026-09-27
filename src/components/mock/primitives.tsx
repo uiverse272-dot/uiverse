@@ -2,6 +2,24 @@ import type { CSSProperties, ReactNode } from "react";
 
 export type U = (n: number) => string;
 
+/**
+ * The three widths every design is drawn at. Units are design pixels *at that
+ * width*, so a 14px label is 14px on the phone and on the laptop alike — the
+ * layout reflows instead of the whole drawing being scaled down.
+ */
+export type Viewport = "desktop" | "tablet" | "mobile";
+export const VIEWPORTS: Record<Viewport, { w: number; h: number; label: string }> = {
+  desktop: { w: 1440, h: 900, label: "Laptop" },
+  tablet: { w: 834, h: 1194, label: "Tablet" },
+  mobile: { w: 390, h: 844, label: "Mobile" },
+};
+
+/** `const v = pick(vp)` then `v(desktop, tablet, mobile)` */
+export const pick =
+  (vp: Viewport) =>
+  <T,>(d: T, t: T, m: T): T =>
+    vp === "desktop" ? d : vp === "tablet" ? t : m;
+
 export const mkU =
   (W: number): U =>
   (n: number) =>
@@ -238,6 +256,7 @@ export function Btn({
 }: {
   u: U;
   label?: string;
+  /** 0 = fill the parent's width */
   w?: number;
   h?: number;
   r?: number;
@@ -249,7 +268,7 @@ export function Btn({
   return (
     <B
       u={u}
-      w={w}
+      w={w === 0 ? "100%" : w}
       h={h}
       r={r}
       bg={bg}
@@ -262,5 +281,47 @@ export function Btn({
         </T>
       ) : null}
     </B>
+  );
+}
+
+/** Equal-width columns; `cols` changes per viewport where Row + grow can't wrap. */
+export function Grid({
+  u,
+  cols,
+  gap = 0,
+  rowGap,
+  style,
+  children,
+}: {
+  u: U;
+  cols: number;
+  gap?: number;
+  rowGap?: number;
+  style?: CSSProperties;
+  children?: ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        columnGap: u(gap),
+        rowGap: u(rowGap ?? gap),
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The collapsed-navigation affordance. */
+export function Burger({ u, c, s = 22 }: { u: U; c: string; s?: number }) {
+  return (
+    <Col u={u} gap={s * 0.22} style={{ width: u(s) }}>
+      {[0, 1, 2].map((i) => (
+        <B key={i} u={u} w={s} h={s * 0.09} r={2} bg={c} style={{ opacity: 0.8 }} />
+      ))}
+    </Col>
   );
 }

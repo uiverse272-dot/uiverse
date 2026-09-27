@@ -6,8 +6,9 @@ import { PageHeader, Shell } from "@/components/feed/Section";
 
 /** Explore is a directory, not a second feed. Its job is turning a vague intent into a URL. */
 
-function cover(pred: (i: (typeof ITEMS)[number]) => boolean) {
-  return ITEMS.filter(pred).filter((i) => i.kind === "screen").slice(0, 1)[0];
+/* component tiles need a component cover — only component entries carry a componentType */
+function cover(pred: (i: (typeof ITEMS)[number]) => boolean, kind: "screen" | "component" = "screen") {
+  return ITEMS.find((i) => i.kind === kind && pred(i));
 }
 
 function Group({
@@ -81,7 +82,7 @@ export default function ExplorePage() {
               href: `/components?component=${c.slug}`,
               label: c.name,
               count: count((i) => i.componentType === c.slug),
-              item: cover((i) => i.componentType === c.slug),
+              item: cover((i) => i.componentType === c.slug, "component"),
             }))}
         />
         <Group

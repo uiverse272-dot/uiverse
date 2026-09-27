@@ -381,7 +381,7 @@ function buildItems(): Item[] {
       blocks: arch.blocks,
       hasCode: i % 5 === 0,
       tier: i % 7 === 0 ? "premium" : "free",
-      responsive: !mobile,
+      responsive: true, // every design renders at laptop, tablet and mobile
       has3d: ["substrate", "tidal", "nimbus", "umbra"].includes(srcSlug) && archetype === "saas-landing",
       saves: rnd(slug + "sv", 40, 4200),
       views: rnd(slug + "vw", 900, 92000),
