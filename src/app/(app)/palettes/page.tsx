@@ -20,7 +20,7 @@ export default function PalettesPage() {
             ["text", p.palette.text],
           ];
           return (
-            <div key={p.slug} className="overflow-hidden rounded-[12px] border border-border bg-surface">
+            <div key={p.slug} className="overflow-hidden border border-border bg-surface">
               <div className="flex h-28">
                 {swatches.map(([role, hex]) => (
                   <div key={role} className="flex-1" style={{ background: hex }} />
@@ -40,7 +40,7 @@ export default function PalettesPage() {
                 <div className="mt-3 grid grid-cols-2 gap-x-2 gap-y-0.5 border-t border-border pt-3">
                   {swatches.map(([role, hex]) => (
                     <div key={role} className="flex items-center gap-1.5">
-                      <span className="h-3 w-3 shrink-0 rounded-[3px] border border-border" style={{ background: hex }} />
+                      <span className="h-3 w-3 shrink-0 border border-border" style={{ background: hex }} />
                       <CopyValue value={hex} />
                     </div>
                   ))}

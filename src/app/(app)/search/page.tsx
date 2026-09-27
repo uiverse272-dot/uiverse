@@ -54,8 +54,8 @@ export default async function SearchPage({
                   <Link
                     key={label}
                     href={`/search?q=${encodeURIComponent(q)}${k ? `&kind=${k}` : ""}`}
-                    className={`rounded-[7px] px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
-                      kind === k ? "bg-text text-bg" : "text-text-2 hover:text-text"
+                    className={`px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
+                      kind === k ? "bg-accent text-accent-fg" : "text-text-2 hover:text-text"
                     }`}
                   >
                     {label} <span className="tabular-nums opacity-60">{n}</span>
@@ -76,7 +76,7 @@ export default async function SearchPage({
                           .filter((w) => w.toLowerCase() !== t.value && w.toLowerCase() !== t.label.toLowerCase())
                           .join(" "),
                       )}`}
-                      className="inline-flex items-center gap-1 rounded-[6px] border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium hover:border-border-strong"
+                      className="inline-flex items-center gap-1 border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium hover:border-border-strong"
                     >
                       {t.dimension}: {t.label}
                       <Close size={11} />
@@ -107,7 +107,7 @@ export default async function SearchPage({
                 <Link
                   key={s}
                   href={`/search?q=${encodeURIComponent(s)}`}
-                  className="rounded-[999px] border border-border px-3 py-1.5 text-[13px] text-text-2 transition-colors hover:bg-bg-subtle hover:text-text"
+                  className="border border-border px-3 py-1.5 text-[13px] text-text-2 transition-colors hover:bg-bg-subtle hover:text-text"
                 >
                   {s}
                 </Link>

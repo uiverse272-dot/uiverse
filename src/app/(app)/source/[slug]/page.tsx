@@ -38,16 +38,16 @@ export default async function SourcePage({
     <>
       <Shell>
         <div className="flex flex-wrap items-start gap-5 pt-8">
-          <span className="h-14 w-14 shrink-0 rounded-[13px]" style={{ background: palette?.accent }} />
+          <span className="h-14 w-14 shrink-0" style={{ background: palette?.accent }} />
           <div className="min-w-0 flex-1">
             <PageHeader title={source.name} sub={source.about} />
             <div className="flex flex-wrap items-center gap-2 pt-3 text-[12.5px] text-text-2">
-              <span className="rounded-[6px] border border-border px-2 py-1">{source.domain}</span>
-              <Link href={`/web?industry=${source.industry}`} className="rounded-[6px] border border-border px-2 py-1 hover:bg-bg-subtle">
+              <span className="border border-border px-2 py-1">{source.domain}</span>
+              <Link href={`/web?industry=${source.industry}`} className="border border-border px-2 py-1 hover:bg-bg-subtle">
                 {name(INDUSTRIES, source.industry)}
               </Link>
               {source.tech.map((t) => (
-                <Link key={t} href={`/web?tech=${t}`} className="rounded-[6px] border border-border px-2 py-1 hover:bg-bg-subtle">
+                <Link key={t} href={`/web?tech=${t}`} className="border border-border px-2 py-1 hover:bg-bg-subtle">
                   {name(TECHNOLOGIES, t)}
                 </Link>
               ))}
@@ -66,8 +66,8 @@ export default async function SourcePage({
             <Link
               key={id}
               href={`/source/${slug}?tab=${id}`}
-              className={`rounded-[7px] px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
-                tab === id ? "bg-text text-bg" : "text-text-2 hover:text-text"
+              className={`px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
+                tab === id ? "bg-accent text-accent-fg" : "text-text-2 hover:text-text"
               }`}
             >
               {label} {n ? <span className="tabular-nums opacity-60">{n}</span> : null}
@@ -82,7 +82,7 @@ export default async function SourcePage({
           {tab === "components" ? <Feed items={comps} /> : null}
           {tab === "system" && palette ? (
             <div className="grid gap-4 pb-14 lg:grid-cols-2">
-              <div className="rounded-[12px] border border-border bg-surface p-5">
+              <div className="border border-border bg-surface p-5">
                 <h3 className="pb-4 text-[14px] font-semibold">Inferred palette</h3>
                 {(
                   [
@@ -96,13 +96,13 @@ export default async function SourcePage({
                   ] as [string, string][]
                 ).map(([label, hex]) => (
                   <div key={label} className="flex items-center gap-3 py-1.5">
-                    <span className="h-7 w-7 rounded-[6px] border border-border" style={{ background: hex }} />
+                    <span className="h-7 w-7 border border-border" style={{ background: hex }} />
                     <span className="flex-1 text-[12.5px]">{label}</span>
                     <CopyValue value={hex} />
                   </div>
                 ))}
               </div>
-              <div className="rounded-[12px] border border-border bg-surface p-5">
+              <div className="border border-border bg-surface p-5">
                 <h3 className="pb-4 text-[14px] font-semibold">Recurring structure</h3>
                 <p className="pb-4 text-[13.5px] leading-relaxed text-text-2">
                   Across {screens.length} captures, these blocks appear most often. This is what a design
@@ -110,7 +110,7 @@ export default async function SourcePage({
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {[...new Set(screens.flatMap((s) => s.blocks.map((b) => b.label)))].map((b) => (
-                    <span key={b} className="rounded-[6px] border border-border px-2 py-1 text-[12px] text-text-2">
+                    <span key={b} className="border border-border px-2 py-1 text-[12px] text-text-2">
                       {b}
                     </span>
                   ))}

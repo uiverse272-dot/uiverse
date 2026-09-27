@@ -46,10 +46,10 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--overlay)] p-0 backdrop-blur-[2px] md:p-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--overlay)] p-0 md:p-6">
       <button aria-label="Close" onClick={onClose} className="absolute inset-0 cursor-default" />
 
-      <div className="anim-sheet relative flex h-full w-full max-w-[1020px] flex-col overflow-hidden border border-border bg-bg md:h-[min(720px,90vh)] md:rounded-[16px]">
+      <div className="anim-sheet relative flex h-full w-full max-w-[1020px] flex-col overflow-hidden border border-border bg-bg md:h-[min(720px,90vh)] md:">
         <header className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-3">
           <Sparkle size={16} className="text-text-3" />
           <div className="min-w-0 flex-1">
@@ -61,7 +61,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
           <button
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-[7px] text-text-2 hover:bg-bg-subtle hover:text-text"
+            className="flex h-8 w-8 items-center justify-center text-text-2 hover:bg-bg-subtle hover:text-text"
           >
             <Close size={16} />
           </button>
@@ -76,8 +76,8 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                   <button
                     key={t.id}
                     onClick={() => set("tool", t.id as ToolId)}
-                    className={`w-full rounded-[7px] px-2 py-1.5 text-left transition-colors ${
-                      opts.tool === t.id ? "bg-text text-bg" : "hover:bg-bg-subtle"
+                    className={`w-full px-2 py-1.5 text-left transition-colors ${
+                      opts.tool === t.id ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
                     }`}
                   >
                     <span className="block text-[13px] font-medium">{t.name}</span>
@@ -95,8 +95,8 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                   <button
                     key={s.id}
                     onClick={() => set("stack", s.id as StackId)}
-                    className={`rounded-[7px] border px-2 py-1.5 text-[12.5px] font-medium transition-colors ${
-                      opts.stack === s.id ? "border-text bg-text text-bg" : "border-border hover:bg-bg-subtle"
+                    className={`border px-2 py-1.5 text-[12.5px] font-medium transition-colors ${
+                      opts.stack === s.id ? "border-border bg-accent text-accent-fg" : "border-border hover:bg-bg-subtle"
                     }`}
                   >
                     {s.name}
@@ -118,11 +118,11 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                 ).map(([k, label]) => (
                   <label
                     key={k}
-                    className="flex cursor-pointer items-center gap-2.5 rounded-[7px] px-2 py-1.5 text-[12.5px] hover:bg-bg-subtle"
+                    className="flex cursor-pointer items-center gap-2.5 px-2 py-1.5 text-[12.5px] hover:bg-bg-subtle"
                   >
                     <span
-                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border ${
-                        opts[k] ? "border-text bg-text text-bg" : "border-border-strong"
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center border ${
+                        opts[k] ? "border-border bg-accent text-accent-fg" : "border-border-strong"
                       }`}
                     >
                       {opts[k] ? <Check size={11} /> : null}
@@ -151,7 +151,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                 </p>
                 <a
                   href="/pricing"
-                  className="mt-1 rounded-[8px] bg-accent px-4 py-2.5 text-[13.5px] font-medium text-accent-fg"
+                  className="mt-1 bg-accent px-4 py-2.5 text-[13.5px] font-medium text-accent-fg"
                 >
                   See Pro
                 </a>
@@ -183,7 +183,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                 <button
                   onClick={copy}
                   disabled={locked}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-[8px] bg-accent px-3.5 text-[13.5px] font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:opacity-40"
+                  className="inline-flex h-9 items-center gap-1.5 bg-accent px-3.5 text-[13.5px] font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
                   {copied ? "Copied" : "Copy prompt"}

@@ -29,8 +29,8 @@ export default function SavedPage() {
       <div className="flex flex-wrap items-center gap-2 py-5">
         <button
           onClick={() => setActive("all")}
-          className={`h-8 rounded-[999px] border px-3.5 text-[13px] font-medium ${
-            active === "all" ? "border-text bg-text text-bg" : "border-border text-text-2 hover:text-text"
+          className={`h-8 border px-3.5 text-[13px] font-medium ${
+            active === "all" ? "border-border bg-accent text-accent-fg" : "border-border text-text-2 hover:text-text"
           }`}
         >
           All <span className="tabular-nums opacity-60">{saves.length}</span>
@@ -39,8 +39,8 @@ export default function SavedPage() {
           <button
             key={c.id}
             onClick={() => setActive(c.id)}
-            className={`h-8 rounded-[999px] border px-3.5 text-[13px] font-medium ${
-              active === c.id ? "border-text bg-text text-bg" : "border-border text-text-2 hover:text-text"
+            className={`h-8 border px-3.5 text-[13px] font-medium ${
+              active === c.id ? "border-border bg-accent text-accent-fg" : "border-border text-text-2 hover:text-text"
             }`}
           >
             {c.name} <span className="tabular-nums opacity-60">{countFor(c.id)}</span>
@@ -54,7 +54,7 @@ export default function SavedPage() {
               setName("");
               setCreating(false);
             }}
-            className="flex h-8 items-center gap-1.5 rounded-[999px] border border-border px-3"
+            className="flex h-8 items-center gap-1.5 border border-border px-3"
           >
             <input
               autoFocus
@@ -68,7 +68,7 @@ export default function SavedPage() {
         ) : (
           <button
             onClick={() => setCreating(true)}
-            className="inline-flex h-8 items-center gap-1.5 rounded-[999px] border border-dashed border-border px-3 text-[13px] text-text-2 hover:text-text"
+            className="inline-flex h-8 items-center gap-1.5 border border-dashed border-border px-3 text-[13px] text-text-2 hover:text-text"
           >
             <Plus size={14} /> New collection
           </button>
@@ -85,7 +85,7 @@ export default function SavedPage() {
           </p>
           <Link
             href="/"
-            className="mt-2 rounded-[8px] border border-border px-3.5 py-2 text-[13.5px] font-medium hover:bg-bg-subtle"
+            className="mt-2 border border-border px-3.5 py-2 text-[13.5px] font-medium hover:bg-bg-subtle"
           >
             Browse the feed
           </Link>

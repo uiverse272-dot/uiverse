@@ -13,7 +13,7 @@ import { colorRoles, layoutSpec, SPACING, typeScale } from "@/lib/spec";
 
 function Panel({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[12px] border border-border bg-surface p-5">
+    <section className="border border-border bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3 pb-4">
         <h3 className="text-[14px] font-semibold tracking-[-0.015em]">{title}</h3>
         {note ? <span className="text-[11.5px] text-text-3">{note}</span> : null}
@@ -37,13 +37,13 @@ export function Breakdown({ item }: { item: Item }) {
             <li key={`${b.type}-${i}`}>
               <Link
                 href={`/components?component=${b.type}`}
-                className="flex items-center gap-3 rounded-[8px] px-2 py-2 transition-colors hover:bg-bg-subtle"
+                className="flex items-center gap-3 px-2 py-2 transition-colors hover:bg-bg-subtle"
               >
                 <span className="w-5 shrink-0 font-mono text-[11px] text-text-3 tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span
-                  className="h-6 w-10 shrink-0 rounded-[4px] border border-border"
+                  className="h-6 w-10 shrink-0 border border-border"
                   style={{ background: i === 0 ? p.surface : i % 3 === 1 ? p.raised : p.bg }}
                 />
                 <span className="flex-1 truncate text-[13px] font-medium">{b.label}</span>
@@ -59,7 +59,7 @@ export function Breakdown({ item }: { item: Item }) {
           {item.blocks.map((b, i) => (
             <div
               key={`${b.type}-${i}`}
-              className="flex items-center justify-center rounded-[6px] border border-dashed border-border text-[11.5px] text-text-2"
+              className="flex items-center justify-center border border-dashed border-border text-[11.5px] text-text-2"
               style={{ height: 22 + (b.type === "hero" ? 36 : b.type === "footer" ? 18 : 10) }}
             >
               {b.label}
@@ -78,9 +78,9 @@ export function Breakdown({ item }: { item: Item }) {
         <div className="space-y-1">
           {roles.map(({ token, label, value: hex }) => {
             return (
-              <div key={token} className="flex items-center gap-3 rounded-[8px] px-1 py-1.5">
+              <div key={token} className="flex items-center gap-3 px-1 py-1.5">
                 <span
-                  className="h-7 w-7 shrink-0 rounded-[6px] border border-border"
+                  className="h-7 w-7 shrink-0 border border-border"
                   style={{ background: hex }}
                 />
                 <span className="flex-1 text-[12.5px]">{label}</span>
@@ -127,7 +127,7 @@ export function Breakdown({ item }: { item: Item }) {
           <div className="flex flex-wrap items-end gap-2">
             {SPACING.map((s) => (
               <div key={s} className="flex flex-col items-center gap-1.5">
-                <div className="rounded-[3px] bg-text/15" style={{ width: Math.min(s, 40), height: 26 }} />
+                <div className="bg-text/15" style={{ width: Math.min(s, 40), height: 26 }} />
                 <span className="font-mono text-[10.5px] text-text-3">{s}</span>
               </div>
             ))}

@@ -24,16 +24,16 @@ export function Overlay({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 backdrop-blur-[2px] md:p-6">
+    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 md:p-6">
       <button
         aria-label="Close"
         onClick={() => router.back()}
         className="fixed inset-0 -z-10 cursor-default"
       />
-      <div className="anim-sheet relative w-full max-w-[1700px] rounded-none border border-border bg-bg md:rounded-[16px]">
+      <div className="anim-sheet relative w-full max-w-[1700px] border border-border bg-bg md:shadow-[6px_6px_0_var(--border)]">
         <button
           onClick={() => router.back()}
-          className="sticky right-0 top-0 z-10 float-right m-3 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-2 transition-colors hover:text-text"
+          className="sticky right-0 top-0 z-10 float-right m-3 flex h-9 w-9 items-center justify-center border border-border bg-surface transition-colors hover:bg-accent hover:text-accent-fg"
           aria-label="Close"
         >
           <Close size={16} />

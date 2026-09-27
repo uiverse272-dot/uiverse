@@ -23,7 +23,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
           <Link
             key={label}
             href={href}
-            className="rounded-[12px] border border-border bg-surface p-5 transition-colors hover:border-border-strong"
+            className="border border-border bg-surface p-5 transition-colors hover:border-border-strong"
           >
             <div className="text-[14px] font-semibold">{label}</div>
             <div className="mt-1.5 text-[13px] text-text-2">{note}</div>

@@ -1,7 +1,7 @@
 type P = { className?: string; size?: number };
 const base = (size = 16) => ({
   width: size, height: size, viewBox: "0 0 24 24", fill: "none",
-  stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
+  stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
 });
 
 export const Search = ({ size, className }: P) => (
@@ -68,4 +68,19 @@ export const Copy = ({ size, className }: P) => (
 );
 export const Check = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="m5 12.5 4.5 4.5L19 7" /></svg>
+);
+export const Monitor = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><rect x="3.5" y="4.5" width="17" height="11.5" rx="1" /><path d="M9 20h6M12 16v4" /></svg>
+);
+export const Phone = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><rect x="7" y="3.5" width="10" height="17" rx="1.6" /><path d="M11 17.5h2" /></svg>
+);
+export const Layout = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><rect x="4" y="4" width="16" height="16" rx="1" /><path d="M4 9h16M10 9v11" /></svg>
+);
+export const Palette = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><path d="M12 4a8 8 0 1 0 0 16c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-.9.7-1.5 1.7-1.5H17a3.3 3.3 0 0 0 3.3-3.4C20.3 6.9 16.6 4 12 4z" /><circle cx="8" cy="11" r="1" fill="currentColor" /><circle cx="11" cy="7.8" r="1" fill="currentColor" /><circle cx="15.2" cy="8.4" r="1" fill="currentColor" /></svg>
+);
+export const Upload = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" /><path d="M4.5 14v5.5h15V14" /></svg>
 );

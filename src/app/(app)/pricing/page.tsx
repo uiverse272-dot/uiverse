@@ -36,12 +36,12 @@ export default function PricingPage() {
         ).map(([name, price, note], i) => (
           <div
             key={name}
-            className={`rounded-[14px] border p-5 ${i === 1 ? "border-text bg-surface" : "border-border"}`}
+            className={`border p-5 ${i === 1 ? "border-text bg-surface" : "border-border"}`}
           >
             <div className="flex items-center justify-between">
               <span className="text-[15px] font-semibold">{name}</span>
               {i === 1 ? (
-                <span className="rounded-[999px] bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-fg">
+                <span className="bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-fg">
                   Popular
                 </span>
               ) : null}
@@ -52,7 +52,7 @@ export default function PricingPage() {
             </div>
             <p className="mt-2 text-[13px] leading-relaxed text-text-2">{note}</p>
             <button
-              className={`mt-5 h-10 w-full rounded-[9px] text-[13.5px] font-medium ${
+              className={`mt-5 h-10 w-full text-[13.5px] font-medium ${
                 i === 1 ? "bg-accent text-accent-fg" : "border border-border hover:bg-bg-subtle"
               }`}
             >
@@ -62,7 +62,7 @@ export default function PricingPage() {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-[12px] border border-border">
+      <div className="overflow-hidden border border-border">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border bg-bg-subtle text-left">

@@ -17,7 +17,7 @@ export function SaveToast() {
 
   return (
     <div className="fixed bottom-20 left-1/2 z-[80] w-[min(420px,calc(100vw-32px))] -translate-x-1/2 md:bottom-7">
-      <div className="anim-fade-up rounded-[12px] border border-border bg-surface p-3 shadow-[0_12px_40px_rgb(0_0_0/0.16)]">
+      <div className="anim-fade-up border border-border bg-surface p-3 shadow-[4px_4px_0_var(--border)]">
         {!picking ? (
           <div className="flex items-center gap-3">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-accent-fg">
@@ -27,7 +27,7 @@ export function SaveToast() {
             {toast.slug ? (
               <button
                 onClick={() => setPicking(true)}
-                className="rounded-[7px] border border-border px-2.5 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle"
+                className="border border-border px-2.5 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle"
               >
                 Move to…
               </button>
@@ -47,7 +47,7 @@ export function SaveToast() {
                     if (toast.slug) move(toast.slug, c.id);
                     setPicking(false);
                   }}
-                  className="flex w-full items-center gap-2 rounded-[7px] px-2 py-2 text-left text-[13px] hover:bg-bg-subtle"
+                  className="flex w-full items-center gap-2 px-2 py-2 text-left text-[13px] hover:bg-bg-subtle"
                 >
                   {c.name}
                 </button>

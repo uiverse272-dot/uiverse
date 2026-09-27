@@ -1,9 +1,10 @@
 import { ITEMS } from "@/lib/data";
-import { applyFilters, mixFeed, type Filters } from "@/lib/query";
+import { applyFilters, mixFeed, sortItems, type Filters } from "@/lib/query";
+import { Card } from "@/components/feed/Card";
 import { Feed } from "@/components/feed/Feed";
+import { Featured } from "@/components/feed/Featured";
 import { ChipRail } from "@/components/feed/FilterBar";
-import { SearchField } from "@/components/shell/SearchCommand";
-import { Shell, StickyBar } from "@/components/feed/Section";
+import { SectionHead } from "@/components/feed/Section";
 
 const CHIPS: { label: string; value?: string; filters: Filters }[] = [
   { label: "For You", filters: {} },
@@ -33,37 +34,47 @@ export default async function HomePage({
   const filtered = applyFilters(ITEMS, active.filters);
   const items = active.value === "components" ? filtered : mixFeed(filtered);
 
+  const trending = sortItems(ITEMS.filter((i) => i.kind === "screen"), "trending");
+  const popular = trending.slice(0, 6);
+  const pick = trending.find((i) => i.device === "desktop") ?? trending[0];
+  const browsing = !active.value;
+
   return (
-    <>
-      {/* Compact discovery header — not a marketing hero. It collapses away on scroll. */}
-      <Shell>
-        <div className="flex flex-col items-center gap-5 pb-6 pt-10 md:pt-14">
-          <div className="text-center">
-            <h1 className="text-[30px] font-semibold tracking-[-0.03em] md:text-[38px]">
-              Discover interfaces worth building.
-            </h1>
-            <p className="mx-auto mt-2.5 max-w-[540px] text-[14px] leading-relaxed text-text-2 md:text-[15px]">
-              Websites, apps, components and patterns from products people actually ship —
-              broken down so you can rebuild them.
-            </p>
-          </div>
-          <div className="w-full max-w-[600px]">
-            <SearchField big />
-          </div>
-        </div>
-      </Shell>
+    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0 px-4 pb-6 pt-6 md:px-6">
+        <h1 className="sr-only">Uiverse — discover interfaces worth building</h1>
 
-      <StickyBar>
-        <div className="py-2.5">
+        <section>
+          <SectionHead title="Categories" />
           <ChipRail chips={CHIPS.map((c) => ({ label: c.label, value: c.value }))} />
-        </div>
-      </StickyBar>
+        </section>
 
-      <Shell>
-        <div className="pt-4">
+        {browsing ? (
+          <section className="mt-9">
+            <SectionHead title="Popular this week" href="/web?sort=trending" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-5 xl:[&>*:nth-child(6)]:hidden 2xl:grid-cols-6 2xl:[&>*:nth-child(6)]:block">
+              {popular.map((i) => (
+                <Card key={i.slug} item={i} crop={3 / 4} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="mt-9">
+          <SectionHead
+            title={browsing ? "Recommended for you" : `${active.label} · ${items.length} results`}
+            href={browsing ? "/explore" : "/"}
+            more={browsing ? "more" : "clear"}
+          />
           <Feed items={items} />
+        </section>
+      </div>
+
+      <aside className="hidden border-l border-border xl:block">
+        <div className="scroll-x sticky top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto">
+          <Featured item={pick} />
         </div>
-      </Shell>
-    </>
+      </aside>
+    </div>
   );
 }

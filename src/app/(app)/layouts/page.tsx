@@ -13,7 +13,7 @@ export default function LayoutsPage() {
       />
       <div className="grid gap-4 py-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {LAYOUTS.map((l) => (
-          <div key={l.slug} className="rounded-[12px] border border-border bg-surface p-4">
+          <div key={l.slug} className="border border-border bg-surface p-4">
             <div className="flex items-baseline justify-between pb-3">
               <h3 className="text-[14px] font-semibold tracking-[-0.015em]">{l.name}</h3>
               <span className="text-[11.5px] text-text-3 tabular-nums">{l.uses} uses</span>
@@ -23,12 +23,12 @@ export default function LayoutsPage() {
                 {l.sections.map((s, i) => (
                   <div
                     key={`${s.type}-${i}`}
-                    className="rounded-[3px] border border-dashed border-border"
+                    className="border border-dashed border-border"
                     style={{ height: s.type === "hero" ? 26 : s.type === "footer" ? 14 : 11 }}
                   />
                 ))}
               </div>
-              <div className="min-w-0 flex-1 overflow-hidden rounded-[7px] border border-border">
+              <div className="min-w-0 flex-1 overflow-hidden border border-border">
                 <MockScreen item={{ ...l.example, aspect: 0.8 }} />
               </div>
             </div>
@@ -43,10 +43,10 @@ export default function LayoutsPage() {
               ))}
             </ol>
             <div className="mt-3 flex gap-2">
-              <button className="flex-1 rounded-[7px] border border-border px-2 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle">
+              <button className="flex-1 border border-border px-2 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle">
                 Duplicate
               </button>
-              <button className="flex-1 rounded-[7px] border border-border px-2 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle">
+              <button className="flex-1 border border-border px-2 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle">
                 Open in builder
               </button>
             </div>

@@ -26,7 +26,7 @@ export function CopyValue({
           () => {},
         );
       }}
-      className={`group inline-flex items-center gap-1.5 rounded-[6px] px-1.5 py-1 text-left transition-colors hover:bg-bg-subtle ${
+      className={`group inline-flex items-center gap-1.5 px-1.5 py-1 text-left transition-colors hover:bg-bg-subtle ${
         mono ? "font-mono text-[11.5px]" : "text-[12.5px]"
       } ${className}`}
       title="Copy"

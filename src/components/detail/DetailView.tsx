@@ -9,7 +9,7 @@ import { SaveButton } from "../save/SaveButton";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
-import { Code, External, Sparkle } from "../ui/icons";
+import { Code, External, Layers, Sparkle } from "../ui/icons";
 import { PromptDialog } from "../prompt/PromptDialog";
 
 type Tab = "overview" | "breakdown" | "responsive" | "code" | "similar";
@@ -48,14 +48,14 @@ export function DetailView({
         {/* ---------------------------------------------------------- media */}
         <div>
           <div className="flex items-center justify-between pb-3">
-            <div className="flex items-center gap-1 rounded-[8px] border border-border p-0.5">
+            <div className="flex items-center gap-1 border border-border p-0.5">
               {(["desktop", "tablet", "mobile"] as const).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDevice(d)}
                   disabled={item.device === "mobile" && d !== "mobile"}
-                  className={`rounded-[6px] px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-30 ${
-                    device === d ? "bg-text text-bg" : "text-text-2 hover:text-text"
+                  className={`px-2.5 py-1 text-[12px] font-medium capitalize transition-colors disabled:opacity-30 ${
+                    device === d ? "bg-accent text-accent-fg" : "text-text-2 hover:text-text"
                   }`}
                 >
                   {d}
@@ -68,9 +68,9 @@ export function DetailView({
           </div>
 
           {/* Long captures scroll inside the frame rather than making the page enormous. */}
-          <div className="flex justify-center rounded-[14px] border border-border bg-bg-subtle p-3 md:p-5">
+          <div className="flex justify-center border border-border bg-bg-subtle p-3 md:p-5">
             <div
-              className="max-h-[76vh] overflow-y-auto overscroll-contain rounded-[10px] border border-border transition-[width] duration-200"
+              className="max-h-[76vh] overflow-y-auto overscroll-contain border border-border transition-[width] duration-200"
               style={{ width: frameWidth }}
             >
               <MockScreen item={item} full={!isComponent} />
@@ -86,7 +86,7 @@ export function DetailView({
                 <Link
                   key={s.slug}
                   href={s.kind === "component" ? `/component/${s.slug}` : `/screen/${s.slug}`}
-                  className={`w-28 shrink-0 overflow-hidden rounded-[8px] border transition-colors ${
+                  className={`w-28 shrink-0 overflow-hidden border transition-colors ${
                     s.slug === item.slug ? "border-text" : "border-border hover:border-border-strong"
                   }`}
                 >
@@ -101,38 +101,52 @@ export function DetailView({
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-[22px] font-semibold leading-tight tracking-[-0.025em]">{item.title}</h1>
+              <h1 className="text-[19px] font-bold leading-snug tracking-[-0.02em]">{item.title}</h1>
               <Link
                 href={`/source/${item.source.slug}`}
-                className="mt-2 inline-flex items-center gap-2 text-[13.5px] text-text-2 hover:text-text"
+                className="mt-2 inline-flex items-center gap-2 text-[12.5px]"
               >
-                <span className="h-5 w-5 rounded-[5px]" style={{ background: item.palette.accent }} />
-                {item.source.name}
+                <span className="h-4 w-4 border border-border" style={{ background: item.palette.accent }} />
+                By: <span className="link-ink">{item.source.name}</span>
               </Link>
             </div>
           </div>
 
-          <p className="mt-3 text-[13.5px] leading-relaxed text-text-2">{item.source.about}</p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <SaveButton slug={item.slug} variant="solid" />
+          
+          <div className="mt-5 grid gap-3">
             <a
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="inline-flex h-10 items-center gap-1.5 rounded-[8px] border border-border px-3.5 text-[13.5px] font-medium hover:bg-bg-subtle"
+              className="inline-flex h-11 items-center justify-center gap-2 border border-border bg-surface text-[13.5px] hover:bg-bg-subtle"
               title={`This would open ${item.source.domain}`}
             >
-              <External size={14} /> Open live
+              <External size={15} /> Open live site
             </a>
-            <button
-              onClick={() => setPromptOpen(true)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-[8px] border border-border px-3.5 text-[13.5px] font-medium hover:bg-bg-subtle"
-            >
-              <Sparkle size={14} /> Prompt
-            </button>
+            <SaveButton slug={item.slug} variant="solid" />
           </div>
 
-          <dl className="mt-6 space-y-0 rounded-[11px] border border-border">
+          <div className="mt-3 grid grid-cols-3 border border-border">
+            {(
+              [
+                ["Prompt", Sparkle, () => setPromptOpen(true)],
+                ["Code", Code, () => setTab("code")],
+                ["Breakdown", Layers, () => setTab("breakdown")],
+              ] as const
+            ).map(([label, Icon, run], i) => (
+              <button
+                key={label}
+                onClick={run}
+                className={`flex flex-col items-center gap-1.5 py-3.5 text-[11px] transition-colors hover:bg-bg-subtle ${
+                  i ? "border-l border-border" : ""
+                }`}
+              >
+                <Icon size={19} />
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <dl className="mt-6 border-y border-border py-1.5">
             <Meta label="Type" value={name(CATEGORIES, item.category)} href={`/web?category=${item.category}`} />
             <Meta label="Industry" value={name(INDUSTRIES, item.industry)} href={`/web?industry=${item.industry}`} />
             <Meta label="Style" value={name(STYLES, item.style)} href={`/web?style=${item.style}`} />
@@ -142,15 +156,17 @@ export function DetailView({
               value={item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")}
               href={`/web?tech=${item.tech[0]}`}
             />
-            <Meta label="Saves" value={compact(item.saves)} last />
+            <Meta label="Saves" value={compact(item.saves)} />
           </dl>
+
+          <p className="mt-4 text-[12.5px] leading-relaxed">{item.source.about}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {[item.category, item.industry, item.style, ...item.tech].map((t) => (
               <Link
                 key={t}
                 href={`/search?q=${t}`}
-                className="rounded-[6px] border border-border px-2 py-1 text-[11.5px] text-text-2 hover:bg-bg-subtle hover:text-text"
+                className="border border-border px-2 py-1 text-[11.5px] text-text-2 hover:bg-bg-subtle hover:text-text"
               >
                 {t}
               </Link>
@@ -179,7 +195,7 @@ export function DetailView({
               }`}
             >
               {label}
-              {tab === id ? <span className="absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-text" /> : null}
+              {tab === id ? <span className="absolute inset-x-0 -bottom-px h-[3px] bg-accent" /> : null}
             </button>
           ))}
         </div>
@@ -194,7 +210,7 @@ export function DetailView({
 
         {tab !== "similar" ? (
           <section className="border-t border-border pt-6">
-            <h2 className="pb-4 text-[15px] font-semibold tracking-[-0.02em]">
+            <h2 className="pb-4 text-[15px] font-bold tracking-[-0.02em]">
               {isComponent ? "Related components" : "Similar designs"}
             </h2>
             <Grid items={similar.slice(0, 6)} />
@@ -207,14 +223,14 @@ export function DetailView({
   );
 }
 
-function Meta({ label, value, href, last }: { label: string; value: string; href?: string; last?: boolean }) {
-  const body = <span className="truncate text-[12.5px] font-medium">{value || "—"}</span>;
+function Meta({ label, value, href }: { label: string; value: string; href?: string }) {
+  const body = <span className="block truncate text-[12px]">{value || "—"}</span>;
   return (
-    <div className={`flex items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-border"}`}>
-      <dt className="text-[12.5px] text-text-3">{label}</dt>
+    <div className="grid grid-cols-[88px_minmax(0,1fr)] items-center gap-3 py-1.5">
+      <dt className="text-[12px] text-text-2">{label}</dt>
       <dd className="min-w-0">
         {href ? (
-          <Link href={href} className="hover:underline">
+          <Link href={href} className="hover:text-accent">
             {body}
           </Link>
         ) : (
@@ -228,8 +244,8 @@ function Meta({ label, value, href, last }: { label: string; value: string; href
 function Overview({ item }: { item: Item }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-      <div className="rounded-[12px] border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-semibold">What this screen does</h3>
+      <div className="border border-border bg-surface p-5">
+        <h3 className="pb-3 text-[14px] font-bold">What this screen does</h3>
         <p className="text-[14px] leading-relaxed text-text-2">
           {item.source.name} uses a {item.style} treatment for a {item.industry.replace("-", " ")} audience.
           The {item.title.toLowerCase()} leads with {item.blocks[0]?.label.toLowerCase()} and resolves in{" "}
@@ -241,10 +257,10 @@ function Overview({ item }: { item: Item }) {
           <li>· {item.responsive ? "Responsive captures available at three widths." : "Native mobile capture — no desktop equivalent."}</li>
         </ul>
       </div>
-      <div className="rounded-[12px] border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-semibold">Palette</h3>
+      <div className="border border-border bg-surface p-5">
+        <h3 className="pb-3 text-[14px] font-bold">Palette</h3>
         {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
-        <div className="flex overflow-hidden rounded-[8px] border border-border">
+        <div className="flex overflow-hidden border border-border">
           {item.colors.map((c, i) => (
             <div key={i} className="h-16 flex-1" style={{ background: c }} />
           ))}
@@ -262,8 +278,8 @@ function Overview({ item }: { item: Item }) {
 function Responsive({ item }: { item: Item }) {
   if (item.device === "mobile") {
     return (
-      <div className="rounded-[12px] border border-border bg-surface p-5">
-        <h3 className="pb-2 text-[14px] font-semibold">Where this pattern appears</h3>
+      <div className="border border-border bg-surface p-5">
+        <h3 className="pb-2 text-[14px] font-bold">Where this pattern appears</h3>
         <p className="text-[13.5px] text-text-2">
           Native capture — this screen has no desktop equivalent. In Phase 2 this tab becomes the flow
           viewer: the ordered run of screens this one belongs to.
@@ -281,19 +297,19 @@ function Responsive({ item }: { item: Item }) {
             ["Mobile", "390px", 0.42],
           ] as const
         ).map(([label, w, scale]) => (
-          <div key={label} className="rounded-[12px] border border-border bg-surface p-4">
+          <div key={label} className="border border-border bg-surface p-4">
             <div className="flex items-baseline justify-between pb-3">
-              <span className="text-[13px] font-semibold">{label}</span>
+              <span className="text-[13px] font-bold">{label}</span>
               <span className="font-mono text-[11px] text-text-3">{w}</span>
             </div>
-            <div className="mx-auto overflow-hidden rounded-[7px] border border-border" style={{ width: `${scale * 100}%` }}>
+            <div className="mx-auto overflow-hidden border border-border" style={{ width: `${scale * 100}%` }}>
               <MockScreen item={item} />
             </div>
           </div>
         ))}
       </div>
-      <div className="mt-4 rounded-[12px] border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-semibold">Documented behaviour</h3>
+      <div className="mt-4 border border-border bg-surface p-5">
+        <h3 className="pb-3 text-[14px] font-bold">Documented behaviour</h3>
         <dl className="grid gap-x-8 gap-y-2.5 text-[13px] sm:grid-cols-2">
           {[
             ["Navigation", "Full nav → condensed → hamburger at 760px"],
@@ -317,11 +333,11 @@ function Responsive({ item }: { item: Item }) {
 function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
   if (!item.hasCode) {
     return (
-      <div className="rounded-[12px] border border-border bg-surface p-6">
+      <div className="border border-border bg-surface p-6">
         <div className="flex items-start gap-3">
           <Code size={18} className="mt-0.5 shrink-0 text-text-3" />
           <div>
-            <h3 className="text-[14px] font-semibold">No code for this capture</h3>
+            <h3 className="text-[14px] font-bold">No code for this capture</h3>
             <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-text-2">
               Code is only ever shown when it was contributed by its author, published under a licence, or
               generated as a clearly-labelled re-implementation. Screenshots of a live site are indexed with
@@ -333,7 +349,7 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
             </p>
             <button
               onClick={onPrompt}
-              className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-[8px] border border-border px-3 text-[13px] font-medium hover:bg-bg-subtle"
+              className="mt-4 inline-flex h-9 items-center gap-1.5 border border-border px-3 text-[13px] font-medium hover:bg-bg-subtle"
             >
               <Sparkle size={14} /> Generate an implementation prompt instead
             </button>
@@ -345,7 +361,7 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
   const snippet = `export function ${item.componentType ? cap(item.componentType) : "Section"}() {
   return (
     <section className="mx-auto max-w-[1440px] px-6 py-24">
-      <h2 className="text-[48px] font-semibold tracking-[-0.03em]">
+      <h2 className="text-[48px] font-bold tracking-[-0.03em]">
         ${item.source.tagline}
       </h2>
       <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-neutral-500">
@@ -355,20 +371,20 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
   );
 }`;
   return (
-    <div className="rounded-[12px] border border-border bg-surface">
+    <div className="border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex gap-1">
           {["React", "HTML", "Tailwind"].map((t, i) => (
             <span
               key={t}
-              className={`rounded-[6px] px-2 py-1 text-[12px] font-medium ${i === 0 ? "bg-bg-subtle" : "text-text-3"}`}
+              className={`px-2 py-1 text-[12px] font-medium ${i === 0 ? "bg-bg-subtle" : "text-text-3"}`}
             >
               {t}
             </span>
           ))}
         </div>
         <span className="flex items-center gap-3">
-          <span className="rounded-[5px] border border-border px-1.5 py-0.5 font-mono text-[10.5px] text-text-3">
+          <span className="border border-border px-1.5 py-0.5 font-mono text-[10.5px] text-text-3">
             MIT · contributed
           </span>
           <CopyValue value={snippet} label="Copy" mono={false} className="border border-border" />

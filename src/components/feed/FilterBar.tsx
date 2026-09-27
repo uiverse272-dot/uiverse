@@ -62,15 +62,15 @@ function Popover({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[7px] border px-2.5 text-[13px] transition-colors ${
-          value ? "border-text bg-text text-bg" : "border-border hover:bg-bg-subtle"
+        className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap border border-border px-2.5 text-[12.5px] transition-colors ${
+          value ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
         }`}
       >
         {value ?? label}
         <Chevron size={13} />
       </button>
       {open ? (
-        <div className="anim-fade-in absolute left-0 top-9 z-50 max-h-[320px] w-56 overflow-auto rounded-[10px] border border-border bg-surface p-1 shadow-[0_8px_28px_rgb(0_0_0/0.12)]">
+        <div className="anim-fade-in absolute left-0 top-9 z-50 max-h-[320px] w-56 overflow-auto border border-border bg-surface shadow-[4px_4px_0_var(--border)]">
           {children(() => setOpen(false))}
         </div>
       ) : null}
@@ -91,7 +91,7 @@ export function FilterBar({
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto scroll-x py-2.5">
-      <span className="hidden items-center gap-1.5 pr-1 text-[12.5px] text-text-3 md:inline-flex">
+      <span className="hidden items-center gap-1.5 pr-1 text-[12.5px] md:inline-flex">
         <Filter size={14} />
       </span>
 
@@ -109,7 +109,7 @@ export function FilterBar({
                       set(d.param, o.slug);
                       close();
                     }}
-                    className="flex w-full items-center justify-between rounded-[7px] px-2.5 py-1.5 text-left text-[13px] hover:bg-bg-subtle"
+                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-left text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
                   >
                     {o.name}
                     {v === o.slug ? <Check size={13} /> : null}
@@ -136,7 +136,7 @@ export function FilterBar({
                       set("sort", s.slug);
                       close();
                     }}
-                    className="flex w-full items-center justify-between rounded-[7px] px-2.5 py-1.5 text-left text-[13px] hover:bg-bg-subtle"
+                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-left text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
                   >
                     {s.name}
                     {sort === s.slug ? <Check size={13} /> : null}
@@ -151,7 +151,7 @@ export function FilterBar({
       {active.length || get("code") || get("responsive") ? (
         <button
           onClick={clear}
-          className="inline-flex h-8 shrink-0 items-center gap-1 rounded-[7px] px-2 text-[12.5px] text-text-2 hover:text-text"
+          className="link-ink inline-flex h-8 shrink-0 items-center gap-1 px-2 text-[12px]"
         >
           <Close size={13} /> Clear
         </button>
@@ -164,8 +164,8 @@ function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: (
   return (
     <button
       onClick={onClick}
-      className={`h-8 shrink-0 whitespace-nowrap rounded-[7px] border px-2.5 text-[13px] transition-colors ${
-        on ? "border-text bg-text text-bg" : "border-border hover:bg-bg-subtle"
+      className={`h-8 shrink-0 whitespace-nowrap border border-border px-2.5 text-[12.5px] transition-colors ${
+        on ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
       }`}
     >
       {label}
@@ -190,8 +190,8 @@ export function ChipRail({
           <button
             key={c.label}
             onClick={() => set(p, c.value)}
-            className={`h-8 shrink-0 whitespace-nowrap rounded-[999px] border px-3.5 text-[13px] font-medium transition-colors ${
-              on ? "border-text bg-text text-bg" : "border-border text-text-2 hover:bg-bg-subtle hover:text-text"
+            className={`h-8 shrink-0 whitespace-nowrap border border-border px-3 text-[12.5px] transition-colors ${
+              on ? "bg-accent text-accent-fg" : "bg-surface hover:bg-bg-subtle"
             }`}
           >
             {c.label}

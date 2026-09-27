@@ -1,55 +1,67 @@
 @import "tailwindcss";
 
+/*
+ * Retro-editorial system: warm paper, hairline ink rules, square corners,
+ * one hot accent (orange) and one signal colour (yellow) for the search bar.
+ */
 :root {
-  --bg: #ffffff;
-  --bg-subtle: #fafafa;
-  --surface: #ffffff;
-  --border: #ebebeb;
-  --border-strong: #dcdcdc;
-  --text: #0a0a0a;
-  --text-2: #6b6b6b;
-  --text-3: #9b9b9b;
-  --accent: #0a0a0a;
-  --accent-fg: #ffffff;
-  --focus: #2563eb;
-  --danger: #dc2626;
-  --overlay: rgb(0 0 0 / 0.45);
+  --bg: #fdf1d6;
+  --bg-subtle: #f6e4bf;
+  --surface: #fff7e6;
+  --border: #1c1b18;
+  --border-strong: #000000;
+  --rule: rgb(28 27 24 / 0.22);
+  --text: #1c1b18;
+  --text-2: #4d4a42;
+  --text-3: #7c7667;
+  --accent: #f47a2c;
+  --accent-fg: #1c1b18;
+  --signal: #f8dc3d;
+  --on-signal: #1c1b18;
+  --focus: #f47a2c;
+  --danger: #c2331f;
+  --overlay: rgb(40 30 10 / 0.45);
 
-  --r-sm: 6px;
-  --r-md: 8px;
-  --r-lg: 12px;
+  --r-sm: 0px;
+  --r-md: 0px;
+  --r-lg: 0px;
   --dur: 140ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
 }
 
-:root[data-theme="dark"],
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
-    --bg: #0b0b0c;
-    --bg-subtle: #101012;
-    --surface: #131315;
-    --border: #232326;
-    --border-strong: #303036;
-    --text: #f5f5f5;
-    --text-2: #a1a1a6;
-    --text-3: #6e6e76;
-    --accent: #f5f5f5;
-    --accent-fg: #0b0b0c;
+    --bg: #1b1915;
+    --bg-subtle: #26231d;
+    --surface: #211e19;
+    --border: #d8caa9;
+    --border-strong: #f3e6c8;
+    --rule: rgb(216 202 169 / 0.22);
+    --text: #f5ead2;
+    --text-2: #c3b89e;
+    --text-3: #8e856f;
+    --accent: #f47a2c;
+    --accent-fg: #1b1915;
+    --signal: #e9cc33;
+    --on-signal: #1b1915;
     --overlay: rgb(0 0 0 / 0.7);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0b0b0c;
-  --bg-subtle: #101012;
-  --surface: #131315;
-  --border: #232326;
-  --border-strong: #303036;
-  --text: #f5f5f5;
-  --text-2: #a1a1a6;
-  --text-3: #6e6e76;
-  --accent: #f5f5f5;
-  --accent-fg: #0b0b0c;
+  --bg: #1b1915;
+  --bg-subtle: #26231d;
+  --surface: #211e19;
+  --border: #d8caa9;
+  --border-strong: #f3e6c8;
+  --rule: rgb(216 202 169 / 0.22);
+  --text: #f5ead2;
+  --text-2: #c3b89e;
+  --text-3: #8e856f;
+  --accent: #f47a2c;
+  --accent-fg: #1b1915;
+  --signal: #e9cc33;
+  --on-signal: #1b1915;
   --overlay: rgb(0 0 0 / 0.7);
 }
 
@@ -59,18 +71,23 @@
   --color-surface: var(--surface);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-rule: var(--rule);
   --color-text: var(--text);
   --color-text-2: var(--text-2);
   --color-text-3: var(--text-3);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-signal: var(--signal);
+  --color-on-signal: var(--on-signal);
   --color-danger: var(--danger);
   --radius-sm: var(--r-sm);
   --radius-md: var(--r-md);
   --radius-lg: var(--r-lg);
+  /* sans stays the neutral stack — mock previews render real-looking UIs with it */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  --font-mono: var(--font-space-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-lexend), var(--font-sans);
 }
 
 * {
@@ -86,20 +103,29 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans);
-  letter-spacing: -0.006em;
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
   overscroll-behavior-y: none;
 }
 
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 ::selection {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--signal);
+  color: var(--on-signal);
+}
+
+/* underlined text links, as in "more" / "By: author" */
+.link-ink {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.link-ink:hover {
+  color: var(--accent);
 }
 
 /* mock previews: sections keep their natural height; overflow crops like a screenshot */

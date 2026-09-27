@@ -21,7 +21,7 @@ const read = () =>
   document.documentElement.dataset.theme ??
   (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
-export function ThemeToggle() {
+export function ThemeToggle({ rail = false }: { rail?: boolean }) {
   const theme = useSyncExternalStore(subscribe, read, () => "light");
 
   const next = () => {
@@ -32,13 +32,28 @@ export function ThemeToggle() {
     } catch {}
   };
 
+  const label = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;
+
+  if (rail) {
+    return (
+      <button
+        onClick={next}
+        aria-label={label}
+        className="flex flex-col items-center gap-1.5 py-2.5 text-[10.5px] text-text transition-colors hover:text-accent"
+      >
+        {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
+        {theme === "dark" ? "Light" : "Dark"}
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={next}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-      className="flex h-8 w-8 items-center justify-center rounded-[7px] text-text-2 transition-colors hover:bg-bg-subtle hover:text-text"
+      aria-label={label}
+      className="flex h-full w-full items-center justify-center text-text transition-colors hover:bg-bg-subtle"
     >
-      {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+      {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
     </button>
   );
 }

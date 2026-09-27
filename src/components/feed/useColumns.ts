@@ -2,10 +2,11 @@
 
 import { useSyncExternalStore } from "react";
 
+/* thresholds account for the 88px desktop rail */
 const BREAKPOINTS: [min: number, cols: number][] = [
-  [1800, 6],
-  [1440, 5],
-  [1100, 4],
+  [1900, 6],
+  [1540, 5],
+  [1180, 4],
   [760, 3],
   [0, 2],
 ];

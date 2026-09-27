@@ -31,7 +31,7 @@ function Group({
           <Link
             key={t.href}
             href={t.href}
-            className="group overflow-hidden rounded-[11px] border border-border bg-surface transition-colors hover:border-border-strong"
+            className="group overflow-hidden border border-border bg-surface transition-colors hover:border-border-strong"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-bg-subtle">
               {t.item ? (

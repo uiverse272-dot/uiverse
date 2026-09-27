@@ -17,23 +17,23 @@ export default function CreatorsPage() {
             <Link
               key={c.handle}
               href={`/source/${c.handle}`}
-              className="group rounded-[12px] border border-border bg-surface p-4 transition-colors hover:border-border-strong"
+              className="group border border-border bg-surface p-4 transition-colors hover:border-border-strong"
             >
               <div className="flex items-center gap-3">
-                <span className="h-9 w-9 shrink-0 rounded-[9px]" style={{ background: work[0]?.palette.accent }} />
+                <span className="h-9 w-9 shrink-0" style={{ background: work[0]?.palette.accent }} />
                 <div className="min-w-0">
                   <div className="truncate text-[14px] font-semibold">{c.name}</div>
                   <div className="truncate text-[12px] text-text-3">{c.role}</div>
                 </div>
                 {c.available ? (
-                  <span className="ml-auto shrink-0 rounded-[6px] border border-border px-1.5 py-1 text-[10.5px] font-medium text-text-2">
+                  <span className="ml-auto shrink-0 border border-border px-1.5 py-1 text-[10.5px] font-medium text-text-2">
                     Available
                   </span>
                 ) : null}
               </div>
               <div className="mt-3 flex gap-1.5">
                 {work.map((w) => (
-                  <div key={w.slug} className="flex-1 overflow-hidden rounded-[6px] border border-border">
+                  <div key={w.slug} className="flex-1 overflow-hidden border border-border">
                     <MockScreen item={{ ...w, aspect: 1.1 }} />
                   </div>
                 ))}
