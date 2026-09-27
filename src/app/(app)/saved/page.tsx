@@ -81,7 +81,7 @@ export default function SavedPage() {
         <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-center">
           <p className="text-[15px] font-medium">Nothing saved here yet</p>
           <p className="max-w-sm text-[13.5px] text-text-2">
-            Hover any card and hit Save — or press <kbd className="rounded border border-border px-1">S</kbd>.
+            Tap the bookmark under any card to save it here.
           </p>
           <Link
             href="/"

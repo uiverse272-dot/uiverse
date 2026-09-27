@@ -185,17 +185,18 @@ export function DetailView({
 
       {/* ------------------------------------------------------------- tabs */}
       <div className="mx-auto mt-8 max-w-[1700px] px-4 md:px-5">
-        <div className="flex gap-1 border-b border-border">
+        {/* scrolls sideways on phones — five mono labels don't fit in 390px */}
+        <div className="scroll-x flex gap-1 overflow-x-auto border-b border-border">
           {tabs.map(([id, label]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`relative px-3 py-2.5 text-[13.5px] font-medium transition-colors ${
+              className={`relative shrink-0 whitespace-nowrap px-3 py-2.5 text-[13.5px] font-medium transition-colors ${
                 tab === id ? "text-text" : "text-text-2 hover:text-text"
               }`}
             >
               {label}
-              {tab === id ? <span className="absolute inset-x-0 -bottom-px h-[3px] bg-accent" /> : null}
+              {tab === id ? <span className="absolute inset-x-0 bottom-0 h-[3px] bg-accent" /> : null}
             </button>
           ))}
         </div>
