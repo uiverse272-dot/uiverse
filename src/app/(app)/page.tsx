@@ -40,7 +40,7 @@ export default async function HomePage({
   const browsing = !active.value;
 
   return (
-    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_360px]">
+    <>
       <div className="min-w-0 px-4 pb-6 pt-6 md:px-6">
         <h1 className="sr-only">Uiverse — discover interfaces worth building</h1>
 
@@ -52,7 +52,7 @@ export default async function HomePage({
         {browsing ? (
           <section className="mt-9">
             <SectionHead title="Popular this week" href="/web?sort=trending" />
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-5 xl:[&>*:nth-child(6)]:hidden 2xl:grid-cols-6 2xl:[&>*:nth-child(6)]:block">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-6">
               {popular.map((i) => (
                 <Card key={i.slug} item={i} crop={3 / 4} />
               ))}
@@ -70,11 +70,7 @@ export default async function HomePage({
         </section>
       </div>
 
-      <aside className="hidden border-l border-border xl:block">
-        <div className="scroll-x sticky top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto">
-          <Featured item={pick} />
-        </div>
-      </aside>
-    </div>
+      <Featured item={pick} />
+    </>
   );
 }
