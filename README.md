@@ -2,7 +2,8 @@
 
 A visual index of how real interfaces are actually built. Browse it like Pinterest, use it like a reference manual, leave with something you can implement.
 
-**Status: architecture defined, no code written.** Read `docs/` before building anything.
+**Status: working prototype of the discovery half** — see [What's actually built](#whats-actually-built).
+The architecture lives in `docs/`; read it before building anything new.
 
 | Doc | Answers |
 |---|---|
@@ -44,7 +45,7 @@ tab, which are the three things the architecture stands or falls on.
 | `/saved` | One-click saves, collections, `Move to…` toast |
 | `/layouts`, `/palettes`, `/3d`, `/creators` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
-| `/dev-measure` | Dev tool — re-derives archetype heights (see the file header) |
+| `/dev-measure` | Dev tool, `next dev` only — re-derives archetype and section heights (see the file header) |
 
 Stubbed on purpose: auth, billing, teams, the layout builder, visual search, and the capture
 pipeline. Those are Phase 2–3 in [09-roadmap.md](docs/09-roadmap.md).
@@ -62,7 +63,8 @@ can never drift from what the Breakdown shows. A competitor without that decompo
 a model an image.
 
 Free plan is metered at 3 prompts a month — the one place in the app where output is gated. Browsing,
-saving and the Breakdown have no counter near them.
+saving and the Breakdown have no counter near them. A credit buys a prompt, not a copy: re-copying or
+editing a prompt you already generated is free (`components/prompt/quota.ts`).
 
 ## Notes on the prototype
 
@@ -71,9 +73,15 @@ saving and the Breakdown have no counter near them.
   requests, nothing impersonating a real company, and the geometry is known before paint.
 - **Every brand is invented.** Ledgerly, Northwind, Cormorant and the rest do not exist.
 - **Aspect ratios come from the data**, never from measuring the DOM. That is what makes the masonry
-  lay out with zero shift, and why `/dev-measure` exists.
+  lay out with zero shift, and why `/dev-measure` exists. The server can't see the viewport, so pages
+  guess the column count from the user agent (`feed/ssrColumns.ts`) — phones render 2 columns from the
+  first byte instead of reflowing from 5.
+- **Cropped previews draw only what shows.** Scrolling page types carry measured per-section heights
+  (`SCROLLING` in `mock/MockScreen.tsx`), so a thumbnail skips sections below its crop. Re-measure on
+  `/dev-measure` after changing a section's height.
 - **Saves persist in `localStorage`** via an external store read with `useSyncExternalStore`, so the
-  server snapshot is empty and there is no hydration mismatch.
+  server snapshot is empty and there is no hydration mismatch. Stored data is validated on read and
+  synced across tabs through the `storage` event.
 - Procedural values use an integer hash, not `Math.sin` — trig is not bit-identical between the Node
   server and the browser, which silently breaks hydration.
 

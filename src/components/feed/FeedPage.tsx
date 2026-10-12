@@ -2,10 +2,11 @@ import { ITEMS } from "@/lib/data";
 import { applyFilters, filterKey, filtersFromParams, paramFilter, type Filters } from "@/lib/query";
 import { SORTS } from "@/lib/taxonomy";
 import { Feed } from "./Feed";
+import { ssrColumns } from "./ssrColumns";
 import { FilterBar, type FilterDef } from "./FilterBar";
 import { PageHeader, Shell, StickyBar } from "./Section";
 
-export function FeedPage({
+export async function FeedPage({
   title,
   sub,
   base,
@@ -24,6 +25,7 @@ export function FeedPage({
     if (v) (merged as Record<string, string>)[k] = v;
   }
   const items = applyFilters(ITEMS, merged);
+  const ssrCols = await ssrColumns();
 
   /*
    * Faceted options: each filter lists only the values that return something alongside the
@@ -56,7 +58,7 @@ export function FeedPage({
       </StickyBar>
       <Shell>
         <div className="pt-4">
-          <Feed items={items} />
+          <Feed items={items} ssrCols={ssrCols} />
         </div>
       </Shell>
     </>

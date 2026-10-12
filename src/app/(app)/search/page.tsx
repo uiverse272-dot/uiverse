@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { searchItems } from "@/lib/query";
 import { Feed } from "@/components/feed/Feed";
+import { ssrColumns } from "@/components/feed/ssrColumns";
 import { Shell, StickyBar } from "@/components/feed/Section";
 import { SearchField } from "@/components/shell/SearchCommand";
 import { Close } from "@/components/ui/icons";
@@ -31,6 +32,7 @@ export default async function SearchPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
+  const ssrCols = await ssrColumns();
   const q = typeof sp.q === "string" ? sp.q : "";
   const kind = typeof sp.kind === "string" ? sp.kind : undefined;
   const { results, terms, residual } = searchItems(q, { kind });
@@ -84,7 +86,7 @@ export default async function SearchPage({
                       href={`/search?q=${encodeURIComponent(
                         q
                           .split(/\s+/)
-                          .filter((w) => w.toLowerCase() !== t.word)
+                          .filter((w) => !t.word.split(" ").includes(w.toLowerCase()))
                           .join(" "),
                       )}`}
                       className="inline-flex items-center gap-1 border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium hover:border-border-strong"
@@ -105,7 +107,7 @@ export default async function SearchPage({
 
           <Shell>
             <div className="pt-4">
-              <Feed items={results} />
+              <Feed items={results} ssrCols={ssrCols} />
             </div>
           </Shell>
         </>

@@ -17,13 +17,15 @@ export function Masonry({
   render,
   gap = 16,
   maxCols,
+  ssrCols,
 }: {
   items: Item[];
   render: (item: Item, index: number) => ReactNode;
   gap?: number;
   maxCols?: number;
+  ssrCols?: number;
 }) {
-  const cols = useColumns(maxCols);
+  const cols = useColumns(maxCols, ssrCols);
 
   const columns = useMemo(() => {
     const buckets: { item: Item; index: number }[][] = Array.from({ length: cols }, () => []);

@@ -115,14 +115,14 @@ export function sortItems(items: Item[], sort = "trending") {
 /* state. The parsed terms are shown back to the user as chips.         */
 /* ------------------------------------------------------------------ */
 
-/** `word` is what the user typed — a synonym like "banking" — so removing the chip can remove it. */
+/** `word` is what the user typed — a synonym like "banking", or a phrase like "real estate" — so removing the chip can remove it. */
 export type ParsedTerm = { dimension: string; label: string; param: string; value: string; word: string };
 
 const SYNONYMS: Record<string, string> = {
   landing: "landing-page", homepage: "landing-page", marketing: "landing-page",
   admin: "dashboard", analytics: "dashboard", console: "dashboard",
   shop: "ecommerce", store: "ecommerce", commerce: "ecommerce",
-  signin: "auth", login: "auth", "log-in": "auth", signup: "auth",
+  signin: "auth", login: "auth", "log-in": "auth", "sign-in": "auth", signup: "auth", "sign-up": "auth",
   bank: "fintech", banking: "fintech", finance: "fintech", payments: "fintech",
   ml: "ai", "machine-learning": "ai", llm: "ai",
   medical: "healthcare", health: "healthcare", clinic: "healthcare",
@@ -160,19 +160,32 @@ export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string }
   const used = new Set<number>();
   const taken = new Set<string>();
 
-  tokens.forEach((tok, idx) => {
-    const norm = SYNONYMS[tok] ?? tok;
+  /* a phrase matches by name ("real estate") or by slug, typed with spaces or hyphens */
+  const match = (phrase: string) => {
+    const norm = SYNONYMS[phrase] ?? SYNONYMS[phrase.replace(/ /g, "-")] ?? phrase;
+    const slug = norm.replace(/ /g, "-");
     for (const d of DICTS) {
       if (taken.has(d.param)) continue;
-      const hit = d.list.find((t) => (t.slug === norm || t.name.toLowerCase() === norm) && d.values.has(t.slug));
-      if (hit) {
-        terms.push({ dimension: d.dimension, label: hit.name, param: d.param, value: hit.slug, word: tok });
-        used.add(idx);
-        taken.add(d.param);
-        return;
-      }
+      const hit = d.list.find((t) => (t.slug === slug || t.name.toLowerCase() === norm) && d.values.has(t.slug));
+      if (hit) return { d, hit };
     }
-  });
+    return null;
+  };
+
+  /* two-word phrases first, so "real estate" and "landing page" aren't read (or missed) word by word */
+  for (let i = 0; i < tokens.length; i++) {
+    for (const len of [2, 1]) {
+      if (i + len > tokens.length) continue;
+      const phrase = tokens.slice(i, i + len).join(" ");
+      const m = match(phrase);
+      if (!m) continue;
+      terms.push({ dimension: m.d.dimension, label: m.hit.name, param: m.d.param, value: m.hit.slug, word: phrase });
+      for (let k = i; k < i + len; k++) used.add(k);
+      taken.add(m.d.param);
+      i += len - 1;
+      break;
+    }
+  }
 
   const residual = tokens.filter((_, i) => !used.has(i)).join(" ");
   return { terms, residual };

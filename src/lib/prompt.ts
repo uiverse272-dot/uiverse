@@ -75,12 +75,21 @@ function preamble(tool: ToolId, subject: string, stackName: string) {
 function tokenBlock(item: Item, syntax: "tailwind" | "css" | "swift") {
   const roles = colorRoles(item);
   if (syntax === "swift") {
+    /* SwiftUI has no hex initialiser, so the block brings its own — otherwise the tokens don't compile */
     return [
       "```swift",
       "extension Color {",
       ...roles.map(
-        (r) => `    static let ${camel(r.token)} = Color(hex: "${r.value}")`,
+        (r) => `    static let ${camel(r.token)} = Color(hex: 0x${r.value.slice(1).toUpperCase()})`,
       ),
+      "",
+      "    init(hex: UInt32) {",
+      "        self.init(",
+      "            red: Double((hex >> 16) & 0xFF) / 255,",
+      "            green: Double((hex >> 8) & 0xFF) / 255,",
+      "            blue: Double(hex & 0xFF) / 255",
+      "        )",
+      "    }",
       "}",
       "```",
     ].join("\n");

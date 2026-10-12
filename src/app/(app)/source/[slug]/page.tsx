@@ -5,6 +5,7 @@ import { ITEMS, SOURCES, compact } from "@/lib/data";
 import { browseLink, type Scope } from "@/lib/query";
 import { name, INDUSTRIES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { Feed } from "@/components/feed/Feed";
+import { ssrColumns } from "@/components/feed/ssrColumns";
 import { PageHeader, Shell, StickyBar } from "@/components/feed/Section";
 import { CopyValue } from "@/components/detail/CopyValue";
 
@@ -27,6 +28,7 @@ export default async function SourcePage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
+  const ssrCols = await ssrColumns();
   const tab = typeof sp.tab === "string" ? sp.tab : "screens";
   const source = SOURCES.find((s) => s.slug === slug);
   if (!source) notFound();
@@ -92,8 +94,8 @@ export default async function SourcePage({
 
       <Shell>
         <div className="pt-5">
-          {tab === "screens" ? <Feed items={screens} /> : null}
-          {tab === "components" ? <Feed items={comps} /> : null}
+          {tab === "screens" ? <Feed items={screens} ssrCols={ssrCols} /> : null}
+          {tab === "components" ? <Feed items={comps} ssrCols={ssrCols} /> : null}
           {tab === "system" && palette ? (
             <div className="grid gap-4 pb-14 lg:grid-cols-2">
               <div className="border border-border bg-surface p-5">

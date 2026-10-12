@@ -2,6 +2,7 @@ import { ITEMS } from "@/lib/data";
 import { applyFilters, mixFeed, sortItems, type Filters } from "@/lib/query";
 import { Card } from "@/components/feed/Card";
 import { Feed } from "@/components/feed/Feed";
+import { ssrColumns } from "@/components/feed/ssrColumns";
 import { Featured } from "@/components/feed/Featured";
 import { ChipRail } from "@/components/feed/FilterBar";
 import { SectionHead } from "@/components/feed/Section";
@@ -29,6 +30,7 @@ export default async function HomePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
+  const ssrCols = await ssrColumns();
   const chip = typeof sp.chip === "string" ? sp.chip : undefined;
   const active = CHIPS.find((c) => c.value === chip) ?? CHIPS[0];
   const filtered = applyFilters(ITEMS, active.filters);
@@ -66,7 +68,7 @@ export default async function HomePage({
             href={browsing ? "/explore" : "/"}
             more={browsing ? "more" : "clear"}
           />
-          <Feed items={items} />
+          <Feed items={items} ssrCols={ssrCols} />
         </section>
       </div>
 

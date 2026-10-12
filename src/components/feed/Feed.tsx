@@ -8,7 +8,7 @@ import { Card } from "./Card";
 const PAGE = 28;
 const AUTO_PAGES = 5;
 
-export function Feed({ items, maxCols }: { items: Item[]; maxCols?: number }) {
+export function Feed({ items, maxCols, ssrCols }: { items: Item[]; maxCols?: number; ssrCols?: number }) {
   const [pages, setPages] = useState(1);
   const [seen, setSeen] = useState(items);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ export function Feed({ items, maxCols }: { items: Item[]; maxCols?: number }) {
 
   return (
     <>
-      <Masonry items={shown} maxCols={maxCols} render={(item) => <Card item={item} />} />
+      <Masonry items={shown} maxCols={maxCols} ssrCols={ssrCols} render={(item) => <Card item={item} />} />
       <div ref={sentinel} className="h-px" />
       {more ? (
         <div className="flex justify-center py-10">

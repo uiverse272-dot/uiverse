@@ -1,6 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { COLS_COOKIE } from "./colsCookie";
 
 /* thresholds account for the 88px desktop rail */
 const BREAKPOINTS: [min: number, cols: number][] = [
@@ -11,34 +12,24 @@ const BREAKPOINTS: [min: number, cols: number][] = [
   [0, 2],
 ];
 
-function read() {
-  if (typeof window === "undefined") return 5;
-  const w = window.innerWidth;
-  return BREAKPOINTS.find(([min]) => w >= min)![1];
-}
-
-let cached = 5;
+/* a number, so it's a stable snapshot without caching anything */
+const read = () => BREAKPOINTS.find(([min]) => window.innerWidth >= min)![1];
 
 function subscribe(cb: () => void) {
-  const handler = () => {
-    const next = read();
-    if (next !== cached) {
-      cached = next;
-      cb();
-    }
-  };
-  window.addEventListener("resize", handler, { passive: true });
-  handler();
-  return () => window.removeEventListener("resize", handler);
+  window.addEventListener("resize", cb, { passive: true });
+  return () => window.removeEventListener("resize", cb);
 }
 
-/** Column count derived from viewport width, SSR-safe. */
-export function useColumns(override?: number) {
-  const cols = useSyncExternalStore(
-    subscribe,
-    () => cached,
-    () => 5,
-  );
+/**
+ * Column count derived from viewport width. `ssr` is what the server rendered with (see
+ * ssrColumns) — hydration must use the same number, then the real width takes over.
+ */
+export function useColumns(override?: number, ssr = 4) {
+  const cols = useSyncExternalStore(subscribe, read, () => ssr);
+  /* read by ssrColumns, so the next page the server renders already has this count */
+  useEffect(() => {
+    document.cookie = `${COLS_COOKIE}=${cols}; path=/; max-age=31536000; samesite=lax`;
+  }, [cols]);
   if (override) return Math.min(override, cols === 2 ? 2 : override);
   return cols;
 }
