@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { compact, timeAgo, type Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
@@ -48,6 +48,18 @@ export function DetailView({
     ["code", "Code"],
     ["similar", "Similar"],
   ];
+
+  /* arrow keys move between tabs (and focus follows), as the ARIA tab pattern expects */
+  const tabIds = useId();
+  const onTabKey = (e: React.KeyboardEvent) => {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const i = tabs.findIndex(([id]) => id === tab);
+    const next = tabs[(i + step + tabs.length) % tabs.length][0];
+    setTab(next);
+    document.getElementById(`${tabIds}-${next}`)?.focus();
+  };
 
   /* tablet and phone frames are drawn at real size (capped to the column); laptop fills it */
   const frameWidth = device === "desktop" ? "100%" : `min(100%, ${VIEWPORTS[device].w}px)`;
@@ -198,10 +210,20 @@ export function DetailView({
       {/* ------------------------------------------------------------- tabs */}
       <div className="mx-auto mt-8 max-w-[1700px] px-4 md:px-5">
         {/* scrolls sideways on phones — five mono labels don't fit in 390px */}
-        <div className="scroll-x flex gap-1 overflow-x-auto border-b border-border">
+        <div
+          role="tablist"
+          aria-label="Details"
+          onKeyDown={onTabKey}
+          className="scroll-x flex gap-1 overflow-x-auto border-b border-border"
+        >
           {tabs.map(([id, label]) => (
             <button
               key={id}
+              id={`${tabIds}-${id}`}
+              role="tab"
+              aria-selected={tab === id}
+              aria-controls={`${tabIds}-panel`}
+              tabIndex={tab === id ? 0 : -1}
               onClick={() => setTab(id)}
               className={`relative shrink-0 whitespace-nowrap px-3 py-2.5 text-[13.5px] font-medium transition-colors ${
                 tab === id ? "text-text" : "text-text-2 hover:text-text"
@@ -213,7 +235,7 @@ export function DetailView({
           ))}
         </div>
 
-        <div className="py-6">
+        <div role="tabpanel" id={`${tabIds}-panel`} aria-labelledby={`${tabIds}-${tab}`} className="py-6">
           {tab === "overview" ? <Overview item={item} /> : null}
           {tab === "breakdown" ? <Breakdown item={item} /> : null}
           {tab === "responsive" ? <Responsive item={item} onPick={showDevice} /> : null}

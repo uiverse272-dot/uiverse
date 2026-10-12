@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { Shell } from "@/components/feed/Section";
 import { Check } from "@/components/ui/icons";
+
+export const metadata: Metadata = { title: "Pricing" };
 
 const ROWS: [string, string, string, string][] = [
   ["Browse everything", "✓", "✓", "✓"],

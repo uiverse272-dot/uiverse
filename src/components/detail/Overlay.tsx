@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Close } from "../ui/icons";
+import { useFocusTrap } from "../ui/useFocusTrap";
 
 /**
  * Detail opens over a live feed. The URL is real and shareable; a cold hit on the
  * same URL renders the standalone page. Closing returns to the feed with scroll,
  * loaded pages and momentum untouched. See docs/02 §4.
  */
-export function Overlay({ children }: { children: React.ReactNode }) {
+export function Overlay({ label, children }: { label: string; children: React.ReactNode }) {
   const router = useRouter();
+  const dialog = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialog);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && router.back();
@@ -24,9 +27,17 @@ export function Overlay({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 md:p-6">
+    <div
+      ref={dialog}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+      className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 md:p-6"
+    >
+      {/* backdrop click target for the mouse; keyboard users have the Close button and Escape */}
       <button
-        aria-label="Close"
+        aria-hidden
+        tabIndex={-1}
         onClick={() => router.back()}
         className="fixed inset-0 -z-10 cursor-default"
       />

@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { LAYOUTS } from "@/lib/data";
 import { MockScreen } from "@/components/mock/MockScreen";
 import { PageHeader, Shell } from "@/components/feed/Section";
+
+export const metadata: Metadata = { title: "Layouts" };
 
 /** Layouts are derived from the block order of real screens — not authored separately. */
 export default function LayoutsPage() {

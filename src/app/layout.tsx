@@ -8,7 +8,7 @@ const mono = Space_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: 
 const display = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
 
 export const metadata: Metadata = {
-  title: "Uiverse — Discover interfaces worth building",
+  title: { default: "Uiverse — Discover interfaces worth building", template: "%s · Uiverse" },
   description:
     "A visual index of how real interfaces are built. Browse websites, apps and components, save what works, and understand how it was made.",
 };

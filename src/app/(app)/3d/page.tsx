@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { ITEMS } from "@/lib/data";
 import { applyFilters } from "@/lib/query";
 import { Feed } from "@/components/feed/Feed";
 import { PageHeader, Shell } from "@/components/feed/Section";
+
+export const metadata: Metadata = { title: "3D & motion" };
 
 export default function ThreeDPage() {
   const items = applyFilters(ITEMS, { threed: "true" });

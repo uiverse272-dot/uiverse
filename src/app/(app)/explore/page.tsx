@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { Item } from "@/lib/data";
 import { browseLink, type Scope } from "@/lib/query";
 import { CATEGORIES, COMPONENT_TYPES, INDUSTRIES, STYLES, TECHNOLOGIES, PLATFORMS } from "@/lib/taxonomy";
 import { MockScreen } from "@/components/mock/MockScreen";
 import { PageHeader, Shell } from "@/components/feed/Section";
+
+export const metadata: Metadata = { title: "Explore" };
 
 /** Explore is a directory, not a second feed. Its job is turning a vague intent into a URL. */
 

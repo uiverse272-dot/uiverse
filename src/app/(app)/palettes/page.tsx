@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PALETTE_ITEMS, compact } from "@/lib/data";
 import { CopyValue } from "@/components/detail/CopyValue";
 import { PageHeader, Shell } from "@/components/feed/Section";
+
+export const metadata: Metadata = { title: "Palettes" };
 
 export default function PalettesPage() {
   return (

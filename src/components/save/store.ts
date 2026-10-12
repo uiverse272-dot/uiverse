@@ -19,24 +19,40 @@ let state: State = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
 
+/*
+ * Storage is outside our control — an older schema, a hand edit, another app on the origin.
+ * Anything that isn't the expected shape is dropped rather than trusted: one bad entry used to
+ * crash every page, because this provider wraps the whole app.
+ */
+const isSave = (s: unknown): s is Save =>
+  !!s && typeof (s as Save).slug === "string" && typeof (s as Save).collectionId === "string";
+const isCollection = (c: unknown): c is Collection =>
+  !!c && typeof (c as Collection).id === "string" && typeof (c as Collection).name === "string";
+
+function read(): State {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, unknown>;
+    const saves = Array.isArray(parsed.saves) ? parsed.saves.filter(isSave) : [];
+    const collections = Array.isArray(parsed.collections) ? parsed.collections.filter(isCollection) : [];
+    return { saves, collections: collections.length ? collections : DEFAULT_COLLECTIONS, hydrated: true };
+  } catch {
+    /* private mode, blocked storage or malformed JSON — the app works, it just won't persist */
+    return { ...EMPTY, hydrated: true };
+  }
+}
+
+/* another tab saved something — take its state, or two tabs would overwrite each other's saves */
+function onStorage(e: StorageEvent) {
+  if (e.key !== KEY) return;
+  state = read();
+  listeners.forEach((l) => l());
+}
+
 function load() {
   if (loaded) return;
   loaded = true;
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<State>;
-      state = {
-        saves: parsed.saves ?? [],
-        collections: parsed.collections?.length ? parsed.collections : DEFAULT_COLLECTIONS,
-        hydrated: true,
-      };
-      return;
-    }
-  } catch {
-    /* private mode or blocked storage — the app works, it just won't persist */
-  }
-  state = { ...EMPTY, hydrated: true };
+  state = read();
+  window.addEventListener("storage", onStorage);
 }
 
 function commit(next: State) {

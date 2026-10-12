@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Item } from "@/lib/data";
 import {
   buildPrompt, estimateTokens, DEFAULT_OPTIONS, STACKS, TOOLS,
@@ -9,6 +9,7 @@ import {
 } from "@/lib/prompt";
 import { SaveButton } from "../save/SaveButton";
 import { Check, Close, Copy, Sparkle } from "../ui/icons";
+import { useFocusTrap } from "../ui/useFocusTrap";
 import { consume, FREE_LIMIT, readUsed, reset } from "./quota";
 
 export function PromptDialog({ item, onClose }: { item: Item; onClose: () => void }) {
@@ -20,6 +21,9 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   const generated = useMemo(() => buildPrompt(item, opts), [item, opts]);
   const text = edited ?? generated;
   const locked = used >= FREE_LIMIT;
+  const dialog = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useFocusTrap(dialog);
 
   useEffect(() => {
     /* capture on window runs before the detail overlay's listener, so Escape closes only this dialog */
@@ -52,14 +56,23 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--overlay)] p-0 md:p-6">
-      <button aria-label="Close" onClick={onClose} className="absolute inset-0 cursor-default" />
+    <div
+      ref={dialog}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--overlay)] p-0 md:p-6"
+    >
+      {/* backdrop click target for the mouse; keyboard users have the header Close and Escape */}
+      <button aria-hidden tabIndex={-1} onClick={onClose} className="absolute inset-0 cursor-default" />
 
       <div className="anim-sheet relative flex h-full w-full max-w-[1020px] flex-col overflow-hidden border border-border bg-bg md:h-[min(720px,90vh)] md:">
         <header className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-3">
           <Sparkle size={16} className="text-text-3" />
           <div className="min-w-0 flex-1">
-            <h2 className="text-[14px] font-semibold tracking-[-0.015em]">Generate implementation prompt</h2>
+            <h2 id={titleId} className="text-[14px] font-semibold tracking-[-0.015em]">
+              Generate implementation prompt
+            </h2>
             <p className="truncate text-[12px] text-text-3">
               {item.title} · {item.source.name}
             </p>

@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { ARCHETYPES, ITEMS, type Archetype } from "@/lib/data";
 import { MockScreen } from "@/components/mock/MockScreen";
 
@@ -18,6 +19,7 @@ import { MockScreen } from "@/components/mock/MockScreen";
  *     [...e.querySelector('.mock-flow').children].map(c => Math.round(c.getBoundingClientRect().height))])
  */
 export default function DevMeasure() {
+  if (process.env.NODE_ENV === "production") notFound();
   const keys = Object.keys(ARCHETYPES) as Archetype[];
   return (
     <div>

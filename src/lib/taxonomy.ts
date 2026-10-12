@@ -1,6 +1,5 @@
 export const CATEGORIES = [
   { slug: "landing-page", name: "Landing page" },
-  { slug: "saas", name: "SaaS" },
   { slug: "dashboard", name: "Dashboard" },
   { slug: "ecommerce", name: "E-commerce" },
   { slug: "portfolio", name: "Portfolio" },

@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DetailView } from "@/components/detail/DetailView";
-import { loadDetail } from "@/components/detail/load";
+import { detailMetadata, loadDetail } from "@/components/detail/load";
 
-export default async function ScreenPage({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  return detailMetadata((await params).slug, "component");
+}
+
+export default async function ComponentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const data = loadDetail(slug);
+  const data = loadDetail(slug, "component");
   if (!data) notFound();
   return <DetailView {...data} />;
 }

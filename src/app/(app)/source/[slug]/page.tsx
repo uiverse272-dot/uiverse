@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ITEMS, SOURCES, compact } from "@/lib/data";
@@ -6,6 +7,12 @@ import { name, INDUSTRIES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { Feed } from "@/components/feed/Feed";
 import { PageHeader, Shell, StickyBar } from "@/components/feed/Section";
 import { CopyValue } from "@/components/detail/CopyValue";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const source = SOURCES.find((s) => s.slug === slug);
+  return source ? { title: source.name, description: `${source.about} Every captured screen and component.` } : {};
+}
 
 /**
  * The Source page — not in the original brief. It is where "understand how

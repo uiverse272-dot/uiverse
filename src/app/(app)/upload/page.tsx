@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { Shell, PageHeader } from "@/components/feed/Section";
 import { Sparkle } from "@/components/ui/icons";
+
+export const metadata: Metadata = { title: "Submit a design" };
 
 /** One screen, progressive disclosure. The URL path is the default — see docs/10 §4.6. */
 export default function UploadPage() {

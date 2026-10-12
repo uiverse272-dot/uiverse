@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CREATORS, ITEMS, compact } from "@/lib/data";
 import { MockScreen } from "@/components/mock/MockScreen";
 import { PageHeader, Shell } from "@/components/feed/Section";
+
+export const metadata: Metadata = { title: "Creators" };
 
 export default function CreatorsPage() {
   return (

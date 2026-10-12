@@ -19,18 +19,26 @@ export type Filters = {
   sort?: string;
 };
 
+/** URL param → Filters key. Only two differ: `component` and `3d` read better in a URL. */
+const KEYS: Record<string, keyof Filters> = {
+  kind: "kind", q: "q", category: "category", component: "componentType", industry: "industry",
+  style: "style", tech: "tech", platform: "platform", device: "device", code: "code", tier: "tier",
+  responsive: "responsive", "3d": "threed", source: "source", sort: "sort",
+};
+
+export const filterKey = (param: string) => KEYS[param];
+
 export function filtersFromParams(sp: Record<string, string | string[] | undefined>): Filters {
-  const g = (k: string) => {
-    const v = sp[k];
-    return Array.isArray(v) ? v[0] : v;
-  };
-  return {
-    kind: g("kind"), q: g("q"), category: g("category"), componentType: g("component"),
-    industry: g("industry"), style: g("style"), tech: g("tech"), platform: g("platform"),
-    device: g("device"), code: g("code"), tier: g("tier"), responsive: g("responsive"),
-    threed: g("3d"), source: g("source"), sort: g("sort"),
-  };
+  const f: Filters = {};
+  for (const [param, key] of Object.entries(KEYS)) {
+    const v = sp[param];
+    f[key] = Array.isArray(v) ? v[0] : v;
+  }
+  return f;
 }
+
+/** One URL param (`component=hero`) as Filters (`{ componentType: "hero" }`), with no other keys. */
+export const paramFilter = (param: string, value: string): Filters => ({ [KEYS[param]]: value });
 
 /** What each browse feed contains. Pages and every link into them share these, so counts can't drift. */
 export const SCOPES = {
@@ -45,8 +53,7 @@ export type Scope = keyof typeof SCOPES;
  * results for it — with the count that feed will show. Null when no feed has any.
  */
 export function browseLink(param: string, value: string, order: Scope[] = ["web", "apps", "components"]) {
-  /* only the one key — the rest come back undefined and would erase the feed's base filters */
-  const f = Object.fromEntries(Object.entries(filtersFromParams({ [param]: value })).filter(([, v]) => v));
+  const f = paramFilter(param, value);
   for (const s of order) {
     const items = applyFilters(ITEMS, { ...SCOPES[s].base, ...f });
     if (items.length) {

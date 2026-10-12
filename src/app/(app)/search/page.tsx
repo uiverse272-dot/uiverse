@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { searchItems } from "@/lib/query";
 import { Feed } from "@/components/feed/Feed";
@@ -14,6 +15,15 @@ const SUGGESTED = [
   "editorial blog",
   "react tailwind hero",
 ];
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  return { title: typeof q === "string" && q ? `“${q}”` : "Search" };
+}
 
 export default async function SearchPage({
   searchParams,
@@ -35,7 +45,8 @@ export default async function SearchPage({
     <>
       <Shell>
         <div className="mx-auto max-w-[620px] pb-5 pt-8">
-          <SearchField big />
+          {/* keyed by the query, so a new search (or a removed chip) resets the field to match */}
+          <SearchField big initial={q} key={q} />
         </div>
       </Shell>
 

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Shell, PageHeader } from "@/components/feed/Section";
 
 const DOCS: Record<string, { title: string; body: string[] }> = {
@@ -19,9 +21,15 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
   },
 };
 
+export async function generateMetadata({ params }: { params: Promise<{ doc: string }> }): Promise<Metadata> {
+  const d = DOCS[(await params).doc];
+  return d ? { title: d.title } : {};
+}
+
 export default async function LegalPage({ params }: { params: Promise<{ doc: string }> }) {
   const { doc } = await params;
-  const d = DOCS[doc] ?? { title: "Legal", body: ["Not found."] };
+  const d = DOCS[doc];
+  if (!d) notFound();
   return (
     <Shell wide={false}>
       <PageHeader title={d.title} />

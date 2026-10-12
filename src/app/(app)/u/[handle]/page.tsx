@@ -1,11 +1,16 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 import { SOURCES } from "@/lib/data";
 import { Shell, PageHeader } from "@/components/feed/Section";
 import Link from "next/link";
 
+export const metadata: Metadata = { title: "Your profile" };
+
 export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
   if (SOURCES.some((s) => s.slug === handle)) redirect(`/source/${handle}`);
+  /* there are no accounts yet, so "me" is the only profile — anything else would be a fake 200 */
+  if (handle !== "me") notFound();
 
   return (
     <Shell wide={false}>

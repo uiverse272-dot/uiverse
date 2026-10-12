@@ -13,9 +13,10 @@ const EXAMPLES = [
   "editorial blog layout",
 ];
 
-export function SearchField({ big = false }: { big?: boolean }) {
+/** `initial` seeds the field — the results page passes its query so it can be refined in place. */
+export function SearchField({ big = false, initial = "" }: { big?: boolean; initial?: string }) {
   const router = useRouter();
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initial);
   const [focused, setFocused] = useState(false);
   const [ph, setPh] = useState(0);
   const ref = useRef<HTMLInputElement>(null);

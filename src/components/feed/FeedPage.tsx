@@ -1,5 +1,5 @@
 import { ITEMS } from "@/lib/data";
-import { applyFilters, filtersFromParams, type Filters } from "@/lib/query";
+import { applyFilters, filterKey, filtersFromParams, paramFilter, type Filters } from "@/lib/query";
 import { SORTS } from "@/lib/taxonomy";
 import { Feed } from "./Feed";
 import { FilterBar, type FilterDef } from "./FilterBar";
@@ -25,6 +25,22 @@ export function FeedPage({
   }
   const items = applyFilters(ITEMS, merged);
 
+  /*
+   * Faceted options: each filter lists only the values that return something alongside the
+   * other active filters (plus whatever is selected, so it can be cleared). A feed never offers
+   * a choice that leads to an empty page.
+   */
+  const facets = defs
+    .map((d) => {
+      const key = filterKey(d.param);
+      const others = { ...merged, [key]: undefined };
+      const options = d.options.filter(
+        (o) => o.slug === url[key] || applyFilters(ITEMS, { ...others, ...paramFilter(d.param, o.slug) }).length > 0,
+      );
+      return { ...d, options };
+    })
+    .filter((d) => d.options.length > 0);
+
   return (
     <>
       <Shell>
@@ -36,7 +52,7 @@ export function FeedPage({
       </Shell>
       <div className="h-3" />
       <StickyBar>
-        <FilterBar defs={defs} sorts={SORTS} />
+        <FilterBar defs={facets} sorts={SORTS} />
       </StickyBar>
       <Shell>
         <div className="pt-4">
@@ -47,19 +63,19 @@ export function FeedPage({
   );
 }
 
-/** Facet segments (/web/saas/dark) resolve against the taxonomy into filters. */
+/**
+ * Facet segments (/web/saas/dark) resolve against the taxonomy into filters. Null when a segment
+ * doesn't resolve, so /web/anything is a 404 rather than the unfiltered feed under a second URL.
+ */
 export function facetToFilters(
   segments: string[] | undefined,
   dicts: { param: keyof Filters; list: readonly { slug: string }[] }[],
-): Filters {
+): Filters | null {
   const f: Filters = {};
   for (const seg of segments ?? []) {
-    for (const d of dicts) {
-      if (!f[d.param] && d.list.some((t) => t.slug === seg)) {
-        (f as Record<string, string>)[d.param as string] = seg;
-        break;
-      }
-    }
+    const d = dicts.find((d) => !f[d.param] && d.list.some((t) => t.slug === seg));
+    if (!d) return null;
+    (f as Record<string, string>)[d.param as string] = seg;
   }
   return f;
 }
