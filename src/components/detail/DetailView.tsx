@@ -265,7 +265,7 @@ function Meta({ label, value, href }: { label: string; value: string; href?: str
       <dt className="text-[12px] text-text-2">{label}</dt>
       <dd className="min-w-0">
         {href ? (
-          <Link href={href} className="hover:text-accent">
+          <Link href={href} className="hover:text-accent-ink">
             {body}
           </Link>
         ) : (

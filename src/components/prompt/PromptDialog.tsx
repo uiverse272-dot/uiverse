@@ -10,7 +10,7 @@ import {
 import { SaveButton } from "../save/SaveButton";
 import { Check, Close, Copy, Sparkle } from "../ui/icons";
 import { useFocusTrap } from "../ui/useFocusTrap";
-import { consume, FREE_LIMIT, readUsed, reset } from "./quota";
+import { consume, FREE_LIMIT, isCharged, readUsed, reset } from "./quota";
 
 export function PromptDialog({ item, onClose }: { item: Item; onClose: () => void }) {
   const [opts, setOpts] = useState<PromptOptions>(DEFAULT_OPTIONS);
@@ -20,7 +20,10 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
 
   const generated = useMemo(() => buildPrompt(item, opts), [item, opts]);
   const text = edited ?? generated;
-  const locked = used >= FREE_LIMIT;
+  /* one credit per distinct prompt — edits and re-copies of a paid prompt are free (see quota.ts) */
+  const key = `${item.slug}|${JSON.stringify(opts)}`;
+  const charged = isCharged(key);
+  const locked = used >= FREE_LIMIT && !charged;
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(dialog);
@@ -49,7 +52,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   const copy = () => {
     if (locked) return;
     navigator.clipboard?.writeText(text).then(() => {
-      setUsed(consume());
+      setUsed(consume(key));
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     }, () => {});
@@ -195,7 +198,10 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
 
             <footer className="flex shrink-0 flex-wrap items-center gap-2 border-t border-border px-4 py-3">
               <span className="text-[11.5px] text-text-3">
-                ~{estimateTokens(text).toLocaleString()} tokens · {FREE_LIMIT - used} of {FREE_LIMIT} left this month
+                ~{estimateTokens(text).toLocaleString()} tokens ·{" "}
+                {charged
+                  ? "already counted — copy again free"
+                  : `${Math.max(0, FREE_LIMIT - used)} of ${FREE_LIMIT} left this month`}
               </span>
               <span className="ml-auto flex items-center gap-2">
                 <SaveButton slug={item.slug} variant="inline" />

@@ -17,7 +17,7 @@ export function Card({ item, crop }: { item: Item; crop?: number }) {
   return (
     <div className="group relative">
       <Link href={href} className="block focus-visible:outline-none" prefetch={false}>
-        <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--accent)]">
+        <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--focus)]">
           <div className="relative overflow-hidden border border-border">
             <MockScreen item={crop ? { ...item, aspect: crop } : item} />
 

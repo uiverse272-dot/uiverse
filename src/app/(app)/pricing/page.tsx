@@ -4,15 +4,18 @@ import { Check } from "@/components/ui/icons";
 
 export const metadata: Metadata = { title: "Pricing" };
 
+/*
+ * Free is what the app actually gives everyone: discovery and understanding are never gated, and
+ * the prompt generator is the one metered surface (components/prompt/quota.ts). Keep it that way —
+ * a row here that the app doesn't enforce is a promise the product breaks.
+ */
 const ROWS: [string, string, string, string][] = [
-  ["Browse everything", "✓", "✓", "✓"],
-  ["Save", "Unlimited", "Unlimited", "Unlimited"],
-  ["Collections", "5, public", "Unlimited, private", "Unlimited"],
-  ["Filters", "Core", "All", "All"],
-  ["Breakdown tab", "Colours + type", "Full", "Full"],
-  ["Full screen sets", "First 3", "Full", "Full"],
+  ["Browse every screen and component", "✓", "✓", "✓"],
+  ["Save and collections", "Unlimited", "Unlimited", "Unlimited"],
+  ["All filters and search", "✓", "✓", "✓"],
+  ["Breakdown tab", "Full", "Full", "Full"],
+  ["Palette export", "CSS + Tailwind", "CSS + Tailwind", "+ team palettes"],
   ["AI prompt generation", "3 / month", "Unlimited", "Unlimited"],
-  ["Palette export", "Copy hex", "CSS + Tailwind", "+ team palettes"],
   ["Layouts", "1", "Unlimited", "Unlimited"],
   ["Team workspaces", "—", "—", "✓"],
   ["Shared collections + roles", "—", "—", "✓"],
@@ -24,8 +27,8 @@ export default function PricingPage() {
       <div className="py-12 text-center">
         <h1 className="text-[34px] font-semibold tracking-[-0.03em]">Simple, honest pricing</h1>
         <p className="mx-auto mt-3 max-w-lg text-[14.5px] leading-relaxed text-text-2">
-          Depth and output are paid for. Discovery never is — browsing and saving stay unlimited on Free,
-          because that loop is the product.
+          Generated output is paid for. Discovery never is — browsing, saving and the full Breakdown stay
+          unlimited on Free, because that loop is the product.
         </p>
       </div>
 

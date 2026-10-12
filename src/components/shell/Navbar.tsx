@@ -44,7 +44,8 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="relative hidden border-l border-border lg:block" ref={moreRef}>
+      {/* from md: tablets have the rail but not 3D, Creators or Pricing — this menu is their only way in */}
+      <div className="relative hidden border-l border-border md:block" ref={moreRef}>
         <button
           onClick={() => setMoreOpen((o) => !o)}
           aria-expanded={moreOpen}

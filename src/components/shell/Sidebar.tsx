@@ -89,7 +89,7 @@ function RailLink({
       href={href}
       aria-current={on ? "page" : undefined}
       className={`flex flex-col items-center gap-1.5 py-2.5 text-[10.5px] transition-colors ${
-        on ? "text-accent" : "text-text hover:text-accent"
+        on ? "text-accent-ink" : "text-text hover:text-accent-ink"
       }`}
     >
       <Icon size={21} />

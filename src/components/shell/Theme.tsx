@@ -39,7 +39,7 @@ export function ThemeToggle({ rail = false }: { rail?: boolean }) {
       <button
         onClick={next}
         aria-label={label}
-        className="flex flex-col items-center gap-1.5 py-2.5 text-[10.5px] text-text transition-colors hover:text-accent"
+        className="flex flex-col items-center gap-1.5 py-2.5 text-[10.5px] text-text transition-colors hover:text-accent-ink"
       >
         {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
         {theme === "dark" ? "Light" : "Dark"}

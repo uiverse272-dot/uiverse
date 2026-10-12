@@ -108,7 +108,7 @@ export function Featured({ item }: { item: Item }) {
           </div>
         </Link>
         <div className="flex min-w-0 flex-1 flex-col">
-          <Link href={href} className="truncate text-[14px] font-bold leading-snug hover:text-accent">
+          <Link href={href} className="truncate text-[14px] font-bold leading-snug hover:text-accent-ink">
             {item.title}
           </Link>
           <div className="mt-1 truncate text-[11.5px]">

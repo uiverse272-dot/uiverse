@@ -49,7 +49,7 @@ export function SaveButton({
       aria-label={saved ? "Remove from saves" : "Save"}
       aria-pressed={saved}
       className={`flex h-7 w-7 items-center justify-center transition-colors ${
-        saved ? "text-accent" : "text-text hover:text-accent"
+        saved ? "text-accent-ink" : "text-text hover:text-accent-ink"
       }`}
     >
       <Bookmark size={17} filled={saved} />

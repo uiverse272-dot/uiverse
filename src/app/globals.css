@@ -15,10 +15,12 @@
   --text-2: #4d4a42;
   --text-3: #6b6659; /* 4.57:1 on bg-subtle, the darkest ground it sits on */
   --accent: #f47a2c;
+  /* the accent as text, icon or focus ring: brand orange is 2.4:1 on paper, this is 4.5:1+ */
+  --accent-ink: #ac4909;
   --accent-fg: #1c1b18;
   --signal: #f8dc3d;
   --on-signal: #1c1b18;
-  --focus: #f47a2c;
+  --focus: var(--accent-ink);
   --danger: #c2331f;
   --overlay: rgb(40 30 10 / 0.45);
 
@@ -41,6 +43,7 @@
     --text-2: #c3b89e;
     --text-3: #928973;
     --accent: #f47a2c;
+    --accent-ink: #f47a2c; /* orange already reads at 5.7:1+ on the dark grounds */
     --accent-fg: #1b1915;
     --signal: #e9cc33;
     --on-signal: #1b1915;
@@ -59,6 +62,7 @@
   --text-2: #c3b89e;
   --text-3: #928973;
   --accent: #f47a2c;
+  --accent-ink: #f47a2c;
   --accent-fg: #1b1915;
   --signal: #e9cc33;
   --on-signal: #1b1915;
@@ -77,6 +81,7 @@
   --color-text-3: var(--text-3);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-accent-ink: var(--accent-ink);
   --color-signal: var(--signal);
   --color-on-signal: var(--on-signal);
   --color-danger: var(--danger);
@@ -125,7 +130,7 @@ body {
   text-decoration-thickness: 1px;
 }
 .link-ink:hover {
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* mock previews: sections keep their natural height; overflow crops like a screenshot */
