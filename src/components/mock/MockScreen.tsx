@@ -1,5 +1,12 @@
-import type { CSSProperties } from "react";
-import { ARCHETYPES, type Item } from "@/lib/data";
+"use client";
+
+/*
+ * A client boundary on purpose. From a server page, a preview's whole element tree would be
+ * serialised into the RSC payload as well as the HTML — ~2.6 MB on /creators. As a client
+ * component only the item's props travel; the HTML is still server-rendered.
+ */
+import type { ComponentType, CSSProperties } from "react";
+import { ARCHETYPES, type Archetype, type Item } from "@/lib/data";
 import { mkU, pick, Col, Row, B, VIEWPORTS, type U, type Viewport } from "./primitives";
 import * as S from "./sections";
 
@@ -18,25 +25,47 @@ import * as S from "./sections";
 
 type Props = { item: Item; u: U; vp: Viewport; fill: CSSProperties };
 
-function Page({ item, u, vp, fill }: Props) {
+/*
+ * Page types that are a straight run of full-width sections, each with its height in design px
+ * at the native viewport (measured on /dev-measure). The heights let a cropped preview skip
+ * every section that starts below the crop — an Explore tile of a landing page shows the nav and
+ * hero, so drawing the other six sections is pure DOM weight.
+ */
+const SCROLLING: Partial<Record<Archetype, [ComponentType<S.SecProps>, number][]>> = {
+  "saas-landing": [
+    [S.Navbar, 90], [S.Hero, 1211], [S.LogoCloud, 171], [S.FeatureGrid, 499],
+    [S.StatsBand, 188], [S.Testimonial, 337], [S.CtaBand, 381], [S.Footer, 202],
+  ],
+  pricing: [[S.Navbar, 90], [S.SectionHeader, 193], [S.BillingToggle, 96], [S.PricingTiers, 397], [S.Faq, 372], [S.Footer, 202]],
+  ecommerce: [[S.ShopNav, 77], [S.CampaignHero, 520], [S.CategoryRow, 90], [S.ProductGrid, 844], [S.CtaBand, 381], [S.Footer, 202]],
+  portfolio: [[S.MinimalNav, 81], [S.TypeStatement, 448], [S.WorkGrid, 970], [S.IndexList, 405], [S.Footer, 202]],
+  editorial: [[S.Masthead, 167], [S.LeadStory, 824], [S.ArticleIndex, 453], [S.Footer, 202]],
+  agency: [[S.AgencyHero, 880], [S.ServicesList, 592], [S.WorkGrid, 970], [S.CtaBand, 381]],
+};
+
+/**
+ * How many sections of a scrolling page reach into a frame `visible` design px tall. One extra is
+ * kept as a margin, since a long title can wrap and push the sections below it down a little.
+ */
+function sectionsShown(archetype: Archetype, visible: number) {
+  const sections = SCROLLING[archetype] ?? [];
+  let top = 0;
+  let n = 0;
+  while (n < sections.length && top < visible) top += sections[n++][1];
+  return Math.min(n + 1, sections.length);
+}
+
+function Page({ item, u, vp, fill, upTo = Infinity }: Props & { upTo?: number }) {
   const p = item.palette;
   const props = { u, p, item, vp };
   const v = pick(vp);
 
+  const scrolling = SCROLLING[item.archetype];
+  if (scrolling) {
+    return scrolling.slice(0, upTo).map(([Section], i) => <Section key={i} {...props} />);
+  }
+
   switch (item.archetype) {
-    case "saas-landing":
-      return (
-        <>
-          <S.Navbar {...props} />
-          <S.Hero {...props} />
-          <S.LogoCloud {...props} />
-          <S.FeatureGrid {...props} />
-          <S.StatsBand {...props} />
-          <S.Testimonial {...props} />
-          <S.CtaBand {...props} />
-          <S.Footer {...props} />
-        </>
-      );
     case "dashboard":
       if (vp === "mobile") {
         /* sidebar → menu button + bottom tab bar; panels stack */
@@ -80,38 +109,6 @@ function Page({ item, u, vp, fill }: Props) {
           </Col>
         </Row>
       );
-    case "pricing":
-      return (
-        <>
-          <S.Navbar {...props} />
-          <S.SectionHeader {...props} />
-          <S.BillingToggle {...props} />
-          <S.PricingTiers {...props} />
-          <S.Faq {...props} />
-          <S.Footer {...props} />
-        </>
-      );
-    case "ecommerce":
-      return (
-        <>
-          <S.ShopNav {...props} />
-          <S.CampaignHero {...props} />
-          <S.CategoryRow {...props} />
-          <S.ProductGrid {...props} />
-          <S.CtaBand {...props} />
-          <S.Footer {...props} />
-        </>
-      );
-    case "portfolio":
-      return (
-        <>
-          <S.MinimalNav {...props} />
-          <S.TypeStatement {...props} />
-          <S.WorkGrid {...props} />
-          <S.IndexList {...props} />
-          <S.Footer {...props} />
-        </>
-      );
     case "checkout":
       return (
         <Col u={u} style={fill}>
@@ -141,15 +138,6 @@ function Page({ item, u, vp, fill }: Props) {
           {vp === "desktop" ? <S.AuthArt {...props} /> : null}
         </Row>
       );
-    case "editorial":
-      return (
-        <>
-          <S.Masthead {...props} />
-          <S.LeadStory {...props} />
-          <S.ArticleIndex {...props} />
-          <S.Footer {...props} />
-        </>
-      );
     case "docs":
       if (vp === "mobile") {
         return (
@@ -165,15 +153,6 @@ function Page({ item, u, vp, fill }: Props) {
           <S.DocsBody {...props} />
           {vp === "desktop" ? <S.DocsToc {...props} /> : null}
         </Row>
-      );
-    case "agency":
-      return (
-        <>
-          <S.AgencyHero {...props} />
-          <S.ServicesList {...props} />
-          <S.WorkGrid {...props} />
-          <S.CtaBand {...props} />
-        </>
       );
     default:
       return <App item={item} u={u} vp={vp} fill={fill} />;
@@ -321,6 +300,8 @@ export function MockScreen({
    * flex-grow, or they'd collapse to their content.
    */
   const fill: CSSProperties = viewport ? { flexGrow: 1 } : { height: "100%" };
+  /* the frame's height in design px — everything below it is cropped */
+  const visibleH = W / (full ? arch.w / arch.h : item.aspect);
   let minHeight: string | undefined;
   if (viewport) {
     if (!isComponent) minHeight = u(VIEWPORTS[vp].h);
@@ -357,7 +338,7 @@ export function MockScreen({
             <BlockOnly item={item} u={u} vp={vp} fill={fill} />
           </div>
         ) : (
-          <Page item={item} u={u} vp={vp} fill={fill} />
+          <Page item={item} u={u} vp={vp} fill={fill} upTo={flow ? Infinity : sectionsShown(item.archetype, visibleH)} />
         )}
       </div>
     </div>

@@ -11,6 +11,11 @@ import { MockScreen } from "@/components/mock/MockScreen";
  *
  *   [...document.querySelectorAll('[data-arch]')]
  *     .map(e => [e.dataset.arch, Math.round(e.getBoundingClientRect().height)])
+ *
+ * Per-section heights, baked into SCROLLING in components/mock/MockScreen.tsx:
+ *
+ *   [...document.querySelectorAll('[data-arch]')].map(e => [e.dataset.arch,
+ *     [...e.querySelector('.mock-flow').children].map(c => Math.round(c.getBoundingClientRect().height))])
  */
 export default function DevMeasure() {
   const keys = Object.keys(ARCHETYPES) as Archetype[];
