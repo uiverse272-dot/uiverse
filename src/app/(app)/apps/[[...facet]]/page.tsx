@@ -1,4 +1,5 @@
 import { FeedPage, facetToFilters } from "@/components/feed/FeedPage";
+import { SCOPES } from "@/lib/query";
 import { CATEGORIES, INDUSTRIES, PLATFORMS, STYLES, name } from "@/lib/taxonomy";
 
 export default async function AppsPage({
@@ -21,7 +22,7 @@ export default async function AppsPage({
     <FeedPage
       title={label ? `${label} apps` : "Mobile & app UI"}
       sub="Screens from shipped mobile products. Flows — ordered runs of screens — arrive in Phase 2."
-      base={{ device: "mobile", kind: "screen", ...fromPath }}
+      base={{ ...SCOPES.apps.base, ...fromPath }}
       params={sp}
       defs={[
         { param: "platform", label: "Platform", options: PLATFORMS },

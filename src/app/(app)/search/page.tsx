@@ -10,7 +10,7 @@ const SUGGESTED = [
   "minimal saas pricing",
   "luxury ecommerce landing page",
   "ios onboarding",
-  "brutalist portfolio",
+  "brutalist dashboard",
   "editorial blog",
   "react tailwind hero",
 ];
@@ -73,7 +73,7 @@ export default async function SearchPage({
                       href={`/search?q=${encodeURIComponent(
                         q
                           .split(/\s+/)
-                          .filter((w) => w.toLowerCase() !== t.value && w.toLowerCase() !== t.label.toLowerCase())
+                          .filter((w) => w.toLowerCase() !== t.word)
                           .join(" "),
                       )}`}
                       className="inline-flex items-center gap-1 border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium hover:border-border-strong"

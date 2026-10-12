@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { compact, timeAgo, type Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
+import { SCOPES } from "@/lib/query";
 import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
@@ -33,6 +34,8 @@ export function DetailView({
   const [device, setDevice] = useState<Viewport>(native);
   const frameRef = useRef<HTMLDivElement>(null);
   const isComponent = item.kind === "component";
+  /* metadata links stay in the feed this item lives in — a phone screen's "Onboarding" has no web results */
+  const feed = isComponent ? SCOPES.components.path : item.device === "mobile" ? SCOPES.apps.path : SCOPES.web.path;
   const showDevice = (d: Viewport) => {
     setDevice(d);
     frameRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -156,14 +159,14 @@ export function DetailView({
           </div>
 
           <dl className="mt-6 border-y border-border py-1.5">
-            <Meta label="Type" value={name(CATEGORIES, item.category)} href={`/web?category=${item.category}`} />
-            <Meta label="Industry" value={name(INDUSTRIES, item.industry)} href={`/web?industry=${item.industry}`} />
-            <Meta label="Style" value={name(STYLES, item.style)} href={`/web?style=${item.style}`} />
+            <Meta label="Type" value={name(CATEGORIES, item.category)} href={`${feed}?category=${item.category}`} />
+            <Meta label="Industry" value={name(INDUSTRIES, item.industry)} href={`${feed}?industry=${item.industry}`} />
+            <Meta label="Style" value={name(STYLES, item.style)} href={`${feed}?style=${item.style}`} />
             <Meta label="Platform" value={item.platform === "web" ? "Web" : item.platform.toUpperCase()} />
             <Meta
               label="Stack"
               value={item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")}
-              href={`/web?tech=${item.tech[0]}`}
+              href={`${feed}?tech=${item.tech[0]}`}
             />
             <Meta label="Saves" value={compact(item.saves)} />
           </dl>

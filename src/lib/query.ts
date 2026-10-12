@@ -32,6 +32,30 @@ export function filtersFromParams(sp: Record<string, string | string[] | undefin
   };
 }
 
+/** What each browse feed contains. Pages and every link into them share these, so counts can't drift. */
+export const SCOPES = {
+  web: { path: "/web", base: { kind: "screen", platform: "web" } },
+  apps: { path: "/apps", base: { kind: "screen", device: "mobile" } },
+  components: { path: "/components", base: { kind: "component" } },
+} satisfies Record<string, { path: string; base: Filters }>;
+export type Scope = keyof typeof SCOPES;
+
+/**
+ * A link for one URL filter (`category=onboarding`) into the first feed, in `order`, that has
+ * results for it — with the count that feed will show. Null when no feed has any.
+ */
+export function browseLink(param: string, value: string, order: Scope[] = ["web", "apps", "components"]) {
+  /* only the one key — the rest come back undefined and would erase the feed's base filters */
+  const f = Object.fromEntries(Object.entries(filtersFromParams({ [param]: value })).filter(([, v]) => v));
+  for (const s of order) {
+    const items = applyFilters(ITEMS, { ...SCOPES[s].base, ...f });
+    if (items.length) {
+      return { href: `${SCOPES[s].path}?${param}=${encodeURIComponent(value)}`, count: items.length, cover: items[0] };
+    }
+  }
+  return null;
+}
+
 const textOf = (i: Item) =>
   [i.title, i.source.name, i.source.tagline, i.category, i.industry, i.style, i.componentType ?? "", ...i.tech]
     .join(" ")
@@ -84,7 +108,8 @@ export function sortItems(items: Item[], sort = "trending") {
 /* state. The parsed terms are shown back to the user as chips.         */
 /* ------------------------------------------------------------------ */
 
-export type ParsedTerm = { dimension: string; label: string; param: string; value: string };
+/** `word` is what the user typed — a synonym like "banking" — so removing the chip can remove it. */
+export type ParsedTerm = { dimension: string; label: string; param: string; value: string; word: string };
 
 const SYNONYMS: Record<string, string> = {
   landing: "landing-page", homepage: "landing-page", marketing: "landing-page",
@@ -109,13 +134,15 @@ const SYNONYMS: Record<string, string> = {
   price: "pricing", plans: "pricing", tiers: "pricing",
 };
 
-const DICTS: { list: readonly { slug: string; name: string }[]; dimension: string; param: string }[] = [
-  { list: CATEGORIES, dimension: "Type", param: "category" },
-  { list: COMPONENT_TYPES, dimension: "Component", param: "component" },
-  { list: INDUSTRIES, dimension: "Industry", param: "industry" },
-  { list: STYLES, dimension: "Style", param: "style" },
-  { list: TECHNOLOGIES, dimension: "Tech", param: "tech" },
-  { list: PLATFORMS, dimension: "Platform", param: "platform" },
+/* `values` holds what the index actually contains, so a word never parses into a filter that matches
+   nothing — "saas" is both a Type and an Industry, and only the Industry has items. */
+const DICTS: { list: readonly { slug: string; name: string }[]; dimension: string; param: string; values: Set<string> }[] = [
+  { list: CATEGORIES, dimension: "Type", param: "category", values: new Set(ITEMS.map((i) => i.category)) },
+  { list: COMPONENT_TYPES, dimension: "Component", param: "component", values: new Set(ITEMS.map((i) => i.componentType ?? "")) },
+  { list: INDUSTRIES, dimension: "Industry", param: "industry", values: new Set(ITEMS.map((i) => i.industry)) },
+  { list: STYLES, dimension: "Style", param: "style", values: new Set(ITEMS.map((i) => i.style)) },
+  { list: TECHNOLOGIES, dimension: "Tech", param: "tech", values: new Set(ITEMS.flatMap((i) => i.tech)) },
+  { list: PLATFORMS, dimension: "Platform", param: "platform", values: new Set(ITEMS.map((i) => i.platform)) },
 ];
 
 export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string } {
@@ -130,9 +157,9 @@ export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string }
     const norm = SYNONYMS[tok] ?? tok;
     for (const d of DICTS) {
       if (taken.has(d.param)) continue;
-      const hit = d.list.find((t) => t.slug === norm || t.name.toLowerCase() === norm);
+      const hit = d.list.find((t) => (t.slug === norm || t.name.toLowerCase() === norm) && d.values.has(t.slug));
       if (hit) {
-        terms.push({ dimension: d.dimension, label: hit.name, param: d.param, value: hit.slug });
+        terms.push({ dimension: d.dimension, label: hit.name, param: d.param, value: hit.slug, word: tok });
         used.add(idx);
         taken.add(d.param);
         return;

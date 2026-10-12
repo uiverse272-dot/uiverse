@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ITEMS, SOURCES, compact } from "@/lib/data";
+import { browseLink, type Scope } from "@/lib/query";
 import { name, INDUSTRIES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { Feed } from "@/components/feed/Feed";
 import { PageHeader, Shell, StickyBar } from "@/components/feed/Section";
@@ -27,6 +28,8 @@ export default async function SourcePage({
   const screens = all.filter((i) => i.kind === "screen");
   const comps = all.filter((i) => i.kind === "component");
   const palette = screens[0]?.palette;
+  /* an app-only source (SwiftUI, Flutter) links into Apps first, so its chips never open an empty feed */
+  const order: Scope[] = screens.some((i) => i.device === "desktop") ? ["web", "apps"] : ["apps", "web"];
 
   const TABS: [string, string, number][] = [
     ["screens", "Screens", screens.length],
@@ -43,12 +46,16 @@ export default async function SourcePage({
             <PageHeader title={source.name} sub={source.about} />
             <div className="flex flex-wrap items-center gap-2 pt-3 text-[12.5px] text-text-2">
               <span className="border border-border px-2 py-1">{source.domain}</span>
-              <Link href={`/web?industry=${source.industry}`} className="border border-border px-2 py-1 hover:bg-bg-subtle">
-                {name(INDUSTRIES, source.industry)}
-              </Link>
-              {source.tech.map((t) => (
-                <Link key={t} href={`/web?tech=${t}`} className="border border-border px-2 py-1 hover:bg-bg-subtle">
-                  {name(TECHNOLOGIES, t)}
+              {[
+                ["industry", source.industry, name(INDUSTRIES, source.industry)],
+                ...source.tech.map((t) => ["tech", t, name(TECHNOLOGIES, t)]),
+              ].map(([param, value, label]) => (
+                <Link
+                  key={value}
+                  href={browseLink(param, value, order)?.href ?? "/explore"}
+                  className="border border-border px-2 py-1 hover:bg-bg-subtle"
+                >
+                  {label}
                 </Link>
               ))}
               <span className="text-text-3">

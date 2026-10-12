@@ -114,12 +114,3 @@ export const SORTS = [
 
 export const name = (list: readonly { slug: string; name: string }[], slug?: string) =>
   list.find((t) => t.slug === slug)?.name ?? slug ?? "";
-
-export const componentGroups = () => {
-  const groups = new Map<string, { slug: string; name: string }[]>();
-  for (const c of COMPONENT_TYPES) {
-    if (!groups.has(c.group)) groups.set(c.group, []);
-    groups.get(c.group)!.push({ slug: c.slug, name: c.name });
-  }
-  return [...groups.entries()];
-};

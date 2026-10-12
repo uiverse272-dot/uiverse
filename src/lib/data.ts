@@ -374,7 +374,8 @@ function buildItems(): Item[] {
       aspect: arch.w / arch.h,
       category: arch.category,
       industry: src.industry,
-      style: pal.dark ? "dark" : src.style === "dark" ? "minimal" : src.style,
+      /* a specific register (luxury, futuristic…) outranks "dark"; a dark-styled source on a light palette reads as minimal */
+      style: src.style === "dark" && !pal.dark ? "minimal" : src.style,
       platform: mobile ? (i % 3 === 0 ? "android" : "ios") : "web",
       device: mobile ? "mobile" : "desktop",
       tech: src.tech,

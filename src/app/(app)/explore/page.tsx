@@ -1,14 +1,20 @@
 import Link from "next/link";
-import { ITEMS } from "@/lib/data";
-import { CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES, PLATFORMS, componentGroups } from "@/lib/taxonomy";
+import type { Item } from "@/lib/data";
+import { browseLink, type Scope } from "@/lib/query";
+import { CATEGORIES, COMPONENT_TYPES, INDUSTRIES, STYLES, TECHNOLOGIES, PLATFORMS } from "@/lib/taxonomy";
 import { MockScreen } from "@/components/mock/MockScreen";
 import { PageHeader, Shell } from "@/components/feed/Section";
 
 /** Explore is a directory, not a second feed. Its job is turning a vague intent into a URL. */
 
-/* component tiles need a component cover — only component entries carry a componentType */
-function cover(pred: (i: (typeof ITEMS)[number]) => boolean, kind: "screen" | "component" = "screen") {
-  return ITEMS.find((i) => i.kind === kind && pred(i));
+type Tile = { href: string; label: string; count: number; item: Item };
+
+/* Each tile's count and cover come from the feed it opens, so the number on the tile is the number you land on. */
+function tiles(param: string, list: readonly { slug: string; name: string }[], order?: Scope[]): Tile[] {
+  return list.flatMap((t) => {
+    const link = browseLink(param, t.slug, order);
+    return link ? [{ href: link.href, label: t.name, count: link.count, item: link.cover }] : [];
+  });
 }
 
 function Group({
@@ -18,9 +24,8 @@ function Group({
 }: {
   title: string;
   note?: string;
-  tiles: { href: string; label: string; count: number; item?: (typeof ITEMS)[number] }[];
+  tiles: Tile[];
 }) {
-  const visible = tiles.filter((t) => t.count > 0);
   return (
     <section className="pb-12">
       <div className="flex items-baseline gap-3 pb-4">
@@ -28,18 +33,16 @@ function Group({
         {note ? <span className="text-[12.5px] text-text-3">{note}</span> : null}
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {visible.map((t) => (
+        {tiles.map((t) => (
           <Link
             key={t.href}
             href={t.href}
             className="group overflow-hidden border border-border bg-surface transition-colors hover:border-border-strong"
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-bg-subtle">
-              {t.item ? (
-                <div className="absolute inset-0 origin-top-left scale-[1.02]">
-                  <MockScreen item={{ ...t.item, aspect: 4 / 3 }} />
-                </div>
-              ) : null}
+              <div className="absolute inset-0 origin-top-left scale-[1.02]">
+                <MockScreen item={{ ...t.item, aspect: 4 / 3 }} />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent opacity-80" />
             </div>
             <div className="flex items-center justify-between gap-2 px-2.5 py-2">
@@ -54,8 +57,6 @@ function Group({
 }
 
 export default function ExplorePage() {
-  const count = (pred: (i: (typeof ITEMS)[number]) => boolean) => ITEMS.filter(pred).length;
-
   return (
     <Shell>
       <PageHeader
@@ -64,63 +65,16 @@ export default function ExplorePage() {
       />
 
       <div className="pt-8">
-        <Group
-          title="By type"
-          tiles={CATEGORIES.map((c) => ({
-            href: `/web?category=${c.slug}`,
-            label: c.name,
-            count: count((i) => i.category === c.slug),
-            item: cover((i) => i.category === c.slug),
-          }))}
-        />
+        <Group title="By type" tiles={tiles("category", CATEGORIES)} />
         <Group
           title="By component"
           note="cropped from real screens"
-          tiles={componentGroups()
-            .flatMap(([, items]) => items)
-            .map((c) => ({
-              href: `/components?component=${c.slug}`,
-              label: c.name,
-              count: count((i) => i.componentType === c.slug),
-              item: cover((i) => i.componentType === c.slug, "component"),
-            }))}
+          tiles={tiles("component", COMPONENT_TYPES, ["components"])}
         />
-        <Group
-          title="By industry"
-          tiles={INDUSTRIES.map((c) => ({
-            href: `/web?industry=${c.slug}`,
-            label: c.name,
-            count: count((i) => i.industry === c.slug),
-            item: cover((i) => i.industry === c.slug),
-          }))}
-        />
-        <Group
-          title="By style"
-          tiles={STYLES.map((c) => ({
-            href: `/web?style=${c.slug}`,
-            label: c.name,
-            count: count((i) => i.style === c.slug),
-            item: cover((i) => i.style === c.slug),
-          }))}
-        />
-        <Group
-          title="By technology"
-          tiles={TECHNOLOGIES.map((c) => ({
-            href: `/web?tech=${c.slug}`,
-            label: c.name,
-            count: count((i) => i.tech.includes(c.slug)),
-            item: cover((i) => i.tech.includes(c.slug)),
-          }))}
-        />
-        <Group
-          title="By platform"
-          tiles={PLATFORMS.map((c) => ({
-            href: `/apps?platform=${c.slug}`,
-            label: c.name,
-            count: count((i) => i.platform === c.slug),
-            item: cover((i) => i.platform === c.slug),
-          }))}
-        />
+        <Group title="By industry" tiles={tiles("industry", INDUSTRIES)} />
+        <Group title="By style" tiles={tiles("style", STYLES)} />
+        <Group title="By technology" tiles={tiles("tech", TECHNOLOGIES)} />
+        <Group title="By platform" tiles={tiles("platform", PLATFORMS, ["web", "apps"])} />
       </div>
     </Shell>
   );

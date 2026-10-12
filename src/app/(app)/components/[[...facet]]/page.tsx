@@ -1,4 +1,5 @@
 import { FeedPage, facetToFilters } from "@/components/feed/FeedPage";
+import { SCOPES } from "@/lib/query";
 import { COMPONENT_TYPES, INDUSTRIES, STYLES, TECHNOLOGIES, name } from "@/lib/taxonomy";
 
 export default async function ComponentsPage({
@@ -21,7 +22,7 @@ export default async function ComponentsPage({
     <FeedPage
       title={label ? `${label} components` : "Components"}
       sub="Every component here is a crop of a real screen, so you can always see where it came from and how it was used."
-      base={{ kind: "component", ...fromPath }}
+      base={{ ...SCOPES.components.base, ...fromPath }}
       params={sp}
       defs={[
         { param: "component", label: "Component", options: COMPONENT_TYPES },

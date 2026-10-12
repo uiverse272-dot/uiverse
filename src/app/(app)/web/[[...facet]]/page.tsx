@@ -1,4 +1,5 @@
 import { FeedPage, facetToFilters } from "@/components/feed/FeedPage";
+import { SCOPES } from "@/lib/query";
 import { CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES, name } from "@/lib/taxonomy";
 
 const DEVICES = [
@@ -33,7 +34,7 @@ export default async function WebPage({
     <FeedPage
       title={label ? `${label} websites` : "Websites"}
       sub="Full pages captured from live products. Switch device to see the responsive capture of the same screen."
-      base={{ kind: "screen", platform: "web", ...fromPath }}
+      base={{ ...SCOPES.web.base, ...fromPath }}
       params={sp}
       defs={[
         { param: "category", label: "Type", options: CATEGORIES },

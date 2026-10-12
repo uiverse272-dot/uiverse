@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Item } from "@/lib/data";
 import {
@@ -21,12 +22,17 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   const locked = used >= FREE_LIMIT;
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
+    /* capture on window runs before the detail overlay's listener, so Escape closes only this dialog */
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      onClose();
+    };
+    window.addEventListener("keydown", onKey, true);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
       document.body.style.overflow = prev;
     };
   }, [onClose]);
@@ -149,12 +155,12 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                   Pro removes the limit. Browsing, saving and the Breakdown tab stay unlimited on Free —
                   only generated output is metered.
                 </p>
-                <a
+                <Link
                   href="/pricing"
                   className="mt-1 bg-accent px-4 py-2.5 text-[13.5px] font-medium text-accent-fg"
                 >
                   See Pro
-                </a>
+                </Link>
                 <button
                   onClick={() => {
                     reset();
