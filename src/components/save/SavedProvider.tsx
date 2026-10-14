@@ -4,6 +4,7 @@ import {
   createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, type ReactNode,
 } from "react";
 import * as store from "./store";
+import { guideEvent } from "../guide/events";
 
 type Toast = { text: string; slug?: string } | null;
 
@@ -30,6 +31,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback((slug: string, collectionId = "recent") => {
     const landedIn = store.toggle(slug, collectionId);
     setToast(landedIn ? { text: `Saved to ${landedIn}`, slug } : { text: "Removed" });
+    if (landedIn) guideEvent("save");
   }, []);
 
   const move = useCallback((slug: string, collectionId: string) => {

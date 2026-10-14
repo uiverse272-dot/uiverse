@@ -17,6 +17,7 @@ export function SaveButton({
     return (
       <button
         onClick={() => toggle(slug)}
+        data-guide="save"
         className={`inline-flex h-11 items-center justify-center gap-2 border border-border px-4 text-[13.5px] transition-colors ${
           saved ? "bg-surface text-text hover:bg-bg-subtle" : "bg-accent text-accent-fg hover:brightness-105"
         }`}

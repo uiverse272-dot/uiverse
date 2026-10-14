@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The real folders behind the .next and node_modules symlinks (see .gitignore)
+    ".next.nosync/**",
+    "node_modules.nosync/**",
   ]),
 ]);
 

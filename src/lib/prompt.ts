@@ -1,5 +1,5 @@
 import type { Item } from "./data";
-import { colorRoles, layoutSpec, responsiveRules, sections, SPACING, typeScale } from "./spec";
+import { colorRoles, fonts, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, INDUSTRIES, STYLES } from "./taxonomy";
 
 /**
@@ -134,6 +134,21 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
     }.`,
   );
 
+  if (item.capture?.dir === "rtl") {
+    out.push(
+      "",
+      "## Direction",
+      "",
+      `The reference is a right-to-left interface${item.capture.lang ? ` (\`${item.capture.lang}\`)` : ""}. Build it RTL-first, not mirrored afterwards:`,
+      "",
+      `- \`<html dir="rtl" lang="${item.capture.lang || "ar"}">\`; navigation, reading order and progress run right to left`,
+      "- Logical properties only (`margin-inline-start`, `padding-inline-end`, `inset-inline-start`; Tailwind `ms-*`, `pe-*`, `start-*`) — never left/right",
+      "- Flip directional icons (arrows, chevrons, back); never flip logos, media controls or numerals",
+      "- Arabic needs more line height than Latin (about 1.6–1.8 for body) and no negative letter-spacing",
+      "- Keep numbers, prices and codes in an isolated LTR run (`<bdi>` or `dir=\"ltr\"`) so they don't reorder",
+    );
+  }
+
   if (opts.includeSections) {
     out.push("", "## Structure", "", "Render these in order. The note after each is how it actually looks.", "");
     for (const s of sections(item)) {
@@ -153,9 +168,12 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
     const scale = typeScale(item);
     out.push("", "## Typography", "", "| Step | Size | Weight | Used for |", "| --- | --- | --- | --- |");
     for (const t of scale) out.push(`| ${t.name} | ${t.size}px | ${t.weight} | ${t.use} |`);
+    const f = fonts(item);
     out.push(
       "",
-      `One sans-serif family throughout. Tracking tightens to about -0.028em above 40px and sits near -0.011em below it. Body line height ${layout.body.split(" / ")[1]}.`,
+      f
+        ? `${f.heading === f.body ? `${f.heading} throughout` : `Headings in ${f.heading}, body in ${f.body}`} — use the closest freely licensed equivalent if it isn't available. Body line height ${layout.body.split(" / ")[1]}.`
+        : `One sans-serif family throughout. Tracking tightens to about -0.028em above 40px and sits near -0.011em below it. Body line height ${layout.body.split(" / ")[1]}.`,
     );
   }
 
@@ -166,11 +184,11 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
       "",
       `- Container: ${layout.container}, ${layout.columns}, ${layout.gutter} gutters`,
       `- Radius: ${layout.radius} — nothing is fully rounded except pills and avatars`,
-      `- Spacing scale (4px base): ${SPACING.join(", ")}`,
+      `- Spacing scale (${spacingScale(item).base}px base): ${spacingScale(item).values.join(", ")}`,
       "- Hairline borders at 1px, low contrast. Shadows only on popovers and overlays, never on cards at rest.",
     );
     out.push("", "## Responsive behaviour", "");
-    for (const [k, v] of responsiveRules(item)) out.push(`- **${k}:** ${v}`);
+    for (const [k, v] of responsiveRulesPlain(item)) out.push(`- **${k}:** ${v}`);
   }
 
   if (opts.includeA11y) {

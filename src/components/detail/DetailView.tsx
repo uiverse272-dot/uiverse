@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { compact, timeAgo, type Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
@@ -14,6 +14,7 @@ import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
 import { Code, External, Layers, Sparkle } from "../ui/icons";
 import { PromptDialog } from "../prompt/PromptDialog";
+import { guideEvent } from "../guide/events";
 
 type Tab = "overview" | "breakdown" | "responsive" | "code" | "similar";
 
@@ -34,6 +35,9 @@ export function DetailView({
   const [device, setDevice] = useState<Viewport>(native);
   const frameRef = useRef<HTMLDivElement>(null);
   const isComponent = item.kind === "component";
+  useEffect(() => {
+    if (tab === "breakdown") guideEvent("breakdown");
+  }, [tab]);
   /* metadata links stay in the feed this item lives in — a phone screen's "Onboarding" has no web results */
   const feed = isComponent ? SCOPES.components.path : item.device === "mobile" ? SCOPES.apps.path : SCOPES.web.path;
   const showDevice = (d: Viewport) => {
@@ -85,7 +89,9 @@ export function DetailView({
               ))}
             </div>
             <span className="text-[12px] text-text-3">
-              Captured {timeAgo(item.daysAgo)} · {compact(item.views)} views
+              {item.capture
+                ? `Captured ${item.capture.capturedAt.slice(0, 10)} from the live site`
+                : `Captured ${timeAgo(item.daysAgo)} · ${compact(item.views)} views`}
             </span>
           </div>
 
@@ -100,7 +106,11 @@ export function DetailView({
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
             {VIEWPORTS[device].label} · {VIEWPORTS[device].w} × {VIEWPORTS[device].h} ·{" "}
-            {device === native ? "original design" : `adapted from the ${VIEWPORTS[native].label.toLowerCase()} design`}
+            {item.capture
+              ? "real capture at this width"
+              : device === native
+                ? "original design"
+                : `adapted from the ${VIEWPORTS[native].label.toLowerCase()} design`}
             {" "}· scroll inside the frame
           </p>
 
@@ -139,10 +149,11 @@ export function DetailView({
           
           <div className="mt-5 grid gap-3">
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
+              href={item.capture?.url ?? "#"}
+              {...(item.capture
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : { onClick: (e: React.MouseEvent) => e.preventDefault(), title: `This would open ${item.source.domain}` })}
               className="inline-flex h-11 items-center justify-center gap-2 border border-border bg-surface text-[13.5px] hover:bg-bg-subtle"
-              title={`This would open ${item.source.domain}`}
             >
               <External size={15} /> Open live site
             </a>
@@ -160,6 +171,7 @@ export function DetailView({
               <button
                 key={label}
                 onClick={run}
+                data-guide={label === "Prompt" ? "prompt" : undefined}
                 className={`flex flex-col items-center gap-1.5 py-3.5 text-[11px] transition-colors hover:bg-bg-subtle ${
                   i ? "border-l border-border" : ""
                 }`}
@@ -180,6 +192,9 @@ export function DetailView({
               value={item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")}
               href={`${feed}?tech=${item.tech[0]}`}
             />
+            {item.capture ? (
+              <Meta label="Direction" value={item.capture.dir === "rtl" ? "Right-to-left" : "Left-to-right"} />
+            ) : null}
             <Meta label="Saves" value={compact(item.saves)} />
           </dl>
 
@@ -220,6 +235,7 @@ export function DetailView({
             <button
               key={id}
               id={`${tabIds}-${id}`}
+              data-guide={id === "breakdown" ? "breakdown-tab" : undefined}
               role="tab"
               aria-selected={tab === id}
               aria-controls={`${tabIds}-panel`}

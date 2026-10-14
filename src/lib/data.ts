@@ -1,4 +1,5 @@
 import { paletteByKey, type Palette } from "./palettes";
+import { capturedItems, type Capture } from "./captures";
 
 export type Archetype =
   | "saas-landing"
@@ -18,7 +19,8 @@ export type Archetype =
 
 export type Kind = "screen" | "component" | "layout" | "palette";
 
-export type Block = { type: string; label: string };
+/* heading and columns are only known for real captures */
+export type Block = { type: string; label: string; heading?: string; columns?: number };
 
 export type Source = {
   slug: string;
@@ -59,6 +61,8 @@ export type Item = {
   views: number;
   daysAgo: number;
   colors: string[];
+  /** present when the item is a real capture rather than a procedural preview */
+  capture?: Capture;
 };
 
 /* ------------------------------------------------------------------ */
@@ -423,7 +427,11 @@ function buildItems(): Item[] {
   return items;
 }
 
-export const ITEMS: Item[] = buildItems();
+const CAPTURED = capturedItems();
+
+/* real captures lead; the procedural catalogue fills in behind them */
+export const ITEMS: Item[] = [...CAPTURED.items, ...buildItems()];
+SOURCES.push(...CAPTURED.sources.filter((s) => !SOURCES.some((x) => x.slug === s.slug)));
 
 export const bySlug = (slug: string) => ITEMS.find((i) => i.slug === slug);
 export const screens = () => ITEMS.filter((i) => i.kind === "screen");

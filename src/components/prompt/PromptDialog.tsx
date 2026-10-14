@@ -10,6 +10,7 @@ import {
 import { SaveButton } from "../save/SaveButton";
 import { Check, Close, Copy, Sparkle } from "../ui/icons";
 import { useFocusTrap } from "../ui/useFocusTrap";
+import { guideEvent } from "../guide/events";
 import { consume, FREE_LIMIT, isCharged, readUsed, reset } from "./quota";
 
 export function PromptDialog({ item, onClose }: { item: Item; onClose: () => void }) {
@@ -27,6 +28,10 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(dialog);
+  useEffect(() => {
+    guideEvent("prompt-open");
+    return () => guideEvent("prompt-close");
+  }, []);
 
   useEffect(() => {
     /* capture on window runs before the detail overlay's listener, so Escape closes only this dialog */
@@ -54,6 +59,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
     navigator.clipboard?.writeText(text).then(() => {
       setUsed(consume(key));
       setCopied(true);
+      guideEvent("prompt-copy");
       setTimeout(() => setCopied(false), 1400);
     }, () => {});
   };
@@ -207,6 +213,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                 <SaveButton slug={item.slug} variant="inline" />
                 <button
                   onClick={copy}
+                  data-guide="prompt-copy"
                   disabled={locked}
                   className="inline-flex h-9 items-center gap-1.5 bg-accent px-3.5 text-[13.5px] font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:opacity-40"
                 >

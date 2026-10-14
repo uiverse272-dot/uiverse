@@ -1,0 +1,16 @@
+[
+  { "url": "https://stcpay.com.sa/", "name": "STC Pay", "industry": "fintech", "locale": "ar-SA" },
+  { "url": "https://zid.sa/", "name": "Zid", "industry": "ecommerce", "locale": "ar-SA" },
+  { "url": "https://salla.com/", "name": "Salla", "industry": "ecommerce", "locale": "ar-SA" },
+  { "url": "https://www.ounass.ae/ar", "name": "Ounass", "industry": "fashion", "locale": "ar-SA" },
+  { "url": "https://www.rewaatech.com/", "name": "Rewaa", "industry": "saas", "locale": "ar-SA" },
+  { "url": "https://mrsool.co/", "name": "Mrsool", "industry": "food", "locale": "ar-SA" },
+  { "url": "https://www.visitsaudi.com/ar", "name": "Visit Saudi", "industry": "travel", "locale": "ar-SA" },
+  { "url": "https://www.flynas.com/ar", "name": "flynas", "industry": "travel", "locale": "ar-SA" },
+  { "url": "https://www.vezeeta.com/ar", "name": "Vezeeta", "industry": "healthcare", "locale": "ar-SA" },
+  { "url": "https://www.noonacademy.com/", "name": "Noon Academy", "industry": "education", "locale": "ar-SA" },
+  { "url": "https://www.abwaab.com/ar", "name": "Abwaab", "industry": "education", "locale": "ar-SA" },
+  { "url": "https://www.propertyfinder.ae/ar/", "name": "Property Finder", "industry": "real-estate", "locale": "ar-SA" },
+  { "url": "https://www.nahdionline.com/ar-sa", "name": "Nahdi", "industry": "healthcare", "locale": "ar-SA" },
+  { "url": "https://www.bayut.sa/", "name": "Bayut", "industry": "real-estate", "locale": "ar-SA" }
+]

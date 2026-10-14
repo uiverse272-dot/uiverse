@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+# real folders behind the symlinks — the .nosync suffix keeps iCloud from evicting them
+/node_modules.nosync
 /.pnp
 .pnp.*
 .yarn/*
@@ -14,7 +16,8 @@
 /coverage
 
 # next.js
-/.next/
+/.next
+/.next.nosync
 /out/
 
 # production
@@ -39,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# raw capture measurements (re-derivable, large)
+/.captures-raw

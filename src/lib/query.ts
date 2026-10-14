@@ -15,6 +15,8 @@ export type Filters = {
   tier?: string;
   responsive?: string;
   threed?: string;
+  /** text direction — only real captures are measured; procedural previews are all ltr */
+  dir?: string;
   source?: string;
   sort?: string;
 };
@@ -23,7 +25,7 @@ export type Filters = {
 const KEYS: Record<string, keyof Filters> = {
   kind: "kind", q: "q", category: "category", component: "componentType", industry: "industry",
   style: "style", tech: "tech", platform: "platform", device: "device", code: "code", tier: "tier",
-  responsive: "responsive", "3d": "threed", source: "source", sort: "sort",
+  responsive: "responsive", "3d": "threed", dir: "dir", source: "source", sort: "sort",
 };
 
 export const filterKey = (param: string) => KEYS[param];
@@ -64,7 +66,13 @@ export function browseLink(param: string, value: string, order: Scope[] = ["web"
 }
 
 const textOf = (i: Item) =>
-  [i.title, i.source.name, i.source.tagline, i.category, i.industry, i.style, i.componentType ?? "", ...i.tech]
+  [
+    i.title, i.source.name, i.source.tagline, i.category, i.industry, i.style, i.componentType ?? "", ...i.tech,
+    /* real captures: findable by direction ("rtl", "arabic") and by what their sections say */
+    ...(i.capture
+      ? [i.capture.dir, i.capture.dir === "rtl" ? "right-to-left arabic" : "", i.capture.lang, "real captured live", ...i.blocks.map((b) => b.heading ?? "")]
+      : []),
+  ]
     .join(" ")
     .toLowerCase();
 
@@ -83,6 +91,7 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   if (f.tier) out = out.filter((i) => i.tier === f.tier);
   if (f.responsive === "true") out = out.filter((i) => i.responsive);
   if (f.threed === "true") out = out.filter((i) => i.has3d);
+  if (f.dir) out = out.filter((i) => (i.capture?.dir ?? "ltr") === f.dir);
   if (f.q) {
     const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean);
     out = out.filter((i) => {
@@ -94,19 +103,34 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
 }
 
 export function sortItems(items: Item[], sort = "trending") {
-  const c = [...items];
-  switch (sort) {
-    case "new":
-      return c.sort((a, b) => a.daysAgo - b.daysAgo);
-    case "saved":
-      return c.sort((a, b) => b.saves - a.saves);
-    case "views":
-      return c.sort((a, b) => b.views - a.views);
-    default:
-      return c.sort(
-        (a, b) => b.saves / (b.daysAgo + 12) - a.saves / (a.daysAgo + 12),
-      );
+  const score: (i: Item) => number =
+    sort === "new" ? (i) => -i.daysAgo
+    : sort === "saved" ? (i) => i.saves
+    : sort === "views" ? (i) => i.views
+    : (i) => i.saves / (i.daysAgo + 12);
+  return spread([...items].sort((a, b) => score(b) - score(a)), score);
+}
+
+/**
+ * Among items that tie on score, don't run one source's items back to back. Real captures all
+ * start at zero saves, so without this a fresh batch lists every crop of one site, then the next.
+ */
+function spread(sorted: Item[], score: (i: Item) => number, window = 40) {
+  const rest = [...sorted];
+  const out: Item[] = [];
+  while (rest.length) {
+    const prev = out[out.length - 1]?.source.slug;
+    const s = score(rest[0]);
+    let k = 0;
+    for (let j = 0; j < Math.min(rest.length, window) && score(rest[j]) === s; j++) {
+      if (rest[j].source.slug !== prev) {
+        k = j;
+        break;
+      }
+    }
+    out.push(...rest.splice(k, 1));
   }
+  return out;
 }
 
 /* ------------------------------------------------------------------ */

@@ -9,7 +9,7 @@ import type { Item } from "./data";
  */
 
 export type ColorRole = { key: string; label: string; token: string; value: string };
-export type TypeStep = { name: string; size: number; weight: number; use: string };
+export type TypeStep = { name: string; size: number; weight: number; use: string; sample?: string };
 export type Section = { index: number; label: string; type: string; note: string };
 
 const ROLES: [keyof Item["palette"], string, string][] = [
@@ -51,11 +51,30 @@ const MOBILE_TYPE: TypeStep[] = [
   { name: "Caption", size: 11, weight: 500, use: "Tab labels" },
 ];
 
-export const typeScale = (item: Item) => (item.device === "mobile" ? MOBILE_TYPE : DESKTOP_TYPE);
+export const typeScale = (item: Item): TypeStep[] =>
+  item.capture?.type ?? (item.device === "mobile" ? MOBILE_TYPE : DESKTOP_TYPE);
 
 export const SPACING = [4, 8, 12, 16, 24, 32, 48, 64, 96];
 
+/** The spacing values the page actually uses most, and the grid they sit on */
+export const spacingScale = (item: Item) =>
+  item.capture ? { base: item.capture.rhythm.base, values: item.capture.rhythm.spacing } : { base: 4, values: SPACING };
+
+/** Font families, when measured. Procedural previews use the app's own sans. */
+export const fonts = (item: Item) => item.capture?.fonts;
+
 export function layoutSpec(item: Item) {
+  const cap = item.capture;
+  if (cap) {
+    const heroCols = item.blocks.find((b) => b.type === "hero")?.columns;
+    return {
+      container: cap.rhythm.container,
+      columns: heroCols && heroCols > 1 ? `${heroCols}-column hero` : "single-column sections",
+      gutter: `${cap.rhythm.base}px-grid`,
+      radius: cap.rhythm.radius,
+      body: cap.body,
+    };
+  }
   return item.device === "mobile"
     ? { container: "390px", columns: "single column", gutter: "22px", radius: "14 / 20px", body: "15px / 1.5" }
     : { container: "1440px", columns: "12 column", gutter: "24px", radius: "8 / 12 / 16px", body: "15px / 1.55" };
@@ -95,7 +114,15 @@ export function sections(item: Item): Section[] {
     index: i + 1,
     label: b.label,
     type: b.type,
-    note: BLOCK_NOTES[b.type] ?? "standard treatment for this block type",
+    /*
+     * A capture's note is its measured layout, never its copy: the prompt tells the model not to
+     * reproduce a real brand's words, so it mustn't hand them over either.
+     */
+    note: item.capture
+      ? [b.heading ? "led by a heading" : null, b.columns && b.columns > 1 ? `${b.columns} items across` : null]
+          .filter(Boolean)
+          .join(", ") || "measured from the live page"
+      : (BLOCK_NOTES[b.type] ?? "standard treatment for this block type"),
   }));
 }
 
@@ -207,8 +234,18 @@ const RULES: Record<Item["archetype"], Rule[]> = {
   ],
 };
 
+/** Rules without the section's heading in the label — for output that must not carry a brand's copy */
+export function responsiveRulesPlain(item: Item): [string, string][] {
+  const count: Record<string, number> = {};
+  return responsiveRules(item).map(([k, v]) => {
+    const base = k.replace(/:.*$/, "");
+    count[base] = (count[base] ?? 0) + 1;
+    return [count[base] > 1 ? `${base} ${count[base]}` : base, v];
+  });
+}
+
 export function responsiveRules(item: Item): [string, string][] {
-  const rules = RULES[item.archetype];
+  const rules: Rule[] = item.capture?.responsive ?? RULES[item.archetype];
   const scoped = item.kind === "component" ? rules.filter(([, , b]) => b.includes(item.componentType ?? "")) : rules;
   return (scoped.length ? scoped : rules).map(([k, v]) => [k, v]);
 }

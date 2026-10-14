@@ -2,6 +2,7 @@ import { Navbar } from "@/components/shell/Navbar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { BottomNav } from "@/components/shell/BottomNav";
 import { SaveToast } from "@/components/save/SaveToast";
+import { Guide } from "@/components/guide/Guide";
 
 export default function AppLayout({
   children,
@@ -22,6 +23,7 @@ export default function AppLayout({
       {modal}
       <BottomNav />
       <SaveToast />
+      <Guide />
     </>
   );
 }

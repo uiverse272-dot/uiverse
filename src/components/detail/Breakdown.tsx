@@ -3,7 +3,10 @@
 import Link from "next/link";
 import type { Item } from "@/lib/data";
 import { CopyValue } from "./CopyValue";
-import { colorRoles, layoutSpec, SPACING, typeScale } from "@/lib/spec";
+import { colorRoles, fonts, layoutSpec, spacingScale, typeScale } from "@/lib/spec";
+import { COMPONENT_TYPES } from "@/lib/taxonomy";
+
+const BROWSABLE = new Set<string>(COMPONENT_TYPES.map((c) => c.slug));
 
 /**
  * The Breakdown is the "Understand" step of the journey, and the reason this is
@@ -28,6 +31,8 @@ export function Breakdown({ item }: { item: Item }) {
   const roles = colorRoles(item);
   const scale = typeScale(item);
   const layout = layoutSpec(item);
+  const space = spacingScale(item);
+  const font = fonts(item);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -36,7 +41,7 @@ export function Breakdown({ item }: { item: Item }) {
           {item.blocks.map((b, i) => (
             <li key={`${b.type}-${i}`}>
               <Link
-                href={`/components?component=${b.type}`}
+                href={BROWSABLE.has(b.type) ? `/components?component=${b.type}` : `/search?q=${b.type}`}
                 className="flex items-center gap-3 px-2 py-2 transition-colors hover:bg-bg-subtle"
               >
                 <span className="w-5 shrink-0 font-mono text-[11px] text-text-3 tabular-nums">
@@ -46,7 +51,14 @@ export function Breakdown({ item }: { item: Item }) {
                   className="h-6 w-10 shrink-0 border border-border"
                   style={{ background: i === 0 ? p.surface : i % 3 === 1 ? p.raised : p.bg }}
                 />
-                <span className="flex-1 truncate text-[13px] font-medium">{b.label}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-medium">{b.label}</span>
+                  {b.heading ? (
+                    <span dir="auto" className="block truncate text-[11.5px] text-text-3">
+                      {b.heading}
+                    </span>
+                  ) : null}
+                </span>
                 <span className="shrink-0 font-mono text-[11px] text-text-3">{b.type}</span>
               </Link>
             </li>
@@ -108,14 +120,16 @@ export function Breakdown({ item }: { item: Item }) {
       <div className="space-y-4">
         <Panel title="Type scale">
           <div className="space-y-2.5">
-            {scale.map(({ name: label, size, weight, use }) => (
+            {scale.map(({ name: label, size, weight, use, sample }) => (
               <div key={label} className="flex items-baseline gap-3">
                 <span className="w-16 shrink-0 text-[11.5px] text-text-3">{label}</span>
                 <span
+                  dir="auto"
+                  title={use}
                   className="flex-1 truncate"
                   style={{ fontSize: Math.min(size, 26), fontWeight: weight, letterSpacing: "-0.02em" }}
                 >
-                  {use}
+                  {sample || use}
                 </span>
                 <CopyValue value={`${size}px / ${weight}`} />
               </div>
@@ -123,9 +137,9 @@ export function Breakdown({ item }: { item: Item }) {
           </div>
         </Panel>
 
-        <Panel title="Spacing rhythm" note="4px base">
+        <Panel title="Spacing rhythm" note={`${space.base}px base${item.capture ? " · most used values" : ""}`}>
           <div className="flex flex-wrap items-end gap-2">
-            {SPACING.map((s) => (
+            {space.values.map((s) => (
               <div key={s} className="flex flex-col items-center gap-1.5">
                 <div className="bg-text/15" style={{ width: Math.min(s, 40), height: 26 }} />
                 <span className="font-mono text-[10.5px] text-text-3">{s}</span>
@@ -137,6 +151,9 @@ export function Breakdown({ item }: { item: Item }) {
             <Row label="Grid" value={`${layout.columns}, ${layout.gutter}`} />
             <Row label="Body" value={layout.body} />
             <Row label="Container" value={layout.container} />
+            {font ? <Row label="Headings" value={font.heading} /> : null}
+            {font ? <Row label="Body font" value={font.body} /> : null}
+            {item.capture ? <Row label="Direction" value={item.capture.dir.toUpperCase()} /> : null}
           </div>
         </Panel>
       </div>

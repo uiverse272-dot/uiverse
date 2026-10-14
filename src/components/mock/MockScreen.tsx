@@ -9,6 +9,7 @@ import type { ComponentType, CSSProperties } from "react";
 import { ARCHETYPES, type Archetype, type Item } from "@/lib/data";
 import { mkU, pick, Col, Row, B, VIEWPORTS, type U, type Viewport } from "./primitives";
 import * as S from "./sections";
+import { CaptureScreen } from "./CaptureScreen";
 
 /**
  * Procedurally rendered interface previews.
@@ -285,6 +286,7 @@ export function MockScreen({
   /** Draw at this device and let the height follow the content (min. one screen). */
   viewport?: Viewport;
 }) {
+  if (item.capture) return <CaptureScreen item={item} viewport={viewport} />;
   const arch = ARCHETYPES[item.archetype];
   const isComponent = item.kind === "component";
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";

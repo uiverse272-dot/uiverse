@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { SearchField } from "./SearchCommand";
+import { startGuide } from "../guide/events";
 import { ThemeToggle } from "./Theme";
 import { Logo } from "./Sidebar";
 import { useSaved } from "../save/SavedProvider";
@@ -65,6 +66,15 @@ export function Navbar() {
                 {m.label}
               </Link>
             ))}
+            <button
+              onClick={() => {
+                setMoreOpen(false);
+                startGuide();
+              }}
+              className="block w-full border-t border-border bg-signal/40 px-3.5 py-2.5 text-left text-[13px] font-medium hover:bg-signal"
+            >
+              Take the guide
+            </button>
           </div>
         ) : null}
       </div>

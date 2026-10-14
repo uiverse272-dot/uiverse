@@ -122,6 +122,7 @@ export function FilterBar({
       })}
 
       <Toggle label="Code" on={get("code") === "true"} onClick={() => set("code", get("code") ? undefined : "true")} />
+      <Toggle label="RTL" on={get("dir") === "rtl"} onClick={() => set("dir", get("dir") ? undefined : "rtl")} />
 
       {sorts ? (
         <div className="ml-auto flex items-center gap-2 pl-2">
@@ -147,7 +148,7 @@ export function FilterBar({
         </div>
       ) : null}
 
-      {active.length || get("code") ? (
+      {active.length || get("code") || get("dir") ? (
         <button
           onClick={clear}
           className="link-ink inline-flex h-8 shrink-0 items-center gap-1 px-2 text-[12px]"

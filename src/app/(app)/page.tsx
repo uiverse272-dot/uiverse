@@ -14,6 +14,7 @@ const CHIPS: { label: string; value?: string; filters: Filters }[] = [
   { label: "Web", value: "web", filters: { platform: "web", kind: "screen" } },
   { label: "Mobile", value: "mobile", filters: { device: "mobile" } },
   { label: "Components", value: "components", filters: { kind: "component" } },
+  { label: "Arabic · RTL", value: "rtl", filters: { dir: "rtl" } },
   { label: "Dashboard", value: "dashboard", filters: { category: "dashboard" } },
   { label: "SaaS", value: "saas", filters: { industry: "saas" } },
   { label: "Fintech", value: "fintech", filters: { industry: "fintech" } },
@@ -40,6 +41,8 @@ export default async function HomePage({
   const popular = trending.slice(0, 6);
   const pick = trending.find((i) => i.device === "desktop") ?? trending[0];
   const browsing = !active.value;
+  /* real captures from the live web — newest first, until there are enough to rank by saves */
+  const captured = sortItems(ITEMS.filter((i) => i.capture && i.kind === "screen"), "new").slice(0, 6);
 
   return (
     <>
@@ -50,6 +53,17 @@ export default async function HomePage({
           <SectionHead title="Categories" />
           <ChipRail chips={CHIPS.map((c) => ({ label: c.label, value: c.value }))} />
         </section>
+
+        {browsing && captured.length ? (
+          <section className="mt-9">
+            <SectionHead title="Captured from the live web" href="/search?q=captured" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-6">
+              {captured.map((i) => (
+                <Card key={i.slug} item={i} crop={3 / 4} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {browsing ? (
           <section className="mt-9">

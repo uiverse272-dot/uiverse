@@ -7,6 +7,7 @@ import {
   Bookmark, Close, Compass, Dots, Grid, Home, Layout, Monitor, Palette, Phone, Search, Sparkle, Tag, Upload, User, Users,
 } from "../ui/icons";
 import { useFocusTrap } from "../ui/useFocusTrap";
+import { startGuide } from "../guide/events";
 
 /**
  * Upload is deliberately not a tab — it is <2% of sessions while search is the
@@ -135,6 +136,15 @@ function MoreSheet({ pathname, onClose }: { pathname: string; onClose: () => voi
             );
           })}
         </div>
+        <button
+          onClick={() => {
+            onClose();
+            startGuide();
+          }}
+          className="mx-4 mt-3 flex h-11 w-[calc(100%-2rem)] items-center justify-center gap-2 border border-border bg-signal text-[13px] font-bold text-on-signal"
+        >
+          <Sparkle size={15} /> Take the guide
+        </button>
       </div>
     </div>
   );
