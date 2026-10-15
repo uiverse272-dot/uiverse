@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link, useI18n } from "@/i18n/client";
+import { blockLabel, layoutValue, typeName, typeUse } from "@/i18n/content";
+import { fill, plural } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { CopyValue } from "./CopyValue";
 import { colorRoles, fonts, layoutSpec, spacingScale, typeScale } from "@/lib/spec";
@@ -27,6 +29,8 @@ function Panel({ title, note, children }: { title: string; note?: string; childr
 }
 
 export function Breakdown({ item }: { item: Item }) {
+  const { lang, t } = useI18n();
+  const b = t.breakdown;
   const p = item.palette;
   const roles = colorRoles(item);
   const scale = typeScale(item);
@@ -36,12 +40,12 @@ export function Breakdown({ item }: { item: Item }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Panel title="Section outline" note={`${item.blocks.length} blocks detected`}>
+      <Panel title={b.outline} note={plural(b.blocks, item.blocks.length, lang)}>
         <ol className="space-y-1">
-          {item.blocks.map((b, i) => (
-            <li key={`${b.type}-${i}`}>
+          {item.blocks.map((blk, i) => (
+            <li key={`${blk.type}-${i}`}>
               <Link
-                href={BROWSABLE.has(b.type) ? `/components?component=${b.type}` : `/search?q=${b.type}`}
+                href={BROWSABLE.has(blk.type) ? `/components?component=${blk.type}` : `/search?q=${blk.type}`}
                 className="flex items-center gap-3 px-2 py-2 transition-colors hover:bg-bg-subtle"
               >
                 <span className="w-5 shrink-0 font-mono text-[11px] text-text-3 tabular-nums">
@@ -52,29 +56,29 @@ export function Breakdown({ item }: { item: Item }) {
                   style={{ background: i === 0 ? p.surface : i % 3 === 1 ? p.raised : p.bg }}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-medium">{b.label}</span>
-                  {b.heading ? (
+                  <span className="block truncate text-[13px] font-medium">{blockLabel(blk.label, blk.type, lang)}</span>
+                  {blk.heading ? (
                     <span dir="auto" className="block truncate text-[11.5px] text-text-3">
-                      {b.heading}
+                      {blk.heading}
                     </span>
                   ) : null}
                 </span>
-                <span className="shrink-0 font-mono text-[11px] text-text-3">{b.type}</span>
+                <span dir="ltr" className="shrink-0 font-mono text-[11px] text-text-3">{blk.type}</span>
               </Link>
             </li>
           ))}
         </ol>
       </Panel>
 
-      <Panel title="Derived layout" note="the page as a reusable structure">
+      <Panel title={b.derived} note={b.derivedNote}>
         <div className="space-y-1.5">
-          {item.blocks.map((b, i) => (
+          {item.blocks.map((blk, i) => (
             <div
-              key={`${b.type}-${i}`}
+              key={`${blk.type}-${i}`}
               className="flex items-center justify-center border border-dashed border-border text-[11.5px] text-text-2"
-              style={{ height: 22 + (b.type === "hero" ? 36 : b.type === "footer" ? 18 : 10) }}
+              style={{ height: 22 + (blk.type === "hero" ? 36 : blk.type === "footer" ? 18 : 10) }}
             >
-              {b.label}
+              {blockLabel(blk.label, blk.type, lang)}
             </div>
           ))}
         </div>
@@ -82,20 +86,20 @@ export function Breakdown({ item }: { item: Item }) {
           href="/layouts"
           className="mt-4 inline-flex text-[12.5px] font-medium text-text-2 underline-offset-4 hover:text-text hover:underline"
         >
-          Save as a layout →
+          {b.saveLayout} {t.common.arrow}
         </Link>
       </Panel>
 
-      <Panel title="Colour roles" note="extracted from computed styles">
+      <Panel title={b.roles} note={b.rolesNote}>
         <div className="space-y-1">
-          {roles.map(({ token, label, value: hex }) => {
+          {roles.map(({ key, token, label, value: hex }) => {
             return (
               <div key={token} className="flex items-center gap-3 px-1 py-1.5">
                 <span
                   className="h-7 w-7 shrink-0 border border-border"
                   style={{ background: hex }}
                 />
-                <span className="flex-1 text-[12.5px]">{label}</span>
+                <span className="flex-1 text-[12.5px]">{t.roles[key] ?? label}</span>
                 <CopyValue value={hex} />
               </div>
             );
@@ -104,13 +108,13 @@ export function Breakdown({ item }: { item: Item }) {
         <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
           <CopyValue
             mono={false}
-            label="Copy as CSS variables"
+            label={b.copyCss}
             value={roles.map((r) => `  --${r.token}: ${r.value};`).join("\n")}
             className="border border-border"
           />
           <CopyValue
             mono={false}
-            label="Copy as Tailwind theme"
+            label={b.copyTailwind}
             value={`@theme {\n${roles.map((r) => `  --color-${r.token}: ${r.value};`).join("\n")}\n}`}
             className="border border-border"
           />
@@ -118,18 +122,18 @@ export function Breakdown({ item }: { item: Item }) {
       </Panel>
 
       <div className="space-y-4">
-        <Panel title="Type scale">
+        <Panel title={b.type}>
           <div className="space-y-2.5">
             {scale.map(({ name: label, size, weight, use, sample }) => (
               <div key={label} className="flex items-baseline gap-3">
-                <span className="w-16 shrink-0 text-[11.5px] text-text-3">{label}</span>
+                <span className="w-16 shrink-0 text-[11.5px] text-text-3">{typeName(label, lang)}</span>
                 <span
                   dir="auto"
-                  title={use}
+                  title={typeUse(use, lang)}
                   className="flex-1 truncate"
                   style={{ fontSize: Math.min(size, 26), fontWeight: weight, letterSpacing: "-0.02em" }}
                 >
-                  {sample || use}
+                  {sample || typeUse(use, lang)}
                 </span>
                 <CopyValue value={`${size}px / ${weight}`} />
               </div>
@@ -137,7 +141,7 @@ export function Breakdown({ item }: { item: Item }) {
           </div>
         </Panel>
 
-        <Panel title="Spacing rhythm" note={`${space.base}px base${item.capture ? " · most used values" : ""}`}>
+        <Panel title={b.spacing} note={`${fill(b.base, { n: space.base })}${item.capture ? b.mostUsed : ""}`}>
           <div className="flex flex-wrap items-end gap-2">
             {space.values.map((s) => (
               <div key={s} className="flex flex-col items-center gap-1.5">
@@ -147,13 +151,13 @@ export function Breakdown({ item }: { item: Item }) {
             ))}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-[12.5px]">
-            <Row label="Radius" value={layout.radius} />
-            <Row label="Grid" value={`${layout.columns}, ${layout.gutter}`} />
-            <Row label="Body" value={layout.body} />
-            <Row label="Container" value={layout.container} />
-            {font ? <Row label="Headings" value={font.heading} /> : null}
-            {font ? <Row label="Body font" value={font.body} /> : null}
-            {item.capture ? <Row label="Direction" value={item.capture.dir.toUpperCase()} /> : null}
+            <Row label={b.rows.radius} value={layout.radius} />
+            <Row label={b.rows.grid} value={`${layoutValue(layout.columns, lang)}${lang === "ar" ? "، " : ", "}${layoutValue(layout.gutter, lang)}`} />
+            <Row label={b.rows.body} value={layout.body} />
+            <Row label={b.rows.container} value={layout.container} />
+            {font ? <Row label={b.rows.headings} value={font.heading} /> : null}
+            {font ? <Row label={b.rows.bodyFont} value={font.body} /> : null}
+            {item.capture ? <Row label={b.rows.direction} value={item.capture.dir.toUpperCase()} /> : null}
           </div>
         </Panel>
       </div>
@@ -165,7 +169,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-2">
       <span className="text-text-3">{label}</span>
-      <span className="font-mono text-[11.5px]">{value}</span>
+      <bdi className="font-mono text-[11.5px]">{value}</bdi>
     </div>
   );
 }

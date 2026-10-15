@@ -3,6 +3,8 @@
 import {
   createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, type ReactNode,
 } from "react";
+import { useI18n } from "@/i18n/client";
+import { fill } from "@/i18n/format";
 import * as store from "./store";
 import { guideEvent } from "../guide/events";
 
@@ -25,14 +27,18 @@ type Ctx = {
 const SavedCtx = createContext<Ctx | null>(null);
 
 export function SavedProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [toast, setToast] = useState<Toast>(null);
+  /* the default collection's name is stored in English; show it in the page's language */
+  const label = useCallback((c: store.Collection) => (c.id === "recent" ? t.save.recent : c.name), [t]);
 
   const toggle = useCallback((slug: string, collectionId = "recent") => {
     const landedIn = store.toggle(slug, collectionId);
-    setToast(landedIn ? { text: `Saved to ${landedIn}`, slug } : { text: "Removed" });
+    const where = collectionId === "recent" ? t.save.recent : landedIn;
+    setToast(landedIn ? { text: fill(t.save.savedTo, { name: where ?? "" }), slug } : { text: t.save.removed });
     if (landedIn) guideEvent("save");
-  }, []);
+  }, [t]);
 
   const move = useCallback((slug: string, collectionId: string) => {
     store.move(slug, collectionId);
@@ -42,7 +48,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       saves: state.saves,
-      collections: state.collections,
+      collections: state.collections.map((c) => ({ ...c, name: label(c) })),
       ready: state.hydrated,
       isSaved: (slug) => state.saves.some((s) => s.slug === slug),
       toggle,
@@ -53,7 +59,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
       toast,
       clearToast: () => setToast(null),
     }),
-    [state, toast, toggle, move],
+    [state, toast, toggle, move, label],
   );
 
   return <SavedCtx.Provider value={value}>{children}</SavedCtx.Provider>;

@@ -1,14 +1,26 @@
 import type { MetadataRoute } from "next";
+import { localize } from "@/i18n/config";
 import { ITEMS } from "@/lib/data";
 import { captureSrc } from "@/lib/captureSrc";
 import { SITE_URL } from "@/lib/site";
 
 /* the sections, then every real capture and its source. Procedural items are noindex (detail/load.ts) */
 const SECTIONS = ["/", "/explore", "/web", "/apps", "/components", "/layouts", "/palettes", "/pricing"];
-/* keys of DOCS in legal/[doc]/page.tsx — a page file can't export them */
+/* the documents in dict legal.* */
 const LEGAL = ["/legal/attribution", "/legal/takedown"];
 
 const abs = (p: string) => (/^https?:\/\//.test(p) ? p : SITE_URL + p);
+
+type Entry = Omit<MetadataRoute.Sitemap[number], "url">;
+
+/** One page in both languages, each listing the other as its alternate (hreflang). */
+const both = (path: string, entry: Entry): MetadataRoute.Sitemap => {
+  const languages = { en: abs(path), ar: abs(localize("ar", path)) };
+  return [
+    { url: languages.en, ...entry, alternates: { languages } },
+    { url: languages.ar, ...entry, alternates: { languages } },
+  ];
+};
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const real = ITEMS.filter((i) => i.capture);
@@ -20,15 +32,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const newest = [...latest.values()].sort().at(-1);
 
   return [
-    ...SECTIONS.map((p) => ({ url: abs(p), lastModified: newest, changeFrequency: "daily" as const, priority: p === "/" ? 1 : 0.8 })),
-    ...LEGAL.map((p) => ({ url: abs(p), changeFrequency: "yearly" as const, priority: 0.2 })),
-    ...real.map((i) => ({
-      url: abs(`/${i.kind}/${i.slug}`),
-      lastModified: i.capture!.capturedAt,
-      changeFrequency: "monthly" as const,
-      priority: i.kind === "screen" ? 0.7 : 0.5,
-      images: i.kind === "screen" ? [abs(captureSrc(i.capture!.shots.desktop.src))] : undefined,
-    })),
-    ...[...latest].map(([slug, at]) => ({ url: abs(`/source/${slug}`), lastModified: at, changeFrequency: "monthly" as const, priority: 0.6 })),
+    ...SECTIONS.flatMap((p) => both(p, { lastModified: newest, changeFrequency: "daily", priority: p === "/" ? 1 : 0.8 })),
+    ...LEGAL.flatMap((p) => both(p, { changeFrequency: "yearly", priority: 0.2 })),
+    ...real.flatMap((i) =>
+      both(`/${i.kind}/${i.slug}`, {
+        lastModified: i.capture!.capturedAt,
+        changeFrequency: "monthly",
+        priority: i.kind === "screen" ? 0.7 : 0.5,
+        images: i.kind === "screen" ? [abs(captureSrc(i.capture!.shots.desktop.src))] : undefined,
+      }),
+    ),
+    ...[...latest].flatMap(([slug, at]) => both(`/source/${slug}`, { lastModified: at, changeFrequency: "monthly", priority: 0.6 })),
   ];
 }

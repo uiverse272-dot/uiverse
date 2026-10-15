@@ -1,0 +1,67 @@
+import type { Metadata } from "next";
+import { Shell, PageHeader } from "@/components/feed/Section";
+import { Sparkle } from "@/components/ui/icons";
+import { getI18n } from "@/i18n/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.upload.title };
+}
+
+/** One screen, progressive disclosure. The URL path is the default — see docs/10 §4.6. */
+export default async function UploadPage() {
+  const { t } = await getI18n();
+  const u = t.upload;
+  return (
+    <Shell wide={false}>
+      <PageHeader title={u.title} sub={u.sub} />
+
+      <div className="space-y-4 py-8">
+        <div className="border border-border bg-surface p-5">
+          <label htmlFor="upload-url" className="text-[13px] font-semibold">
+            {u.url}
+          </label>
+          <input
+            id="upload-url"
+            dir="ltr"
+            placeholder="https://"
+            className="mt-2.5 h-11 w-full border border-border bg-bg-subtle px-3.5 text-[14px] outline-none placeholder:text-text-3 focus:border-border-strong"
+          />
+          <div className="mt-3 flex items-center gap-2 text-[12.5px] text-text-3">
+            <span className="h-px flex-1 bg-border" /> {u.or} <span className="h-px flex-1 bg-border" />
+          </div>
+          <div className="mt-3 grid h-28 place-items-center border border-dashed border-border text-[13px] text-text-3">
+            {u.drop}
+          </div>
+        </div>
+
+        <div className="border border-border bg-surface p-5">
+          <div className="flex items-center gap-2 pb-1">
+            <Sparkle size={15} className="text-text-3" />
+            <h3 className="text-[13px] font-semibold">{u.suggested}</h3>
+            <span className="text-[11.5px] text-text-3">{u.editable}</span>
+          </div>
+          <p className="pb-4 text-[13px] text-text-2">{u.suggestedBody}</p>
+          {u.rows.map(([label, chips]) => (
+            <div key={label} className="flex flex-wrap items-center gap-2 border-t border-border py-2.5">
+              <span className="w-36 shrink-0 text-[12.5px] text-text-3">{label}</span>
+              {chips.map((c) => (
+                <span key={c} className="border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium">
+                  {c} ✕
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div className="border border-border bg-surface p-5">
+          <h3 className="pb-2 text-[13px] font-semibold">{u.attribution}</h3>
+          <p className="text-[13px] leading-relaxed text-text-2">{u.attributionBody}</p>
+        </div>
+
+        <button className="h-11 w-full bg-accent text-[14px] font-medium text-accent-fg">{u.submit}</button>
+        <p className="text-center text-[12px] text-text-3">{u.reviewed}</p>
+      </div>
+    </Shell>
+  );
+}

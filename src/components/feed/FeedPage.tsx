@@ -1,6 +1,8 @@
 import { ITEMS } from "@/lib/data";
 import { applyFilters, filterKey, filtersFromParams, paramFilter, type Filters } from "@/lib/query";
-import { SORTS } from "@/lib/taxonomy";
+import { localTerms, SORTS } from "@/lib/taxonomy";
+import { plural } from "@/i18n/format";
+import { getI18n } from "@/i18n/server";
 import { Feed } from "./Feed";
 import { ssrColumns } from "./ssrColumns";
 import { FilterBar, type FilterDef } from "./FilterBar";
@@ -26,6 +28,7 @@ export async function FeedPage({
   }
   const items = applyFilters(ITEMS, merged);
   const ssrCols = await ssrColumns();
+  const { lang, t } = await getI18n();
 
   /*
    * Faceted options: each filter lists only the values that return something alongside the
@@ -39,7 +42,7 @@ export async function FeedPage({
       const options = d.options.filter(
         (o) => o.slug === url[key] || applyFilters(ITEMS, { ...others, ...paramFilter(d.param, o.slug) }).length > 0,
       );
-      return { ...d, options };
+      return { ...d, options: localTerms(options, lang) };
     })
     .filter((d) => d.options.length > 0);
 
@@ -49,12 +52,12 @@ export async function FeedPage({
         <PageHeader
           title={title}
           sub={sub}
-          right={<span className="text-[13px] text-text-3 tabular-nums">{items.length} results</span>}
+          right={<span className="text-[13px] text-text-3 tabular-nums">{plural(t.common.results, items.length, lang)}</span>}
         />
       </Shell>
       <div className="h-3" />
       <StickyBar>
-        <FilterBar defs={facets} sorts={SORTS} />
+        <FilterBar defs={facets} sorts={localTerms(SORTS, lang)} />
       </StickyBar>
       <Shell>
         <div className="pt-4">

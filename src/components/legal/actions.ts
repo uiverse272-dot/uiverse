@@ -2,6 +2,9 @@
 
 import { randomBytes } from "node:crypto";
 import { headers } from "next/headers";
+import { isLang } from "@/i18n/config";
+import { DICTS } from "@/i18n/dict";
+import { fill } from "@/i18n/format";
 import { ITEMS } from "@/lib/data";
 import { clientIp, rateLimiter } from "@/lib/rateLimit";
 import { deliver, isDomain, normalizeDomain } from "@/lib/takedown";
@@ -21,6 +24,9 @@ const newRef = () =>
   `TD-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(3).toString("hex").toUpperCase()}`;
 
 export async function requestTakedown(_prev: TakedownState, form: FormData): Promise<TakedownState> {
+  /* actions can't read the [lang] root param, so the form says which language it's in */
+  const lang = form.get("lang");
+  const e = DICTS[isLang(lang) ? lang : "en"].takedown.errors;
   const values: Values = {
     domain: str(form, "domain", 300),
     name: str(form, "name", 120),
@@ -32,10 +38,10 @@ export async function requestTakedown(_prev: TakedownState, form: FormData): Pro
   const fail = (message: string, field?: Field): TakedownState => ({ status: "error", message, field, values });
 
   const domain = normalizeDomain(values.domain);
-  if (!isDomain(domain)) return fail("Enter the site's domain, like example.com.", "domain");
-  if (!values.name) return fail("Add your name.", "name");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail("Add an email address we can reply to.", "email");
-  if (!values.confirm) return fail("Confirm you're the owner or authorized to act for them.", "confirm");
+  if (!isDomain(domain)) return fail(e.domain, "domain");
+  if (!values.name) return fail(e.name, "name");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail(e.email, "email");
+  if (!values.confirm) return fail(e.confirm, "confirm");
 
   const held = ITEMS.filter((i) => i.kind === "screen" && i.capture && (i.source.domain === domain || i.source.domain.endsWith(`.${domain}`)));
   const ref = newRef();
@@ -45,7 +51,7 @@ export async function requestTakedown(_prev: TakedownState, form: FormData): Pro
   if (str(form, "website", 200)) return sent;
 
   const wait = limit(clientIp(await headers()));
-  if (wait !== null) return fail(`Too many requests from this network — try again in ${Math.ceil(wait / 60)} minutes.`);
+  if (wait !== null) return fail(fill(e.rate, { n: Math.ceil(wait / 60) }));
 
   const ok = await deliver({
     ref,
@@ -57,5 +63,5 @@ export async function requestTakedown(_prev: TakedownState, form: FormData): Pro
     held: held.map((i) => i.slug),
     receivedAt: new Date().toISOString(),
   });
-  return ok ? sent : fail("The request couldn't be sent just now. Please try again in a few minutes.");
+  return ok ? sent : fail(e.failed);
 }

@@ -64,6 +64,7 @@ capture pipeline and an MCP server over what it captured.
 | `/legal/takedown` | Opt-out form → webhook / email with a reference; `--opt-out` removes the domain everywhere and blocks recapture (`src/content/optout.json`) |
 | Guide | First-visit coach: pick a goal, industry and RTL, land on a feed with results, then walk open → Breakdown → Prompt → save |
 | `POST /api/mcp` | Stateless MCP server over the real captures — search, spec, screenshot, prompt, facets ([docs/12](docs/12-mcp.md)) |
+| `/ar/…` | The whole interface in Arabic, right-to-left — see [Languages](#languages) |
 | SEO | `sitemap.xml` and `robots.txt` over the real captures, share cards per screen and component (`lib/og.tsx`); procedural items are `noindex` |
 | `/dev-measure` | Dev tool, `next dev` only — re-derives archetype and section heights (see the file header) |
 
@@ -96,6 +97,31 @@ a model an image.
 Free plan is metered at 3 prompts a month — the one place in the app where output is gated. Browsing,
 saving and the Breakdown have no counter near them. A credit buys a prompt, not a copy: re-copying or
 editing a prompt you already generated is free (`components/prompt/quota.ts`).
+
+## Languages
+
+English keeps its unprefixed URLs (`/web/fintech`); Arabic lives under `/ar` (`/ar/web/fintech`), right-to-left.
+
+- **Routing.** Every route sits under `app/[lang]`. `src/proxy.ts` rewrites an unprefixed URL to `/en/…`
+  invisibly, and sends someone who picked Arabic (the `uiv.lang` cookie the language switch sets) to
+  the `/ar` version of an unprefixed link. Crawlers carry no cookie, so they get the URL they asked for.
+  Server components read the language with `getI18n()` (`next/root-params`); client components with
+  `useI18n()`. Use `Link`, `useLocalRouter` and `useLocalPath` from `@/i18n/client`, never
+  `next/link` / `useRouter` / `usePathname` directly — they keep you in your language, and the last one
+  strips the locale so prerendered pages hydrate the same on server and client.
+- **Strings.** `src/i18n/dict/en.ts` is the shape; `ar.ts` must match it key for key, so an untranslated
+  string fails the build. Counts go through `plural()` (all six Arabic forms); digits stay Latin.
+  Taxonomy names sit beside each term (`ar:` in `lib/taxonomy.ts`); screen titles, block labels and the
+  Breakdown's design facts are in `src/i18n/content.ts`, falling back to English when missing.
+- **Direction.** Layout uses logical utilities (`ms-`, `pe-`, `start-`, `border-e`, `text-start`) so it
+  mirrors. Previews and captures stay left-to-right — they're pictures of designs. Reflow rules render
+  through `<Flow>`, which isolates each step so "48px → 36px" reads in order inside Arabic text.
+- **Search** understands Arabic on either language's pages: normalized spelling (hamza forms, ة, ى,
+  diacritics, a leading «ال»), Arabic taxonomy names and synonyms («لوحة تحكم داكنة» → Dashboard + Dark).
+- **What stays English:** generated prompts (coding tools follow English best — the dialog says so),
+  invented brands' descriptions, and share-card text (the card font has no Arabic glyphs yet).
+- The Arabic is machine-drafted Modern Standard Arabic. **Have a native speaker review `ar.ts` and
+  `content.ts` before launch.**
 
 ## Notes on the prototype
 

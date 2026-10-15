@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
 import { Check, Chevron, Close, Filter } from "../ui/icons";
 
 export type FilterDef = {
@@ -12,8 +13,8 @@ export type FilterDef = {
 
 /** All feed state lives in the URL — shareable, back-button correct, SSR-able. */
 export function useFilterState() {
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useLocalRouter();
+  const pathname = useLocalPath();
   const sp = useSearchParams();
 
   const set = useCallback(
@@ -70,7 +71,7 @@ function Popover({
         <Chevron size={13} />
       </button>
       {open ? (
-        <div className="anim-fade-in absolute left-0 top-9 z-50 max-h-[320px] w-56 overflow-auto border border-border bg-surface shadow-[4px_4px_0_var(--border)]">
+        <div className="anim-fade-in absolute start-0 top-9 z-50 max-h-[320px] w-56 overflow-auto border border-border bg-surface shadow-[4px_4px_0_var(--border)]">
           {children(() => setOpen(false))}
         </div>
       ) : null}
@@ -85,13 +86,14 @@ export function FilterBar({
   defs: FilterDef[];
   sorts?: readonly { slug: string; name: string }[];
 }) {
+  const { t } = useI18n();
   const { get, set, clear } = useFilterState();
   const active = defs.filter((d) => get(d.param));
   const sort = get("sort");
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto scroll-x py-2.5">
-      <span className="hidden items-center gap-1.5 pr-1 text-[12.5px] md:inline-flex">
+      <span className="hidden items-center gap-1.5 pe-1 text-[12.5px] md:inline-flex" title={t.filters.label}>
         <Filter size={14} />
       </span>
 
@@ -109,7 +111,7 @@ export function FilterBar({
                       set(d.param, o.slug);
                       close();
                     }}
-                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-left text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
+                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-start text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
                   >
                     {o.name}
                     {v === o.slug ? <Check size={13} /> : null}
@@ -121,12 +123,12 @@ export function FilterBar({
         );
       })}
 
-      <Toggle label="Code" on={get("code") === "true"} onClick={() => set("code", get("code") ? undefined : "true")} />
-      <Toggle label="RTL" on={get("dir") === "rtl"} onClick={() => set("dir", get("dir") ? undefined : "rtl")} />
+      <Toggle label={t.filters.code} on={get("code") === "true"} onClick={() => set("code", get("code") ? undefined : "true")} />
+      <Toggle label={t.filters.rtl} on={get("dir") === "rtl"} onClick={() => set("dir", get("dir") ? undefined : "rtl")} />
 
       {sorts ? (
-        <div className="ml-auto flex items-center gap-2 pl-2">
-          <Popover label="Trending" value={sorts.find((s) => s.slug === sort)?.name}>
+        <div className="ms-auto flex items-center gap-2 ps-2">
+          <Popover label={t.filters.trending} value={sorts.find((s) => s.slug === sort)?.name}>
             {(close) => (
               <>
                 {sorts.map((s) => (
@@ -136,7 +138,7 @@ export function FilterBar({
                       set("sort", s.slug);
                       close();
                     }}
-                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-left text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
+                    className="flex w-full items-center justify-between border-b border-rule px-3 py-2 text-start text-[12.5px] last:border-b-0 hover:bg-bg-subtle"
                   >
                     {s.name}
                     {sort === s.slug ? <Check size={13} /> : null}
@@ -153,7 +155,7 @@ export function FilterBar({
           onClick={clear}
           className="link-ink inline-flex h-8 shrink-0 items-center gap-1 px-2 text-[12px]"
         >
-          <Close size={13} /> Clear
+          <Close size={13} /> {t.common.clear}
         </button>
       ) : null}
     </div>
@@ -185,7 +187,8 @@ export function ChipRail({
     <div className="flex items-center gap-2 overflow-x-auto scroll-x">
       {chips.map((c) => {
         const p = c.param ?? param;
-        const on = c.value ? get(p) === c.value : !get(p) && c.label === "For You";
+        /* the chip without a value is the default: selected when the URL names none */
+        const on = c.value ? get(p) === c.value : !get(p);
         return (
           <button
             key={c.label}

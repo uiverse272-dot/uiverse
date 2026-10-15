@@ -1,22 +1,23 @@
+import type { Lang } from "@/i18n/config";
+import type { Dict } from "@/i18n/dict";
+import { fill } from "@/i18n/format";
 import { ITEMS } from "@/lib/data";
 import { applyFilters, SCOPES, type Filters, type Scope } from "@/lib/query";
 
-/** What someone can say they're building — each one is a feed they can land in. */
-export const GOALS: { id: string; label: string; hint: string; scope: Scope; category?: string }[] = [
-  { id: "landing", label: "Landing page", hint: "Homepages, product pages", scope: "web", category: "landing-page" },
-  { id: "pricing", label: "Pricing page", hint: "Tiers, plans, comparisons", scope: "web", category: "pricing" },
-  { id: "dashboard", label: "Dashboard", hint: "Apps, admin, analytics", scope: "web", category: "dashboard" },
-  { id: "store", label: "Online store", hint: "Shop, product grid", scope: "web", category: "ecommerce" },
-  { id: "checkout", label: "Checkout", hint: "Cart, payment, order", scope: "web", category: "checkout" },
-  { id: "auth", label: "Sign-in / sign-up", hint: "Login, onboarding forms", scope: "web", category: "auth" },
-  { id: "mobile", label: "Mobile app", hint: "iOS and Android screens", scope: "apps" },
-  { id: "component", label: "One component", hint: "Hero, navbar, pricing table…", scope: "components" },
+/** What someone can say they're building — each one is a feed they can land in. Labels: dict guide.goals */
+export const GOALS: { id: string; scope: Scope; category?: string }[] = [
+  { id: "landing", scope: "web", category: "landing-page" },
+  { id: "pricing", scope: "web", category: "pricing" },
+  { id: "dashboard", scope: "web", category: "dashboard" },
+  { id: "store", scope: "web", category: "ecommerce" },
+  { id: "checkout", scope: "web", category: "checkout" },
+  { id: "auth", scope: "web", category: "auth" },
+  { id: "mobile", scope: "apps" },
+  { id: "component", scope: "components" },
 ];
 
-export const GUIDE_INDUSTRIES = [
-  ["fintech", "Fintech"], ["saas", "SaaS"], ["ecommerce", "E-commerce"], ["food", "Food"],
-  ["healthcare", "Health"], ["education", "Education"], ["travel", "Travel"], ["ai", "AI"],
-] as const;
+/** Labels: dict guide.industries */
+export const GUIDE_INDUSTRIES = ["fintech", "saas", "ecommerce", "food", "healthcare", "education", "travel", "ai"] as const;
 
 export type Goal = { id: string; industry?: string; rtl: boolean };
 
@@ -51,8 +52,10 @@ export function landing(g: Goal) {
   return { href: SCOPES[def.scope].path, count: 0, relaxed: [] };
 }
 
-export function describe(g: Goal) {
-  const def = GOALS.find((x) => x.id === g.id) ?? GOALS[0];
-  const ind = GUIDE_INDUSTRIES.find(([s]) => s === g.industry)?.[1];
-  return [def.label.toLowerCase(), ind ? `for ${ind}` : null, g.rtl ? "· Arabic / RTL" : null].filter(Boolean).join(" ");
+export function describe(g: Goal, t: Dict["guide"], lang: Lang) {
+  const label = (t.goals[g.id] ?? t.goals.landing)[0];
+  const ind = g.industry ? t.industries[g.industry] : undefined;
+  return [lang === "ar" ? label : label.toLowerCase(), ind ? fill(t.forIndustry, { industry: ind }) : null, g.rtl ? t.rtlTag : null]
+    .filter(Boolean)
+    .join(" ");
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n/client";
 import { useSaved } from "./SavedProvider";
 import { Check, Plus } from "../ui/icons";
 
@@ -9,6 +10,7 @@ import { Check, Plus } from "../ui/icons";
  * Choosing a board is a separate, optional act — see docs/10 §4.1.
  */
 export function SaveToast() {
+  const { t } = useI18n();
   const { toast, clearToast, collections, move, create } = useSaved();
   const [picking, setPicking] = useState(false);
   const [name, setName] = useState("");
@@ -54,16 +56,16 @@ export function SaveToast() {
                     onClick={() => setPicking(true)}
                     className="border border-border px-2.5 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle"
                   >
-                    Move to…
+                    {t.save.moveTo}
                   </button>
                 ) : null}
                 <button onClick={clearToast} className="px-1 text-[12.5px] text-text-3 hover:text-text">
-                  Dismiss
+                  {t.common.dismiss}
                 </button>
               </div>
             ) : (
               <div>
-                <div className="px-1 pb-2 text-[12px] font-medium text-text-3">Move to collection</div>
+                <div className="px-1 pb-2 text-[12px] font-medium text-text-3">{t.save.moveToCollection}</div>
                 <div className="max-h-52 overflow-auto">
                   {collections.map((c) => (
                     <button
@@ -72,7 +74,7 @@ export function SaveToast() {
                         if (toast.slug) move(toast.slug, c.id);
                         setPicking(false);
                       }}
-                      className="flex w-full items-center gap-2 px-2 py-2 text-left text-[13px] hover:bg-bg-subtle"
+                      className="flex w-full items-center gap-2 px-2 py-2 text-start text-[13px] hover:bg-bg-subtle"
                     >
                       {c.name}
                     </button>
@@ -94,7 +96,7 @@ export function SaveToast() {
                     autoFocus
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="New collection…"
+                    placeholder={t.save.newCollection}
                     className="flex-1 bg-transparent py-1 text-[13px] outline-none placeholder:text-text-3"
                   />
                 </form>

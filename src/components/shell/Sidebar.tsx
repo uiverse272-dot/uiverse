@@ -1,24 +1,26 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useI18n, useLocalPath } from "@/i18n/client";
+import type { Dict } from "@/i18n/dict";
 import { ThemeToggle } from "./Theme";
 import { Bookmark, Compass, Grid, Home, Layout, Monitor, Palette, Phone, Upload, User } from "../ui/icons";
 
-const NAV = [
-  { href: "/", label: "Home", Icon: Home },
-  { href: "/explore", label: "Explore", Icon: Compass },
-  { href: "/web", label: "Web", Icon: Monitor },
-  { href: "/apps", label: "Apps", Icon: Phone },
-  { href: "/components", label: "Parts", Icon: Grid },
-  { href: "/layouts", label: "Layouts", Icon: Layout },
-  { href: "/palettes", label: "Palettes", Icon: Palette },
-  { href: "/saved", label: "Saved", Icon: Bookmark },
+type NavKey = keyof Dict["nav"];
+
+const NAV: { href: string; key: NavKey; Icon: (p: { size?: number }) => React.ReactNode }[] = [
+  { href: "/", key: "home", Icon: Home },
+  { href: "/explore", key: "explore", Icon: Compass },
+  { href: "/web", key: "web", Icon: Monitor },
+  { href: "/apps", key: "apps", Icon: Phone },
+  { href: "/components", key: "parts", Icon: Grid },
+  { href: "/layouts", key: "layouts", Icon: Layout },
+  { href: "/palettes", key: "palettes", Icon: Palette },
+  { href: "/saved", key: "saved", Icon: Bookmark },
 ];
 
-const FOOT = [
-  { href: "/upload", label: "Upload", Icon: Upload },
-  { href: "/u/me", label: "Profile", Icon: User },
+const FOOT: typeof NAV = [
+  { href: "/upload", key: "upload", Icon: Upload },
+  { href: "/u/me", key: "profile", Icon: User },
 ];
 
 /** The U cradling a planet: UI + universe. Same drawing as app/icon.svg. */
@@ -33,10 +35,11 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
 }
 
 export function Logo() {
+  const { t } = useI18n();
   return (
     <Link
       href="/"
-      aria-label="Uiverse home"
+      aria-label={t.nav.logoHome}
       className="group grid h-16 shrink-0 place-items-center"
     >
       <LogoMark
@@ -49,23 +52,24 @@ export function Logo() {
 
 /** Desktop rail. Phones get BottomNav instead. */
 export function Sidebar() {
-  const pathname = usePathname();
+  const { t } = useI18n();
+  const pathname = useLocalPath();
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[88px] shrink-0 flex-col border-r border-border bg-bg md:flex">
+    <aside className="sticky top-0 hidden h-dvh w-[88px] shrink-0 flex-col border-e border-border bg-bg md:flex">
       <div className="border-b border-border">
         <Logo />
       </div>
       <nav className="scroll-x flex flex-1 flex-col items-stretch gap-1 overflow-y-auto py-4">
         {NAV.map((n) => (
-          <RailLink key={n.href} {...n} on={active(n.href)} />
+          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key] as string} on={active(n.href)} />
         ))}
       </nav>
       <div className="flex flex-col gap-1 py-4">
         {FOOT.map((n) => (
-          <RailLink key={n.href} {...n} on={active(n.href)} />
+          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key] as string} on={active(n.href)} />
         ))}
         <ThemeToggle rail />
       </div>

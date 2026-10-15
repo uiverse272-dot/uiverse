@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { compact, type Item } from "@/lib/data";
+import { Link, useI18n } from "@/i18n/client";
+import { itemTitle } from "@/i18n/content";
+import { compactNum, plural } from "@/i18n/format";
+import type { Item } from "@/lib/data";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
 import { Code, Layers, Sparkle } from "../ui/icons";
@@ -12,6 +14,7 @@ import { Code, Layers, Sparkle } from "../ui/icons";
  * `crop` (width / height) fixes the plate's aspect so cards line up in a row instead of a masonry.
  */
 export function Card({ item, crop }: { item: Item; crop?: number }) {
+  const { lang, t } = useI18n();
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
 
   return (
@@ -21,33 +24,34 @@ export function Card({ item, crop }: { item: Item; crop?: number }) {
           <div className="relative overflow-hidden border border-border">
             <MockScreen item={crop ? { ...item, aspect: crop } : item} />
 
-            <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">
-              {item.hasCode ? <Badge title="Code available"><Code size={12} /></Badge> : null}
-              {item.has3d ? <Badge title="3D / WebGL"><Sparkle size={12} /></Badge> : null}
-              {item.kind === "component" ? <Badge title="Component"><Layers size={12} /></Badge> : null}
+            <div className="absolute bottom-1.5 end-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">
+              {item.hasCode ? <Badge title={t.card.code}><Code size={12} /></Badge> : null}
+              {item.has3d ? <Badge title={t.card.threeD}><Sparkle size={12} /></Badge> : null}
+              {item.kind === "component" ? <Badge title={t.card.componentBadge}><Layers size={12} /></Badge> : null}
             </div>
 
             {item.tier === "premium" ? (
-              <span className="absolute left-1.5 top-1.5 border border-on-signal bg-signal px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-signal">
-                Pro
+              <span className="absolute start-1.5 top-1.5 border border-on-signal bg-signal px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-signal">
+                {t.card.pro}
               </span>
             ) : null}
           </div>
         </div>
 
-        <div className="mt-2.5 pr-8">
-          <div className="line-clamp-2 font-display text-[13.5px] leading-snug">{item.title}</div>
+        <div className="mt-2.5 pe-8">
+          <div className="line-clamp-2 font-display text-[13.5px] leading-snug">{itemTitle(item, lang)}</div>
           <div className="mt-0.5 truncate text-[11px] text-text-2">
-            {item.kind === "component" ? `${item.source.name} · component` : item.source.name}
+            <bdi>{item.source.name}</bdi>
+            {item.kind === "component" ? ` · ${t.card.component}` : null}
           </div>
           <div className="mt-1.5 flex items-center gap-1.5 text-[11px] tabular-nums">
             <span className="h-2.5 w-2.5 shrink-0 border border-border" style={{ background: item.palette.accent }} />
-            {compact(item.saves)} saves
+            {plural(t.card.saves, item.saves, lang, { n: compactNum(item.saves, lang) })}
           </div>
         </div>
       </Link>
 
-      <div className="absolute bottom-0 right-0">
+      <div className="absolute bottom-0 end-0">
         <SaveButton slug={item.slug} variant="icon" />
       </div>
     </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Link, useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
+import { stripLang } from "@/i18n/config";
+import { fill, plural } from "@/i18n/format";
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { Check, Close, Sparkle } from "../ui/icons";
 import { onGuideEvent, onGuideStart, type GuideEvent } from "./events";
@@ -15,45 +16,36 @@ import { describe, GOALS, GUIDE_INDUSTRIES, landing, type Goal } from "./goals";
  * coach is a small panel, and both can be dismissed at any step.
  */
 
-type Step = { id: string; title: string; body: string; target: string; on: GuideEvent | "detail"; page: "feed" | "detail" };
+/* each step's title and body: dict guide.steps[id] */
+type Step = { id: string; target: string; on: GuideEvent | "detail"; page: "feed" | "detail" };
 
 const STEPS: Step[] = [
   {
     id: "open",
-    title: "Open one that's close",
-    body: "These are real interfaces for your goal. Narrow them with the filters — RTL included — then open any design close to what you want.",
     target: '[data-guide="card"]',
     on: "detail",
     page: "feed",
   },
   {
     id: "breakdown",
-    title: "See how it's built",
-    body: "Open the Breakdown tab: section order, colours, type scale and spacing — measured from the page, not guessed.",
     target: '[data-guide="breakdown-tab"]',
     on: "breakdown",
     page: "detail",
   },
   {
     id: "prompt",
-    title: "Turn it into a build prompt",
-    body: "Prompt writes a spec from those measurements for Claude, Cursor, v0 and the rest.",
     target: '[data-guide="prompt"]',
     on: "prompt-open",
     page: "detail",
   },
   {
     id: "copy",
-    title: "Pick your tool, then copy",
-    body: "Choose the AI tool and stack you use, copy the prompt, and paste it there. You get a build in your own brand — not a clone.",
     target: '[data-guide="prompt-copy"]',
     on: "prompt-copy",
     page: "detail",
   },
   {
     id: "save",
-    title: "Keep it",
-    body: "Save it so it's waiting in Saved when you come back. Do the same for anything else worth keeping.",
     target: '[data-guide="save"]',
     on: "save",
     page: "detail",
@@ -79,8 +71,8 @@ function persist(s: State) {
 }
 
 export function Guide() {
-  const pathname = usePathname();
-  const router = useRouter();
+  const pathname = useLocalPath();
+  const router = useLocalRouter();
   const [state, setState] = useState<State | null>(null);
   const [target, setTarget] = useState<DOMRect | null>(null);
 
@@ -93,7 +85,7 @@ export function Guide() {
   useEffect(() => {
     const saved = load();
     const asked = new URLSearchParams(window.location.search).has("tour");
-    const quiet = /^\/(legal|dev-measure)/.test(window.location.pathname);
+    const quiet = /^\/(legal|dev-measure)/.test(stripLang(window.location.pathname));
     const t = setTimeout(() => {
       if (asked) setState({ status: "welcome", step: 0, goal: saved?.goal });
       else if (saved) setState(saved);
@@ -145,7 +137,7 @@ export function Guide() {
     <>
       {!offTrack ? <Spotlight key={step.id} selector={step.target} scroll={step.page === "detail"} onRect={setTarget} /> : null}
       <Coach
-        side={dodge && target.left < 480 && target.bottom > window.innerHeight - 320 ? "right" : "left"}
+        side={dodge && fromStart(target) < 480 && target.bottom > window.innerHeight - 320 ? "end" : "start"}
         index={current}
         step={step}
         goal={state.goal}
@@ -159,9 +151,14 @@ export function Guide() {
   );
 }
 
+/* how far the target sits from the reading start — the rail's side, left in English and right in Arabic */
+const fromStart = (r: DOMRect) => (document.documentElement.dir === "rtl" ? innerWidth - r.right : r.left);
+
 /* ------------------------------------------------------------------ */
 
 function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void; onGo: (g: Goal) => void }) {
+  const { lang, t } = useI18n();
+  const g = t.guide;
   const [goal, setGoal] = useState<Goal>(initial ?? { id: "landing", rtl: false });
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -184,41 +181,39 @@ function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void
         aria-labelledby={titleId}
         className="anim-fade-up relative max-h-[90dvh] w-full max-w-[680px] overflow-y-auto border border-border bg-bg shadow-[6px_6px_0_var(--border)]"
       >
-        <div className="flex items-center justify-between border-b border-border bg-signal pl-5 text-on-signal">
+        <div className="flex items-center justify-between border-b border-border bg-signal ps-5 text-on-signal">
           <span className="flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.12em]">
-            <Sparkle size={13} /> Welcome to Uiverse
+            <Sparkle size={13} /> {g.welcome}
           </span>
-          <button onClick={onSkip} aria-label="Close" className="grid h-11 w-11 place-items-center border-l border-on-signal/30">
+          <button onClick={onSkip} aria-label={t.common.close} className="grid h-11 w-11 place-items-center border-s border-on-signal/30">
             <Close size={16} />
           </button>
         </div>
 
         <div className="p-5 md:p-7">
           <h2 id={titleId} className="font-display text-[24px] font-bold leading-tight tracking-[-0.02em] md:text-[28px]">
-            What are you building?
+            {g.question}
           </h2>
-          <p className="mt-2 max-w-[520px] text-[13.5px] leading-relaxed text-text-2">
-            Pick one and we&apos;ll show you real interfaces to learn from — then walk you from finding one to a build
-            prompt for your AI tool. About a minute.
-          </p>
+          <p className="mt-2 max-w-[520px] text-[13.5px] leading-relaxed text-text-2">{g.intro}</p>
 
-          <div role="group" aria-label="Goal" className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {GOALS.map((g) => {
-              const on = goal.id === g.id;
+          <div role="group" aria-label={g.goal} className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {GOALS.map((goalDef) => {
+              const on = goal.id === goalDef.id;
+              const [label, hint] = g.goals[goalDef.id];
               return (
                 <button
-                  key={g.id}
-                  onClick={() => setGoal((x) => ({ ...x, id: g.id }))}
+                  key={goalDef.id}
+                  onClick={() => setGoal((x) => ({ ...x, id: goalDef.id }))}
                   aria-pressed={on}
-                  className={`border p-3 text-left transition-colors ${
+                  className={`border p-3 text-start transition-colors ${
                     on ? "border-text bg-surface shadow-[3px_3px_0_var(--border)]" : "border-border hover:bg-bg-subtle"
                   }`}
                 >
                   <span className="flex items-start justify-between gap-2">
-                    <span className="text-[13px] font-bold leading-snug">{g.label}</span>
+                    <span className="text-[13px] font-bold leading-snug">{label}</span>
                     {on ? <Check size={14} className="mt-0.5 shrink-0" /> : null}
                   </span>
-                  <span className="mt-1 block text-[11px] leading-snug text-text-3">{g.hint}</span>
+                  <span className="mt-1 block text-[11px] leading-snug text-text-3">{hint}</span>
                 </button>
               );
             })}
@@ -226,10 +221,11 @@ function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void
 
           <div className="mt-5">
             <div className="pb-2 text-[12px] font-bold">
-              Industry <span className="font-normal text-text-3">— optional</span>
+              {g.industry} <span className="font-normal text-text-3">— {t.common.optional}</span>
             </div>
-            <div role="group" aria-label="Industry" className="flex flex-wrap gap-1.5">
-              {GUIDE_INDUSTRIES.map(([slug, label]) => {
+            <div role="group" aria-label={g.industry} className="flex flex-wrap gap-1.5">
+              {GUIDE_INDUSTRIES.map((slug) => {
+                const label = g.industries[slug];
                 const on = goal.industry === slug;
                 return (
                   <button
@@ -251,39 +247,41 @@ function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void
             role="switch"
             aria-checked={goal.rtl}
             onClick={() => setGoal((x) => ({ ...x, rtl: !x.rtl }))}
-            className="mt-5 flex w-full items-center gap-3 border border-border p-3 text-left hover:bg-bg-subtle"
+            className="mt-5 flex w-full items-center gap-3 border border-border p-3 text-start hover:bg-bg-subtle"
           >
             <span
               aria-hidden
               className={`relative h-5 w-9 shrink-0 border border-border transition-colors ${goal.rtl ? "bg-accent" : "bg-bg-subtle"}`}
             >
-              <span className={`absolute top-0.5 h-3.5 w-3.5 border border-border bg-bg transition-[left] ${goal.rtl ? "left-[18px]" : "left-0.5"}`} />
+              <span className={`absolute top-0.5 h-3.5 w-3.5 border border-border bg-bg transition-[inset-inline-start] ${goal.rtl ? "start-[18px]" : "start-0.5"}`} />
             </span>
             <span>
               <span className="block text-[13px] font-bold">
-                Arabic / right-to-left <span className="font-normal text-text-3">·</span>{" "}
-                <bdi lang="ar" className="font-normal text-text-3">عربي</bdi>
+                {g.rtlTitle} <span className="font-normal text-text-3">·</span>{" "}
+                <bdi lang={lang === "ar" ? "en" : "ar"} className="font-normal text-text-3">{g.rtlNative}</bdi>
               </span>
-              <span className="block text-[11.5px] text-text-3">Real RTL interfaces, and prompts that build RTL-first</span>
+              <span className="block text-[11.5px] text-text-3">{g.rtlHint}</span>
             </span>
           </button>
 
           {/* pinned to the bottom of the dialog, so the next step is always in reach on a phone */}
           <div className="sticky -bottom-5 -mx-5 mt-6 flex flex-col-reverse items-stretch gap-2 border-t border-border bg-bg px-5 pb-5 pt-4 sm:flex-row sm:items-center sm:justify-between md:-bottom-7 md:-mx-7 md:px-7 md:pb-7">
             <button onClick={onSkip} className="h-11 px-2 text-[13px] text-text-2 underline-offset-4 hover:text-text hover:underline">
-              Just browsing
+              {g.justBrowsing}
             </button>
             <div className="flex flex-col items-stretch gap-1 sm:items-end">
               <button
                 onClick={() => onGo(goal)}
                 className="h-11 bg-accent px-5 text-[13.5px] font-medium text-accent-fg hover:brightness-105"
               >
-                Show {land.count} {land.count === 1 ? "design" : "designs"} →
+                {plural(g.show, land.count, lang)} {t.common.arrow}
               </button>
               {land.relaxed.length ? (
                 <span className="text-[11px] text-text-3">
-                  No exact match yet — showing every {goal.rtl && !land.relaxed.includes("dir") ? "RTL " : ""}
-                  {GOALS.find((g) => g.id === goal.id)?.label.toLowerCase()} design
+                  {fill(g.noExact, {
+                    rtl: goal.rtl && !land.relaxed.includes("dir") ? g.rtlPrefix : "",
+                    goal: lang === "ar" ? g.goals[goal.id][0] : g.goals[goal.id][0].toLowerCase(),
+                  })}
                 </span>
               ) : null}
             </div>
@@ -307,7 +305,7 @@ function Coach({
   onSkip,
   onEnd,
 }: {
-  side: "left" | "right";
+  side: "start" | "end";
   index: number;
   step: Step;
   goal?: Goal;
@@ -317,20 +315,22 @@ function Coach({
   onSkip: () => void;
   onEnd: () => void;
 }) {
+  const { lang, t } = useI18n();
+  const [title, body] = t.guide.steps[step.id];
   return (
     <section
-      aria-label="Guide"
+      aria-label={t.guide.label}
       aria-live="polite"
       className={`anim-fade-up fixed inset-x-3 bottom-[68px] z-[96] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:w-[340px] ${
         /* dodge the thing it's pointing at */
-        side === "right" ? "md:right-6" : "md:left-[112px]"
+        side === "end" ? "md:end-6" : "md:start-[112px]"
       }`}
     >
-      <div className="flex items-center justify-between border-b border-border bg-signal pl-3.5 text-on-signal">
+      <div className="flex items-center justify-between border-b border-border bg-signal ps-3.5 text-on-signal">
         <span className="text-[11px] font-bold uppercase tracking-[0.12em]">
-          Guide · {index + 1} of {STEPS.length}
+          {fill(t.guide.stepOf, { i: index + 1, n: STEPS.length })}
         </span>
-        <button onClick={onEnd} aria-label="End guide" className="grid h-9 w-9 place-items-center border-l border-on-signal/30">
+        <button onClick={onEnd} aria-label={t.guide.end} className="grid h-9 w-9 place-items-center border-s border-on-signal/30">
           <Close size={14} />
         </button>
       </div>
@@ -340,18 +340,16 @@ function Coach({
         ))}
       </div>
       <div className="px-3.5 pb-3.5 pt-3">
-        <h2 className="text-[14px] font-bold leading-snug">{offTrack ? "Open a design to continue" : step.title}</h2>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-text-2">
-          {offTrack ? "The next steps happen on a design's page. Pick up where you left off:" : step.body}
-        </p>
-        {goal ? <p className="mt-2 text-[11px] text-text-3">Building: {describe(goal)}</p> : null}
+        <h2 className="text-[14px] font-bold leading-snug">{offTrack ? t.guide.offTitle : title}</h2>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-text-2">{offTrack ? t.guide.offBody : body}</p>
+        {goal ? <p className="mt-2 text-[11px] text-text-3">{fill(t.guide.building, { what: describe(goal, t.guide, lang) })}</p> : null}
         <div className="mt-3 flex items-center justify-between gap-2">
           <button onClick={onSkip} className="text-[12px] text-text-2 underline-offset-4 hover:text-text hover:underline">
-            Skip this step
+            {t.guide.skip}
           </button>
           {offTrack || (step.page === "feed" && !onFeed) ? (
             <Link href={goalHref} className="inline-flex h-8 items-center bg-accent px-3 text-[12px] font-medium text-accent-fg">
-              Show my results →
+              {t.guide.showResults} {t.common.arrow}
             </Link>
           ) : null}
         </div>
@@ -361,25 +359,36 @@ function Coach({
 }
 
 function Finished({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n();
   return (
     <section
-      aria-label="Guide"
+      aria-label={t.guide.label}
       aria-live="polite"
-      className="anim-fade-up fixed inset-x-3 bottom-[68px] z-[96] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:left-[112px] md:w-[360px]"
+      className="anim-fade-up fixed inset-x-3 bottom-[68px] z-[96] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:start-[112px] md:w-[360px]"
     >
       <div className="border-b border-border bg-signal px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-on-signal">
-        That&apos;s the loop
+        {t.guide.loop}
       </div>
       <div className="p-3.5">
         <ol className="space-y-1.5 text-[12.5px] leading-relaxed text-text-2">
-          <li><b className="text-text">Find</b> — a feed, filters, or <kbd className="border border-border px-1 font-mono text-[10.5px]">⌘K</kbd> search from anywhere</li>
-          <li><b className="text-text">Open</b> — anything close to what you want</li>
-          <li><b className="text-text">Understand</b> — Breakdown and Responsive show the real values</li>
-          <li><b className="text-text">Build</b> — Prompt, for the tool you use</li>
+          {t.guide.loopSteps.map(([k, v]) => {
+            const [before, after] = v.split("{kbd}");
+            return (
+              <li key={k}>
+                <b className="text-text">{k}</b> — {before}
+                {after !== undefined ? (
+                  <>
+                    <kbd dir="ltr" className="border border-border px-1 font-mono text-[10.5px]">⌘K</kbd>
+                    {after}
+                  </>
+                ) : null}
+              </li>
+            );
+          })}
         </ol>
-        <p className="mt-3 text-[11.5px] text-text-3">Replay this guide any time from More.</p>
+        <p className="mt-3 text-[11.5px] text-text-3">{t.guide.replay}</p>
         <button onClick={onClose} className="mt-3 h-9 w-full bg-accent text-[13px] font-medium text-accent-fg">
-          Got it
+          {t.guide.gotIt}
         </button>
       </div>
     </section>

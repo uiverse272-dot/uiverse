@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useI18n, useLocalRouter } from "@/i18n/client";
+import { fill } from "@/i18n/format";
 import { parseQuery } from "@/lib/query";
 import { Search } from "../ui/icons";
 
-const EXAMPLES = [
-  "dark fintech dashboard",
-  "minimal saas pricing section",
-  "luxury ecommerce landing page",
-  "ios onboarding flow",
-  "editorial blog layout",
-];
-
 /** `initial` seeds the field — the results page passes its query so it can be refined in place. */
 export function SearchField({ big = false, initial = "" }: { big?: boolean; initial?: string }) {
-  const router = useRouter();
+  const { lang, t } = useI18n();
+  const router = useLocalRouter();
+  const EXAMPLES = t.search.examples;
   const [q, setQ] = useState(initial);
   const [focused, setFocused] = useState(false);
   const [ph, setPh] = useState(0);
@@ -23,9 +18,9 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
 
   useEffect(() => {
     if (!big) return;
-    const t = setInterval(() => setPh((p) => (p + 1) % EXAMPLES.length), 3200);
-    return () => clearInterval(t);
-  }, [big]);
+    const tick = setInterval(() => setPh((p) => (p + 1) % EXAMPLES.length), 3200);
+    return () => clearInterval(tick);
+  }, [big, EXAMPLES.length]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -40,7 +35,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const parsed = parseQuery(q);
+  const parsed = parseQuery(q, lang);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +61,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
             onChange={(e) => setQ(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 140)}
-            placeholder={big ? `Try: ${EXAMPLES[ph]}` : "Site, component, style, or industry"}
+            placeholder={big ? fill(t.search.tryPrefix, { q: EXAMPLES[ph % EXAMPLES.length] }) : t.search.placeholder}
             className={`w-full bg-transparent outline-none ${
               big ? "text-[15px] placeholder:text-text-3" : "text-[13px] placeholder:text-on-signal/70"
             }`}
@@ -83,10 +78,10 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
         <div className="anim-fade-in absolute inset-x-0 top-[calc(100%+6px)] z-[70] border border-border bg-surface p-2 text-text shadow-[4px_4px_0_var(--border)]">
           {parsed.terms.length ? (
             <div className="flex flex-wrap items-center gap-1.5 px-1.5 pb-2">
-              <span className="text-[11.5px] text-text-3">Reading as</span>
-              {parsed.terms.map((t) => (
-                <span key={t.param} className="border border-border bg-signal px-1.5 py-0.5 text-[11px] text-on-signal">
-                  {t.dimension}: {t.label}
+              <span className="text-[11.5px] text-text-3">{t.search.readingAs}</span>
+              {parsed.terms.map((term) => (
+                <span key={term.param} className="border border-border bg-signal px-1.5 py-0.5 text-[11px] text-on-signal">
+                  {term.dimension}: {term.label}
                 </span>
               ))}
             </div>
@@ -96,10 +91,10 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
               e.preventDefault();
               router.push(`/search?q=${encodeURIComponent(q.trim())}`);
             }}
-            className="flex w-full items-center gap-2.5 px-2 py-2 text-left text-[13px] hover:bg-bg-subtle"
+            className="flex w-full items-center gap-2.5 px-2 py-2 text-start text-[13px] hover:bg-bg-subtle"
           >
             <Search size={14} className="text-text-3" />
-            Search for <span className="font-bold">“{q}”</span>
+            {t.search.searchFor} <bdi className="font-bold">“{q}”</bdi>
           </button>
         </div>
       ) : null}

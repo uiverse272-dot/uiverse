@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { compact, timeAgo, type Item } from "@/lib/data";
+import { Link, useI18n } from "@/i18n/client";
+import { blockLabel, itemTitle, ruleText } from "@/i18n/content";
+import { compactNum, fill, plural, timeAgo } from "@/i18n/format";
+import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
 import { responsiveRules } from "@/lib/spec";
@@ -13,6 +15,7 @@ import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
 import { Code, External, Layers, Sparkle } from "../ui/icons";
+import { Flow } from "../ui/Flow";
 import { PromptDialog } from "../prompt/PromptDialog";
 import { guideEvent } from "../guide/events";
 
@@ -29,6 +32,7 @@ export function DetailView({
   fromSource: Item[];
   presentation?: "page" | "overlay";
 }) {
+  const { lang, t } = useI18n();
   const [tab, setTab] = useState<Tab>("overview");
   const [promptOpen, setPromptOpen] = useState(false);
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
@@ -45,18 +49,14 @@ export function DetailView({
     frameRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const tabs: [Tab, string][] = [
-    ["overview", "Overview"],
-    ["breakdown", "Breakdown"],
-    ["responsive", "Responsive"],
-    ["code", "Code"],
-    ["similar", "Similar"],
-  ];
+  const tabs: [Tab, string][] = (["overview", "breakdown", "responsive", "code", "similar"] as const).map((id) => [id, t.detail.tabs[id]]);
 
-  /* arrow keys move between tabs (and focus follows), as the ARIA tab pattern expects */
+  /* arrow keys move between tabs (and focus follows), as the ARIA tab pattern expects — "next" is leftward in Arabic */
   const tabIds = useId();
   const onTabKey = (e: React.KeyboardEvent) => {
-    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    const fwd = lang === "ar" ? "ArrowLeft" : "ArrowRight";
+    const back = lang === "ar" ? "ArrowRight" : "ArrowLeft";
+    const step = e.key === fwd ? 1 : e.key === back ? -1 : 0;
     if (!step) return;
     e.preventDefault();
     const i = tabs.findIndex(([id]) => id === tab);
@@ -74,24 +74,24 @@ export function DetailView({
         {/* ---------------------------------------------------------- media */}
         <div>
           <div ref={frameRef} className="flex scroll-mt-20 items-center justify-between gap-3 pb-3">
-            <div role="group" aria-label="Device" className="flex items-center gap-1 border border-border p-0.5">
+            <div role="group" aria-label={t.detail.device} className="flex items-center gap-1 border border-border p-0.5">
               {(Object.keys(VIEWPORTS) as Viewport[]).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDevice(d)}
                   aria-pressed={device === d}
-                  className={`px-2.5 py-1 text-[12px] font-medium transition-colors ${
+                  className={`whitespace-nowrap px-2.5 py-1 text-[12px] font-medium transition-colors ${
                     device === d ? "bg-accent text-accent-fg" : "text-text-2 hover:text-text"
                   }`}
                 >
-                  {VIEWPORTS[d].label}
+                  {t.detail.viewports[d]}
                 </button>
               ))}
             </div>
             <span className="text-[12px] text-text-3">
               {item.capture
-                ? `Captured ${item.capture.capturedAt.slice(0, 10)} from the live site`
-                : `Captured ${timeAgo(item.daysAgo)} · ${compact(item.views)} views`}
+                ? fill(t.detail.capturedLive, { date: item.capture.capturedAt.slice(0, 10) })
+                : fill(t.detail.capturedAgo, { ago: timeAgo(item.daysAgo, lang), views: compactNum(item.views, lang) })}
             </span>
           </div>
 
@@ -105,13 +105,13 @@ export function DetailView({
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
-            {VIEWPORTS[device].label} · {VIEWPORTS[device].w} × {VIEWPORTS[device].h} ·{" "}
+            {t.detail.viewports[device]} · <bdi>{VIEWPORTS[device].w} × {VIEWPORTS[device].h}</bdi> ·{" "}
             {item.capture
-              ? "real capture at this width"
+              ? t.detail.realCapture
               : device === native
-                ? "original design"
-                : `adapted from the ${VIEWPORTS[native].label.toLowerCase()} design`}
-            {" "}· scroll inside the frame
+                ? t.detail.original
+                : fill(t.detail.adaptedFrom, { vp: lang === "ar" ? t.detail.viewports[native] : t.detail.viewports[native].toLowerCase() })}
+            {" "}· {t.detail.scrollInside}
           </p>
 
           {!isComponent ? (
@@ -135,13 +135,13 @@ export function DetailView({
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-[19px] font-bold leading-snug tracking-[-0.02em]">{item.title}</h1>
+              <h1 className="text-[19px] font-bold leading-snug tracking-[-0.02em]">{itemTitle(item, lang)}</h1>
               <Link
                 href={`/source/${item.source.slug}`}
                 className="mt-2 inline-flex items-center gap-2 text-[12.5px]"
               >
                 <span className="h-4 w-4 border border-border" style={{ background: item.palette.accent }} />
-                By: <span className="link-ink">{item.source.name}</span>
+                {t.common.by} <bdi className="link-ink">{item.source.name}</bdi>
               </Link>
             </div>
           </div>
@@ -152,10 +152,10 @@ export function DetailView({
               href={item.capture?.url ?? "#"}
               {...(item.capture
                 ? { target: "_blank", rel: "noopener noreferrer" }
-                : { onClick: (e: React.MouseEvent) => e.preventDefault(), title: `This would open ${item.source.domain}` })}
+                : { onClick: (e: React.MouseEvent) => e.preventDefault(), title: fill(t.detail.wouldOpen, { domain: item.source.domain }) })}
               className="inline-flex h-11 items-center justify-center gap-2 border border-border bg-surface text-[13.5px] hover:bg-bg-subtle"
             >
-              <External size={15} /> Open live site
+              <External size={15} /> {t.detail.openLive}
             </a>
             <SaveButton slug={item.slug} variant="solid" />
           </div>
@@ -163,42 +163,42 @@ export function DetailView({
           <div className="mt-3 grid grid-cols-3 border border-border">
             {(
               [
-                ["Prompt", Sparkle, () => setPromptOpen(true)],
-                ["Code", Code, () => setTab("code")],
-                ["Breakdown", Layers, () => setTab("breakdown")],
+                ["prompt", Sparkle, () => setPromptOpen(true)],
+                ["code", Code, () => setTab("code")],
+                ["breakdown", Layers, () => setTab("breakdown")],
               ] as const
-            ).map(([label, Icon, run], i) => (
+            ).map(([id, Icon, run], i) => (
               <button
-                key={label}
+                key={id}
                 onClick={run}
-                data-guide={label === "Prompt" ? "prompt" : undefined}
+                data-guide={id === "prompt" ? "prompt" : undefined}
                 className={`flex flex-col items-center gap-1.5 py-3.5 text-[11px] transition-colors hover:bg-bg-subtle ${
-                  i ? "border-l border-border" : ""
+                  i ? "border-s border-border" : ""
                 }`}
               >
                 <Icon size={19} />
-                {label}
+                {t.detail.actions[id]}
               </button>
             ))}
           </div>
 
           <dl className="mt-6 border-y border-border py-1.5">
-            <Meta label="Type" value={name(CATEGORIES, item.category)} href={`${feed}?category=${item.category}`} />
-            <Meta label="Industry" value={name(INDUSTRIES, item.industry)} href={`${feed}?industry=${item.industry}`} />
-            <Meta label="Style" value={name(STYLES, item.style)} href={`${feed}?style=${item.style}`} />
-            <Meta label="Platform" value={item.platform === "web" ? "Web" : item.platform.toUpperCase()} />
+            <Meta label={t.detail.meta.type} value={name(CATEGORIES, item.category, lang)} href={`${feed}?category=${item.category}`} />
+            <Meta label={t.detail.meta.industry} value={name(INDUSTRIES, item.industry, lang)} href={`${feed}?industry=${item.industry}`} />
+            <Meta label={t.detail.meta.style} value={name(STYLES, item.style, lang)} href={`${feed}?style=${item.style}`} />
+            <Meta label={t.detail.meta.platform} value={item.platform === "web" ? t.detail.web : item.platform.toUpperCase()} />
             <Meta
-              label="Stack"
+              label={t.detail.meta.stack}
               value={item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")}
               href={`${feed}?tech=${item.tech[0]}`}
             />
             {item.capture ? (
-              <Meta label="Direction" value={item.capture.dir === "rtl" ? "Right-to-left" : "Left-to-right"} />
+              <Meta label={t.detail.meta.direction} value={item.capture.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
             ) : null}
-            <Meta label="Saves" value={compact(item.saves)} />
+            <Meta label={t.detail.meta.saves} value={compactNum(item.saves, lang)} />
           </dl>
 
-          <p className="mt-4 text-[12.5px] leading-relaxed">{item.source.about}</p>
+          <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{item.source.about}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {[item.category, item.industry, item.style, ...item.tech].map((t) => (
@@ -213,16 +213,16 @@ export function DetailView({
           </div>
 
           <p className="mt-5 border-t border-border pt-4 text-[11.5px] leading-relaxed text-text-3">
-            Preview rendered from the capture. Attribution links to the source;{" "}
+            {t.detail.attribution}{" "}
             <Link href="/legal/attribution" className="underline underline-offset-2">
-              attribution policy
+              {t.detail.attributionLink}
             </Link>
             .
             {item.capture ? (
               <>
-                {" "}Your site?{" "}
+                {" "}{t.detail.yourSite}{" "}
                 <Link href={`/legal/takedown?domain=${encodeURIComponent(item.source.domain)}`} className="underline underline-offset-2">
-                  Request removal
+                  {t.detail.requestRemoval}
                 </Link>
                 .
               </>
@@ -236,7 +236,7 @@ export function DetailView({
         {/* scrolls sideways on phones — five mono labels don't fit in 390px */}
         <div
           role="tablist"
-          aria-label="Details"
+          aria-label={t.detail.tabsLabel}
           onKeyDown={onTabKey}
           className="scroll-x flex gap-1 overflow-x-auto border-b border-border"
         >
@@ -271,7 +271,7 @@ export function DetailView({
         {tab !== "similar" ? (
           <section className="border-t border-border pt-6">
             <h2 className="pb-4 text-[15px] font-bold tracking-[-0.02em]">
-              {isComponent ? "Related components" : "Similar designs"}
+              {isComponent ? t.detail.related : t.detail.similar}
             </h2>
             <Grid items={similar.slice(0, 6)} />
           </section>
@@ -302,23 +302,31 @@ function Meta({ label, value, href }: { label: string; value: string; href?: str
 }
 
 function Overview({ item }: { item: Item }) {
+  const { lang, t } = useI18n();
+  const o = t.detail.overview;
+  const first = item.blocks[0];
+  const firstLabel = first ? blockLabel(first.label, first.type, lang) : "";
+  const body = fill(o.body, {
+    source: item.source.name,
+    style: lang === "ar" ? name(STYLES, item.style, lang) : item.style,
+    industry: lang === "ar" ? name(INDUSTRIES, item.industry, lang) : item.industry.replace("-", " "),
+    title: lang === "ar" ? itemTitle(item, lang) : item.title.toLowerCase(),
+    first: lang === "ar" ? firstLabel : firstLabel.toLowerCase(),
+    sections: plural(o.sections, item.blocks.length, lang),
+  });
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <div className="border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-bold">What this screen does</h3>
-        <p className="text-[14px] leading-relaxed text-text-2">
-          {item.source.name} uses a {item.style} treatment for a {item.industry.replace("-", " ")} audience.
-          The {item.title.toLowerCase()} leads with {item.blocks[0]?.label.toLowerCase()} and resolves in{" "}
-          {item.blocks.length} distinct sections — a structure you can reuse directly from the Breakdown tab.
-        </p>
+        <h3 className="pb-3 text-[14px] font-bold">{o.title}</h3>
+        <p className="text-[14px] leading-relaxed text-text-2">{body}</p>
         <ul className="mt-4 space-y-2 text-[13.5px] text-text-2">
-          <li>· Accent used sparingly, on {item.blocks.some((b) => b.type === "cta") ? "CTAs and one metric band" : "primary actions only"}.</li>
-          <li>· Type hierarchy carried by size and weight rather than colour.</li>
-          <li>· {item.device === "mobile" ? "Designed for phones; adapted up to tablet and laptop — switch device above." : "Designed for laptop; adapted down to tablet and mobile — switch device above."}</li>
+          <li>· {item.blocks.some((b) => b.type === "cta") ? o.accentCta : o.accentPrimary}</li>
+          <li>· {o.hierarchy}</li>
+          <li>· {item.device === "mobile" ? o.designedMobile : o.designedDesktop}</li>
         </ul>
       </div>
       <div className="border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-bold">Palette</h3>
+        <h3 className="pb-3 text-[14px] font-bold">{o.palette}</h3>
         {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
         <div className="flex overflow-hidden border border-border">
           {item.colors.map((c, i) => (
@@ -336,6 +344,7 @@ function Overview({ item }: { item: Item }) {
 }
 
 function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => void }) {
+  const { lang, t } = useI18n();
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
   return (
     <div>
@@ -347,12 +356,13 @@ function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => voi
             <button
               key={d}
               onClick={() => onPick(d)}
-              className="block border border-border bg-surface p-3 text-left transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--border)]"
+              className="block border border-border bg-surface p-3 text-start transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--border)]"
             >
               <span className="flex items-baseline justify-between gap-2 pb-3">
-                <span className="text-[13px] font-bold">{vp.label}</span>
+                <span className="text-[13px] font-bold">{t.detail.viewports[d]}</span>
                 <span className="text-[11px] text-text-3">
-                  {vp.w}px{d === native ? " · original" : ""}
+                  <bdi>{vp.w}px</bdi>
+                  {d === native ? ` · ${t.detail.responsive.original}` : ""}
                 </span>
               </span>
               <span className="block overflow-hidden border border-border" style={{ aspectRatio: `${vp.w} / ${vp.h}` }}>
@@ -363,13 +373,17 @@ function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => voi
         })}
       </div>
       <div className="mt-4 border border-border bg-surface p-5">
-        <h3 className="pb-1 text-[14px] font-bold">How it adapts</h3>
-        <p className="pb-3 text-[12px] text-text-3">Laptop → tablet → mobile</p>
+        <h3 className="pb-1 text-[14px] font-bold">{t.detail.responsive.howAdapts}</h3>
+        <p className="pb-3 text-[12px] text-text-3">{t.detail.responsive.sequence}</p>
         <dl className="text-[13px]">
           {responsiveRules(item).map(([k, v]) => (
             <div key={k} className="grid gap-1 border-b border-rule py-2.5 last:border-b-0 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-6">
-              <dt className="text-text-3">{k}</dt>
-              <dd>{v}</dd>
+              <dt className="text-text-3">
+                <bdi>{blockLabel(k, undefined, lang)}</bdi>
+              </dt>
+              <dd>
+                <Flow text={ruleText(v, item, lang)} />
+              </dd>
             </div>
           ))}
         </dl>
@@ -379,19 +393,19 @@ function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => voi
 }
 
 function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
+  const { t } = useI18n();
+  const c = t.detail.code;
   if (!item.hasCode) {
     return (
       <div className="border border-border bg-surface p-6">
         <div className="flex items-start gap-3">
           <Code size={18} className="mt-0.5 shrink-0 text-text-3" />
           <div>
-            <h3 className="text-[14px] font-bold">No code for this capture</h3>
+            <h3 className="text-[14px] font-bold">{c.noneTitle}</h3>
             <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-text-2">
-              Code is only ever shown when it was contributed by its author, published under a licence, or
-              generated as a clearly-labelled re-implementation. Screenshots of a live site are indexed with
-              attribution; its markup and CSS are not redistributed. See{" "}
+              {c.noneBody}{" "}
               <Link href="/legal/attribution" className="underline underline-offset-2">
-                the attribution policy
+                {c.policy}
               </Link>
               .
             </p>
@@ -399,7 +413,7 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
               onClick={onPrompt}
               className="mt-4 inline-flex h-9 items-center gap-1.5 border border-border px-3 text-[13px] font-medium hover:bg-bg-subtle"
             >
-              <Sparkle size={14} /> Generate an implementation prompt instead
+              <Sparkle size={14} /> {c.instead}
             </button>
           </div>
         </div>
@@ -422,23 +436,22 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
     <div className="border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex gap-1">
-          {["React", "HTML", "Tailwind"].map((t, i) => (
+          {["React", "HTML", "Tailwind"].map((x, i) => (
             <span
-              key={t}
+              key={x}
               className={`px-2 py-1 text-[12px] font-medium ${i === 0 ? "bg-bg-subtle" : "text-text-3"}`}
             >
-              {t}
+              {x}
             </span>
           ))}
         </div>
         <span className="flex items-center gap-3">
-          <span className="border border-border px-1.5 py-0.5 font-mono text-[10.5px] text-text-3">
-            MIT · contributed
-          </span>
-          <CopyValue value={snippet} label="Copy" mono={false} className="border border-border" />
+          <span className="border border-border px-1.5 py-0.5 font-mono text-[10.5px] text-text-3">{c.contributed}</span>
+          <CopyValue value={snippet} label={t.common.copy} mono={false} className="border border-border" />
         </span>
       </div>
-      <pre className="overflow-auto p-4 font-mono text-[12px] leading-relaxed text-text-2">{snippet}</pre>
+      {/* code reads left to right whatever the page language */}
+      <pre dir="ltr" className="overflow-auto p-4 text-left font-mono text-[12px] leading-relaxed text-text-2">{snippet}</pre>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useI18n } from "@/i18n/client";
 import { Moon, Sun } from "../ui/icons";
 
 export const THEME_SCRIPT = `try{var t=localStorage.getItem('uiv.theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}`;
@@ -22,6 +23,7 @@ const read = () =>
   (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 export function ThemeToggle({ rail = false }: { rail?: boolean }) {
+  const { t } = useI18n();
   const theme = useSyncExternalStore(subscribe, read, () => "light");
 
   const next = () => {
@@ -32,7 +34,7 @@ export function ThemeToggle({ rail = false }: { rail?: boolean }) {
     } catch {}
   };
 
-  const label = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;
+  const label = theme === "dark" ? t.theme.toLight : t.theme.toDark;
 
   if (rail) {
     return (
@@ -42,7 +44,7 @@ export function ThemeToggle({ rail = false }: { rail?: boolean }) {
         className="flex flex-col items-center gap-1.5 py-2.5 text-[10.5px] text-text transition-colors hover:text-accent-ink"
       >
         {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
-        {theme === "dark" ? "Light" : "Dark"}
+        {theme === "dark" ? t.theme.light : t.theme.dark}
       </button>
     );
   }

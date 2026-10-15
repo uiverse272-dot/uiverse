@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useI18n } from "@/i18n/client";
+import { fill, plural } from "@/i18n/format";
 import { requestTakedown, type Field, type TakedownState } from "./actions";
 
 const input =
@@ -14,6 +16,8 @@ export function TakedownForm({ domain }: { domain?: string }) {
 }
 
 function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => void }) {
+  const { lang, t } = useI18n();
+  const td = t.takedown;
   const [state, action, pending] = useActionState<TakedownState, FormData>(requestTakedown, { status: "idle" });
   const form = useRef<HTMLFormElement>(null);
 
@@ -25,18 +29,14 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
   if (state.status === "sent") {
     return (
       <div role="status" className="border border-border bg-surface p-5">
-        <p className="text-[12px] uppercase tracking-[0.08em] text-text-3">Request received</p>
-        <p className="mt-1 font-mono text-[20px] font-bold">{state.ref}</p>
+        <p className="text-[12px] uppercase tracking-[0.08em] text-text-3">{td.received}</p>
+        <p dir="ltr" className="mt-1 text-start font-mono text-[20px] font-bold">{state.ref}</p>
         <p className="mt-3 text-[14px] leading-relaxed text-text-2">
-          {state.held
-            ? `We hold ${state.held} capture${state.held === 1 ? "" : "s"} from ${state.domain}. Everything from the domain — screens, the components cropped from them, palettes, search entries and stored screenshots — will be removed, and it won't be captured again.`
-            : `Nothing from ${state.domain} is in the index right now. We'll still block it, so it's never captured.`}
+          {state.held ? plural(td.held, state.held, lang, { domain: state.domain }) : fill(td.nothingHeld, { domain: state.domain })}
         </p>
-        <p className="mt-3 text-[14px] leading-relaxed text-text-2">
-          We&apos;ll confirm at {state.email} within 5 working days. Quote the reference if you write to us.
-        </p>
+        <p className="mt-3 text-[14px] leading-relaxed text-text-2">{fill(td.confirmBy, { email: state.email })}</p>
         <button type="button" onClick={onAgain} className="mt-4 text-[13px] underline underline-offset-2">
-          Send another request
+          {td.another}
         </button>
       </div>
     );
@@ -48,36 +48,37 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
 
   return (
     <form ref={form} action={action} noValidate className="space-y-4 border border-border bg-surface p-5">
+      <input type="hidden" name="lang" value={lang} />
       <div>
         <label htmlFor="td-domain" className="text-[13px] font-semibold">
-          Domain to remove
+          {td.domain}
         </label>
-        <input id="td-domain" name="domain" defaultValue={v.domain} placeholder="example.com" autoComplete="url" className={input} {...err("domain")} />
-        <p className="mt-1.5 text-[12px] text-text-3">Covers the domain and its subdomains.</p>
+        <input id="td-domain" name="domain" dir="ltr" defaultValue={v.domain} placeholder="example.com" autoComplete="url" className={input} {...err("domain")} />
+        <p className="mt-1.5 text-[12px] text-text-3">{td.domainHint}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="td-name" className="text-[13px] font-semibold">
-            Your name
+            {td.name}
           </label>
           <input id="td-name" name="name" defaultValue={v.name} autoComplete="name" className={input} {...err("name")} />
         </div>
         <div>
           <label htmlFor="td-email" className="text-[13px] font-semibold">
-            Email
+            {td.email}
           </label>
-          <input id="td-email" name="email" type="email" defaultValue={v.email} autoComplete="email" className={input} {...err("email")} />
+          <input id="td-email" name="email" type="email" dir="ltr" defaultValue={v.email} autoComplete="email" className={input} {...err("email")} />
         </div>
       </div>
-      <p className="-mt-2 text-[12px] text-text-3">An address at the domain itself is the quickest to verify.</p>
+      <p className="-mt-2 text-[12px] text-text-3">{td.emailHint}</p>
 
       <fieldset>
-        <legend className="text-[13px] font-semibold">You are</legend>
+        <legend className="text-[13px] font-semibold">{td.youAre}</legend>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {[
-            ["owner", "The owner or operator"],
-            ["agent", "Authorized to act for them"],
+            ["owner", td.owner],
+            ["agent", td.agent],
           ].map(([value, label]) => (
             <label key={value} className="flex h-11 cursor-pointer items-center gap-2.5 border border-border bg-bg-subtle px-3.5 text-[13.5px] has-[:checked]:border-border-strong has-[:checked]:bg-surface">
               <input type="radio" name="role" value={value} defaultChecked={v.role === value} className="accent-[var(--accent-ink)]" />
@@ -89,7 +90,7 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
 
       <div>
         <label htmlFor="td-details" className="text-[13px] font-semibold">
-          Anything else <span className="font-normal text-text-3">(optional)</span>
+          {td.details} <span className="font-normal text-text-3">({t.common.optional})</span>
         </label>
         <textarea
           id="td-details"
@@ -102,13 +103,13 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
       </div>
 
       {/* off-screen, unlabeled for people — only bots fill it */}
-      <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+      <div aria-hidden className="absolute -start-[9999px] h-px w-px overflow-hidden">
         <input name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
       <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-text-2">
         <input type="checkbox" name="confirm" defaultChecked={v.confirm} className="mt-1 accent-[var(--accent-ink)]" {...err("confirm")} />
-        I own or operate this site, or I&apos;m authorized to act for whoever does, and the details above are accurate.
+        {td.confirm}
       </label>
 
       {state.status === "error" ? (
@@ -118,7 +119,7 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
       ) : null}
 
       <button disabled={pending} className="h-11 w-full bg-accent text-[14px] font-medium text-accent-fg disabled:opacity-60">
-        {pending ? "Sending…" : "Send removal request"}
+        {pending ? td.sending : td.send}
       </button>
     </form>
   );

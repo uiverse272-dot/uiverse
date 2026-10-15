@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/client";
 
 export function PageHeader({
   title,
@@ -13,7 +13,8 @@ export function PageHeader({
     <div className="flex flex-wrap items-end justify-between gap-4 pb-1 pt-7">
       <div>
         <h1 className="text-[26px] font-bold leading-tight tracking-[-0.03em]">{title}</h1>
-        {sub ? <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-text-2">{sub}</p> : null}
+        {/* auto: a source's own description can be in either language */}
+        {sub ? <p dir="auto" className="mt-2 max-w-xl text-[13px] leading-relaxed text-text-2">{sub}</p> : null}
       </div>
       {right}
     </div>
@@ -21,7 +22,8 @@ export function PageHeader({
 }
 
 /** "Popular Books ........ more" — a bold mono label with an underlined link on the right. */
-export function SectionHead({ title, href, more = "more" }: { title: string; href?: string; more?: string }) {
+/* `more` is the link's label, in the page's language — there's no default to fall back to */
+export function SectionHead({ title, href, more }: { title: string; href?: string; more?: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 pb-3">
       <h2 className="text-[15px] font-bold">{title}</h2>

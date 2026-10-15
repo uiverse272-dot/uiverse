@@ -91,8 +91,9 @@
   /* sans stays the neutral stack — mock previews render real-looking UIs with it */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-space-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-display: var(--font-lexend), var(--font-sans);
+  /* Arabic glyphs fall through to Readex Pro (Lexend's Arabic companion); Latin keeps its face */
+  --font-mono: var(--font-space-mono), var(--font-arabic), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-lexend), var(--font-arabic), var(--font-sans);
 }
 
 /* in the base layer, so border-* colour utilities can override it — unlayered, it beat every one */
@@ -119,6 +120,11 @@ body {
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* Arabic is a joined script: any tracking pulls the letters apart, and the UI tracks a lot */
+:lang(ar) {
+  letter-spacing: normal !important;
 }
 
 ::selection {

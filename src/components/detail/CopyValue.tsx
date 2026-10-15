@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/i18n/client";
 import { Check, Copy } from "../ui/icons";
 
 export function CopyValue({
@@ -14,6 +15,7 @@ export function CopyValue({
   mono?: boolean;
   className?: string;
 }) {
+  const { t } = useI18n();
   const [done, setDone] = useState(false);
   return (
     <button
@@ -26,12 +28,13 @@ export function CopyValue({
           () => {},
         );
       }}
-      className={`group inline-flex items-center gap-1.5 px-1.5 py-1 text-left transition-colors hover:bg-bg-subtle ${
+      className={`group inline-flex items-center gap-1.5 px-1.5 py-1 text-start transition-colors hover:bg-bg-subtle ${
         mono ? "font-mono text-[11.5px]" : "text-[12.5px]"
       } ${className}`}
-      title="Copy"
+      title={done ? t.common.copied : t.common.copy}
     >
-      <span className="truncate">{label ?? value}</span>
+      {/* a value (#1c1b18, 15px / 430) reads left to right; a label follows the page */}
+      <span dir={label ? undefined : "ltr"} className="truncate">{label ?? value}</span>
       <span className="shrink-0 text-text-3 opacity-0 transition-opacity group-hover:opacity-100">
         {done ? <Check size={12} /> : <Copy size={12} />}
       </span>

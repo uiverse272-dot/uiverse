@@ -1,5 +1,7 @@
+import type { Lang } from "@/i18n/config";
+import { DICTS } from "@/i18n/dict";
 import { ITEMS, type Item } from "./data";
-import { CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES, COMPONENT_TYPES, PLATFORMS } from "./taxonomy";
+import { CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES, COMPONENT_TYPES, PLATFORMS, name, type Term } from "./taxonomy";
 
 export type Filters = {
   kind?: string;
@@ -70,11 +72,12 @@ const textOf = (i: Item) =>
     i.title, i.source.name, i.source.tagline, i.category, i.industry, i.style, i.componentType ?? "", ...i.tech,
     /* real captures: findable by direction ("rtl", "arabic") and by what their sections say */
     ...(i.capture
-      ? [i.capture.dir, i.capture.dir === "rtl" ? "right-to-left arabic" : "", i.capture.lang, "real captured live", ...i.blocks.map((b) => b.heading ?? "")]
+      ? [i.capture.dir, i.capture.dir === "rtl" ? "right-to-left arabic عربي عربيه" : "", i.capture.lang, "real captured live", ...i.blocks.map((b) => b.heading ?? "")]
       : []),
   ]
     .join(" ")
-    .toLowerCase();
+    .toLowerCase()
+    .normalize("NFC");
 
 export function applyFilters(items: Item[], f: Filters): Item[] {
   let out = items;
@@ -93,9 +96,9 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   if (f.threed === "true") out = out.filter((i) => i.has3d);
   if (f.dir) out = out.filter((i) => (i.capture?.dir ?? "ltr") === f.dir);
   if (f.q) {
-    const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean).map(arNorm);
     out = out.filter((i) => {
-      const t = textOf(i);
+      const t = arNorm(textOf(i));
       return terms.every((term) => t.includes(term));
     });
   }
@@ -165,18 +168,53 @@ const SYNONYMS: Record<string, string> = {
   price: "pricing", plans: "pricing", tiers: "pricing",
 };
 
+/* Arabic, keyed by normalized form (see arNorm) — what people type, not only the taxonomy's names */
+const SYNONYMS_AR: Record<string, string> = {
+  بنك: "fintech", بنوك: "fintech", مصرف: "fintech", مصرفي: "fintech", مالي: "fintech", ماليه: "fintech", دفع: "fintech", مدفوعات: "fintech",
+  داكن: "dark", داكنه: "dark", مظلم: "dark", ليلي: "dark", فاتح: "light", فاتحه: "light",
+  بسيط: "minimal", بسيطه: "minimal", فاخر: "luxury", فاخره: "luxury", مرح: "playful", مستقبلي: "futuristic",
+  اسعار: "pricing", تسعير: "pricing", باقات: "pricing", خطط: "pricing",
+  متجر: "ecommerce", تسوق: "ecommerce", "تجاره الكترونيه": "ecommerce",
+  هبوط: "landing-page", "صفحه هبوط": "landing-page", "صفحه رئيسيه": "landing-page",
+  "لوحه تحكم": "dashboard", تحكم: "dashboard", تحليلات: "dashboard",
+  دخول: "auth", "تسجيل دخول": "auth", "تسجيل الدخول": "auth",
+  صحه: "healthcare", صحي: "healthcare", طبي: "healthcare", عياده: "healthcare",
+  تعليم: "education", تعليمي: "education", تعليميه: "education",
+  سفر: "travel", سياحه: "travel", طيران: "travel", فنادق: "travel",
+  عقار: "real-estate", عقارات: "real-estate", ازياء: "fashion", موضه: "fashion",
+  طعام: "food", مطاعم: "food", توصيل: "food", اكل: "food",
+  "ذكاء اصطناعي": "ai", مدونه: "blog", توثيق: "docs", جوال: "ios", ايفون: "ios",
+  تنقل: "navbar", "شريط تنقل": "navbar", افتتاحي: "hero", "قسم افتتاحي": "hero", هيرو: "hero", تذييل: "footer", فوتر: "footer",
+};
+
+/**
+ * Arabic spelled the way people actually type it: no diacritics or tatweel, every alef form as
+ * ا, taa marbuta as ه, alef maqsura as ي, and «ال» dropped from the front of each word.
+ */
+export function arNorm(s: string) {
+  return s
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .split(" ")
+    .map((w) => w.replace(/^ال(?=..)/, ""))
+    .join(" ");
+}
+
 /* `values` holds what the index actually contains, so a word never parses into a filter that matches
    nothing — "saas" is both a Type and an Industry, and only the Industry has items. */
-const DICTS: { list: readonly { slug: string; name: string }[]; dimension: string; param: string; values: Set<string> }[] = [
-  { list: CATEGORIES, dimension: "Type", param: "category", values: new Set(ITEMS.map((i) => i.category)) },
-  { list: COMPONENT_TYPES, dimension: "Component", param: "component", values: new Set(ITEMS.map((i) => i.componentType ?? "")) },
-  { list: INDUSTRIES, dimension: "Industry", param: "industry", values: new Set(ITEMS.map((i) => i.industry)) },
-  { list: STYLES, dimension: "Style", param: "style", values: new Set(ITEMS.map((i) => i.style)) },
-  { list: TECHNOLOGIES, dimension: "Tech", param: "tech", values: new Set(ITEMS.flatMap((i) => i.tech)) },
-  { list: PLATFORMS, dimension: "Platform", param: "platform", values: new Set(ITEMS.map((i) => i.platform)) },
+const TERMS: { list: readonly Term[]; param: keyof (typeof DICTS)["en"]["search"]["dimensions"]; values: Set<string> }[] = [
+  { list: CATEGORIES, param: "category", values: new Set(ITEMS.map((i) => i.category)) },
+  { list: COMPONENT_TYPES, param: "component", values: new Set(ITEMS.map((i) => i.componentType ?? "")) },
+  { list: INDUSTRIES, param: "industry", values: new Set(ITEMS.map((i) => i.industry)) },
+  { list: STYLES, param: "style", values: new Set(ITEMS.map((i) => i.style)) },
+  { list: TECHNOLOGIES, param: "tech", values: new Set(ITEMS.flatMap((i) => i.tech)) },
+  { list: PLATFORMS, param: "platform", values: new Set(ITEMS.map((i) => i.platform)) },
 ];
 
-export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string } {
+/** Understands English and Arabic whatever the page language; `lang` only picks the chip labels. */
+export function parseQuery(q: string, lang: Lang = "en"): { terms: ParsedTerm[]; residual: string } {
   const raw = q.toLowerCase().trim();
   if (!raw) return { terms: [], residual: "" };
   const tokens = raw.split(/\s+/);
@@ -184,26 +222,35 @@ export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string }
   const used = new Set<number>();
   const taken = new Set<string>();
 
-  /* a phrase matches by name ("real estate") or by slug, typed with spaces or hyphens */
+  /* a phrase matches by name ("real estate", «العقارات») or by slug, typed with spaces or hyphens */
   const match = (phrase: string) => {
-    const norm = SYNONYMS[phrase] ?? SYNONYMS[phrase.replace(/ /g, "-")] ?? phrase;
+    const ar = arNorm(phrase);
+    const norm = SYNONYMS[phrase] ?? SYNONYMS[phrase.replace(/ /g, "-")] ?? SYNONYMS_AR[ar] ?? phrase;
     const slug = norm.replace(/ /g, "-");
-    for (const d of DICTS) {
+    for (const d of TERMS) {
       if (taken.has(d.param)) continue;
-      const hit = d.list.find((t) => (t.slug === slug || t.name.toLowerCase() === norm) && d.values.has(t.slug));
+      const hit = d.list.find(
+        (t) => (t.slug === slug || t.name.toLowerCase() === norm || (t.ar !== undefined && arNorm(t.ar) === ar)) && d.values.has(t.slug),
+      );
       if (hit) return { d, hit };
     }
     return null;
   };
 
-  /* two-word phrases first, so "real estate" and "landing page" aren't read (or missed) word by word */
+  /* longest phrases first, so "real estate" and «لوحة تحكم» aren't read (or missed) word by word */
   for (let i = 0; i < tokens.length; i++) {
-    for (const len of [2, 1]) {
+    for (const len of [3, 2, 1]) {
       if (i + len > tokens.length) continue;
       const phrase = tokens.slice(i, i + len).join(" ");
       const m = match(phrase);
       if (!m) continue;
-      terms.push({ dimension: m.d.dimension, label: m.hit.name, param: m.d.param, value: m.hit.slug, word: phrase });
+      terms.push({
+        dimension: DICTS[lang].search.dimensions[m.d.param],
+        label: name(m.d.list, m.hit.slug, lang),
+        param: m.d.param,
+        value: m.hit.slug,
+        word: phrase,
+      });
       for (let k = i; k < i + len; k++) used.add(k);
       taken.add(m.d.param);
       i += len - 1;
@@ -215,8 +262,8 @@ export function parseQuery(q: string): { terms: ParsedTerm[]; residual: string }
   return { terms, residual };
 }
 
-export function searchItems(q: string, extra: Filters = {}) {
-  const { terms, residual } = parseQuery(q);
+export function searchItems(q: string, extra: Filters = {}, lang: Lang = "en") {
+  const { terms, residual } = parseQuery(q, lang);
   const f: Filters = { ...extra };
   for (const t of terms) {
     const key = ({ category: "category", component: "componentType", industry: "industry", style: "style", tech: "tech", platform: "platform" } as Record<string, keyof Filters>)[t.param];
@@ -224,8 +271,8 @@ export function searchItems(q: string, extra: Filters = {}) {
   }
   let results = applyFilters(ITEMS, { ...f, q: undefined });
   if (residual) {
-    const rt = residual.split(/\s+/).filter(Boolean);
-    const narrowed = results.filter((i) => rt.every((term) => textOf(i).includes(term)));
+    const rt = residual.split(/\s+/).filter(Boolean).map(arNorm);
+    const narrowed = results.filter((i) => rt.every((term) => arNorm(textOf(i)).includes(term)));
     /* residual is a recall booster, not a hard gate — fall back if it kills everything */
     if (narrowed.length > 0) results = narrowed;
   }

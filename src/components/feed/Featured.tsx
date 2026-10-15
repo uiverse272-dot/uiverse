@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { compact, timeAgo, type Item } from "@/lib/data";
+import { Link, useI18n } from "@/i18n/client";
+import { itemTitle } from "@/i18n/content";
+import { compactNum, timeAgo } from "@/i18n/format";
+import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
@@ -17,6 +19,7 @@ const KEY = "uiv.pick";
  * to a small tab. Folding is remembered per browser; nothing else depends on it.
  */
 export function Featured({ item }: { item: Item }) {
+  const { lang, t } = useI18n();
   /* starts folded so phones and server render agree; unfolds after mount on wide screens */
   const [mode, setMode] = useState<Mode>("tab");
 
@@ -56,45 +59,46 @@ export function Featured({ item }: { item: Item }) {
     return (
       <button
         onClick={unfold}
-        className="anim-fade-up fixed bottom-20 right-4 z-[70] flex items-center gap-2 border border-border bg-signal px-3 py-2 text-[12px] font-bold text-on-signal shadow-[3px_3px_0_var(--border)] transition-transform hover:-translate-y-0.5 md:bottom-6 md:right-6"
+        className="anim-fade-up fixed bottom-20 end-4 z-[70] flex items-center gap-2 border border-border bg-signal px-3 py-2 text-[12px] font-bold text-on-signal shadow-[3px_3px_0_var(--border)] transition-transform hover:-translate-y-0.5 md:bottom-6 md:end-6"
       >
-        <Sparkle size={14} /> Pick of the week
+        <Sparkle size={14} /> {t.featured.pick}
       </button>
     );
   }
 
+  const r = t.featured.rows;
   const rows: [string, string][] = [
-    ["Saves", compact(item.saves)],
-    ["Type", name(CATEGORIES, item.category)],
-    ["Industry", name(INDUSTRIES, item.industry)],
-    ["Style", name(STYLES, item.style)],
-    ["Stack", item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")],
-    ["Captured", timeAgo(item.daysAgo)],
+    [r.saves, compactNum(item.saves, lang)],
+    [r.type, name(CATEGORIES, item.category, lang)],
+    [r.industry, name(INDUSTRIES, item.industry, lang)],
+    [r.style, name(STYLES, item.style, lang)],
+    [r.stack, item.tech.map((x) => name(TECHNOLOGIES, x)).join(", ")],
+    [r.captured, timeAgo(item.daysAgo, lang)],
   ];
   const open = mode === "open";
 
   return (
     <aside
-      aria-label="Pick of the week"
-      className="anim-sheet fixed bottom-20 right-4 z-[70] w-[min(340px,calc(100vw-32px))] border border-border bg-surface shadow-[5px_5px_0_var(--border)] md:bottom-6 md:right-6"
+      aria-label={t.featured.pick}
+      className="anim-sheet fixed bottom-20 end-4 z-[70] w-[min(340px,calc(100vw-32px))] border border-border bg-surface shadow-[5px_5px_0_var(--border)] md:bottom-6 md:end-6"
     >
-      <div className="flex items-center justify-between border-b border-border bg-signal pl-3 text-on-signal">
+      <div className="flex items-center justify-between border-b border-border bg-signal ps-3 text-on-signal">
         <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.12em]">
-          <Sparkle size={13} /> Pick of the week
+          <Sparkle size={13} /> {t.featured.pick}
         </span>
         <span className="flex">
           <button
             onClick={() => setMode(open ? "card" : "open")}
             aria-expanded={open}
-            aria-label={open ? "Show less" : "Show details"}
-            className="grid h-8 w-8 place-items-center border-l border-on-signal/40 hover:bg-black/10"
+            aria-label={open ? t.featured.showLess : t.featured.showDetails}
+            className="grid h-8 w-8 place-items-center border-s border-on-signal/40 hover:bg-black/10"
           >
             <Chevron size={15} className={open ? "" : "rotate-180"} />
           </button>
           <button
             onClick={fold}
-            aria-label="Hide pick of the week"
-            className="grid h-8 w-8 place-items-center border-l border-on-signal/40 hover:bg-black/10"
+            aria-label={t.featured.hide}
+            className="grid h-8 w-8 place-items-center border-s border-on-signal/40 hover:bg-black/10"
           >
             <Close size={14} />
           </button>
@@ -109,10 +113,10 @@ export function Featured({ item }: { item: Item }) {
         </Link>
         <div className="flex min-w-0 flex-1 flex-col">
           <Link href={href} className="truncate text-[14px] font-bold leading-snug hover:text-accent-ink">
-            {item.title}
+            {itemTitle(item, lang)}
           </Link>
           <div className="mt-1 truncate text-[11.5px]">
-            By:{" "}
+            {t.common.by}{" "}
             <Link href={`/source/${item.source.slug}`} className="link-ink">
               {item.source.name}
             </Link>
@@ -123,7 +127,7 @@ export function Featured({ item }: { item: Item }) {
               href={href}
               className="flex h-8 flex-1 items-center justify-center border border-border bg-accent text-[12px] text-accent-fg hover:brightness-105"
             >
-              Open breakdown
+              {t.featured.openBreakdown}
             </Link>
             <span className="grid h-8 w-8 place-items-center border border-border">
               <SaveButton slug={item.slug} variant="icon" />
@@ -142,7 +146,7 @@ export function Featured({ item }: { item: Item }) {
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-[12px] leading-[1.7]">{item.source.about}</p>
+          <p dir="auto" className="mt-3 text-[12px] leading-[1.7]">{item.source.about}</p>
         </div>
       ) : null}
     </aside>

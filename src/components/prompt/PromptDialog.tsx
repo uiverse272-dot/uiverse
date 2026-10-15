@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Link, useI18n } from "@/i18n/client";
+import { itemTitle } from "@/i18n/content";
+import { fill, num } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import {
   buildPrompt, estimateTokens, DEFAULT_OPTIONS, STACKS, TOOLS,
@@ -14,6 +16,8 @@ import { guideEvent } from "../guide/events";
 import { consume, FREE_LIMIT, isCharged, readUsed, reset } from "./quota";
 
 export function PromptDialog({ item, onClose }: { item: Item; onClose: () => void }) {
+  const { lang, t } = useI18n();
+  const pt = t.prompt;
   const [opts, setOpts] = useState<PromptOptions>(DEFAULT_OPTIONS);
   const [used, setUsed] = useState(() => readUsed());
   const [edited, setEdited] = useState<string | null>(null);
@@ -80,15 +84,15 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
           <Sparkle size={16} className="text-text-3" />
           <div className="min-w-0 flex-1">
             <h2 id={titleId} className="text-[14px] font-semibold tracking-[-0.015em]">
-              Generate implementation prompt
+              {pt.title}
             </h2>
             <p className="truncate text-[12px] text-text-3">
-              {item.title} · {item.source.name}
+              {itemTitle(item, lang)} · <bdi>{item.source.name}</bdi>
             </p>
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.common.close}
             className="flex h-8 w-8 items-center justify-center text-text-2 hover:bg-bg-subtle hover:text-text"
           >
             <Close size={16} />
@@ -97,27 +101,27 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
 
         <div className="flex min-h-0 flex-1 flex-col md:flex-row">
           {/* ------------------------------------------------------- options */}
-          <div className="shrink-0 overflow-y-auto border-border p-4 md:w-[264px] md:border-r">
-            <Group label="Target tool">
+          <div className="shrink-0 overflow-y-auto border-border p-4 md:w-[264px] md:border-e">
+            <Group label={pt.target}>
               <div className="space-y-0.5">
-                {TOOLS.map((t) => (
+                {TOOLS.map((tool) => (
                   <button
-                    key={t.id}
-                    onClick={() => set("tool", t.id as ToolId)}
-                    className={`w-full px-2 py-1.5 text-left transition-colors ${
-                      opts.tool === t.id ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
+                    key={tool.id}
+                    onClick={() => set("tool", tool.id as ToolId)}
+                    className={`w-full px-2 py-1.5 text-start transition-colors ${
+                      opts.tool === tool.id ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
                     }`}
                   >
-                    <span className="block text-[13px] font-medium">{t.name}</span>
-                    <span className={`block truncate text-[11px] ${opts.tool === t.id ? "opacity-70" : "text-text-3"}`}>
-                      {t.hint}
+                    <span className="block text-[13px] font-medium">{tool.name}</span>
+                    <span className={`block truncate text-[11px] ${opts.tool === tool.id ? "opacity-70" : "text-text-3"}`}>
+                      {pt.hints[tool.id]}
                     </span>
                   </button>
                 ))}
               </div>
             </Group>
 
-            <Group label="Stack">
+            <Group label={pt.stack}>
               <div className="flex flex-wrap gap-1.5">
                 {STACKS.map((s) => (
                   <button
@@ -133,17 +137,9 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
               </div>
             </Group>
 
-            <Group label="Include">
+            <Group label={pt.include}>
               <div className="space-y-0.5">
-                {(
-                  [
-                    ["includeSections", "Section breakdown"],
-                    ["includeTokens", "Colour tokens"],
-                    ["includeType", "Type scale"],
-                    ["includeLayout", "Layout & responsive"],
-                    ["includeA11y", "Accessibility requirements"],
-                  ] as const
-                ).map(([k, label]) => (
+                {(["includeSections", "includeTokens", "includeType", "includeLayout", "includeA11y"] as const).map((k) => (
                   <label
                     key={k}
                     className="flex cursor-pointer items-center gap-2.5 px-2 py-1.5 text-[12.5px] hover:bg-bg-subtle"
@@ -161,7 +157,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                       onChange={(e) => set(k, e.target.checked)}
                       className="sr-only"
                     />
-                    {label}
+                    {pt.includes[k]}
                   </label>
                 ))}
               </div>
@@ -172,16 +168,13 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
           <div className="flex min-h-0 flex-1 flex-col">
             {locked ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-                <h3 className="text-[15px] font-semibold">You&apos;ve used your {FREE_LIMIT} free prompts this month</h3>
-                <p className="max-w-sm text-[13.5px] leading-relaxed text-text-2">
-                  Pro removes the limit. Browsing, saving and the Breakdown tab stay unlimited on Free —
-                  only generated output is metered.
-                </p>
+                <h3 className="text-[15px] font-semibold">{fill(pt.usedAll, { n: FREE_LIMIT })}</h3>
+                <p className="max-w-sm text-[13.5px] leading-relaxed text-text-2">{pt.proBody}</p>
                 <Link
                   href="/pricing"
                   className="mt-1 bg-accent px-4 py-2.5 text-[13.5px] font-medium text-accent-fg"
                 >
-                  See Pro
+                  {pt.seePro}
                 </Link>
                 <button
                   onClick={() => {
@@ -190,11 +183,14 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                   }}
                   className="text-[12px] text-text-3 underline underline-offset-2 hover:text-text"
                 >
-                  Reset counter (demo only)
+                  {pt.resetDemo}
                 </button>
               </div>
             ) : (
+              /* the prompt is English for every page language — coding tools follow it best */
               <textarea
+                dir="ltr"
+                lang="en"
                 value={text}
                 onChange={(e) => setEdited(e.target.value)}
                 spellCheck={false}
@@ -204,12 +200,11 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
 
             <footer className="flex shrink-0 flex-wrap items-center gap-2 border-t border-border px-4 py-3">
               <span className="text-[11.5px] text-text-3">
-                ~{estimateTokens(text).toLocaleString()} tokens ·{" "}
-                {charged
-                  ? "already counted — copy again free"
-                  : `${Math.max(0, FREE_LIMIT - used)} of ${FREE_LIMIT} left this month`}
+                {fill(pt.tokens, { n: num(estimateTokens(text)) })} ·{" "}
+                {charged ? pt.alreadyCounted : fill(pt.left, { left: Math.max(0, FREE_LIMIT - used), limit: FREE_LIMIT })}
+                {pt.english ? <span className="block">{pt.english}</span> : null}
               </span>
-              <span className="ml-auto flex items-center gap-2">
+              <span className="ms-auto flex items-center gap-2">
                 <SaveButton slug={item.slug} variant="inline" />
                 <button
                   onClick={copy}
@@ -218,7 +213,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                   className="inline-flex h-9 items-center gap-1.5 bg-accent px-3.5 text-[13.5px] font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? "Copied" : "Copy prompt"}
+                  {copied ? t.common.copied : pt.copyPrompt}
                 </button>
               </span>
             </footer>

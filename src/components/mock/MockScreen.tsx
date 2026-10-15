@@ -311,8 +311,11 @@ export function MockScreen({
     else if (FILLS.has(item.componentType ?? "")) minHeight = u(pick(vp)(700, 760, 700));
   }
 
+  /* a picture of a left-to-right design: it mustn't mirror on an Arabic page */
   return (
     <div
+      dir="ltr"
+      lang="en"
       style={{
         containerType: "inline-size",
         width: "100%",
