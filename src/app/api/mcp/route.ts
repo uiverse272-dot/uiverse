@@ -22,7 +22,35 @@ const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id",
+  "Access-Control-Expose-Headers": "Retry-After",
 };
+
+/**
+ * Rate limit: a budget per client IP per minute, where a screenshot (a sharp crop and up to
+ * ~200 KB out) costs more than a text tool and the handshake costs nothing. Kept in memory, so
+ * it's per server instance — on serverless that stops one client draining a warm function, not
+ * a distributed flood; that needs a shared store or the platform's firewall in front.
+ */
+const BUDGET = 60;
+const WINDOW_MS = 60_000;
+const COST: Record<string, number> = { get_screenshot: 5 };
+const spent = new Map<string, { used: number; reset: number }>();
+
+function charge(ip: string, cost: number): number | null {
+  const now = Date.now();
+  if (spent.size > 10_000) for (const [k, v] of spent) if (v.reset <= now) spent.delete(k);
+  let e = spent.get(ip);
+  if (!e || e.reset <= now) spent.set(ip, (e = { used: 0, reset: now + WINDOW_MS }));
+  if (e.used + cost > BUDGET) return Math.ceil((e.reset - now) / 1000);
+  e.used += cost;
+  return null;
+}
+
+const costOf = (m: Rpc) =>
+  m.method === "tools/call" ? (COST[typeof m.params?.name === "string" ? m.params.name : ""] ?? 1) : 0;
+
+/* the platform's proxy sets x-forwarded-for; self-hosted without one, it's whatever the client sends */
+const clientIp = (r: Request) => r.headers.get("x-forwarded-for")?.split(",")[0].trim() || r.headers.get("x-real-ip") || "local";
 
 const reply = (id: Rpc["id"], result: unknown) => ({ jsonrpc: "2.0", id, result });
 const error = (id: Rpc["id"], code: number, message: string) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
@@ -74,6 +102,13 @@ export async function POST(request: Request) {
   /* notifications and responses carry no id and get no reply — 202 per the transport spec */
   const requests = msgs.filter((m) => m && m.id !== undefined && typeof m.method === "string");
   if (!requests.length) return new Response(null, { status: 202, headers: CORS });
+
+  const wait = charge(clientIp(request), requests.reduce((n, m) => n + costOf(m), 0));
+  if (wait !== null) {
+    const msg = `Rate limit reached — retry in ${wait}s. Screenshots cost ${COST.get_screenshot}, other tools 1, of ${BUDGET} a minute.`;
+    const out = requests.map((m) => error(m.id, -32000, msg));
+    return Response.json(batch ? out : out[0], { status: 429, headers: { ...CORS, "Retry-After": String(wait) } });
+  }
 
   const out = await Promise.all(requests.map((m) => handle(m, origin)));
   return Response.json(batch ? out : out[0], { headers: CORS });

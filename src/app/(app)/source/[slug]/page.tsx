@@ -12,7 +12,14 @@ import { CopyValue } from "@/components/detail/CopyValue";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const source = SOURCES.find((s) => s.slug === slug);
-  return source ? { title: source.name, description: `${source.about} Every captured screen and component.` } : {};
+  if (!source) return {};
+  const real = ITEMS.some((i) => i.source.slug === slug && i.capture);
+  return {
+    title: source.name,
+    description: `${source.about} Every captured screen and component.`,
+    alternates: { canonical: `/source/${slug}` },
+    robots: real ? undefined : { index: false, follow: true },
+  };
 }
 
 /**

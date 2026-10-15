@@ -34,4 +34,6 @@ Typical agent flow: `search_interfaces("arabic fintech hero")` → `get_screensh
   under the attribution policy (`docs/08` §4).
 - `get_screenshot` reads `public/captures` when the file is there and otherwise fetches from
   `NEXT_PUBLIC_CAPTURES_URL`, so a deploy only needs the bucket (`npm run capture:upload`).
-- Before a public deploy: rate-limit `/api/mcp`.
+- Rate-limited per client IP: 60 units a minute, a screenshot costs 5, other tools 1, the
+  handshake nothing; over budget is HTTP 429 with `Retry-After`. The budget lives in memory, so
+  it is per server instance — put a shared store or the platform firewall in front for more.

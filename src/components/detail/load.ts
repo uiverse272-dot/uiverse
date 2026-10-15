@@ -19,5 +19,8 @@ export function detailMetadata(slug: string, kind: Kind): Metadata {
   return {
     title: `${item.title} — ${item.source.name}`,
     description: `${item.source.name}: ${item.source.about} Breakdown, palette, type scale and responsive behaviour.`,
+    alternates: { canonical: `/${kind}/${slug}` },
+    /* procedural items are invented brands — fine to browse, not something to put in search results */
+    robots: item.capture ? undefined : { index: false, follow: true },
   };
 }

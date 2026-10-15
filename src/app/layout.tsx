@@ -3,14 +3,18 @@ import { Lexend, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { SavedProvider } from "@/components/save/SavedProvider";
 import { THEME_SCRIPT } from "@/components/shell/Theme";
+import { SITE_URL } from "@/lib/site";
 
 const mono = Space_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-space-mono" });
 const display = Lexend({ subsets: ["latin"], variable: "--font-lexend" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Uiverse — Discover interfaces worth building", template: "%s · Uiverse" },
   description:
     "A visual index of how real interfaces are built. Browse websites, apps and components, save what works, and understand how it was made.",
+  openGraph: { siteName: "Uiverse", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -62,6 +62,7 @@ capture pipeline and an MCP server over what it captured.
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
 | Guide | First-visit coach: pick a goal, industry and RTL, land on a feed with results, then walk open → Breakdown → Prompt → save |
 | `POST /api/mcp` | Stateless MCP server over the real captures — search, spec, screenshot, prompt, facets ([docs/12](docs/12-mcp.md)) |
+| SEO | `sitemap.xml` and `robots.txt` over the real captures, share cards per screen and component (`lib/og.tsx`); procedural items are `noindex` |
 | `/dev-measure` | Dev tool, `next dev` only — re-derives archetype and section heights (see the file header) |
 
 Stubbed on purpose: auth, billing, teams, the layout builder and visual search. Those are Phase 2–3
