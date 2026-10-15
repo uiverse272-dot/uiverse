@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { SOURCES } from "@/lib/data";
 import { Shell, PageHeader } from "@/components/feed/Section";
 import { Link } from "@/i18n/client";
+import { DeleteAccount } from "@/components/account/DeleteAccount";
 import { SignOutButton } from "@/components/account/SignOutButton";
 import { getI18n } from "@/i18n/server";
 import { currentUser } from "@/lib/auth";
@@ -12,8 +13,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t.profile.title };
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {
+export default async function ProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ handle: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { handle } = await params;
+  const { deleted } = await searchParams;
   const { t, href } = await getI18n();
   if (SOURCES.some((s) => s.slug === handle)) redirect(href(`/source/${handle}`));
   /* public profiles don't exist yet, so "me" is the only one — anything else would be a fake 200 */
@@ -23,6 +31,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
   return (
     <Shell wide={false}>
       <PageHeader title={t.profile.title} sub={t.profile.sub} />
+      {deleted === "1" && !user ? (
+        <p role="status" className="mt-6 border border-border bg-signal/40 p-4 text-[14px] font-medium">
+          {t.auth.deleted}
+        </p>
+      ) : null}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface p-5">
         <p className="text-[14px]">
           {user ? (
@@ -55,6 +68,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
           </Link>
         ))}
       </div>
+      {user ? <DeleteAccount email={user.email} /> : null}
     </Shell>
   );
 }

@@ -139,6 +139,11 @@ keeps users, sessions and saves in our own Postgres through Drizzle (`src/lib/db
 - **Production checklist:** `DATABASE_URL`, `BETTER_AUTH_SECRET`, `npm run db:migrate`, and Resend
   (`RESEND_API_KEY`, `AUTH_EMAIL_FROM`) for email sign-in. Missing the database or the secret turns
   accounts off rather than guessing. See `.env.example`.
+- **Deleting an account** (`/u/me`) takes a typed confirmation and a sign-in from the last hour
+  (`session.freshAge`); older sessions are sent to sign in again. The user row goes, and with it
+  sessions, linked logins, collections and saves (foreign keys cascade) plus any unused sign-in
+  links for the address (`lib/db/magicLinks.ts`), so a link still in an inbox can't recreate it.
+- Every database connection runs in UTC: the timestamp columns carry no zone.
 - `npm run db:generate` after changing `src/lib/db/schema.ts`.
 
 ## Notes on the prototype

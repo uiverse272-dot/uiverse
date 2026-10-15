@@ -12,7 +12,7 @@ import * as schema from "./schema";
  *   unset, in production       null — accounts are off rather than silently keeping users in a
  *                              file on one server. UIV_LOCAL_DB=1 opts in (tests, a single box).
  *
- * Kept on globalThis so dev reloads don't open a second connection or a second PGlite on the
+ * Every connection runs in UTC (see openLocal). Kept on globalThis so dev reloads don't open a second connection or a second PGlite on the
  * same directory.
  */
 export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
@@ -27,7 +27,7 @@ async function open(): Promise<Db | null> {
   const url = process.env.DATABASE_URL;
   if (url) {
     const [{ drizzle }, { default: postgres }] = await Promise.all([import("drizzle-orm/postgres-js"), import("postgres")]);
-    return drizzle(postgres(url, { prepare: false, max: 5 }), { schema }) as unknown as Db;
+    return drizzle(postgres(url, { prepare: false, max: 5, connection: { TimeZone: "UTC" } }), { schema }) as unknown as Db;
   }
   if (process.env.NODE_ENV === "production" && process.env.UIV_LOCAL_DB !== "1") return null;
   /* .nosync: iCloud skips the folder — synced, it duplicated and offloaded the database's own files */
@@ -43,7 +43,14 @@ export async function openLocal(dir?: string): Promise<Db> {
   ]);
   /* PGlite makes its own directory but not the parents (.data.nosync on a fresh checkout) */
   if (dir) await mkdir(dir, { recursive: true });
-  const db = drizzle(new PGlite(dir), { schema });
+  /*
+   * UTC, always. The timestamp columns carry no zone and Drizzle reads them as UTC; PGlite
+   * otherwise runs in the machine's zone, so every time came back hours off — sign-in links
+   * outlived their 5 minutes and a "recent" sign-in stayed recent for hours.
+   */
+  const client = new PGlite(dir);
+  await client.exec("SET TIME ZONE 'UTC'");
+  const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder: path.join(process.cwd(), "drizzle") });
   return db as unknown as Db;
 }

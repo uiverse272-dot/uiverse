@@ -4,6 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { headers } from "next/headers";
 import { getDb, type Db } from "./db";
+import { deleteMagicLinks } from "./db/magicLinks";
 import * as schema from "./db/schema";
 import { SITE_URL } from "./site";
 
@@ -58,6 +59,19 @@ function create(db: Db) {
       ...(providers().google ? { google: { clientId: env.GOOGLE_CLIENT_ID!, clientSecret: env.GOOGLE_CLIENT_SECRET! } } : {}),
       ...(providers().github ? { github: { clientId: env.GITHUB_CLIENT_ID!, clientSecret: env.GITHUB_CLIENT_SECRET! } } : {}),
     },
+    /*
+     * Deleting an account removes the user row; sessions, linked logins, collections and saves go
+     * with it (foreign keys, on delete cascade). With no password to re-enter, Better Auth instead
+     * requires a session younger than freshAge — an hour, so a stale or stolen session can't do it.
+     */
+    user: {
+      deleteUser: {
+        enabled: true,
+        /* an unused sign-in link would otherwise sign the deleted address straight back up */
+        afterDelete: (u) => deleteMagicLinks(db, u.email),
+      },
+    },
+    session: { freshAge: 60 * 60 },
     /* nextCookies last: it lets server actions set the session cookie */
     plugins: [magicLink({ sendMagicLink }), nextCookies()],
   });

@@ -16,7 +16,9 @@ const internal = (p: unknown) => (typeof p === "string" && p.startsWith("/") && 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams;
   const { t, href } = await getI18n();
-  if (await currentUser()) redirect(href("/u/me"));
+  /* signed in already: off to the profile — unless signing in again on purpose (?reauth=1), which
+     deleting an account asks for when the session is older than an hour */
+  if (sp.reauth !== "1" && (await currentUser())) redirect(href("/u/me"));
   const enabled = !!(await getAuth());
   const next = internal(sp.next) ?? href("/saved");
   return (
