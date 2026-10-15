@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { blockLabel, itemTitle, ruleText } from "@/i18n/content";
-import { compactNum, fill, plural, timeAgo } from "@/i18n/format";
+import { an, compactNum, fill, plural, timeAgo } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
@@ -92,7 +92,16 @@ export function DetailView({
             </div>
             <span className="text-[12px] text-text-3">
               {item.capture
-                ? fill(t.detail.capturedLive, { date: item.capture.capturedAt.slice(0, 10) })
+                ? /* the date never breaks across lines, and reads left to right in Arabic too */
+                  t.detail.capturedLive.split(/(\{date\})/).map((part, i) =>
+                    part === "{date}" ? (
+                      <bdi key={i} dir="ltr" className="whitespace-nowrap">
+                        {item.capture!.capturedAt.slice(0, 10)}
+                      </bdi>
+                    ) : (
+                      part
+                    ),
+                  )
                 : fill(t.detail.capturedAgo, { ago: timeAgo(item.daysAgo, lang), views: compactNum(item.views, lang) })}
             </span>
           </div>
@@ -317,8 +326,8 @@ function Overview({ item }: { item: Item }) {
   const firstLabel = first ? blockLabel(first.label, first.type, lang) : "";
   const body = fill(o.body, {
     source: item.source.name,
-    style: lang === "ar" ? name(STYLES, item.style, lang) : item.style,
-    industry: lang === "ar" ? name(INDUSTRIES, item.industry, lang) : item.industry.replace("-", " "),
+    style: lang === "ar" ? name(STYLES, item.style, lang) : an(item.style),
+    industry: lang === "ar" ? name(INDUSTRIES, item.industry, lang) : an(item.industry.replace("-", " ")),
     title: lang === "ar" ? itemTitle(item, lang) : item.title.toLowerCase(),
     first: lang === "ar" ? firstLabel : firstLabel.toLowerCase(),
     sections: plural(o.sections, item.blocks.length, lang),

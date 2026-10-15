@@ -40,6 +40,9 @@ export function SaveToast() {
       {toast ? (
         <div
           onMouseEnter={() => setHeld(true)}
+          /* also on any pointer movement: a pointer that arrives without a hover (a touch, an
+             automated click) still holds the toast open */
+          onPointerMove={() => setHeld(true)}
           onMouseLeave={() => setHeld(false)}
           onFocus={() => setHeld(true)}
           onBlur={() => setHeld(false)}

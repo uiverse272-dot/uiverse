@@ -9,6 +9,12 @@ import type { Lang } from "./config";
 /** A message that varies with a count. Arabic uses all six forms; English only one and other. */
 export type Plural = { other: string; zero?: string; one?: string; two?: string; few?: string; many?: string };
 
+/**
+ * English article by sound — "a dashboard", "an editorial", "an AI", "an FAQ": a vowel, or an
+ * acronym whose first letter is spoken with a vowel (F, H, L, M, N, R, S, X).
+ */
+export const an = (w: string) => `${/^[aeiou]/i.test(w) || /^[FHLMNRSX][A-Z]/.test(w) ? "an" : "a"} ${w}`;
+
 /** "Saved {n} items" + { n: 3 } */
 export const fill = (s: string, vars: Record<string, string | number> = {}) =>
   s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));

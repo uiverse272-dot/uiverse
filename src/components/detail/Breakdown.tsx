@@ -159,7 +159,7 @@ export function Breakdown({ item }: { item: Item }) {
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-[12.5px]">
             <Row label={b.rows.radius} value={layout.radius} />
             <Row label={b.rows.grid} value={`${layoutValue(layout.columns, lang)}${lang === "ar" ? "، " : ", "}${layoutValue(layout.gutter, lang)}`} />
-            <Row label={b.rows.body} value={layout.body} />
+            <Row label={b.rows.body} value={layoutValue(layout.body, lang)} />
             <Row label={b.rows.container} value={layout.container} />
             {font ? <Row label={b.rows.headings} value={font.heading} /> : null}
             {font ? <Row label={b.rows.bodyFont} value={font.body} /> : null}

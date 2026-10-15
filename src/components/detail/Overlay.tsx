@@ -34,7 +34,7 @@ export function Overlay({ label, children }: { label: string; children: React.Re
       role="dialog"
       aria-modal="true"
       aria-label={label}
-      className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 md:p-6"
+      className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto overscroll-contain bg-[var(--overlay)] p-0 md:px-6 md:pb-6"
     >
       {/* backdrop click target for the mouse; keyboard users have the Close button and Escape */}
       <button
@@ -43,7 +43,9 @@ export function Overlay({ label, children }: { label: string; children: React.Re
         onClick={() => router.back()}
         className="fixed inset-0 -z-10 cursor-default"
       />
-      <div className="anim-sheet relative w-full max-w-[1700px] border border-border bg-bg md:shadow-[6px_6px_0_var(--border)]">
+      {/* the top gap is the sheet's margin, not the overlay's padding: padding would hold the sticky
+          bar 24px down and let the page show through above it */}
+      <div className="anim-sheet relative w-full max-w-[1700px] border border-border bg-bg md:mt-6 md:shadow-[6px_6px_0_var(--border)]">
         {/* a bar of its own, so nothing scrolls underneath the close button and hides behind it */}
         <div className="sticky top-0 z-10 flex h-12 items-center justify-between gap-3 border-b border-border bg-bg ps-4 md:ps-5">
           <span className="truncate text-[13px] font-medium text-text-2">{label}</span>

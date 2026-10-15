@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ITEMS, bySlug, type Item } from "./data";
+import { an } from "@/i18n/format";
 import { buildPrompt, DEFAULT_OPTIONS, STACKS, TOOLS, type PromptOptions } from "./prompt";
 import { brandMarks, colorRoles, fonts, responsiveRulesPlain, sections, typeScale } from "./spec";
 
@@ -66,6 +67,20 @@ describe("buildPrompt", () => {
     off("includeType", "## Typography");
     off("includeLayout", "## Layout and spacing");
     off("includeA11y", "## Requirements");
+  });
+
+  it("claims measured values only for real captures", () => {
+    expect(prompt(LTR_CAPTURE)).toContain("measured from a real interface");
+    expect(prompt(PROCEDURAL)).not.toContain("measured from a real interface");
+  });
+
+  it("uses the right article", () => {
+    expect(an("education")).toBe("an education");
+    expect(an("AI")).toBe("an AI");
+    expect(an("FAQ")).toBe("an FAQ");
+    expect(an("dashboard")).toBe("a dashboard");
+    expect(an("SaaS")).toBe("a SaaS");
+    expect(prompt(item("x-abwaab-com-ar"))).toContain("for an education product");
   });
 
   it("builds right-to-left captures RTL-first, and only those", () => {

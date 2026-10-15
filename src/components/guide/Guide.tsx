@@ -321,7 +321,7 @@ function Coach({
     <section
       aria-label={t.guide.label}
       aria-live="polite"
-      className={`anim-fade-up fixed inset-x-3 bottom-[68px] z-[96] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:w-[340px] ${
+      className={`anim-fade-up fixed inset-x-3 bottom-[68px] z-[106] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:w-[340px] ${
         /* dodge the thing it's pointing at */
         side === "end" ? "md:end-6" : "md:start-[112px]"
       }`}
@@ -364,7 +364,7 @@ function Finished({ onClose }: { onClose: () => void }) {
     <section
       aria-label={t.guide.label}
       aria-live="polite"
-      className="anim-fade-up fixed inset-x-3 bottom-[68px] z-[96] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:start-[112px] md:w-[360px]"
+      className="anim-fade-up fixed inset-x-3 bottom-[68px] z-[106] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:start-[112px] md:w-[360px]"
     >
       <div className="border-b border-border bg-signal px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] text-on-signal">
         {t.guide.loop}
@@ -398,6 +398,21 @@ function Finished({ onClose }: { onClose: () => void }) {
 /* ------------------------------------------------------------------ */
 
 /**
+ * Bring the target to the middle of its scroll container — the page, or the detail overlay.
+ * Not scrollIntoView: that also scrolls overflow:hidden ancestors, and in the Prompt dialog it
+ * shoved the panel's content up out of its frame.
+ */
+function centre(el: HTMLElement) {
+  let box = el.parentElement;
+  while (box && !(/(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight)) box = box.parentElement;
+  const r = el.getBoundingClientRect();
+  const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const into = box ? box.getBoundingClientRect() : { top: 0, height: innerHeight };
+  const by = r.top + r.height / 2 - (into.top + into.height / 2);
+  (box ?? window).scrollBy({ top: by, behavior });
+}
+
+/**
  * A ring around the step's target, with the rest of the page softly dimmed. It never takes
  * pointer events — the point is that you click the real thing underneath.
  */
@@ -422,8 +437,7 @@ function Spotlight({ selector, scroll, onRect }: { selector: string; scroll: boo
         if (el && scroll && !scrolled.current) {
           scrolled.current = true;
           const r = el.getBoundingClientRect();
-          if (r.top < 64 || r.bottom > innerHeight - 80)
-            el.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+          if (r.top < 64 || r.bottom > innerHeight - 80) centre(el);
         }
         const r = el ? el.getBoundingClientRect() : null;
         setRect(r);
@@ -447,7 +461,7 @@ function Spotlight({ selector, scroll, onRect }: { selector: string; scroll: boo
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed z-[95] border-2 border-signal transition-[top,left,width,height] duration-150 motion-reduce:transition-none"
+      className="pointer-events-none fixed z-[105] border-2 border-signal transition-[top,left,width,height] duration-150 motion-reduce:transition-none"
       style={{
         top: rect.top - pad,
         left: rect.left - pad,

@@ -227,6 +227,8 @@ export function ruleText(rule: string, item: Item, lang: Lang) {
 export function layoutValue(v: string, lang: Lang) {
   if (lang !== "ar") return v;
   const fixed: Record<string, string> = { "single-column sections": "أقسام بعمود واحد", "single column": "عمود واحد", "12 column": "12 عمودًا" };
+  /* a body line height the page left at the CSS default: "13px / normal" */
+  if (/ \/ normal$/.test(v)) return v.replace(/normal$/, "عادي");
   if (fixed[v]) return fixed[v];
   let m = v.match(/^(\d+)-column hero$/);
   if (m) return `قسم افتتاحي من ${plural(COLUMNS, Number(m[1]), "ar")}`;

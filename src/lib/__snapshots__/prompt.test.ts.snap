@@ -3,7 +3,7 @@
 exports[`buildPrompt > keeps its shape (update with \`npx vitest -u\` when the template changes on purpose) 1`] = `
 "Build a blog screen for a travel product using Next.js + Tailwind.
 
-Return one complete, runnable file. Every value below is measured from a real interface, so treat it as a specification rather than a suggestion. Where the spec is silent, choose the restrained option.
+Return one complete, runnable file. Every value below is a deliberate design decision, so treat it as a specification rather than a suggestion. Where the spec is silent, choose the restrained option.
 
 The register is **editorial** — large type, wide measure, restrained colour, content-first. The target is desktop at 1440px, then tablet and mobile.
 

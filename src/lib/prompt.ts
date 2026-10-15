@@ -1,3 +1,4 @@
+import { an } from "@/i18n/format";
 import type { Item } from "./data";
 import { BRAND_FONT, colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, INDUSTRIES, STYLES } from "./taxonomy";
@@ -53,7 +54,7 @@ export const DEFAULT_OPTIONS: PromptOptions = {
 
 /* ------------------------------------------------------------------ */
 
-function preamble(tool: ToolId, subject: string, stackName: string) {
+function preamble(tool: ToolId, subject: string, stackName: string, measured: boolean) {
   switch (tool) {
     case "cursor":
       return `Add ${subject} to this codebase, built with ${stackName}.\n\nFollow the conventions already in the repo: existing component structure, existing token names, existing utility helpers. Do not add dependencies. Do not restate the spec back to me — make the edits.`;
@@ -68,7 +69,7 @@ function preamble(tool: ToolId, subject: string, stackName: string) {
     case "chatgpt":
       return `Build ${subject} using ${stackName}.\n\nReturn one complete, runnable file. No placeholder comments, no "// rest of the code here", no lorem ipsum — write plausible real copy.`;
     default:
-      return `Build ${subject} using ${stackName}.\n\nReturn one complete, runnable file. Every value below is measured from a real interface, so treat it as a specification rather than a suggestion. Where the spec is silent, choose the restrained option.`;
+      return `Build ${subject} using ${stackName}.\n\nReturn one complete, runnable file. ${measured ? "Every value below is measured from a real interface" : "Every value below is a deliberate design decision"}, so treat it as a specification rather than a suggestion. Where the spec is silent, choose the restrained option.`;
   }
 }
 
@@ -126,7 +127,7 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
 
   const out: string[] = [];
 
-  out.push(preamble(opts.tool, subject, stack.name));
+  out.push(preamble(opts.tool, subject, stack.name, !!item.capture));
   out.push("");
   out.push(
     `The register is **${style}** — ${styleNote(style)} The target is ${
@@ -220,12 +221,6 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
 
   return out.join("\n");
 }
-
-/**
- * "a dashboard", "an education", "an AI", "an FAQ" — by sound: a vowel, or an acronym whose
- * first letter is spoken with a vowel (F, H, L, M, N, R, S, X).
- */
-const an = (w: string) => `${/^[aeiou]/i.test(w) || /^[FHLMNRSX][A-Z]/.test(w) ? "an" : "a"} ${w}`;
 
 /** Lowercase a taxonomy label unless it carries internal capitals (SaaS, AI). */
 const lower = (s: string) => (/[A-Z]/.test(s.slice(1)) ? s : s.toLowerCase());

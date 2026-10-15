@@ -12,28 +12,18 @@ import { useSaved } from "../save/SavedProvider";
 import { Chevron, Close, Sparkle } from "../ui/icons";
 
 type Mode = "tab" | "card" | "open";
-const KEY = "uiv.pick";
 
 /**
  * Pick of the week, floating over the home feed instead of taking a column.
- * It pops in as a compact card, expands into the full record, and folds down
- * to a small tab. Folding is remembered per browser; nothing else depends on it.
+ * It waits as a small tab, opens into a compact card and then the full record,
+ * and folds back down to the tab.
  */
 export function Featured({ item }: { item: Item }) {
   const { lang, t } = useI18n();
   const { isSaved } = useSaved();
-  /* starts folded so phones and server render agree; unfolds after mount on wide screens */
+  /* starts folded and stays that way until asked: unfolding by itself, it covered the feed's
+     save buttons a moment after the page loaded */
   const [mode, setMode] = useState<Mode>("tab");
-
-  useEffect(() => {
-    let folded = false;
-    try {
-      folded = localStorage.getItem(KEY) === "tab";
-    } catch {}
-    if (folded || !window.matchMedia("(min-width: 768px)").matches) return;
-    const t = setTimeout(() => setMode("card"), 700);
-    return () => clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     if (mode !== "open") return;
@@ -42,18 +32,8 @@ export function Featured({ item }: { item: Item }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [mode]);
 
-  const fold = () => {
-    setMode("tab");
-    try {
-      localStorage.setItem(KEY, "tab");
-    } catch {}
-  };
-  const unfold = () => {
-    setMode("card");
-    try {
-      localStorage.removeItem(KEY);
-    } catch {}
-  };
+  const fold = () => setMode("tab");
+  const unfold = () => setMode("card");
 
   const href = `/screen/${item.slug}`;
 
