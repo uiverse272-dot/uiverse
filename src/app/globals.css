@@ -95,8 +95,11 @@
   --font-display: var(--font-lexend), var(--font-sans);
 }
 
-* {
-  border-color: var(--border);
+/* in the base layer, so border-* colour utilities can override it — unlayered, it beat every one */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 }
 
 html {
