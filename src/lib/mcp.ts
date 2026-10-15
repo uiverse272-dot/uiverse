@@ -1,5 +1,8 @@
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { captureSrc } from "./captureSrc";
 import { ITEMS, type Item } from "./data";
 import { searchItems, applyFilters } from "./query";
 import { buildPrompt, DEFAULT_OPTIONS, STACKS, TOOLS, type StackId, type ToolId } from "./prompt";
@@ -201,6 +204,15 @@ function spec(args: Json, origin: string): ToolResult {
   return text(md.join("\n"));
 }
 
+/* public/ in local development; the bucket once deployed, where public/captures isn't shipped */
+async function shotBytes(src: string): Promise<Buffer> {
+  const file = path.join(process.cwd(), "public", src);
+  if (existsSync(file)) return readFile(file);
+  const res = await fetch(captureSrc(src));
+  if (!res.ok) throw new Error(`Screenshot unavailable (${res.status}).`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 async function screenshot(args: Json): Promise<ToolResult> {
   const i = find(args.slug);
   if (!i) return missing(args.slug);
@@ -216,8 +228,7 @@ async function screenshot(args: Json): Promise<ToolResult> {
   const scale = shot.w / shot.css; // device pixels per CSS pixel
   const top = crop ? crop.y * shot.docH : 0;
   const height = Math.min(crop ? crop.h * shot.docH : shot.cssH, maxH, shot.cssH - top);
-  const file = path.join(process.cwd(), "public", shot.src);
-  const data = await sharp(file)
+  const data = await sharp(await shotBytes(shot.src))
     .extract({ left: 0, top: Math.round(top * scale), width: shot.w, height: Math.max(1, Math.round(height * scale)) })
     .resize({ width: Math.min(shot.css, 1200), withoutEnlargement: true })
     .jpeg({ quality: 72 })

@@ -35,7 +35,12 @@ To capture a live page into the index (needs `npx playwright install chromium` o
 npm run capture -- https://example.com/pricing --industry saas
 npm run capture -- --batch seeds/rtl-gulf.json --concurrency 3
 npm run capture -- --rederive     # re-derive every record from stored measurements
+npm run capture:upload            # sync public/captures to the bucket (--dry-run, --prune)
 ```
+
+Screenshots are served from `public/captures` until `NEXT_PUBLIC_CAPTURES_URL` points at an
+S3-compatible bucket (R2, S3, B2, MinIO) — then the app and the MCP server read them from there.
+Copy `.env.example` to `.env.local` for the variables.
 
 ## What's actually built
 

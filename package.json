@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "capture": "node scripts/capture/capture.mjs"
+    "capture": "node scripts/capture/capture.mjs",
+    "capture:upload": "node --env-file-if-exists=.env.local scripts/capture/upload.mjs"
   },
   "dependencies": {
     "next": "^16.4.0",
@@ -16,6 +17,7 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "3.1144.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

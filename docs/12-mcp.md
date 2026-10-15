@@ -32,4 +32,6 @@ Typical agent flow: `search_interfaces("arabic fintech hero")` → `get_screensh
 - No brand copy leaves through the spec or prompt tools — headings are kept out, and every
   output says to reuse decisions, not names, logos or words. Screenshots are the capture itself,
   under the attribution policy (`docs/08` §4).
-- Before a public deploy: rate-limit `/api/mcp` and move screenshots to object storage.
+- `get_screenshot` reads `public/captures` when the file is there and otherwise fetches from
+  `NEXT_PUBLIC_CAPTURES_URL`, so a deploy only needs the bucket (`npm run capture:upload`).
+- Before a public deploy: rate-limit `/api/mcp`.

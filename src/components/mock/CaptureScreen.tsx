@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { Item } from "@/lib/data";
 import type { Viewport } from "@/lib/captures";
+import { captureSrc } from "@/lib/captureSrc";
 
 /**
  * A real capture, drawn from its screenshot. Same contract as MockScreen: without
@@ -25,7 +26,7 @@ export function CaptureScreen({ item, viewport }: { item: Item; viewport?: Viewp
   const sizes = viewport ? "(max-width: 1024px) 100vw, 70vw" : "(max-width: 768px) 50vw, 340px";
   const img = (style?: React.CSSProperties) => (
     <Image
-      src={useShot.src}
+      src={captureSrc(useShot.src)}
       width={useShot.w}
       height={useShot.h}
       sizes={sizes}
