@@ -19,6 +19,7 @@ The architecture lives in `docs/`; read it before building anything new.
 | [09 — Roadmap](docs/09-roadmap.md) | MVP vs Phase 2/3, and the cut list |
 | [10 — Review of the brief](docs/10-ux-critique.md) | Duplications, gaps, flow improvements |
 | [11 — Tech architecture](docs/11-tech-architecture.md) | Stack, performance budget, build order |
+| [12 — MCP server](docs/12-mcp.md) | The agent-facing API over the real captures |
 
 
 ## Running it
@@ -28,10 +29,19 @@ npm install
 npm run dev     # http://localhost:3000
 ```
 
+To capture a live page into the index (needs `npx playwright install chromium` once):
+
+```bash
+npm run capture -- https://example.com/pricing --industry saas
+npm run capture -- --batch seeds/rtl-gulf.json --concurrency 3
+npm run capture -- --rederive     # re-derive every record from stored measurements
+```
+
 ## What's actually built
 
 A working prototype of the **discovery half** — the Feed engine, the Detail shell and the Breakdown
-tab, which are the three things the architecture stands or falls on.
+tab, which are the three things the architecture stands or falls on — plus a first cut of the
+capture pipeline and an MCP server over what it captured.
 
 | Route | State |
 |---|---|
@@ -45,10 +55,23 @@ tab, which are the three things the architecture stands or falls on.
 | `/saved` | One-click saves, collections, `Move to…` toast |
 | `/layouts`, `/palettes`, `/3d`, `/creators` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
+| Guide | First-visit coach: pick a goal, industry and RTL, land on a feed with results, then walk open → Breakdown → Prompt → save |
+| `POST /api/mcp` | Stateless MCP server over the real captures — search, spec, screenshot, prompt, facets ([docs/12](docs/12-mcp.md)) |
 | `/dev-measure` | Dev tool, `next dev` only — re-derives archetype and section heights (see the file header) |
 
-Stubbed on purpose: auth, billing, teams, the layout builder, visual search, and the capture
-pipeline. Those are Phase 2–3 in [09-roadmap.md](docs/09-roadmap.md).
+Stubbed on purpose: auth, billing, teams, the layout builder and visual search. Those are Phase 2–3
+in [09-roadmap.md](docs/09-roadmap.md).
+
+### Real captures
+
+`npm run capture` (`scripts/capture/`, Playwright + sharp) renders a live page at 1440 / 834 / 390px,
+measures it — colour roles, type scale, fonts, spacing, radius, container, block bounds, responsive
+rules — writes the screenshots to `public/captures/<slug>/` and upserts the record into
+`src/content/captures.json`. `lib/captures.ts` turns each record into a catalogue item, so a capture
+shows up in the feed, detail view and Breakdown with its measured values; components are crops of the
+page from the measured block bounds. 26 captures so far, 22 of them Arabic / RTL
+(`seeds/rtl-gulf.json`). Raw measurements go to `.captures-raw/` (ignored) so `--rederive` can
+re-run the derivation without re-crawling.
 
 ### The prompt generator
 
@@ -68,10 +91,11 @@ editing a prompt you already generated is free (`components/prompt/quota.ts`).
 
 ## Notes on the prototype
 
-- **Previews are procedurally rendered**, not screenshots. Each one is drawn from a palette and an
-  archetype in `cqw` units against a container query — so there are no image files, no external
-  requests, nothing impersonating a real company, and the geometry is known before paint.
-- **Every brand is invented.** Ledgerly, Northwind, Cormorant and the rest do not exist.
+- **Two kinds of content.** Real captures are screenshots of live pages, under the attribution policy
+  (`docs/08` §4). Everything else is **procedurally rendered** from a palette and an archetype in
+  `cqw` units against a container query — no image files, no external requests — and every brand in
+  it is invented (Ledgerly, Northwind, Cormorant and the rest do not exist). The MCP server only ever
+  serves the real captures, so an agent never treats a procedural preview as evidence.
 - **Aspect ratios come from the data**, never from measuring the DOM. That is what makes the masonry
   lay out with zero shift, and why `/dev-measure` exists. The server can't see the viewport, so pages
   guess the column count from the user agent (`feed/ssrColumns.ts`) — phones render 2 columns from the

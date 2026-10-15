@@ -45,3 +45,9 @@ next-env.d.ts
 
 # raw capture measurements (re-derivable, large)
 /.captures-raw
+
+# local reference images
+/Inspos
+
+# Finder / iCloud sync duplicates ("page 2.tsx")
+* 2.*
