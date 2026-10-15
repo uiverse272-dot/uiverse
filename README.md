@@ -124,6 +124,23 @@ English keeps its unprefixed URLs (`/web/fintech`); Arabic lives under `/ar` (`/
 - The Arabic is machine-drafted Modern Standard Arabic. **Have a native speaker review `ar.ts` and
   `content.ts` before launch.**
 
+## Accounts
+
+Sign in with an email link, or Google / GitHub once their keys are set (`/sign-in`). Better Auth
+keeps users, sessions and saves in our own Postgres through Drizzle (`src/lib/db`, migrations in
+`drizzle/`); production uses Supabase as plain Postgres via `DATABASE_URL`.
+
+- **Locally there's nothing to set up.** Without `DATABASE_URL`, an embedded Postgres (PGlite) in
+  `.data/pglite` is created and migrated on first use, and sign-in links print to the server log.
+- **Saves.** A guest's saves stay in the browser. Signing in merges them into the account once
+  (`importSaves`), then the account is the source of truth: changes apply instantly and go to the
+  server as idempotent "saved / not saved" writes (`components/save/actions.ts`), and a refused one
+  re-syncs. A per-user copy paints the next visit; signing out removes every account copy.
+- **Production checklist:** `DATABASE_URL`, `BETTER_AUTH_SECRET`, `npm run db:migrate`, and Resend
+  (`RESEND_API_KEY`, `AUTH_EMAIL_FROM`) for email sign-in. Missing the database or the secret turns
+  accounts off rather than guessing. See `.env.example`.
+- `npm run db:generate` after changing `src/lib/db/schema.ts`.
+
 ## Notes on the prototype
 
 - **Two kinds of content.** Real captures are screenshots of live pages, under the attribution policy

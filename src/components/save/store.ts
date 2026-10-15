@@ -5,19 +5,32 @@
  * localStorage), and writing it back with setState inside an effect causes a
  * cascading re-render. useSyncExternalStore is the sanctioned shape: the server
  * snapshot is empty, the client snapshot is read once on first subscribe.
+ *
+ * Two modes. A guest's saves are kept in this browser (KEY). Signed in, the account on the
+ * server is the source of truth: the provider calls `signIn`, which merges the guest's saves
+ * into the account once, then every change is applied here first and sent with `remote`. A
+ * per-user copy in this browser paints the next visit before the server answers.
  */
 
 export type Collection = { id: string; name: string; sections: string[] };
 export type Save = { slug: string; collectionId: string; at: number; note?: string };
 export type State = { saves: Save[]; collections: Collection[]; hydrated: boolean };
+export type Op =
+  | { type: "set"; slug: string; saved: boolean; collectionId?: string }
+  | { type: "move"; slug: string; collectionId: string }
+  | { type: "create"; id: string; name: string };
+type Remote = (op: Op) => void;
 
 const KEY = "uiv.saves.v1";
+const accountKey = (userId: string) => `uiv.saves.u:${userId}`;
 const DEFAULT_COLLECTIONS: Collection[] = [{ id: "recent", name: "Recently saved", sections: [] }];
 const EMPTY: State = { saves: [], collections: DEFAULT_COLLECTIONS, hydrated: false };
 
 let state: State = EMPTY;
 let loaded = false;
+let account: { userId: string; remote: Remote } | null = null;
 const listeners = new Set<() => void>();
+const key = () => (account ? accountKey(account.userId) : KEY);
 
 /*
  * Storage is outside our control — an older schema, a hand edit, another app on the origin.
@@ -29,9 +42,9 @@ const isSave = (s: unknown): s is Save =>
 const isCollection = (c: unknown): c is Collection =>
   !!c && typeof (c as Collection).id === "string" && typeof (c as Collection).name === "string";
 
-function read(): State {
+function read(k = key()): State {
   try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, unknown>;
+    const parsed = JSON.parse(localStorage.getItem(k) ?? "{}") as Record<string, unknown>;
     const saves = Array.isArray(parsed.saves) ? parsed.saves.filter(isSave) : [];
     const collections = Array.isArray(parsed.collections) ? parsed.collections.filter(isCollection) : [];
     return { saves, collections: collections.length ? collections : DEFAULT_COLLECTIONS, hydrated: true };
@@ -43,10 +56,12 @@ function read(): State {
 
 /* another tab saved something — take its state, or two tabs would overwrite each other's saves */
 function onStorage(e: StorageEvent) {
-  if (e.key !== KEY) return;
+  if (e.key !== key()) return;
   state = read();
-  listeners.forEach((l) => l());
+  emit();
 }
+
+const emit = () => listeners.forEach((l) => l());
 
 function load() {
   if (loaded) return;
@@ -55,12 +70,18 @@ function load() {
   window.addEventListener("storage", onStorage);
 }
 
-function commit(next: State) {
+function write(next: State) {
   state = next;
   try {
-    localStorage.setItem(KEY, JSON.stringify({ saves: state.saves, collections: state.collections }));
+    localStorage.setItem(key(), JSON.stringify({ saves: state.saves, collections: state.collections }));
   } catch {}
-  listeners.forEach((l) => l());
+  emit();
+}
+
+/** Apply a change here, then tell the server if signed in */
+function commit(next: State, op: Op) {
+  write(next);
+  account?.remote(op);
 }
 
 export function subscribe(listener: () => void) {
@@ -77,22 +98,68 @@ export const isSaved = (slug: string) => state.saves.some((s) => s.slug === slug
 /** Returns the collection name it landed in, or null when it was removed. */
 export function toggle(slug: string, collectionId = "recent"): string | null {
   if (isSaved(slug)) {
-    commit({ ...state, saves: state.saves.filter((s) => s.slug !== slug) });
+    commit({ ...state, saves: state.saves.filter((s) => s.slug !== slug) }, { type: "set", slug, saved: false });
     return null;
   }
-  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...state.saves] });
+  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...state.saves] }, { type: "set", slug, saved: true, collectionId });
   return state.collections.find((c) => c.id === collectionId)?.name ?? "Recently saved";
 }
 
 export function move(slug: string, collectionId: string) {
   const rest = state.saves.filter((s) => s.slug !== slug);
-  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...rest] });
+  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...rest] }, { type: "move", slug, collectionId });
 }
 
 export function create(name: string) {
-  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40) || `c${Date.now()}`;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || `c${Date.now()}`;
   if (!state.collections.some((c) => c.id === id)) {
-    commit({ ...state, collections: [...state.collections, { id, name, sections: [] }] });
+    commit({ ...state, collections: [...state.collections, { id, name, sections: [] }] }, { type: "create", id, name });
   }
   return id;
+}
+
+/* ------------------------------------------------------------- account */
+
+export type ServerState = { saves: { slug: string; collectionId: string; at: number }[]; collections: { id: string; name: string }[] };
+
+/** What this browser saved as a guest — sent once at sign-in to be merged into the account. */
+export function guestState(): ServerState | null {
+  const g = read(KEY);
+  const collections = g.collections.filter((c) => c.id !== "recent").map(({ id, name }) => ({ id, name }));
+  return g.saves.length || collections.length ? { saves: g.saves.map(({ slug, collectionId, at }) => ({ slug, collectionId, at })), collections } : null;
+}
+
+/** Signed in: paint from this user's cached copy, until `adopt` brings the server's. */
+export function signIn(userId: string, remote: Remote) {
+  load();
+  account = { userId, remote };
+  state = read();
+  emit();
+}
+
+/** The account's state from the server; the guest copy has been merged into it, so it's cleared. */
+export function adopt(server: ServerState) {
+  write({
+    saves: server.saves,
+    collections: [...DEFAULT_COLLECTIONS, ...server.collections.map((c) => ({ ...c, sections: [] }))],
+    hydrated: true,
+  });
+  try {
+    localStorage.removeItem(KEY);
+  } catch {}
+}
+
+/**
+ * Signed out: forget every account copy on this browser and go back to the guest store. Every,
+ * not just the current one — a session that expired or ended elsewhere leaves a copy whose owner
+ * this page never learned.
+ */
+export function signOut() {
+  try {
+    for (const k of Object.keys(localStorage)) if (k.startsWith("uiv.saves.u:")) localStorage.removeItem(k);
+  } catch {}
+  if (!account) return;
+  account = null;
+  state = read();
+  emit();
 }

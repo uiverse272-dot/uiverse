@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
+import { authClient } from "@/lib/auth-client";
 import { ITEMS } from "@/lib/data";
 import { useSaved } from "@/components/save/SavedProvider";
 import { Feed } from "@/components/feed/Feed";
@@ -11,6 +12,7 @@ import { Plus } from "@/components/ui/icons";
 export default function SavedPage() {
   const { t } = useI18n();
   const { saves, collections, ready, countFor, slugsFor, create } = useSaved();
+  const signedIn = !!authClient.useSession().data;
   const [active, setActive] = useState<string>("all");
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
@@ -26,6 +28,18 @@ export default function SavedPage() {
         title={t.saved.title}
         sub={t.saved.sub}
       />
+      <p className="mt-4 text-[12.5px] text-text-3">
+        {signedIn ? (
+          t.auth.synced
+        ) : (
+          <>
+            {t.auth.keepSaves}{" "}
+            <Link href="/sign-in?next=/saved" className="underline underline-offset-2">
+              {t.auth.signIn}
+            </Link>
+          </>
+        )}
+      </p>
 
       <div className="flex flex-wrap items-center gap-2 py-5">
         <button

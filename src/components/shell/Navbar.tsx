@@ -9,6 +9,7 @@ import { startGuide } from "../guide/events";
 import { ThemeToggle } from "./Theme";
 import { Logo } from "./Sidebar";
 import { useSaved } from "../save/SavedProvider";
+import { authClient } from "@/lib/auth-client";
 import { Bookmark, Chevron, User } from "../ui/icons";
 
 const MORE = [
@@ -25,6 +26,7 @@ const MORE = [
 export function Navbar() {
   const { lang, t } = useI18n();
   const { saves } = useSaved();
+  const user = authClient.useSession().data?.user;
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -94,9 +96,9 @@ export function Navbar() {
           </span>
         </span>
         <span className="min-w-0 flex-1 leading-tight">
-          <span className="block truncate text-[13.5px] font-bold">{t.nav.guest}</span>
+          <bdi className="block truncate text-[13.5px] font-bold">{user ? user.name || user.email.split("@")[0] : t.nav.guest}</bdi>
           <span className="block truncate text-[11px] text-text-2">
-            {saves.length ? plural(t.nav.savedCount, saves.length, lang) : t.nav.seeker}
+            {saves.length ? plural(t.nav.savedCount, saves.length, lang) : user ? t.nav.seeker : t.auth.syncHint}
           </span>
         </span>
         <Chevron size={15} />

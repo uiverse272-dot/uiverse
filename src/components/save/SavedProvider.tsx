@@ -1,11 +1,13 @@
 "use client";
 
 import {
-  createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, type ReactNode,
+  createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode,
 } from "react";
+import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/i18n/client";
 import { fill } from "@/i18n/format";
 import * as store from "./store";
+import { saveOp, syncSaves } from "./actions";
 import { guideEvent } from "../guide/events";
 
 type Toast = { text: string; slug?: string } | null;
@@ -30,6 +32,29 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [toast, setToast] = useState<Toast>(null);
+  /*
+   * Signed in: the account is the source of truth. Merge what this browser saved as a guest,
+   * then send each change as it happens; if the server refuses one, take its state back.
+   */
+  const session = authClient.useSession();
+  const userId = session.data?.user.id;
+  const signedOut = !session.isPending && !userId;
+  useEffect(() => {
+    if (signedOut) store.signOut();
+  }, [signedOut]);
+  useEffect(() => {
+    if (!userId) return;
+    let live = true;
+    const resync = () => syncSaves(null).then((s) => live && s && store.adopt(s));
+    store.signIn(userId, (op) => {
+      saveOp(op).then((r) => (r.ok ? undefined : resync()), resync);
+    });
+    syncSaves(store.guestState()).then((s) => live && s && store.adopt(s));
+    return () => {
+      live = false;
+    };
+  }, [userId]);
+
   /* the default collection's name is stored in English; show it in the page's language */
   const label = useCallback((c: store.Collection) => (c.id === "recent" ? t.save.recent : c.name), [t]);
 

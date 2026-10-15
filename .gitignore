@@ -50,6 +50,9 @@ next-env.d.ts
 # takedown requests saved in development — they hold requesters' contact details
 /.takedowns
 
+# the local embedded database (lib/db) — accounts and saves in development
+/.data
+
 # local reference images
 /Inspos
 
