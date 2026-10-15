@@ -89,6 +89,7 @@ export function SignInForm({
           <button disabled={pending} className={`${button} mt-3 bg-accent text-accent-fg disabled:opacity-60`}>
             {pending ? a.sending : a.send}
           </button>
+          <p className="mt-2 text-[12px] text-text-3">{a.linkHint}</p>
         </form>
       ) : null}
       {error ? (

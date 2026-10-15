@@ -37,10 +37,17 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
 
   const parsed = parseQuery(q, lang);
 
+  /* the header field is a launcher: it empties after a search, so it can't go stale while the
+     results page's own field (seeded with the query) gets refined */
+  const go = () => {
+    router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+    if (!big) setQ("");
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!q.trim()) return;
-    router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+    go();
     ref.current?.blur();
     setFocused(false);
   };
@@ -67,7 +74,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
             }`}
           />
           {!big ? (
-            <kbd className="hidden shrink-0 border border-current px-1.5 py-0.5 text-[10.5px] lg:block">
+            <kbd dir="ltr" className="hidden shrink-0 border border-current px-1.5 py-0.5 text-[10.5px] lg:block">
               ⌘K
             </kbd>
           ) : null}
@@ -89,7 +96,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
           <button
             onMouseDown={(e) => {
               e.preventDefault();
-              router.push(`/search?q=${encodeURIComponent(q.trim())}`);
+              go();
             }}
             className="flex w-full items-center gap-2.5 px-2 py-2 text-start text-[13px] hover:bg-bg-subtle"
           >

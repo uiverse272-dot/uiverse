@@ -37,9 +37,14 @@ export function Breakdown({ item }: { item: Item }) {
   const layout = layoutSpec(item);
   const space = spacingScale(item);
   const font = fonts(item);
+  /* a sample from a capture can be an emoji or a number — show it only if it's text */
+  const readable = (s?: string) => (s && /\p{L}/u.test(s) ? s : undefined);
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {!item.capture ? (
+        <p className="border border-dashed border-border px-4 py-3 text-[12.5px] leading-relaxed text-text-2 lg:col-span-2">{b.sample}</p>
+      ) : null}
       <Panel title={b.outline} note={plural(b.blocks, item.blocks.length, lang)}>
         <ol className="space-y-1">
           {item.blocks.map((blk, i) => (
@@ -63,7 +68,8 @@ export function Breakdown({ item }: { item: Item }) {
                     </span>
                   ) : null}
                 </span>
-                <span dir="ltr" className="shrink-0 font-mono text-[11px] text-text-3">{blk.type}</span>
+                {/* the block's type key — a developer's label, so English pages only */}
+                {lang === "en" ? <span className="shrink-0 font-mono text-[11px] text-text-3">{blk.type}</span> : null}
               </Link>
             </li>
           ))}
@@ -90,7 +96,7 @@ export function Breakdown({ item }: { item: Item }) {
         </Link>
       </Panel>
 
-      <Panel title={b.roles} note={b.rolesNote}>
+      <Panel title={b.roles} note={item.capture ? b.rolesNote : undefined}>
         <div className="space-y-1">
           {roles.map(({ key, token, label, value: hex }) => {
             return (
@@ -133,7 +139,7 @@ export function Breakdown({ item }: { item: Item }) {
                   className="flex-1 truncate"
                   style={{ fontSize: Math.min(size, 26), fontWeight: weight, letterSpacing: "-0.02em" }}
                 >
-                  {sample || typeUse(use, lang)}
+                  {readable(sample) || typeUse(use, lang)}
                 </span>
                 <CopyValue value={`${size}px / ${weight}`} />
               </div>

@@ -45,6 +45,13 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
   const v = state.status === "error" ? state.values : { domain, name: "", email: "", role: "owner", details: "", confirm: false };
   const bad = (f: Field) => state.status === "error" && state.field === f;
   const err = (f: Field) => (bad(f) ? { "aria-invalid": true, "aria-describedby": "takedown-error" } : {});
+  /* a field's error sits under that field; only errors about the whole request go at the bottom */
+  const fieldError = (f: Field) =>
+    bad(f) && state.status === "error" ? (
+      <p id="takedown-error" role="alert" className="mt-1.5 text-[12.5px] text-danger">
+        {state.message}
+      </p>
+    ) : null;
 
   return (
     <form ref={form} action={action} noValidate className="space-y-4 border border-border bg-surface p-5">
@@ -54,6 +61,7 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
           {td.domain}
         </label>
         <input id="td-domain" name="domain" dir="ltr" defaultValue={v.domain} placeholder="example.com" autoComplete="url" className={input} {...err("domain")} />
+        {fieldError("domain")}
         <p className="mt-1.5 text-[12px] text-text-3">{td.domainHint}</p>
       </div>
 
@@ -63,12 +71,14 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
             {td.name}
           </label>
           <input id="td-name" name="name" defaultValue={v.name} autoComplete="name" className={input} {...err("name")} />
+          {fieldError("name")}
         </div>
         <div>
           <label htmlFor="td-email" className="text-[13px] font-semibold">
             {td.email}
           </label>
           <input id="td-email" name="email" type="email" dir="ltr" defaultValue={v.email} autoComplete="email" className={input} {...err("email")} />
+          {fieldError("email")}
         </div>
       </div>
       <p className="-mt-2 text-[12px] text-text-3">{td.emailHint}</p>
@@ -111,8 +121,9 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
         <input type="checkbox" name="confirm" defaultChecked={v.confirm} className="mt-1 accent-[var(--accent-ink)]" {...err("confirm")} />
         {td.confirm}
       </label>
+      {fieldError("confirm")}
 
-      {state.status === "error" ? (
+      {state.status === "error" && !state.field ? (
         <p id="takedown-error" role="alert" className="border border-danger px-3.5 py-2.5 text-[13px] text-danger">
           {state.message}
         </p>

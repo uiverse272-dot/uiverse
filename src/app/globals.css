@@ -184,14 +184,19 @@ body {
     transform: none;
   }
 }
+/*
+ * `backwards`, not `both`: a kept final keyframe leaves a transform animation in effect, and that
+ * makes the element the containing block for every position: fixed descendant — the Prompt dialog
+ * opened inside the detail sheet was anchored to the sheet, not the window.
+ */
 .anim-fade-up {
-  animation: fade-up 220ms var(--ease) both;
+  animation: fade-up 220ms var(--ease) backwards;
 }
 .anim-fade-in {
-  animation: fade-in 160ms var(--ease) both;
+  animation: fade-in 160ms var(--ease) backwards;
 }
 .anim-sheet {
-  animation: sheet-up 240ms var(--ease) both;
+  animation: sheet-up 240ms var(--ease) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

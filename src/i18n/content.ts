@@ -194,12 +194,15 @@ function captureClause(c: string): string {
 export const itemTitle = (item: Item, lang: Lang) =>
   lang === "ar" ? (item.kind === "component" ? blockLabel(item.title, item.componentType, lang) : TITLES[item.title] ?? item.title) : item.title;
 
+/* the capture script keeps 32 characters of a section's heading in its label — mark the cut */
+const HEADING_CUT = 32;
+
 /** "Card grid", "Card grid 2", "Hero: <heading>" — the number and the page's own heading are kept */
 export function blockLabel(label: string, type: string | undefined, lang: Lang) {
-  if (lang !== "ar") return label;
   const m = label.match(/^(.+?)(: .*| \d+)?$/)!;
-  const base = BLOCKS[m[1]] ?? (type ? name(COMPONENT_TYPES, type, "ar") : m[1]);
-  return base + (m[2] ?? "");
+  const rest = m[2] && m[2].startsWith(": ") && m[2].length - 2 >= HEADING_CUT ? `${m[2]}…` : (m[2] ?? "");
+  if (lang !== "ar") return m[1] + rest;
+  return (BLOCKS[m[1]] ?? (type ? name(COMPONENT_TYPES, type, "ar") : m[1])) + rest;
 }
 
 export const layoutName = (archetype: string, fallback: string, lang: Lang) => (lang === "ar" ? ARCHETYPES[archetype] ?? fallback : fallback);

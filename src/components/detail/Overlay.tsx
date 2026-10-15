@@ -44,13 +44,17 @@ export function Overlay({ label, children }: { label: string; children: React.Re
         className="fixed inset-0 -z-10 cursor-default"
       />
       <div className="anim-sheet relative w-full max-w-[1700px] border border-border bg-bg md:shadow-[6px_6px_0_var(--border)]">
-        <button
-          onClick={() => router.back()}
-          className="sticky end-0 top-0 z-10 float-end m-3 flex h-9 w-9 items-center justify-center border border-border bg-surface transition-colors hover:bg-accent hover:text-accent-fg"
-          aria-label={t.common.close}
-        >
-          <Close size={16} />
-        </button>
+        {/* a bar of its own, so nothing scrolls underneath the close button and hides behind it */}
+        <div className="sticky top-0 z-10 flex h-12 items-center justify-between gap-3 border-b border-border bg-bg ps-4 md:ps-5">
+          <span className="truncate text-[13px] font-medium text-text-2">{label}</span>
+          <button
+            onClick={() => router.back()}
+            className="grid h-12 w-12 shrink-0 place-items-center border-s border-border transition-colors hover:bg-accent hover:text-accent-fg"
+            aria-label={t.common.close}
+          >
+            <Close size={16} />
+          </button>
+        </div>
         {children}
       </div>
     </div>

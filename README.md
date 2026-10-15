@@ -131,7 +131,7 @@ keeps users, sessions and saves in our own Postgres through Drizzle (`src/lib/db
 `drizzle/`); production uses Supabase as plain Postgres via `DATABASE_URL`.
 
 - **Locally there's nothing to set up.** Without `DATABASE_URL`, an embedded Postgres (PGlite) in
-  `.data/pglite` is created and migrated on first use, and sign-in links print to the server log.
+  `.data.nosync/pglite` is created and migrated on first use, and sign-in links print to the server log.
 - **Saves.** A guest's saves stay in the browser. Signing in merges them into the account once
   (`importSaves`), then the account is the source of truth: changes apply instantly and go to the
   server as idempotent "saved / not saved" writes (`components/save/actions.ts`), and a refused one

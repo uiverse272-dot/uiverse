@@ -44,6 +44,33 @@ function Popover({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const [at, setAt] = useState<{ top: number; start: number; maxH: number } | null>(null);
+
+  /*
+   * The bar scrolls sideways (overflow-x), and that clips anything that hangs below it, so the
+   * list is placed against the window instead — under its button, on the reading-start side,
+   * kept on screen, and following the button when the bar or the page scrolls.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const r = button.current!.getBoundingClientRect();
+      const fromStart = document.documentElement.dir === "rtl" ? innerWidth - r.right : r.left;
+      setAt({
+        top: r.bottom + 4,
+        start: Math.max(8, Math.min(fromStart, innerWidth - 224 - 8)),
+        maxH: Math.min(320, innerHeight - r.bottom - 12),
+      });
+    };
+    place();
+    addEventListener("scroll", place, { capture: true, passive: true });
+    addEventListener("resize", place);
+    return () => {
+      removeEventListener("scroll", place, { capture: true });
+      removeEventListener("resize", place);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -62,7 +89,9 @@ function Popover({
   return (
     <div className="relative" ref={ref}>
       <button
+        ref={button}
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
         className={`inline-flex h-8 items-center gap-1.5 whitespace-nowrap border border-border px-2.5 text-[12.5px] transition-colors ${
           value ? "bg-accent text-accent-fg" : "hover:bg-bg-subtle"
         }`}
@@ -70,8 +99,11 @@ function Popover({
         {value ?? label}
         <Chevron size={13} />
       </button>
-      {open ? (
-        <div className="anim-fade-in absolute start-0 top-9 z-50 max-h-[320px] w-56 overflow-auto border border-border bg-surface shadow-[4px_4px_0_var(--border)]">
+      {open && at ? (
+        <div
+          className="anim-fade-in fixed z-[65] w-56 overflow-auto border border-border bg-surface shadow-[4px_4px_0_var(--border)]"
+          style={{ top: at.top, insetInlineStart: at.start, maxHeight: at.maxH }}
+        >
           {children(() => setOpen(false))}
         </div>
       ) : null}

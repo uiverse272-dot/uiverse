@@ -8,6 +8,7 @@ import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
+import { useSaved } from "../save/SavedProvider";
 import { Chevron, Close, Sparkle } from "../ui/icons";
 
 type Mode = "tab" | "card" | "open";
@@ -20,6 +21,7 @@ const KEY = "uiv.pick";
  */
 export function Featured({ item }: { item: Item }) {
   const { lang, t } = useI18n();
+  const { isSaved } = useSaved();
   /* starts folded so phones and server render agree; unfolds after mount on wide screens */
   const [mode, setMode] = useState<Mode>("tab");
 
@@ -68,7 +70,7 @@ export function Featured({ item }: { item: Item }) {
 
   const r = t.featured.rows;
   const rows: [string, string][] = [
-    [r.saves, compactNum(item.saves, lang)],
+    [r.saves, compactNum(item.saves + (isSaved(item.slug) ? 1 : 0), lang)],
     [r.type, name(CATEGORIES, item.category, lang)],
     [r.industry, name(INDUSTRIES, item.industry, lang)],
     [r.style, name(STYLES, item.style, lang)],

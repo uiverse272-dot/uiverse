@@ -121,8 +121,8 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
   /* "landing page screen" reads as a tautology; "dashboard screen" does not */
   const noun = /\bpage$/.test(category) ? category : `${category} screen`;
   const subject = isComponent
-    ? `a ${item.title.toLowerCase()} component for a ${industry} product`
-    : `a ${noun} for a ${industry} product`;
+    ? `${an(item.title.toLowerCase())} component for ${an(industry)} product`
+    : `${an(noun)} for ${an(industry)} product`;
 
   const out: string[] = [];
 
@@ -220,6 +220,12 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
 
   return out.join("\n");
 }
+
+/**
+ * "a dashboard", "an education", "an AI", "an FAQ" — by sound: a vowel, or an acronym whose
+ * first letter is spoken with a vowel (F, H, L, M, N, R, S, X).
+ */
+const an = (w: string) => `${/^[aeiou]/i.test(w) || /^[FHLMNRSX][A-Z]/.test(w) ? "an" : "a"} ${w}`;
 
 /** Lowercase a taxonomy label unless it carries internal capitals (SaaS, AI). */
 const lower = (s: string) => (/[A-Z]/.test(s.slice(1)) ? s : s.toLowerCase());

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
 import { fill, num } from "@/i18n/format";
@@ -68,7 +69,9 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
     }, () => {});
   };
 
-  return (
+  /* on <body>: the detail view it opens from may sit in an animated (transformed) sheet, which
+     would otherwise become the containing block for this fixed layer */
+  return createPortal(
     <div
       ref={dialog}
       role="dialog"
@@ -79,7 +82,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
       {/* backdrop click target for the mouse; keyboard users have the header Close and Escape */}
       <button aria-hidden tabIndex={-1} onClick={onClose} className="absolute inset-0 cursor-default" />
 
-      <div className="anim-sheet relative flex h-full w-full max-w-[1020px] flex-col overflow-hidden border border-border bg-bg md:h-[min(720px,90vh)] md:">
+      <div className="anim-sheet relative flex h-full w-full max-w-[1020px] flex-col overflow-hidden border border-border bg-bg md:h-[min(720px,90vh)]">
         <header className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-3">
           <Sparkle size={16} className="text-text-3" />
           <div className="min-w-0 flex-1">
@@ -220,7 +223,8 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

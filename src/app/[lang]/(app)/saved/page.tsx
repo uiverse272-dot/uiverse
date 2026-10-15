@@ -58,7 +58,7 @@ export default function SavedPage() {
               active === c.id ? "border-border bg-accent text-accent-fg" : "border-border text-text-2 hover:text-text"
             }`}
           >
-            {c.name} <span className="tabular-nums opacity-60">{countFor(c.id)}</span>
+            <bdi>{c.name}</bdi> <span className="tabular-nums opacity-60">{countFor(c.id)}</span>
           </button>
         ))}
         {creating ? (

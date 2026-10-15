@@ -11,6 +11,7 @@ import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
+import { useSaved } from "../save/SavedProvider";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
@@ -33,6 +34,7 @@ export function DetailView({
   presentation?: "page" | "overlay";
 }) {
   const { lang, t } = useI18n();
+  const { isSaved } = useSaved();
   const [tab, setTab] = useState<Tab>("overview");
   const [promptOpen, setPromptOpen] = useState(false);
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
@@ -105,7 +107,7 @@ export function DetailView({
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
-            {t.detail.viewports[device]} · <bdi>{VIEWPORTS[device].w} × {VIEWPORTS[device].h}</bdi> ·{" "}
+            {t.detail.viewports[device]} · <bdi dir="ltr">{VIEWPORTS[device].w} × {VIEWPORTS[device].h}</bdi> ·{" "}
             {item.capture
               ? t.detail.realCapture
               : device === native
@@ -195,19 +197,26 @@ export function DetailView({
             {item.capture ? (
               <Meta label={t.detail.meta.direction} value={item.capture.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
             ) : null}
-            <Meta label={t.detail.meta.saves} value={compactNum(item.saves, lang)} />
+            <Meta label={t.detail.meta.saves} value={compactNum(item.saves + (isSaved(item.slug) ? 1 : 0), lang)} />
           </dl>
 
           <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{item.source.about}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {[item.category, item.industry, item.style, ...item.tech].map((t) => (
+            {(
+              [
+                [item.category, name(CATEGORIES, item.category, lang)],
+                [item.industry, name(INDUSTRIES, item.industry, lang)],
+                [item.style, name(STYLES, item.style, lang)],
+                ...item.tech.map((x) => [x, name(TECHNOLOGIES, x)]),
+              ] as [string, string][]
+            ).map(([slug, label]) => (
               <Link
-                key={t}
-                href={`/search?q=${t}`}
+                key={slug}
+                href={`/search?q=${slug}`}
                 className="border border-border px-2 py-1 text-[11.5px] text-text-2 hover:bg-bg-subtle hover:text-text"
               >
-                {t}
+                {label}
               </Link>
             ))}
           </div>

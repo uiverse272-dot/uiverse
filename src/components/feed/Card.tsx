@@ -2,7 +2,8 @@
 
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
-import { compactNum, plural } from "@/i18n/format";
+import { pluralCount } from "@/i18n/format";
+import { useSaved } from "../save/SavedProvider";
 import type { Item } from "@/lib/data";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
@@ -15,6 +16,8 @@ import { Code, Layers, Sparkle } from "../ui/icons";
  */
 export function Card({ item, crop }: { item: Item; crop?: number }) {
   const { lang, t } = useI18n();
+  /* the catalogue's counts are static; yours is live, so it shows the moment you save */
+  const saves = item.saves + (useSaved().isSaved(item.slug) ? 1 : 0);
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
 
   return (
@@ -46,7 +49,7 @@ export function Card({ item, crop }: { item: Item; crop?: number }) {
           </div>
           <div className="mt-1.5 flex items-center gap-1.5 text-[11px] tabular-nums">
             <span className="h-2.5 w-2.5 shrink-0 border border-border" style={{ background: item.palette.accent }} />
-            {plural(t.card.saves, item.saves, lang, { n: compactNum(item.saves, lang) })}
+            {pluralCount(t.card.saves, saves, lang)}
           </div>
         </div>
       </Link>

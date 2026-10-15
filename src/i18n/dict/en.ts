@@ -73,7 +73,7 @@ const en = {
     suggestedTitle: "Try a natural-language query",
     suggested: ["dark fintech dashboard", "minimal saas pricing", "luxury ecommerce landing page", "ios onboarding", "brutalist dashboard", "editorial blog", "react tailwind hero"],
     explainer:
-      "Queries are parsed against the taxonomy first — deterministic, explainable and reusable as URL state — then widened with free text. Whatever the parser decides is shown back to you as chips you can remove.",
+      "We match your words to types, industries and styles first, then look for the rest as free text. Whatever we understood shows as chips you can remove.",
     dimensions: { category: "Type", component: "Component", industry: "Industry", style: "Style", tech: "Tech", platform: "Platform" },
   },
   filters: {
@@ -158,7 +158,7 @@ const en = {
     apps: {
       title: "Mobile & app UI",
       titleWith: "{label} apps",
-      sub: "Screens from shipped mobile products. Flows — ordered runs of screens — arrive in Phase 2.",
+      sub: "Screens from shipped mobile products. Open one to see it at phone, tablet and laptop sizes.",
     },
     components: {
       title: "Components",
@@ -223,6 +223,7 @@ const en = {
     saveLayout: "Save as a layout",
     roles: "Colour roles",
     rolesNote: "extracted from computed styles",
+    sample: "A sample design: these values are illustrative, not measured from a live page. Designs marked as captured from the live web carry measured ones.",
     copyCss: "Copy as CSS variables",
     copyTailwind: "Copy as Tailwind theme",
     type: "Type scale",
@@ -275,7 +276,7 @@ const en = {
   },
   saved: {
     title: "Saved",
-    sub: "Saving never asks which board. Organising is a separate, later act — that is why the toast offers “Move to…” instead of a dialog.",
+    sub: "Everything you bookmark lands here. Sort it into collections whenever you like.",
     all: "All",
     newCollection: "New collection",
     collectionName: "Collection name",
@@ -406,7 +407,7 @@ const en = {
     uses: { one: "{n} use", other: "{n} uses" } as Plural,
     duplicate: "Duplicate",
     builder: "Open in builder",
-    footnote: "The drag-and-drop builder is Phase 3. It plans structure — it never outputs a website.",
+    footnote: "Duplicating layouts and the layout builder are coming soon.",
   },
   palettes: {
     title: "Palettes",
@@ -417,11 +418,11 @@ const en = {
   },
   threeD: {
     title: "3D & motion",
-    sub: "Scenes, WebGL heroes and interactive elements. Deliberately not a launch nav item — it becomes a section when the captures justify one.",
+    sub: "Scenes, WebGL heroes and interactive elements.",
   },
   creators: {
     title: "Creators",
-    sub: "A user and a creator are the same identity — a creator is simply a user with a filled profile. One object, one page, no merge problem later.",
+    sub: "The studios and designers behind the interfaces here.",
     available: "Available",
     screens: { one: "{n} screen", other: "{n} screens" } as Plural,
     followers: "{n} followers",
@@ -429,7 +430,7 @@ const en = {
   },
   profile: {
     title: "Your profile",
-    sub: "User and creator are one identity. Sign-in, uploads and creator analytics sit behind this page in the real build — this prototype ships the discovery half.",
+    sub: "Your account and everything you've kept.",
     cards: [
       ["Saved", "/saved", "Everything you kept, plus collections."],
       ["Upload", "/upload", "Paste a URL — we capture and tag it."],
@@ -487,6 +488,7 @@ const en = {
     sub: "Keep your saves and collections on every device. No password — we email you a link.",
     email: "Email",
     send: "Email me a sign-in link",
+    linkHint: "The link signs you in once and works for 5 minutes.",
     sending: "Sending…",
     sent: "Check your inbox",
     sentBody: "We sent a sign-in link to {email}. It works once and expires in 5 minutes.",

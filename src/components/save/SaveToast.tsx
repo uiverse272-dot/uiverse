@@ -26,7 +26,8 @@ export function SaveToast() {
   /* fades after a few seconds, but never while the pointer or focus is on it, or a board is being picked */
   useEffect(() => {
     if (!toast || picking || held) return;
-    const t = setTimeout(clearToast, 6000);
+    /* long enough to reach "Move to…" without hurrying; hovering or focusing holds it open */
+    const t = setTimeout(clearToast, 10000);
     return () => clearTimeout(t);
   }, [toast, picking, held, clearToast]);
 
@@ -76,7 +77,7 @@ export function SaveToast() {
                       }}
                       className="flex w-full items-center gap-2 px-2 py-2 text-start text-[13px] hover:bg-bg-subtle"
                     >
-                      {c.name}
+                      <bdi>{c.name}</bdi>
                     </button>
                   ))}
                 </div>

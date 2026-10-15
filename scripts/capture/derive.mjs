@@ -152,7 +152,8 @@ export function typography(raw) {
     b.chars += t.chars;
     b.weights[t.weight] = (b.weights[t.weight] || 0) + t.chars;
     b.tags[t.tag] = (b.tags[t.tag] || 0) + t.chars;
-    if (!b.sample || (t.tag.startsWith("h") && !b.sampleIsHeading)) {
+    /* a sample is shown as the type specimen, so it must be words — not an emoji, icon glyph or number */
+    if (/\p{L}/u.test(t.sample) && (!b.sample || (t.tag.startsWith("h") && !b.sampleIsHeading))) {
       b.sample = t.sample;
       b.sampleIsHeading = t.tag.startsWith("h");
     }
