@@ -1,0 +1,80 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildPrompt > keeps its shape (update with \`npx vitest -u\` when the template changes on purpose) 1`] = `
+"Build a blog screen for a travel product using Next.js + Tailwind.
+
+Return one complete, runnable file. Every value below is measured from a real interface, so treat it as a specification rather than a suggestion. Where the spec is silent, choose the restrained option.
+
+The register is **editorial** — large type, wide measure, restrained colour, content-first. The target is desktop at 1440px, then tablet and mobile.
+
+## Structure
+
+Render these in order. The note after each is how it actually looks.
+
+1. **Masthead** — sticky, hairline bottom border, logo lockup left, four text links, ghost sign-in plus one solid CTA on the right
+2. **Lead story** — centred; small pill eyebrow, two-line headline at display size, one muted sub-line, two buttons side by side, then a large bordered product preview
+3. **Article index** — rows of avatar plus two stacked lines with a right-aligned value
+4. **Related grid** — three equal bordered cards; each has an accent-tinted icon square, a title, three lines of body and a small accent link
+5. **Footer** — brand lockup plus four columns of links, hairline rule above
+
+## Colour tokens
+
+\`\`\`css
+@theme {
+  --color-background: #FBF7F0;
+  --color-surface: #FFFDF9;
+  --color-raised: #F2EADF;
+  --color-border: #EADFCF;
+  --color-text: #231C12;
+  --color-text-muted: #87786A;
+  --color-accent: #B4571F;
+  --color-accent-fg: #FFF8F0;
+}
+\`\`\`
+
+Reference them as \`bg-background\`, \`text-text-muted\`, \`border-border\` and so on. Do not hard-code hex values in markup.
+
+Accent is used sparingly: primary buttons, the active navigation state, and at most one emphasis elsewhere. Everything else is neutral.
+
+## Typography
+
+| Step | Size | Weight | Used for |
+| --- | --- | --- | --- |
+| Display | 68px | 600 | Hero headline |
+| H1 | 48px | 600 | Section header |
+| H2 | 38px | 600 | Sub-section |
+| H3 | 22px | 560 | Card title |
+| Body | 15px | 430 | Paragraph |
+| Small | 13px | 450 | Meta, labels |
+| Caption | 11.5px | 500 | Eyebrow, badges |
+
+One sans-serif family throughout. Tracking tightens to about -0.028em above 40px and sits near -0.011em below it. Body line height 1.55.
+
+## Layout and spacing
+
+- Container: 1440px, 12 column, 24px gutters
+- Radius: 8 / 12 / 16px — nothing is fully rounded except pills and avatars
+- Spacing scale (4px base): 4, 8, 12, 16, 24, 32, 48, 64, 96
+- Hairline borders at 1px, low contrast. Shadows only on popovers and overlays, never on cards at rest.
+
+## Responsive behaviour
+
+- **Masthead:** 54px, 5 sections → 44px, 5 → 32px, 4
+- **Lead story:** 520px image, 46px headline → 380px, 36px → 220px, 26px
+- **Article index:** 3 cards in a row → 2 × 2 → thumbnail-left list rows
+- **Footer:** brand beside 4 link columns → brand above 4 columns → brand above a 2 × 2 grid
+
+## Requirements
+
+- Semantic landmarks: \`header\`, \`nav\`, \`main\`, \`section\`, \`footer\`
+- Every interactive element keyboard reachable with a visible focus ring
+- Colour contrast at least 4.5:1 for body text against its background
+- Honour \`prefers-reduced-motion\`; transitions no longer than 150ms
+- Explicit width and height on every image so nothing shifts as it loads
+- Write plausible product copy — never lorem ipsum, never placeholder brackets
+
+## Out of scope
+
+- Do not reproduce any real company's name, logo, wordmark or copy. This is a structural and stylistic reference, not a brand to clone.
+- No analytics, auth or data fetching unless asked — markup, styling and layout only."
+`;

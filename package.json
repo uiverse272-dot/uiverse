@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "capture": "node scripts/capture/capture.mjs",
-    "capture:upload": "node --env-file-if-exists=.env.local scripts/capture/upload.mjs"
+    "capture:upload": "node --env-file-if-exists=.env.local scripts/capture/upload.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "next": "^16.4.0",
@@ -26,6 +28,7 @@
     "eslint-config-next": "^16.4.0",
     "playwright": "^1.64.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "4.1.11"
   }
 }

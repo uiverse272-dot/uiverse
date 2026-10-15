@@ -27,6 +27,7 @@ The architecture lives in `docs/`; read it before building anything new.
 ```bash
 npm install
 npm run dev     # http://localhost:3000
+npm test        # vitest: search parser, prompt generator, MCP spec, i18n
 ```
 
 To capture a live page into the index (needs `npx playwright install chromium` once):
