@@ -8,8 +8,10 @@
  *
  * Two modes. A guest's saves are kept in this browser (KEY). Signed in, the account on the
  * server is the source of truth: the provider calls `signIn`, which merges the guest's saves
- * into the account once, then every change is applied here first and sent with `remote`. A
- * per-user copy in this browser paints the next visit before the server answers.
+ * into the account once. Every change is then applied here first and put in an outbox, which
+ * the provider sends in order; a change leaves the outbox only once the server has it, so one
+ * cut off by leaving the page is sent on the next visit. A per-user copy in this browser paints
+ * the next visit before the server answers.
  */
 
 export type Collection = { id: string; name: string; sections: string[] };
@@ -19,10 +21,13 @@ export type Op =
   | { type: "set"; slug: string; saved: boolean; collectionId?: string }
   | { type: "move"; slug: string; collectionId: string }
   | { type: "create"; id: string; name: string };
-type Remote = (op: Op) => void;
+/* told when the outbox has something to send */
+type Remote = () => void;
 
 const KEY = "uiv.saves.v1";
 const accountKey = (userId: string) => `uiv.saves.u:${userId}`;
+const outboxKey = (userId: string) => `uiv.saves.outbox:${userId}`;
+const ACCOUNT_KEYS = /^uiv\.saves\.(u|outbox):/;
 const DEFAULT_COLLECTIONS: Collection[] = [{ id: "recent", name: "Recently saved", sections: [] }];
 const EMPTY: State = { saves: [], collections: DEFAULT_COLLECTIONS, hydrated: false };
 
@@ -78,10 +83,42 @@ function write(next: State) {
   emit();
 }
 
-/** Apply a change here, then tell the server if signed in */
+/** Apply a change here; signed in, queue it for the server */
 function commit(next: State, op: Op) {
   write(next);
-  account?.remote(op);
+  if (!account) return;
+  writeOutbox([...pending(), op]);
+  account.remote();
+}
+
+/* ------------------------------------------------------------- outbox */
+
+const isOp = (o: unknown): o is Op =>
+  !!o && typeof o === "object" && ["set", "move", "create"].includes((o as Op).type);
+
+/** Changes not yet confirmed by the server, oldest first */
+export function pending(): Op[] {
+  if (!account) return [];
+  try {
+    const list = JSON.parse(localStorage.getItem(outboxKey(account.userId)) ?? "[]");
+    return Array.isArray(list) ? list.filter(isOp) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeOutbox(ops: Op[]) {
+  if (!account) return;
+  try {
+    if (ops.length) localStorage.setItem(outboxKey(account.userId), JSON.stringify(ops));
+    else localStorage.removeItem(outboxKey(account.userId));
+  } catch {}
+}
+
+/** The server has this change (or refused it for good): take it off the front of the outbox */
+export function ack(op: Op) {
+  const [first, ...rest] = pending();
+  if (first && JSON.stringify(first) === JSON.stringify(op)) writeOutbox(rest);
 }
 
 export function subscribe(listener: () => void) {
@@ -156,7 +193,7 @@ export function adopt(server: ServerState) {
  */
 export function signOut() {
   try {
-    for (const k of Object.keys(localStorage)) if (k.startsWith("uiv.saves.u:")) localStorage.removeItem(k);
+    for (const k of Object.keys(localStorage)) if (ACCOUNT_KEYS.test(k)) localStorage.removeItem(k);
   } catch {}
   if (!account) return;
   account = null;

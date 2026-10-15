@@ -45,13 +45,47 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!userId) return;
     let live = true;
+    let ready = false; // the guest merge comes first
+    let sending = false;
+    let retry: ReturnType<typeof setTimeout> | undefined;
     const resync = () => syncSaves(null).then((s) => live && s && store.adopt(s));
-    store.signIn(userId, (op) => {
-      saveOp(op).then((r) => (r.ok ? undefined : resync()), resync);
-    });
-    syncSaves(store.guestState()).then((s) => live && s && store.adopt(s));
+
+    /*
+     * Send the outbox one change at a time, oldest first — "new collection" before "move into
+     * it". A change leaves only when the server answers: one cut off by leaving the page is
+     * still there next visit. If the server refuses one, its state wins afterwards.
+     */
+    const send = async () => {
+      if (!ready || sending || !live) return;
+      sending = true;
+      let refused = false;
+      try {
+        for (let op = store.pending()[0]; op && live; op = store.pending()[0]) {
+          const r = await saveOp(op).catch(() => null);
+          if (!r) return; // offline or unloading — it stays queued
+          if (!r.ok && r.error === "rate") {
+            retry = setTimeout(send, 5000);
+            return;
+          }
+          store.ack(op);
+          if (!r.ok) refused = true;
+        }
+      } finally {
+        sending = false;
+      }
+      if (refused) await resync();
+    };
+
+    store.signIn(userId, send);
+    (async () => {
+      await syncSaves(store.guestState());
+      ready = true;
+      await send(); // whatever an earlier visit didn't get to send
+      if (live) await resync();
+    })();
     return () => {
       live = false;
+      clearTimeout(retry);
     };
   }, [userId]);
 

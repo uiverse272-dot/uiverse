@@ -51,7 +51,6 @@ const ar: Dict = {
     takeGuide: "ابدأ الجولة الإرشادية",
     logoHome: "الصفحة الرئيسية لـ Uiverse",
     guest: "زائر",
-    seeker: "باحث عن واجهات",
     savedCount: { zero: "لا محفوظات", one: "عنصر محفوظ", two: "عنصران محفوظان", few: "{n} عناصر محفوظة", many: "{n} عنصرًا محفوظًا", other: "{n} عنصر محفوظ" },
   },
   theme: {

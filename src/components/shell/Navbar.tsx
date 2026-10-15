@@ -98,7 +98,7 @@ export function Navbar() {
         <span className="min-w-0 flex-1 leading-tight">
           <bdi className="block truncate text-[13.5px] font-bold">{user ? user.name || user.email.split("@")[0] : t.nav.guest}</bdi>
           <span className="block truncate text-[11px] text-text-2">
-            {saves.length ? plural(t.nav.savedCount, saves.length, lang) : user ? t.nav.seeker : t.auth.syncHint}
+            {saves.length ? plural(t.nav.savedCount, saves.length, lang) : user ? <bdi>{user.email}</bdi> : t.auth.syncHint}
           </span>
         </span>
         <Chevron size={15} />

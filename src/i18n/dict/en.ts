@@ -50,7 +50,6 @@ const en = {
     takeGuide: "Take the guide",
     logoHome: "Uiverse home",
     guest: "Guest",
-    seeker: "Interface seeker",
     savedCount: { one: "{n} saved", other: "{n} saved" } as Plural,
   },
   theme: {
