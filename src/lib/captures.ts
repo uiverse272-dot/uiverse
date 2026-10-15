@@ -1,4 +1,5 @@
 import records from "@/content/captures.json";
+import optout from "@/content/optout.json";
 import type { Archetype, Block, Item, Source } from "./data";
 import type { Palette } from "./palettes";
 
@@ -58,6 +59,19 @@ const CROPPABLE = new Set([
   "cta", "footer", "login", "signup", "table", "sidebar", "inputs",
 ]);
 
+/**
+ * Domains whose owners opted out (docs/08 §4). One entry removes everything captured from the
+ * domain and its subdomains — feed, detail, search, sitemap, MCP — since all of them read the
+ * items built here. `npm run capture -- --opt-out <domain>` writes it and deletes the files;
+ * the record stays here so a later capture run refuses the domain.
+ */
+export type OptOut = { domain: string; removedAt: string; ref?: string };
+const OPTED_OUT = (optout as OptOut[]).map((o) => o.domain);
+export const optedOut = (domain: string) => {
+  const d = domain.toLowerCase().replace(/^www\./, "");
+  return OPTED_OUT.some((o) => d === o || d.endsWith(`.${o}`));
+};
+
 const DAY = 86400000;
 const key = (h: string) => h.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "").slice(0, 24);
 
@@ -66,6 +80,7 @@ export function capturedItems(): { items: Item[]; sources: Source[] } {
   const items: Item[] = [];
 
   for (const r of records as unknown as CaptureRecord[]) {
+    if (optedOut(r.source.domain)) continue;
     const source: Source = sources.get(r.source.slug) ?? {
       ...r.source,
       industry: r.industry,

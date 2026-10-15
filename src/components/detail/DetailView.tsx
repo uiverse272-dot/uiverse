@@ -218,6 +218,15 @@ export function DetailView({
               attribution policy
             </Link>
             .
+            {item.capture ? (
+              <>
+                {" "}Your site?{" "}
+                <Link href={`/legal/takedown?domain=${encodeURIComponent(item.source.domain)}`} className="underline underline-offset-2">
+                  Request removal
+                </Link>
+                .
+              </>
+            ) : null}
           </p>
         </aside>
       </div>

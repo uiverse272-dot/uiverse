@@ -77,6 +77,14 @@ export default async function SourcePage({
               <span className="text-text-3">
                 · {compact(all.reduce((a, b) => a + b.saves, 0))} saves across {all.length} items
               </span>
+              {all.some((i) => i.capture) ? (
+                <Link
+                  href={`/legal/takedown?domain=${encodeURIComponent(source.domain)}`}
+                  className="text-text-3 underline underline-offset-2 hover:text-text"
+                >
+                  Your site? Request removal
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>

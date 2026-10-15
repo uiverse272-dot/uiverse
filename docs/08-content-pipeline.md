@@ -57,6 +57,10 @@ Non-negotiable from day one:
 - Every screen shows the source name, logo and a link to the live site. Attribution is never behind a hover.
 - `/legal/attribution` states the model plainly and `/legal/takedown` gives a one-form opt-out with a stated SLA.
 - `source.opt_out = true` removes every item from that domain platform-wide, including from search and caches. One flag, one effect.
+  Until there is a database the flag is an entry in `src/content/optout.json`: `lib/captures.ts` drops the domain
+  (and its subdomains) before anything reads the items, and the capture script refuses it. The form at
+  `/legal/takedown` delivers each request with a reference; `npm run capture -- --opt-out <domain> --ref <ref>`
+  honours it, then `npm run capture:upload -- --prune` deletes the bucket copies.
 - No downloadable original assets, no re-hosted fonts, no code redistribution (see `07-search-and-ai.md` §5.1).
 - Respect `robots.txt` and rate-limit politely. Identify the crawler with a UA string that links to an explanation page.
 

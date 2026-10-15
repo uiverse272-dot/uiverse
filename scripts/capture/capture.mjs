@@ -5,6 +5,7 @@
  *   npm run capture -- https://example.com/pricing --industry saas
  *   npm run capture -- https://example.com --name "Example" --title "Homepage" --style minimal
  *   npm run capture -- --rederive          re-run derive.mjs over stored measurements
+ *   npm run capture -- --opt-out example.com --ref TD-…   honour a takedown (docs/08 §4)
  *
  * Renders the page at laptop, tablet and phone widths, measures it (extract.js),
  * derives design facts (derive.mjs), writes screenshots to public/captures/<slug>/
@@ -21,6 +22,7 @@ import * as D from "./derive.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const INDEX = path.join(ROOT, "src/content/captures.json");
 const RAW = path.join(ROOT, ".captures-raw");
+const OPTOUT = path.join(ROOT, "src/content/optout.json");
 /* a full page longer than this is cut — the feed only ever shows the top, the frame scrolls */
 const MAX_H = 14000;
 
@@ -138,6 +140,11 @@ function record({ url, slug, opts, byVp, shots, capturedAt }) {
   };
 }
 
+/* a domain that opted out — and its subdomains — is never captured again (lib/captures.ts reads the same list) */
+const optOuts = async () => (existsSync(OPTOUT) ? JSON.parse(await readFile(OPTOUT, "utf8")) : []);
+const covered = (list, domain) => list.some((o) => domain === o.domain || domain.endsWith(`.${o.domain}`));
+const hostOf = (url) => new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+
 /* captures run in parallel; the index is read-modified-written, so writes take turns */
 let writing = Promise.resolve();
 const upsert = (rec) => (writing = writing.then(() => write(rec)));
@@ -160,9 +167,38 @@ async function write(rec) {
 async function main() {
   const opts = args(process.argv.slice(2));
 
+  if (opts["opt-out"]) {
+    const domain = String(opts["opt-out"]).toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[/:?#].*$/, "");
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(domain)) {
+      console.error(`"${opts["opt-out"]}" isn't a domain — usage: npm run capture -- --opt-out example.com [--ref TD-…]`);
+      process.exit(1);
+    }
+    const list = await optOuts();
+    if (!covered(list, domain)) {
+      const ref = typeof opts.ref === "string" ? { ref: opts.ref } : {};
+      list.push({ domain, removedAt: new Date().toISOString().slice(0, 10), ...ref });
+      list.sort((a, b) => a.domain.localeCompare(b.domain));
+      await writeFile(OPTOUT, JSON.stringify(list, null, 2) + "\n");
+    }
+    const index = existsSync(INDEX) ? JSON.parse(await readFile(INDEX, "utf8")) : [];
+    const gone = index.filter((r) => covered([{ domain }], r.source.domain));
+    for (const r of gone) remove(r.slug);
+    await writing;
+    console.log(`✓ ${domain} opted out — ${gone.length} capture(s) removed${gone.length ? `: ${gone.map((r) => r.slug).join(", ")}` : ""}`);
+    console.log(`  next: npm run capture:upload -- --prune   (deletes the bucket copies)`);
+    console.log(`        commit src/content/optout.json and deploy, then reply to the requester`);
+    return;
+  }
+
   if (opts.rederive) {
     const list = JSON.parse(await readFile(INDEX, "utf8"));
+    const opted = await optOuts();
     for (const old of list) {
+      if (covered(opted, old.source.domain)) {
+        await remove(old.slug);
+        console.log(`removed ${old.slug}: ${old.source.domain} opted out`);
+        continue;
+      }
       const file = path.join(RAW, `${old.slug}.json`);
       if (!existsSync(file)) {
         console.warn(`skip ${old.slug}: no stored measurements`);
@@ -214,6 +250,7 @@ async function main() {
   if (!url || !/^https?:\/\//.test(url)) {
     console.error("usage: npm run capture -- <https://url> [--name N] [--title T] [--industry I] [--style S] [--category C] [--locale ar-SA]");
     console.error("       npm run capture -- --batch seeds/file.json [--concurrency 3] [--skip-existing]");
+    console.error("       npm run capture -- --opt-out example.com [--ref TD-…]");
     process.exit(1);
   }
   const browser = await chromium.launch();
@@ -248,6 +285,7 @@ function rejection(raw) {
 }
 
 async function captureOne(browser, url, flags) {
+  if (covered(await optOuts(), hostOf(url))) throw new Error(`${hostOf(url)} opted out — see src/content/optout.json`);
   const slug = slugFor(url, flags);
   const outDir = path.join(ROOT, "public/captures", slug);
   await mkdir(outDir, { recursive: true });

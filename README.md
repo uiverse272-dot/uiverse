@@ -36,6 +36,7 @@ npm run capture -- https://example.com/pricing --industry saas
 npm run capture -- --batch seeds/rtl-gulf.json --concurrency 3
 npm run capture -- --rederive     # re-derive every record from stored measurements
 npm run capture:upload            # sync public/captures to the bucket (--dry-run, --prune)
+npm run capture -- --opt-out example.com --ref TD-…   # honour a takedown request
 ```
 
 Screenshots are served from `public/captures` until `NEXT_PUBLIC_CAPTURES_URL` points at an
@@ -60,6 +61,7 @@ capture pipeline and an MCP server over what it captured.
 | `/saved` | One-click saves, collections, `Move to…` toast |
 | `/layouts`, `/palettes`, `/3d`, `/creators` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
+| `/legal/takedown` | Opt-out form → webhook / email with a reference; `--opt-out` removes the domain everywhere and blocks recapture (`src/content/optout.json`) |
 | Guide | First-visit coach: pick a goal, industry and RTL, land on a feed with results, then walk open → Breakdown → Prompt → save |
 | `POST /api/mcp` | Stateless MCP server over the real captures — search, spec, screenshot, prompt, facets ([docs/12](docs/12-mcp.md)) |
 | SEO | `sitemap.xml` and `robots.txt` over the real captures, share cards per screen and component (`lib/og.tsx`); procedural items are `noindex` |

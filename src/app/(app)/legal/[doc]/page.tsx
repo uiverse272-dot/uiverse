@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Shell, PageHeader } from "@/components/feed/Section";
+import { TakedownForm } from "@/components/legal/TakedownForm";
 
 const DOCS: Record<string, { title: string; body: string[] }> = {
   attribution: {
@@ -15,8 +16,8 @@ const DOCS: Record<string, { title: string; body: string[] }> = {
   takedown: {
     title: "Takedown & opt-out",
     body: [
-      "Send the domain and a contact address and we will remove everything captured from it, platform-wide, within 5 working days.",
-      "Opt-out is a single flag on the source record — it removes the items, the derived components, the palettes and the search entries in one action.",
+      "Send the domain and an address to reach you. Within 5 working days we remove everything captured from it — the screens, the components cropped from them, palettes, search entries, the agent API and the stored screenshots — and confirm by email.",
+      "Opt-out is one entry per domain and covers its subdomains. It also stops the domain being captured again, so it doesn't come back with the next crawl.",
     ],
   },
 };
@@ -26,8 +27,15 @@ export async function generateMetadata({ params }: { params: Promise<{ doc: stri
   return d ? { title: d.title } : {};
 }
 
-export default async function LegalPage({ params }: { params: Promise<{ doc: string }> }) {
+export default async function LegalPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ doc: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { doc } = await params;
+  const { domain } = await searchParams;
   const d = DOCS[doc];
   if (!d) notFound();
   return (
@@ -39,6 +47,11 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
             {p}
           </p>
         ))}
+        {doc === "takedown" ? (
+          <div className="pt-4">
+            <TakedownForm domain={typeof domain === "string" ? domain : undefined} />
+          </div>
+        ) : null}
       </div>
     </Shell>
   );
