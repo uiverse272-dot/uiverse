@@ -3,7 +3,7 @@ import { shotBytes } from "./shots";
 import { ITEMS, type Item } from "./data";
 import { searchItems, applyFilters } from "./query";
 import { buildPrompt, DEFAULT_OPTIONS, STACKS, TOOLS, type StackId, type ToolId } from "./prompt";
-import { colorRoles, fonts, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
+import { BRAND_FONT, colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, COMPONENT_TYPES, INDUSTRIES } from "./taxonomy";
 import type { Viewport } from "./captures";
 
@@ -160,7 +160,7 @@ function spec(args: Json, origin: string): ToolResult {
   const cap = i.capture!;
   const layout = layoutSpec(i);
   const space = spacingScale(i);
-  const f = fonts(i);
+  const f = fontsPlain(i);
   const md = [
     `# ${i.source.name} — ${i.title}${i.kind === "component" ? " (component)" : ""}`,
     "",
@@ -175,7 +175,9 @@ function spec(args: Json, origin: string): ToolResult {
     "",
     "## Typography",
     "",
-    f ? `Headings: ${f.heading}. Body: ${f.body}.` : "",
+    f
+      ? `Headings: ${f.heading}. Body: ${f.body}.${[f.heading, f.body].includes(BRAND_FONT) ? " A brand's own typeface is licensed to it alone — substitute a freely licensed face with similar proportions." : ""}`
+      : "",
     "",
     "| Step | Size | Weight | Used for |",
     "| --- | --- | --- | --- |",

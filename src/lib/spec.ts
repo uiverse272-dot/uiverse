@@ -63,6 +63,27 @@ export const spacingScale = (item: Item) =>
 /** Font families, when measured. Procedural previews use the app's own sans. */
 export const fonts = (item: Item) => item.capture?.fonts;
 
+export const BRAND_FONT = "a custom brand typeface";
+const alnum = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/** The words that identify a source — its name's words and its domain label ("Tap Payments", tap.company) */
+export function brandMarks(item: Item) {
+  return [...item.source.name.split(/\s+/), item.source.domain.split(".")[0]].map(alnum).filter((w) => w.length >= 3);
+}
+
+/**
+ * Fonts for output that leaves the site (prompts, the MCP spec). A brand's own typeface — Tabby
+ * Sans, Stc Bold, TapAr — carries the brand's name and is licensed to it alone, so it's described
+ * rather than named. The Breakdown shows the real names: that's attribution, on our own page.
+ */
+export function fontsPlain(item: Item) {
+  const f = fonts(item);
+  if (!f) return undefined;
+  const marks = brandMarks(item);
+  const plain = (family: string) => (marks.some((m) => alnum(family).includes(m)) ? BRAND_FONT : family);
+  return { heading: plain(f.heading), body: plain(f.body) };
+}
+
 export function layoutSpec(item: Item) {
   const cap = item.capture;
   if (cap) {

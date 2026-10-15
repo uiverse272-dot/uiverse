@@ -1,5 +1,5 @@
 import type { Item } from "./data";
-import { colorRoles, fonts, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
+import { BRAND_FONT, colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, INDUSTRIES, STYLES } from "./taxonomy";
 
 /**
@@ -168,11 +168,16 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
     const scale = typeScale(item);
     out.push("", "## Typography", "", "| Step | Size | Weight | Used for |", "| --- | --- | --- | --- |");
     for (const t of scale) out.push(`| ${t.name} | ${t.size}px | ${t.weight} | ${t.use} |`);
-    const f = fonts(item);
+    const f = fontsPlain(item);
+    const families = f && (f.heading === f.body ? `${f.heading} throughout` : `Headings in ${f.heading}, body in ${f.body}`);
     out.push(
       "",
       f
-        ? `${f.heading === f.body ? `${f.heading} throughout` : `Headings in ${f.heading}, body in ${f.body}`} — use the closest freely licensed equivalent if it isn't available. Body line height ${layout.body.split(" / ")[1]}.`
+        ? `${families!.charAt(0).toUpperCase()}${families!.slice(1)} — ${
+            f.heading === BRAND_FONT || f.body === BRAND_FONT
+              ? "the brand's own face is licensed to it alone, so substitute a freely licensed one with similar proportions"
+              : "use the closest freely licensed equivalent if it isn't available"
+          }. Body line height ${layout.body.split(" / ")[1]}.`
         : `One sans-serif family throughout. Tracking tightens to about -0.028em above 40px and sits near -0.011em below it. Body line height ${layout.body.split(" / ")[1]}.`,
     );
   }
