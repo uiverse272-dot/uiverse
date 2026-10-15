@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
-import { itemTitle } from "@/i18n/content";
+import { itemTitle, sourceAbout } from "@/i18n/content";
 import { compactNum, timeAgo } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
@@ -128,7 +128,7 @@ export function Featured({ item }: { item: Item }) {
               </div>
             ))}
           </dl>
-          <p dir="auto" className="mt-3 text-[12px] leading-[1.7]">{item.source.about}</p>
+          <p dir="auto" className="mt-3 text-[12px] leading-[1.7]">{sourceAbout(item.source, lang)}</p>
         </div>
       ) : null}
     </aside>

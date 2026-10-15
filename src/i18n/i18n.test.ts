@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ITEMS, bySlug, compact } from "@/lib/data";
 import { responsiveRules } from "@/lib/spec";
 import { localize, stripLang } from "./config";
-import { blockLabel, itemTitle, ruleText } from "./content";
+import { blockLabel, itemTitle, ruleText, sourceAbout } from "./content";
 import { DICTS } from "./dict";
 import { compactNum, plural, timeAgo, type Plural } from "./format";
 
@@ -77,6 +77,10 @@ describe("design facts in Arabic", () => {
         expect(arabic(blockLabel(label, undefined, "ar")), `${i.slug}: ${label}`).toBe(true);
       }
     }
+  });
+
+  it("has Arabic for every invented brand's description (captured brands keep their own words)", () => {
+    for (const i of ITEMS.filter((x) => !x.capture)) expect(arabic(sourceAbout(i.source, "ar")), i.source.slug).toBe(true);
   });
 
   it("has Arabic for every screen title and block label", () => {

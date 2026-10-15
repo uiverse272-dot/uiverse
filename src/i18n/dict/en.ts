@@ -333,7 +333,7 @@ const en = {
     steps: {
       open: ["Open one that's close", "These are real interfaces for your goal. Narrow them with the filters — RTL included — then open any design close to what you want."],
       breakdown: ["See how it's built", "Open the Breakdown tab: section order, colours, type scale and spacing — measured from the live page for every design captured from the web."],
-      prompt: ["Turn it into a build prompt", "Prompt writes a spec from those measurements for Claude, Cursor, v0 and the rest."],
+      prompt: ["Turn it into a build prompt", "Prompt turns the Breakdown into a spec for Claude, Cursor, v0 and the rest."],
       copy: ["Pick your tool, then copy", "Choose the AI tool and stack you use, copy the prompt, and paste it there. You get a build in your own brand — not a clone."],
       save: ["Keep it", "Save it so it's waiting in Saved when you come back. Do the same for anything else worth keeping."],
     } as Record<string, [string, string]>,

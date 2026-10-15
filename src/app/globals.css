@@ -122,6 +122,16 @@ body {
   outline-offset: 2px;
 }
 
+/* the guide's card during the copy step, over the Prompt dialog (max 1020 × min(720px, 90vh),
+   centred, a 61px footer): above the footer, at the dialog's reading-end side */
+@media (min-width: 768px) {
+  .coach-over-prompt {
+    inset-inline-start: auto;
+    inset-inline-end: max(24px, calc((100vw - 1020px) / 2 + 24px));
+    bottom: calc((100vh - min(720px, 90vh)) / 2 + 77px);
+  }
+}
+
 /* Arabic is a joined script: any tracking pulls the letters apart, and the UI tracks a lot */
 :lang(ar) {
   letter-spacing: normal !important;

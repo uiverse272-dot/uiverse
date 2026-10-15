@@ -323,7 +323,9 @@ function Coach({
       aria-live="polite"
       className={`anim-fade-up fixed inset-x-3 bottom-[68px] z-[106] border border-border bg-bg shadow-[4px_4px_0_var(--border)] md:inset-x-auto md:bottom-6 md:w-[340px] ${
         /* dodge the thing it's pointing at */
-        side === "end" ? "md:end-6" : "md:start-[112px]"
+        /* the copy step points into the Prompt dialog: sit over the bottom of the prompt text, clear
+           of the tool and stack choices it asks you to make and of the Copy button */
+        step.id === "copy" ? "coach-over-prompt" : side === "end" ? "md:end-6" : "md:start-[112px]"
       }`}
     >
       <div className="flex items-center justify-between border-b border-border bg-signal ps-3.5 text-on-signal">

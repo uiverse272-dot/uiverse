@@ -59,6 +59,45 @@ const BLOCKS: Record<string, string> = {
   Stories: "القصص", "Profile header": "رأس الملف الشخصي", "Page length": "طول الصفحة",
 };
 
+/* the invented sample brands' one-line descriptions; captured brands keep their own words */
+const ABOUT: Record<string, string> = {
+  ledgerly: "خدمات مصرفية للشركات وإدارة للإنفاق لمن يديرون العمليات.",
+  northwind: "أدوات بنية تحتية لفرق المنتجات.",
+  "halo-health": "تنسيق رعاية المرضى للعيادات التخصصية.",
+  substrate: "استضافة النماذج وتقييمها بشكل خاص.",
+  cormorant: "مشغل صغير الإنتاج في لشبونة.",
+  quarry: "المستندات والمهام والقرارات في مكان واحد.",
+  meridian: "رحلات طويلة بإرشاد.",
+  basil: "صناديق وجبات أسبوعية من مزارع محلية.",
+  "atlas-ed": "مناهج تتكيّف مع الطالب للمدارس الثانوية.",
+  tidal: "بنية تحتية للتداول دون حفظ الأصول.",
+  plotline: "تحليلات المنتجات للفرق الصغيرة.",
+  "rook-estate": "بيع وتأجير العقارات التاريخية.",
+  vellum: "منصة نشر لكتّاب النصوص الطويلة.",
+  current: "إدارة مالية شخصية لمن يكرهون الميزانيات.",
+  orchid: "مطابقة وجدولة لجلسات العلاج بالحوار.",
+  kiln: "التكامل والنشر المستمر للمستودعات الموحّدة.",
+  saffron: "تاجر توابل بتجارة مباشرة.",
+  lantern: "دورات قصيرة للموظفين.",
+  pike: "تدريب القوة دون جداول بيانات.",
+  gravel: "مسارات وعتاد لرحلات الدراجات الطويلة.",
+  umbra: "إدارة رموز التصميم لفرق التصميم.",
+  clearing: "إدارة دورة حياة العقود للفرق القانونية الداخلية.",
+  bramble: "بذور وأدوات ونصائح.",
+  "signal-post": "صحافة تقنية مستقلة.",
+  nimbus: "بنية تحتية دون خوادم بأسعار واضحة.",
+  terrace: "مجموعة من ستة فنادق صغيرة.",
+};
+
+/** A source's one-line description in `lang` — the captured sites' own words stay as they are */
+export function sourceAbout(source: { slug: string; name: string; domain: string; about: string }, lang: Lang) {
+  if (lang !== "ar") return source.about;
+  if (ABOUT[source.slug]) return ABOUT[source.slug];
+  /* the line lib/captures writes for a site without a description of its own */
+  if (source.about === `${source.name}, captured from ${source.domain}.`) return `${source.name}، مُلتقط من ${source.domain}.`;
+  return source.about;
+}
+
 const ARCHETYPES: Record<string, string> = {
   "saas-landing": "صفحة هبوط SaaS", dashboard: "لوحة تحكم", pricing: "صفحة أسعار", ecommerce: "متجر إلكتروني",
   portfolio: "معرض أعمال", checkout: "إتمام الشراء", auth: "تسجيل الدخول", editorial: "تحريري", docs: "توثيق",

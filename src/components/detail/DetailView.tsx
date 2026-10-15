@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
-import { blockLabel, itemTitle, ruleText } from "@/i18n/content";
+import { blockLabel, itemTitle, ruleText, sourceAbout } from "@/i18n/content";
 import { an, compactNum, fill, plural, timeAgo } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
@@ -209,7 +209,7 @@ export function DetailView({
             <Meta label={t.detail.meta.saves} value={compactNum(item.saves + (isSaved(item.slug) ? 1 : 0), lang)} />
           </dl>
 
-          <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{item.source.about}</p>
+          <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{sourceAbout(item.source, lang)}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {(

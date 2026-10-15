@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ITEMS, bySlug, type Kind } from "@/lib/data";
 import { similarTo } from "@/lib/query";
-import { itemTitle } from "@/i18n/content";
+import { itemTitle, sourceAbout } from "@/i18n/content";
 import { alternates, getLang } from "@/i18n/server";
 
 /* the kind must match the route, or /screen/<component> would serve the same page under a second URL */
@@ -26,7 +26,7 @@ export async function detailMetadata(slug: string, kind: Kind): Promise<Metadata
   const lang = await getLang();
   return {
     title: `${itemTitle(item, lang)} — ${item.source.name}`,
-    description: `${item.source.name}: ${item.source.about} ${DESCRIBE[lang]}`,
+    description: `${item.source.name}: ${sourceAbout(item.source, lang)} ${DESCRIBE[lang]}`,
     alternates: alternates(lang, `/${kind}/${slug}`),
     /* procedural items are invented brands — fine to browse, not something to put in search results */
     robots: item.capture ? undefined : { index: false, follow: true },

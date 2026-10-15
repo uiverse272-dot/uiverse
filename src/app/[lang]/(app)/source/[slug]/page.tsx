@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/client";
-import { blockLabel } from "@/i18n/content";
+import { blockLabel, sourceAbout } from "@/i18n/content";
 import { compactNum, fill, plural } from "@/i18n/format";
 import { alternates, getI18n } from "@/i18n/server";
 import { ITEMS, SOURCES } from "@/lib/data";
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const real = ITEMS.some((i) => i.source.slug === slug && i.capture);
   return {
     title: source.name,
-    description: fill(t.source.description, { about: source.about }),
+    description: fill(t.source.description, { about: sourceAbout(source, lang) }),
     alternates: alternates(lang, `/source/${slug}`),
     robots: real ? undefined : { index: false, follow: true },
   };
@@ -64,7 +64,7 @@ export default async function SourcePage({
         <div className="flex flex-wrap items-start gap-5 pt-8">
           <span className="h-14 w-14 shrink-0" style={{ background: palette?.accent }} />
           <div className="min-w-0 flex-1">
-            <PageHeader title={source.name} sub={source.about} />
+            <PageHeader title={source.name} sub={sourceAbout(source, lang)} />
             <div className="flex flex-wrap items-center gap-2 pt-3 text-[12.5px] text-text-2">
               <bdi className="border border-border px-2 py-1">{source.domain}</bdi>
               {[
