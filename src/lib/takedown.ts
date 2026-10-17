@@ -1,9 +1,11 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { onDomain } from "./domain";
+import { sendEmail } from "./email";
 
 /**
- * Delivery for takedown requests (docs/08 §4). There's no database, so a request is sent where
- * someone will see it — a chat webhook, an email, or both — and the operator honours it with
+ * Delivery for takedown requests (docs/08 §4). A request isn't stored — it's sent where someone
+ * will see it — a chat webhook, an email, or both — and the operator honours it with
  * `npm run capture -- --opt-out <domain> --ref <ref>`. In development with neither configured
  * it lands in .takedowns/requests.jsonl; in production that would lose it, so it fails instead
  * and the form says so.
@@ -23,16 +25,8 @@ export type TakedownRequest = {
   receivedAt: string;
 };
 
-export const normalizeDomain = (input: string) =>
-  input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[/:?#].*$/, "");
-
-export const isDomain = (d: string) => d.length <= 253 && /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(d);
-
 /* not proof — anyone can type any address — but a request from an address at the domain is the quick case */
-const emailMatches = (r: TakedownRequest) => {
-  const at = r.email.split("@")[1]?.toLowerCase() ?? "";
-  return at === r.domain || at.endsWith(`.${r.domain}`);
-};
+const emailMatches = (r: TakedownRequest) => onDomain(r.email.split("@")[1]?.toLowerCase() ?? "", r.domain);
 
 function summary(r: TakedownRequest) {
   return [
@@ -58,21 +52,15 @@ async function toWebhook(url: string, r: TakedownRequest) {
   if (!res.ok) throw new Error(`webhook ${res.status}`);
 }
 
-async function toEmail(key: string, to: string, from: string, r: TakedownRequest) {
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: to.split(",").map((s) => s.trim()), reply_to: r.email, subject: `Takedown ${r.ref}: ${r.domain}`, text: summary(r) }),
-  });
-  if (!res.ok) throw new Error(`email ${res.status}`);
-}
+const toEmail = (to: string, from: string, r: TakedownRequest) =>
+  sendEmail({ from, to: to.split(",").map((s) => s.trim()), replyTo: r.email, subject: `Takedown ${r.ref}: ${r.domain}`, text: summary(r) });
 
 /** true when at least one channel took it */
 export async function deliver(r: TakedownRequest): Promise<boolean> {
   const { TAKEDOWN_WEBHOOK_URL: hook, RESEND_API_KEY: key, TAKEDOWN_EMAIL_TO: to, TAKEDOWN_EMAIL_FROM: from } = process.env;
   const sends: Promise<void>[] = [];
   if (hook) sends.push(toWebhook(hook, r));
-  if (key && to && from) sends.push(toEmail(key, to, from, r));
+  if (key && to && from) sends.push(toEmail(to, from, r));
 
   if (!sends.length) {
     if (process.env.NODE_ENV === "production") {

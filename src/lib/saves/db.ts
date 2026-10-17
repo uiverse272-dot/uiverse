@@ -47,8 +47,11 @@ export async function setSaved(db: Db, userId: string, slug: string, saved: bool
     return;
   }
   if (!bySlug(slug)) throw new SavesError("unknown-item");
-  if (!(await hasCollection(db, userId, collectionId))) throw new SavesError("unknown-collection");
-  const [{ n }] = await db.select({ n: count() }).from(save).where(eq(save.userId, userId));
+  const [exists, [{ n }]] = await Promise.all([
+    hasCollection(db, userId, collectionId),
+    db.select({ n: count() }).from(save).where(eq(save.userId, userId)),
+  ]);
+  if (!exists) throw new SavesError("unknown-collection");
   if (n >= LIMITS.saves) throw new SavesError("limit");
   /* already saved: leave it where it is, as the browser store does */
   await db.insert(save).values({ userId, slug, collectionId, at }).onConflictDoNothing();
@@ -64,9 +67,15 @@ export async function moveSave(db: Db, userId: string, slug: string, collectionI
     .onConflictDoUpdate({ target: [save.userId, save.slug], set: { collectionId, at } });
 }
 
-export async function createCollection(db: Db, userId: string, id: string, name: string) {
+/* a usable collection id and its cleaned name, or null */
+const valid = (id: string, name: string) => {
   const clean = name.trim().slice(0, LIMITS.name);
-  if (!ID.test(id) || id === RECENT || !clean) throw new SavesError("invalid");
+  return ID.test(id) && id !== RECENT && clean ? clean : null;
+};
+
+export async function createCollection(db: Db, userId: string, id: string, name: string) {
+  const clean = valid(id, name);
+  if (!clean) throw new SavesError("invalid");
   const [{ n }] = await db.select({ n: count() }).from(collection).where(eq(collection.userId, userId));
   if (n >= LIMITS.collections) throw new SavesError("limit");
   await db.insert(collection).values({ userId, id, name: clean }).onConflictDoNothing();
@@ -78,17 +87,18 @@ export async function createCollection(db: Db, userId: string, id: string, name:
  * "recent". Returns the merged state.
  */
 export async function importSaves(db: Db, userId: string, guest: SavesState): Promise<SavesState> {
-  const ids = new Set<string>([RECENT]);
-  for (const c of guest.collections.slice(0, LIMITS.collections)) {
-    if (c.id === RECENT) continue;
-    try {
-      await createCollection(db, userId, c.id, c.name);
-      ids.add(c.id);
-    } catch {
-      /* invalid or over the limit — its saves fall back to "recent" */
-    }
+  /* collections in one insert: the valid, new ones that fit under the limit. Anything else —
+     invalid or over the limit — sends its saves to "recent" */
+  const existing = await db.select({ id: collection.id }).from(collection).where(eq(collection.userId, userId));
+  const ids = new Set<string>([RECENT, ...existing.map((c) => c.id)]);
+  const fresh = new Map<string, string>();
+  for (const c of guest.collections) {
+    const clean = valid(c.id, c.name);
+    if (clean && !ids.has(c.id) && !fresh.has(c.id)) fresh.set(c.id, clean);
   }
-  for (const c of (await loadSaves(db, userId)).collections) ids.add(c.id);
+  const added = [...fresh].slice(0, Math.max(0, LIMITS.collections - existing.length));
+  if (added.length) await db.insert(collection).values(added.map(([id, name]) => ({ userId, id, name }))).onConflictDoNothing();
+  for (const [id] of added) ids.add(id);
 
   const rows = guest.saves
     .filter((s) => bySlug(s.slug))

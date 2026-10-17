@@ -10,10 +10,10 @@ import { LANG_COOKIE, localize } from "@/i18n/config";
  *
  * A full load rather than a client navigation: <html lang dir>, the font and every string change.
  */
-export function LangSwitch({ className, children }: { className?: string; children?: React.ReactNode }) {
-  const { t } = useI18n();
+export function LangSwitch({ className }: { className?: string }) {
+  const { lang, t } = useI18n();
   const path = useLocalPath();
-  const other = t.lang.otherCode as "en" | "ar";
+  const other = lang === "ar" ? "en" : "ar";
   const href = localize(other, path);
   return (
     /* a plain anchor: a language change reloads the document on purpose */
@@ -29,7 +29,7 @@ export function LangSwitch({ className, children }: { className?: string; childr
       }}
       className={className}
     >
-      {children ?? t.lang.other}
+      {t.lang.other}
     </a>
   );
 }

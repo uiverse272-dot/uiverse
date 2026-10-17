@@ -14,13 +14,14 @@
  * the next visit before the server answers.
  */
 
+import type { SavesState } from "@/lib/saves/db";
+import type { SaveOp } from "./actions";
+
 export type Collection = { id: string; name: string; sections: string[] };
 export type Save = { slug: string; collectionId: string; at: number; note?: string };
 export type State = { saves: Save[]; collections: Collection[]; hydrated: boolean };
-export type Op =
-  | { type: "set"; slug: string; saved: boolean; collectionId?: string }
-  | { type: "move"; slug: string; collectionId: string }
-  | { type: "create"; id: string; name: string };
+/* the server's own types: one definition of the wire format, so the two sides can't drift */
+type Op = SaveOp;
 /* told when the outbox has something to send */
 type Remote = () => void;
 
@@ -132,14 +133,14 @@ export const getServerSnapshot = () => EMPTY;
 
 export const isSaved = (slug: string) => state.saves.some((s) => s.slug === slug);
 
-/** Returns the collection name it landed in, or null when it was removed. */
-export function toggle(slug: string, collectionId = "recent"): string | null {
+/** Saves or unsaves; true when the item is now saved. */
+export function toggle(slug: string, collectionId = "recent"): boolean {
   if (isSaved(slug)) {
     commit({ ...state, saves: state.saves.filter((s) => s.slug !== slug) }, { type: "set", slug, saved: false });
-    return null;
+    return false;
   }
   commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...state.saves] }, { type: "set", slug, saved: true, collectionId });
-  return state.collections.find((c) => c.id === collectionId)?.name ?? "Recently saved";
+  return true;
 }
 
 export function move(slug: string, collectionId: string) {
@@ -157,10 +158,8 @@ export function create(name: string) {
 
 /* ------------------------------------------------------------- account */
 
-export type ServerState = { saves: { slug: string; collectionId: string; at: number }[]; collections: { id: string; name: string }[] };
-
 /** What this browser saved as a guest — sent once at sign-in to be merged into the account. */
-export function guestState(): ServerState | null {
+export function guestState(): SavesState | null {
   const g = read(KEY);
   const collections = g.collections.filter((c) => c.id !== "recent").map(({ id, name }) => ({ id, name }));
   return g.saves.length || collections.length ? { saves: g.saves.map(({ slug, collectionId, at }) => ({ slug, collectionId, at })), collections } : null;
@@ -175,7 +174,7 @@ export function signIn(userId: string, remote: Remote) {
 }
 
 /** The account's state from the server; the guest copy has been merged into it, so it's cleared. */
-export function adopt(server: ServerState) {
+export function adopt(server: SavesState) {
   write({
     saves: server.saves,
     collections: [...DEFAULT_COLLECTIONS, ...server.collections.map((c) => ({ ...c, sections: [] }))],

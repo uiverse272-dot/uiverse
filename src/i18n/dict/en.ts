@@ -13,6 +13,9 @@ const en = {
       "A visual index of how real interfaces are built. Browse websites, apps and components, save what works, and understand how it was made.",
   },
   common: {
+    /* list separators — Arabic has its own comma and semicolon */
+    comma: ", ",
+    semicolon: "; ",
     close: "Close",
     more: "more",
     clear: "Clear",
@@ -28,7 +31,6 @@ const en = {
   lang: {
     /* the switch always names the other language, in that language */
     other: "العربية",
-    otherCode: "ar",
     label: "Read Uiverse in Arabic",
   },
   nav: {
@@ -166,6 +168,8 @@ const en = {
     },
   },
   detail: {
+    /* closes a detail page's meta description, after the source's own */
+    metaDescription: "Breakdown, palette, type scale and responsive behaviour.",
     device: "Device",
     viewports: { desktop: "Laptop", tablet: "Tablet", mobile: "Mobile" },
     capturedLive: "Captured {date} from the live site",

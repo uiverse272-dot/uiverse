@@ -8,6 +8,7 @@ import { THEME_SCRIPT } from "@/components/shell/Theme";
 import { LangProvider } from "@/i18n/client";
 import { dirOf, isLang, LOCALES } from "@/i18n/config";
 import { DICTS } from "@/i18n/dict";
+import { getI18n } from "@/i18n/server";
 import { SITE_URL } from "@/lib/site";
 
 const mono = Space_Mono({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-space-mono" });
@@ -21,13 +22,12 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = await rootLang();
-  const t = DICTS[isLang(lang) ? lang : "en"].meta;
+  const { lang, t: { meta: t } } = await getI18n();
   return {
     metadataBase: new URL(SITE_URL),
     title: { default: t.title, template: t.template },
     description: t.description,
-    openGraph: { siteName: "Uiverse", type: "website", locale: lang === "ar" ? "ar" : "en" },
+    openGraph: { siteName: "Uiverse", type: "website", locale: lang },
     twitter: { card: "summary_large_image" },
   };
 }

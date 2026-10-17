@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { blockLabel, itemTitle, ruleText, sourceAbout } from "@/i18n/content";
-import { an, compactNum, fill, plural, timeAgo } from "@/i18n/format";
+import { an, compactNum, fill, fillNodes, lower, plural, timeAgo } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
@@ -11,7 +11,7 @@ import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
-import { useSaved } from "../save/SavedProvider";
+import { useSaveCount } from "../save/SavedProvider";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
@@ -34,7 +34,7 @@ export function DetailView({
   presentation?: "page" | "overlay";
 }) {
   const { lang, t } = useI18n();
-  const { isSaved } = useSaved();
+  const saves = useSaveCount(item);
   const [tab, setTab] = useState<Tab>("overview");
   const [promptOpen, setPromptOpen] = useState(false);
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
@@ -93,15 +93,13 @@ export function DetailView({
             <span className="text-[12px] text-text-3">
               {item.capture
                 ? /* the date never breaks across lines, and reads left to right in Arabic too */
-                  t.detail.capturedLive.split(/(\{date\})/).map((part, i) =>
-                    part === "{date}" ? (
-                      <bdi key={i} dir="ltr" className="whitespace-nowrap">
-                        {item.capture!.capturedAt.slice(0, 10)}
+                  fillNodes(t.detail.capturedLive, {
+                    date: (
+                      <bdi dir="ltr" className="whitespace-nowrap">
+                        {item.capture.capturedAt.slice(0, 10)}
                       </bdi>
-                    ) : (
-                      part
                     ),
-                  )
+                  })
                 : fill(t.detail.capturedAgo, { ago: timeAgo(item.daysAgo, lang), views: compactNum(item.views, lang) })}
             </span>
           </div>
@@ -121,7 +119,7 @@ export function DetailView({
               ? t.detail.realCapture
               : device === native
                 ? t.detail.original
-                : fill(t.detail.adaptedFrom, { vp: lang === "ar" ? t.detail.viewports[native] : t.detail.viewports[native].toLowerCase() })}
+                : fill(t.detail.adaptedFrom, { vp: lower(t.detail.viewports[native], lang) })}
             {" "}· {t.detail.scrollInside}
           </p>
 
@@ -206,7 +204,7 @@ export function DetailView({
             {item.capture ? (
               <Meta label={t.detail.meta.direction} value={item.capture.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
             ) : null}
-            <Meta label={t.detail.meta.saves} value={compactNum(item.saves + (isSaved(item.slug) ? 1 : 0), lang)} />
+            <Meta label={t.detail.meta.saves} value={compactNum(saves, lang)} />
           </dl>
 
           <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{sourceAbout(item.source, lang)}</p>
@@ -329,7 +327,7 @@ function Overview({ item }: { item: Item }) {
     style: lang === "ar" ? name(STYLES, item.style, lang) : an(item.style),
     industry: lang === "ar" ? name(INDUSTRIES, item.industry, lang) : an(item.industry.replace("-", " ")),
     title: lang === "ar" ? itemTitle(item, lang) : item.title.toLowerCase(),
-    first: lang === "ar" ? firstLabel : firstLabel.toLowerCase(),
+    first: lower(firstLabel, lang),
     sections: plural(o.sections, item.blocks.length, lang),
   });
   return (

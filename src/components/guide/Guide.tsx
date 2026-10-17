@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link, useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
 import { stripLang } from "@/i18n/config";
-import { fill, plural } from "@/i18n/format";
+import { fill, fillNodes, lower, plural } from "@/i18n/format";
+import { fromStart } from "../ui/fromStart";
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { Check, Close, Sparkle } from "../ui/icons";
 import { onGuideEvent, onGuideStart, type GuideEvent } from "./events";
@@ -151,9 +152,6 @@ export function Guide() {
   );
 }
 
-/* how far the target sits from the reading start — the rail's side, left in English and right in Arabic */
-const fromStart = (r: DOMRect) => (document.documentElement.dir === "rtl" ? innerWidth - r.right : r.left);
-
 /* ------------------------------------------------------------------ */
 
 function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void; onGo: (g: Goal) => void }) {
@@ -280,7 +278,7 @@ function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void
                 <span className="text-[11px] text-text-3">
                   {fill(g.noExact, {
                     rtl: goal.rtl && !land.relaxed.includes("dir") ? g.rtlPrefix : "",
-                    goal: lang === "ar" ? g.goals[goal.id][0] : g.goals[goal.id][0].toLowerCase(),
+                    goal: lower(g.goals[goal.id][0], lang),
                   })}
                 </span>
               ) : null}
@@ -373,20 +371,12 @@ function Finished({ onClose }: { onClose: () => void }) {
       </div>
       <div className="p-3.5">
         <ol className="space-y-1.5 text-[12.5px] leading-relaxed text-text-2">
-          {t.guide.loopSteps.map(([k, v]) => {
-            const [before, after] = v.split("{kbd}");
-            return (
-              <li key={k}>
-                <b className="text-text">{k}</b> — {before}
-                {after !== undefined ? (
-                  <>
-                    <kbd dir="ltr" className="border border-border px-1 font-mono text-[10.5px]">⌘K</kbd>
-                    {after}
-                  </>
-                ) : null}
-              </li>
-            );
-          })}
+          {t.guide.loopSteps.map(([k, v]) => (
+            <li key={k}>
+              <b className="text-text">{k}</b> —{" "}
+              {fillNodes(v, { kbd: <kbd dir="ltr" className="border border-border px-1 font-mono text-[10.5px]">⌘K</kbd> })}
+            </li>
+          ))}
         </ol>
         <p className="mt-3 text-[11.5px] text-text-3">{t.guide.replay}</p>
         <button onClick={onClose} className="mt-3 h-9 w-full bg-accent text-[13px] font-medium text-accent-fg">

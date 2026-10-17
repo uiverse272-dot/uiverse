@@ -88,7 +88,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
               <span className="text-[11.5px] text-text-3">{t.search.readingAs}</span>
               {parsed.terms.map((term) => (
                 <span key={term.param} className="border border-border bg-signal px-1.5 py-0.5 text-[11px] text-on-signal">
-                  {term.dimension}: {term.label}
+                  {t.search.dimensions[term.param]}: {term.label}
                 </span>
               ))}
             </div>

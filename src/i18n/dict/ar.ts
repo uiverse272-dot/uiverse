@@ -15,6 +15,8 @@ const ar: Dict = {
       "فهرس مرئي لطريقة بناء الواجهات الحقيقية. تصفّح المواقع والتطبيقات والمكوّنات، واحفظ ما ينجح، وافهم كيف صُنع.",
   },
   common: {
+    comma: "، ",
+    semicolon: "؛ ",
     close: "إغلاق",
     more: "المزيد",
     clear: "مسح",
@@ -29,7 +31,6 @@ const ar: Dict = {
   },
   lang: {
     other: "English",
-    otherCode: "en",
     label: "Read Uiverse in English",
   },
   nav: {
@@ -167,6 +168,7 @@ const ar: Dict = {
     },
   },
   detail: {
+    metaDescription: "التفكيك ولوحة الألوان ومقياس الخطوط والتجاوب.",
     device: "الجهاز",
     viewports: { desktop: "حاسوب", tablet: "جهاز لوحي", mobile: "جوال" },
     capturedLive: "التُقطت في {date} من الموقع الحي",

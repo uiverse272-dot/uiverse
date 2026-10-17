@@ -433,7 +433,9 @@ const CAPTURED = capturedItems();
 export const ITEMS: Item[] = [...CAPTURED.items, ...buildItems()];
 SOURCES.push(...CAPTURED.sources.filter((s) => !SOURCES.some((x) => x.slug === s.slug)));
 
-export const bySlug = (slug: string) => ITEMS.find((i) => i.slug === slug);
+/* a map, not a find: saves validate every slug they touch, imports by the thousand */
+const BY_SLUG = new Map(ITEMS.map((i) => [i.slug, i]));
+export const bySlug = (slug: string) => BY_SLUG.get(slug);
 export const screens = () => ITEMS.filter((i) => i.kind === "screen");
 export const components = () => ITEMS.filter((i) => i.kind === "component");
 
@@ -467,23 +469,10 @@ export const PALETTE_ITEMS = Array.from(
 export const CREATORS = SOURCES.map((s, i) => ({
   handle: s.slug,
   name: s.name,
-  role: i % 3 === 0 ? "Studio" : i % 3 === 1 ? "Product designer" : "Design engineer",
+  role: (["studio", "product", "engineer"] as const)[i % 3],
   source: s,
   screens: screens().filter((x) => x.source.slug === s.slug).length,
   followers: rnd(s.slug + "fl", 120, 24000),
   available: i % 4 === 0,
 }));
 
-export function timeAgo(days: number) {
-  if (days < 1) return "today";
-  if (days < 7) return `${days}d ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
-  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
-  return `${Math.floor(days / 365)}y ago`;
-}
-
-export function compact(n: number) {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k`;
-  return String(n);
-}

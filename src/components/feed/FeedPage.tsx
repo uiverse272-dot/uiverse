@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { ITEMS } from "@/lib/data";
-import { applyFilters, filterKey, filtersFromParams, paramFilter, type Filters } from "@/lib/query";
-import { localTerms, SORTS } from "@/lib/taxonomy";
-import { plural } from "@/i18n/format";
-import { getI18n } from "@/i18n/server";
+import { applyFilters, filterKey, filtersFromParams, paramFilter, SCOPES, type Filters } from "@/lib/query";
+import { localTerms, name, SORTS, type Term } from "@/lib/taxonomy";
+import type { Dict } from "@/i18n/dict";
+import { fill, plural } from "@/i18n/format";
+import { alternates, getI18n } from "@/i18n/server";
 import { Feed } from "./Feed";
 import { ssrColumns } from "./ssrColumns";
 import { FilterBar, type FilterDef } from "./FilterBar";
@@ -83,4 +86,48 @@ export function facetToFilters(
     (f as Record<string, string>)[d.param as string] = seg;
   }
   return f;
+}
+
+type Facet = { param: keyof Filters; list: readonly Term[]; /** names the page when it's in the path */ titled?: boolean };
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+/**
+ * A browse route — /web, /apps, /components — with optional facet segments. Returns the page and
+ * its metadata, so each route file is just its facets and filters.
+ */
+export function facetRoute(scope: "web" | "apps" | "components", facets: Facet[], defs: (t: Dict) => FilterDef[]) {
+  type Params = Promise<{ facet?: string[] }>;
+
+  async function resolve(params: Params) {
+    const { facet } = await params;
+    const { lang, t } = await getI18n();
+    const fromPath = facetToFilters(facet, facets);
+    if (!fromPath) notFound();
+    const label = facets
+      .filter((f) => f.titled !== false)
+      .map((f) => name(f.list, fromPath[f.param] as string | undefined, lang))
+      .find(Boolean);
+    const feed = t.feeds[scope];
+    const path = [SCOPES[scope].path, ...(facet ?? [])].join("/");
+    return { fromPath, lang, t, path, title: label ? fill(feed.titleWith, { label }) : feed.title };
+  }
+
+  return {
+    async generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+      const { title, lang, path } = await resolve(params);
+      return { title, alternates: alternates(lang, path) };
+    },
+    async Page({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
+      const { fromPath, title, t } = await resolve(params);
+      return (
+        <FeedPage
+          title={title}
+          sub={t.feeds[scope].sub}
+          base={{ ...SCOPES[scope].base, ...fromPath }}
+          params={await searchParams}
+          defs={defs(t)}
+        />
+      );
+    },
+  };
 }

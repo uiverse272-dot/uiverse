@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { fill } from "@/i18n/format";
 import { authClient } from "@/lib/auth-client";
+import { isEmail } from "@/lib/domain";
+import { FIELD, OrDivider } from "../ui/field";
 
-const input =
-  "mt-2 h-11 w-full border border-border bg-bg-subtle px-3.5 text-[14px] outline-none placeholder:text-text-3 focus:border-border-strong aria-[invalid=true]:border-danger";
+const input = `mt-2 ${FIELD}`;
 const button = "flex h-11 w-full items-center justify-center gap-2 border border-border text-[14px] font-medium transition-colors";
 
 /** Magic link first (no password to forget), Google and GitHub when the server has their keys. */
@@ -31,7 +32,7 @@ export function SignInForm({
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return setError(a.invalid);
+    if (!isEmail(value)) return setError(a.invalid);
     setPending(true);
     setError(null);
     const { error: err } = await authClient.signIn.magicLink({ email: value, callbackURL: next, errorCallbackURL: errorUrl });
@@ -66,9 +67,7 @@ export function SignInForm({
         </button>
       ))}
       {social.length && providers.email ? (
-        <div className="flex items-center gap-2 text-[12.5px] text-text-3">
-          <span className="h-px flex-1 bg-border" /> {a.or} <span className="h-px flex-1 bg-border" />
-        </div>
+        <OrDivider label={a.or} />
       ) : null}
       {providers.email ? (
         <form onSubmit={send} noValidate>

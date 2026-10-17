@@ -8,7 +8,7 @@ import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
-import { useSaved } from "../save/SavedProvider";
+import { useSaveCount } from "../save/SavedProvider";
 import { Chevron, Close, Sparkle } from "../ui/icons";
 
 type Mode = "tab" | "card" | "open";
@@ -20,7 +20,7 @@ type Mode = "tab" | "card" | "open";
  */
 export function Featured({ item }: { item: Item }) {
   const { lang, t } = useI18n();
-  const { isSaved } = useSaved();
+  const saves = useSaveCount(item);
   /* starts folded and stays that way until asked: unfolding by itself, it covered the feed's
      save buttons a moment after the page loaded */
   const [mode, setMode] = useState<Mode>("tab");
@@ -32,15 +32,13 @@ export function Featured({ item }: { item: Item }) {
     return () => document.removeEventListener("keydown", onKey);
   }, [mode]);
 
-  const fold = () => setMode("tab");
-  const unfold = () => setMode("card");
 
   const href = `/screen/${item.slug}`;
 
   if (mode === "tab") {
     return (
       <button
-        onClick={unfold}
+        onClick={() => setMode("card")}
         className="anim-fade-up fixed bottom-20 end-4 z-[70] flex items-center gap-2 border border-border bg-signal px-3 py-2 text-[12px] font-bold text-on-signal shadow-[3px_3px_0_var(--border)] transition-transform hover:-translate-y-0.5 md:bottom-6 md:end-6"
       >
         <Sparkle size={14} /> {t.featured.pick}
@@ -50,7 +48,7 @@ export function Featured({ item }: { item: Item }) {
 
   const r = t.featured.rows;
   const rows: [string, string][] = [
-    [r.saves, compactNum(item.saves + (isSaved(item.slug) ? 1 : 0), lang)],
+    [r.saves, compactNum(saves, lang)],
     [r.type, name(CATEGORIES, item.category, lang)],
     [r.industry, name(INDUSTRIES, item.industry, lang)],
     [r.style, name(STYLES, item.style, lang)],
@@ -78,7 +76,7 @@ export function Featured({ item }: { item: Item }) {
             <Chevron size={15} className={open ? "" : "rotate-180"} />
           </button>
           <button
-            onClick={fold}
+            onClick={() => setMode("tab")}
             aria-label={t.featured.hide}
             className="grid h-8 w-8 place-items-center border-s border-on-signal/40 hover:bg-black/10"
           >

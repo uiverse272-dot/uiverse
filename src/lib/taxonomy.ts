@@ -1,3 +1,5 @@
+import type { Lang } from "@/i18n/config";
+
 export const CATEGORIES = [
   { slug: "landing-page", name: "Landing page", ar: "صفحة هبوط" },
   { slug: "dashboard", name: "Dashboard", ar: "لوحة تحكم" },
@@ -114,10 +116,10 @@ export const SORTS = [
 export type Term = { slug: string; name: string; ar?: string };
 
 /** A term's display name in `lang` — technology and platform names that have no Arabic form keep their own */
-export const name = (list: readonly Term[], slug?: string, lang: "en" | "ar" = "en") => {
+export const name = (list: readonly Term[], slug?: string, lang: Lang = "en") => {
   const t = list.find((t) => t.slug === slug);
   return (lang === "ar" ? t?.ar : undefined) ?? t?.name ?? slug ?? "";
 };
 
 /** The same list with names in `lang`, for passing to a client component */
-export const localTerms = (list: readonly Term[], lang: "en" | "ar") => list.map((t) => ({ slug: t.slug, name: name(list, t.slug, lang) }));
+export const localTerms = (list: readonly Term[], lang: Lang) => list.map((t) => ({ slug: t.slug, name: (lang === "ar" && t.ar) || t.name }));

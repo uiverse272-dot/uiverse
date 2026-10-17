@@ -63,7 +63,7 @@ export const spacingScale = (item: Item) =>
 /** Font families, when measured. Procedural previews use the app's own sans. */
 export const fonts = (item: Item) => item.capture?.fonts;
 
-export const BRAND_FONT = "a custom brand typeface";
+const BRAND_FONT = "a custom brand typeface";
 const alnum = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /** The words that identify a source — its name's words and its domain label ("Tap Payments", tap.company) */
@@ -80,8 +80,9 @@ export function fontsPlain(item: Item) {
   const f = fonts(item);
   if (!f) return undefined;
   const marks = brandMarks(item);
-  const plain = (family: string) => (marks.some((m) => alnum(family).includes(m)) ? BRAND_FONT : family);
-  return { heading: plain(f.heading), body: plain(f.body) };
+  const own = (family: string) => marks.some((m) => alnum(family).includes(m));
+  const plain = (family: string) => (own(family) ? BRAND_FONT : family);
+  return { heading: plain(f.heading), body: plain(f.body), branded: own(f.heading) || own(f.body) };
 }
 
 export function layoutSpec(item: Item) {

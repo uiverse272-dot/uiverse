@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DICTS } from "@/i18n/dict";
 import { ITEMS } from "./data";
 import { applyFilters, arNorm, parseQuery, searchItems } from "./query";
 
@@ -48,8 +49,11 @@ describe("parseQuery — English", () => {
   });
 
   it("labels chips in the page's language", () => {
-    expect(parseQuery("dark fintech").terms.map((t) => `${t.dimension}: ${t.label}`)).toEqual(["Style: Dark", "Industry: Fintech"]);
-    expect(parseQuery("dark fintech", "ar").terms.map((t) => `${t.dimension}: ${t.label}`)).toEqual([
+    /* the parser names the value; the dimension label comes from the page's own dictionary */
+    const chip = (lang: "en" | "ar") => (t: { param: keyof typeof DICTS.en.search.dimensions; label: string }) =>
+      `${DICTS[lang].search.dimensions[t.param]}: ${t.label}`;
+    expect(parseQuery("dark fintech").terms.map(chip("en"))).toEqual(["Style: Dark", "Industry: Fintech"]);
+    expect(parseQuery("dark fintech", "ar").terms.map(chip("ar"))).toEqual([
       "الأسلوب: داكن",
       "القطاع: التقنية المالية",
     ]);

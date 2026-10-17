@@ -1,6 +1,6 @@
 import { an } from "@/i18n/format";
 import type { Item } from "./data";
-import { BRAND_FONT, colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
+import { colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, INDUSTRIES, STYLES } from "./taxonomy";
 
 /**
@@ -175,7 +175,7 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
       "",
       f
         ? `${families!.charAt(0).toUpperCase()}${families!.slice(1)} — ${
-            f.heading === BRAND_FONT || f.body === BRAND_FONT
+            f.branded
               ? "the brand's own face is licensed to it alone, so substitute a freely licensed one with similar proportions"
               : "use the closest freely licensed equivalent if it isn't available"
           }. Body line height ${layout.body.split(" / ")[1]}.`

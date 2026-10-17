@@ -29,12 +29,11 @@ export default async function SearchPage({
   const { lang, t } = await getI18n();
   const q = typeof sp.q === "string" ? sp.q : "";
   const kind = typeof sp.kind === "string" ? sp.kind : undefined;
-  const { results, terms, residual } = searchItems(q, { kind }, lang);
-  const counts = {
-    all: searchItems(q).results.length,
-    screen: searchItems(q, { kind: "screen" }).results.length,
-    component: searchItems(q, { kind: "component" }).results.length,
-  };
+  /* nothing to search for: no results, no counts — skip the work */
+  const { results, terms, residual } = q ? searchItems(q, { kind }, lang) : { results: [], terms: [], residual: "" };
+  /* the active tab's count is the results we already have; only the other two are searched */
+  const count = (k?: string) => (!q ? 0 : k === kind ? results.length : searchItems(q, { kind: k }).results.length);
+  const counts = { all: count(undefined), screen: count("screen"), component: count("component") };
 
   return (
     <>
@@ -83,7 +82,7 @@ export default async function SearchPage({
                       )}`}
                       className="inline-flex items-center gap-1 border border-border bg-bg-subtle px-2 py-1 text-[12px] font-medium hover:border-border-strong"
                     >
-                      {term.dimension}: {term.label}
+                      {t.search.dimensions[term.param]}: {term.label}
                       <Close size={11} />
                     </Link>
                   ))}

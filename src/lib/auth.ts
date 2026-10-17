@@ -5,6 +5,7 @@ import { magicLink } from "better-auth/plugins/magic-link";
 import { headers } from "next/headers";
 import { getDb, type Db } from "./db";
 import { deleteMagicLinks } from "./db/magicLinks";
+import { sendEmail } from "./email";
 import * as schema from "./db/schema";
 import { SITE_URL } from "./site";
 
@@ -32,18 +33,12 @@ const logLinks = () => !prod || env.AUTH_LOG_LINKS === "1";
 
 async function sendMagicLink({ email, url }: { email: string; url: string }) {
   if (env.RESEND_API_KEY && env.AUTH_EMAIL_FROM) {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: env.AUTH_EMAIL_FROM,
-        to: email,
-        subject: "Sign in to Uiverse · تسجيل الدخول إلى Uiverse",
-        text: `Sign in to Uiverse:\n${url}\n\nThis link works once and expires in 5 minutes. If you didn't ask for it, ignore this email.\n\n—\n\nللدخول إلى Uiverse:\n${url}\n\nيعمل هذا الرابط مرة واحدة وتنتهي صلاحيته خلال 5 دقائق. إن لم تطلبه فتجاهل هذه الرسالة.`,
-      }),
+    return sendEmail({
+      from: env.AUTH_EMAIL_FROM,
+      to: email,
+      subject: "Sign in to Uiverse · تسجيل الدخول إلى Uiverse",
+      text: `Sign in to Uiverse:\n${url}\n\nThis link works once and expires in 5 minutes. If you didn't ask for it, ignore this email.\n\n—\n\nللدخول إلى Uiverse:\n${url}\n\nيعمل هذا الرابط مرة واحدة وتنتهي صلاحيته خلال 5 دقائق. إن لم تطلبه فتجاهل هذه الرسالة.`,
     });
-    if (!res.ok) throw new Error(`sign-in email failed (${res.status})`);
-    return;
   }
   if (!logLinks()) throw new Error("no email provider configured");
   console.log(`\n[auth] sign-in link for ${email}:\n${url}\n`);

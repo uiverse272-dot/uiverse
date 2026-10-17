@@ -1,5 +1,4 @@
 import type { Item } from "@/lib/data";
-import type { Section } from "@/lib/spec";
 import { COMPONENT_TYPES, name } from "@/lib/taxonomy";
 import type { Lang } from "./config";
 import { plural, type Plural } from "./format";
@@ -114,31 +113,6 @@ const TYPE_USES: Record<string, string> = {
   "Form labels": "تسميات النماذج", "List items": "عناصر القوائم", Label: "تسمية",
 };
 
-const NOTES: Record<string, string> = {
-  navbar: "ثابت، بحد سفلي رفيع، الشعار على اليسار، وأربعة روابط نصية، وزر دخول شفاف مع زر دعوة واحد ممتلئ على اليمين",
-  sidebar: "عمود ثابت بعرض 248px على السطح، صف للشعار، وسبعة صفوف تنقل لكل منها مربع أيقونة صغير، الصف النشط على السطح المرتفع، وصف المستخدم مثبت في الأسفل",
-  hero: "في المنتصف؛ عنوان تمهيدي صغير على شكل كبسولة، وعنوان من سطرين بحجم العرض، وسطر فرعي خافت، وزران متجاوران، ثم معاينة كبيرة للمنتج بإطار",
-  "logo-cloud": "صف واحد في المنتصف من خمسة شعارات نصية خافتة بشفافية 22% تقريبًا، مع تعليق صغير فوقها",
-  cards: "ثلاث بطاقات متساوية بإطار؛ في كل منها مربع أيقونة بلون مميّز، وعنوان، وثلاثة أسطر نص، ورابط صغير بلون مميّز",
-  stats: "أربعة أرقام كبيرة مع تسميات صغيرة خافتة، وخطوط رفيعة أعلى الشريط وأسفله",
-  charts: "رسم بياني بالأعمدة باللون المميّز للسلسلة الرئيسية وسلسلة ثانوية خافتة، ومبدّل للنطاق أعلى اليمين",
-  table: "صف عناوين، وستة صفوف، وصورة رمزية في الخلية الأولى، وعمود واحد لشارات الحالة، وعمود رقمي محاذى لليمين",
-  list: "صفوف من صورة رمزية وسطرين متراكبين مع قيمة محاذاة لليمين",
-  testimonials: "اقتباس واحد في المنتصف بحجم 30px وارتفاع سطر 1.45، مع الصورة الرمزية والاسم أسفله",
-  pricing: "ثلاث باقات؛ الوسطى بارزة بإطار ملون وشارة «الأكثر طلبًا»، ولكل منها سعر كبير وزر وقائمة ميزات بنقاط صغيرة",
-  faq: "أربعة صفوف تفصلها خطوط رفيعة، كل منها سؤال مع علامة زائد على اليمين",
-  cta: "شريط مرتفع بعرض كامل وانحناء سخي، فيه عنوان وزر واحد ممتلئ، في المنتصف",
-  footer: "هوية العلامة مع أربعة أعمدة روابط، وخط رفيع فوقها",
-  login: "بطاقة في المنتصف بعرض 380px؛ شعار، وعنوان، وحقلان بتسميات، وزر إرسال ممتلئ، وفاصل «أو»، وزرّا مزوّدي دخول",
-  checkout: "عمودان؛ الأعرض فيه حقول مجمّعة بتسميات وصفّان قابلان للاختيار لطريقة التوصيل، والأضيق فيه ملخص الطلب",
-  inputs: "حقول بتسميات بارتفاع 46px وحد رفيع وانحناء 9px",
-  filters: "صف واحد من عوامل التصفية على شكل كبسولات، الأول نشط باللون المميّز",
-  search: "حقل بزوايا مستديرة على السطح المرتفع مع أيقونة في البداية",
-  tabs: "مبدّل مقسّم على السطح المرتفع، والقسم النشط على السطح",
-  breadcrumb: "مسار صغير خافت بفواصل مائلة، والجزء الأخير بتباين كامل",
-  modal: "لوحة في المنتصف فوق خلفية معتمة، وزر إغلاق أعلى اليمين",
-};
-
 const RULES: Record<string, string> = {
   "links, sign-in and CTA → links fold into a menu button, sign-in and CTA stay → logo and menu button only":
     "الروابط وزر الدخول وزر الدعوة → الروابط تنطوي في زر القائمة ويبقى الدخول والدعوة → الشعار وزر القائمة فقط",
@@ -211,7 +185,6 @@ const RULES: Record<string, string> = {
 
 const COLUMNS: Plural = { one: "عمود واحد", two: "عمودان", few: "{n} أعمدة", many: "{n} عمودًا", other: "{n} عمود" };
 const LINKS: Plural = { one: "رابط واحد", two: "رابطان", few: "{n} روابط", many: "{n} رابطًا", other: "{n} رابط" };
-const ACROSS: Plural = { one: "عنصر واحد بالعرض", two: "عنصران بالعرض", few: "{n} عناصر بالعرض", many: "{n} عنصرًا بالعرض", other: "{n} عنصر بالعرض" };
 
 /* the capture script writes its rules from a few templates (scripts/capture/derive.mjs responsive()) */
 function captureClause(c: string): string {
@@ -247,14 +220,6 @@ export function blockLabel(label: string, type: string | undefined, lang: Lang) 
 export const layoutName = (archetype: string, fallback: string, lang: Lang) => (lang === "ar" ? ARCHETYPES[archetype] ?? fallback : fallback);
 export const typeName = (n: string, lang: Lang) => (lang === "ar" ? TYPE_NAMES[n] ?? n : n);
 export const typeUse = (u: string, lang: Lang) => (lang === "ar" ? TYPE_USES[u] ?? u : u);
-
-export function sectionNote(s: Section, item: Item, lang: Lang) {
-  if (lang !== "ar") return s.note;
-  if (!item.capture) return NOTES[s.type] ?? "معالجة قياسية لهذا النوع من الأقسام";
-  const b = item.blocks[s.index - 1];
-  const parts = [b?.heading ? "يبدأ بعنوان" : null, b?.columns && b.columns > 1 ? plural(ACROSS, b.columns, "ar") : null].filter(Boolean);
-  return parts.join("، ") || "مقيس من الصفحة الحيّة";
-}
 
 export function ruleText(rule: string, item: Item, lang: Lang) {
   if (lang !== "ar") return rule;

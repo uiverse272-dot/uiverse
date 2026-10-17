@@ -5,6 +5,7 @@ import { Shell, PageHeader } from "@/components/feed/Section";
 import { Link } from "@/i18n/client";
 import { DeleteAccount } from "@/components/account/DeleteAccount";
 import { SignOutButton } from "@/components/account/SignOutButton";
+import { fillNodes } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { currentUser } from "@/lib/auth";
 
@@ -39,11 +40,7 @@ export default async function ProfilePage({
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-border bg-surface p-5">
         <p className="text-[14px]">
           {user ? (
-            <>
-              {t.auth.signedInAs.split("{email}")[0]}
-              <bdi className="font-bold">{user.email}</bdi>
-              {t.auth.signedInAs.split("{email}")[1]}
-            </>
+            fillNodes(t.auth.signedInAs, { email: <bdi className="font-bold">{user.email}</bdi> })
           ) : (
             t.auth.keepSaves
           )}

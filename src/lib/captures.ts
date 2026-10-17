@@ -1,5 +1,6 @@
 import records from "@/content/captures.json";
 import optout from "@/content/optout.json";
+import { normalizeDomain, onDomain } from "./domain";
 import type { Archetype, Block, Item, Source } from "./data";
 import type { Palette } from "./palettes";
 
@@ -68,8 +69,8 @@ const CROPPABLE = new Set([
 export type OptOut = { domain: string; removedAt: string; ref?: string };
 const OPTED_OUT = (optout as OptOut[]).map((o) => o.domain);
 export const optedOut = (domain: string) => {
-  const d = domain.toLowerCase().replace(/^www\./, "");
-  return OPTED_OUT.some((o) => d === o || d.endsWith(`.${o}`));
+  const d = normalizeDomain(domain);
+  return OPTED_OUT.some((o) => onDomain(d, o));
 };
 
 const DAY = 86400000;

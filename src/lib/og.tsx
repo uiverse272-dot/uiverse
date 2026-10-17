@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
-import sharp from "sharp";
 import type { Item } from "./data";
-import { shotBytes } from "./shots";
+import { cropShot } from "./shots";
 import { name, CATEGORIES, COMPONENT_TYPES, INDUSTRIES } from "./taxonomy";
 
 /**
@@ -41,16 +40,9 @@ async function screenshot(item: Item): Promise<{ src: string; h: number } | null
   const shot = item.capture?.shots.desktop;
   if (!shot) return null;
   const crop = item.kind === "component" ? (item.capture!.crops?.desktop ?? item.crop) : undefined;
-  const top = crop ? crop.y * shot.docH : 0;
-  const h = Math.min(crop ? crop.h * shot.docH : shot.cssH, (PANEL.h / PANEL.w) * shot.css, shot.cssH - top);
-  const scale = shot.w / shot.css;
   try {
-    const buf = await sharp(await shotBytes(shot.src))
-      .extract({ left: 0, top: Math.round(top * scale), width: shot.w, height: Math.max(1, Math.round(h * scale)) })
-      .resize({ width: PANEL.w * 2, withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toBuffer();
-    return { src: `data:image/jpeg;base64,${buf.toString("base64")}`, h: Math.round((h / shot.css) * PANEL.w) };
+    const { jpeg, h } = await cropShot(shot, crop, { maxH: (PANEL.h / PANEL.w) * shot.css, width: PANEL.w * 2, quality: 80 });
+    return { src: `data:image/jpeg;base64,${jpeg.toString("base64")}`, h: Math.round((h / shot.css) * PANEL.w) };
   } catch {
     /* a missing screenshot shouldn't cost the link its card — fall back to the wireframe */
     return null;

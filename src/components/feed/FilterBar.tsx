@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
+import { fromStart } from "../ui/fromStart";
 import { Check, Chevron, Close, Filter } from "../ui/icons";
 
 export type FilterDef = {
@@ -56,10 +57,9 @@ function Popover({
     if (!open) return;
     const place = () => {
       const r = button.current!.getBoundingClientRect();
-      const fromStart = document.documentElement.dir === "rtl" ? innerWidth - r.right : r.left;
       setAt({
         top: r.bottom + 4,
-        start: Math.max(8, Math.min(fromStart, innerWidth - 224 - 8)),
+        start: Math.max(8, Math.min(fromStart(r), innerWidth - 224 - 8)),
         maxH: Math.min(320, innerHeight - r.bottom - 12),
       });
     };

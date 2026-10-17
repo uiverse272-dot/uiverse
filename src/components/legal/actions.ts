@@ -2,18 +2,18 @@
 
 import { randomBytes } from "node:crypto";
 import { headers } from "next/headers";
-import { isLang } from "@/i18n/config";
-import { DICTS } from "@/i18n/dict";
-import { fill } from "@/i18n/format";
 import { ITEMS } from "@/lib/data";
 import { clientIp, rateLimiter } from "@/lib/rateLimit";
-import { deliver, isDomain, normalizeDomain } from "@/lib/takedown";
+import { isDomain, isEmail, normalizeDomain, onDomain } from "@/lib/domain";
+import { deliver } from "@/lib/takedown";
 
 export type Field = "domain" | "name" | "email" | "confirm";
-export type Values = { domain: string; name: string; email: string; role: string; details: string; confirm: boolean };
+/* a field's name, or a problem with the whole request — the form words it in its own language */
+export type TakedownError = Field | "rate" | "failed";
+export type Values = { domain: string; name: string; email: string; role: "owner" | "agent"; details: string; confirm: boolean };
 export type TakedownState =
   | { status: "idle" }
-  | { status: "error"; message: string; field?: Field; values: Values }
+  | { status: "error"; error: TakedownError; minutes?: number; values: Values }
   | { status: "sent"; ref: string; domain: string; email: string; held: number };
 
 /* a person sends one or two of these; a script sends hundreds */
@@ -24,9 +24,6 @@ const newRef = () =>
   `TD-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(3).toString("hex").toUpperCase()}`;
 
 export async function requestTakedown(_prev: TakedownState, form: FormData): Promise<TakedownState> {
-  /* actions can't read the [lang] root param, so the form says which language it's in */
-  const lang = form.get("lang");
-  const e = DICTS[isLang(lang) ? lang : "en"].takedown.errors;
   const values: Values = {
     domain: str(form, "domain", 300),
     name: str(form, "name", 120),
@@ -35,15 +32,15 @@ export async function requestTakedown(_prev: TakedownState, form: FormData): Pro
     details: str(form, "details", 2000),
     confirm: form.get("confirm") === "on",
   };
-  const fail = (message: string, field?: Field): TakedownState => ({ status: "error", message, field, values });
+  const fail = (error: TakedownError, minutes?: number): TakedownState => ({ status: "error", error, minutes, values });
 
   const domain = normalizeDomain(values.domain);
-  if (!isDomain(domain)) return fail(e.domain, "domain");
-  if (!values.name) return fail(e.name, "name");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) return fail(e.email, "email");
-  if (!values.confirm) return fail(e.confirm, "confirm");
+  if (!isDomain(domain)) return fail("domain");
+  if (!values.name) return fail("name");
+  if (!isEmail(values.email)) return fail("email");
+  if (!values.confirm) return fail("confirm");
 
-  const held = ITEMS.filter((i) => i.kind === "screen" && i.capture && (i.source.domain === domain || i.source.domain.endsWith(`.${domain}`)));
+  const held = ITEMS.filter((i) => i.kind === "screen" && i.capture && onDomain(i.source.domain, domain));
   const ref = newRef();
   const sent: TakedownState = { status: "sent", ref, domain, email: values.email, held: held.length };
 
@@ -51,17 +48,17 @@ export async function requestTakedown(_prev: TakedownState, form: FormData): Pro
   if (str(form, "website", 200)) return sent;
 
   const wait = limit(clientIp(await headers()));
-  if (wait !== null) return fail(fill(e.rate, { n: Math.ceil(wait / 60) }));
+  if (wait !== null) return fail("rate", Math.ceil(wait / 60));
 
   const ok = await deliver({
     ref,
     domain,
     name: values.name,
     email: values.email,
-    role: values.role === "agent" ? "agent" : "owner",
+    role: values.role,
     details: values.details,
     held: held.map((i) => i.slug),
     receivedAt: new Date().toISOString(),
   });
-  return ok ? sent : fail(e.failed);
+  return ok ? sent : fail("failed");
 }

@@ -87,7 +87,10 @@ async function main() {
     }));
   });
 
-  const stale = flags.has("--prune") ? [...have.keys()].filter((k) => !keys.includes(k)) : [];
+  /* in the bucket with no local file */
+  const onDisk = new Set(keys);
+  const orphans = [...have.keys()].filter((k) => !onDisk.has(k));
+  const stale = flags.has("--prune") ? orphans : [];
   for (const k of stale) console.log(`${dry ? "would delete" : "✗"} ${k}`);
   /* DeleteObjects takes at most 1000 keys */
   for (let i = 0; !dry && i < stale.length; i += 1000) {
@@ -97,8 +100,8 @@ async function main() {
   const mb = (bytes / 1048576).toFixed(1);
   const [up, del] = dry ? ["would upload", "would delete"] : ["uploaded", "deleted"];
   console.log(`\n${uploaded} ${up} (${mb} MB), ${unchanged} unchanged${stale.length ? `, ${stale.length} ${del}` : ""}`);
-  const notPruned = [...have.keys()].filter((k) => !keys.includes(k)).length - stale.length;
-  if (notPruned > 0) console.log(`${notPruned} object(s) in the bucket have no local file — --prune removes them`);
+  const notPruned = orphans.length - stale.length;
+  if (notPruned) console.log(`${notPruned} object(s) in the bucket have no local file — --prune removes them`);
 }
 
 main().catch((e) => {

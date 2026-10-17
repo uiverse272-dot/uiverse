@@ -3,10 +3,10 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { fill, plural } from "@/i18n/format";
+import { FIELD } from "../ui/field";
 import { requestTakedown, type Field, type TakedownState } from "./actions";
 
-const input =
-  "mt-2 h-11 w-full border border-border bg-bg-subtle px-3.5 text-[14px] outline-none placeholder:text-text-3 focus:border-border-strong aria-[invalid=true]:border-danger";
+const input = `mt-2 ${FIELD}`;
 
 /** The one-form opt-out from docs/08 §4. `domain` arrives prefilled from a capture's "Request removal" link. */
 export function TakedownForm({ domain }: { domain?: string }) {
@@ -21,10 +21,13 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
   const [state, action, pending] = useActionState<TakedownState, FormData>(requestTakedown, { status: "idle" });
   const form = useRef<HTMLFormElement>(null);
 
+  const field = state.status === "error" && state.error !== "rate" && state.error !== "failed" ? state.error : undefined;
+  const message = state.status === "error" ? fill(td.errors[state.error], { n: state.minutes ?? 0 }) : "";
+
   /* after a failed submit, put the cursor where the problem is */
   useEffect(() => {
-    if (state.status === "error" && state.field) form.current?.querySelector<HTMLElement>(`[name="${state.field}"]`)?.focus();
-  }, [state]);
+    if (field) form.current?.querySelector<HTMLElement>(`[name="${field}"]`)?.focus();
+  }, [state, field]);
 
   if (state.status === "sent") {
     return (
@@ -43,19 +46,17 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
   }
 
   const v = state.status === "error" ? state.values : { domain, name: "", email: "", role: "owner", details: "", confirm: false };
-  const bad = (f: Field) => state.status === "error" && state.field === f;
-  const err = (f: Field) => (bad(f) ? { "aria-invalid": true, "aria-describedby": "takedown-error" } : {});
+  const err = (f: Field) => (field === f ? { "aria-invalid": true, "aria-describedby": "takedown-error" } : {});
   /* a field's error sits under that field; only errors about the whole request go at the bottom */
   const fieldError = (f: Field) =>
-    bad(f) && state.status === "error" ? (
+    field === f ? (
       <p id="takedown-error" role="alert" className="mt-1.5 text-[12.5px] text-danger">
-        {state.message}
+        {message}
       </p>
     ) : null;
 
   return (
     <form ref={form} action={action} noValidate className="space-y-4 border border-border bg-surface p-5">
-      <input type="hidden" name="lang" value={lang} />
       <div>
         <label htmlFor="td-domain" className="text-[13px] font-semibold">
           {td.domain}
@@ -123,9 +124,9 @@ function Request({ domain = "", onAgain }: { domain?: string; onAgain: () => voi
       </label>
       {fieldError("confirm")}
 
-      {state.status === "error" && !state.field ? (
+      {state.status === "error" && !field ? (
         <p id="takedown-error" role="alert" className="border border-danger px-3.5 py-2.5 text-[13px] text-danger">
-          {state.message}
+          {message}
         </p>
       ) : null}
 

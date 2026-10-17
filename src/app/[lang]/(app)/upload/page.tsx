@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Shell, PageHeader } from "@/components/feed/Section";
+import { FIELD, OrDivider } from "@/components/ui/field";
 import { Sparkle } from "@/components/ui/icons";
 import { getI18n } from "@/i18n/server";
 
@@ -25,11 +26,9 @@ export default async function UploadPage() {
             id="upload-url"
             dir="ltr"
             placeholder="https://"
-            className="mt-2.5 h-11 w-full border border-border bg-bg-subtle px-3.5 text-[14px] outline-none placeholder:text-text-3 focus:border-border-strong"
+            className={`mt-2.5 ${FIELD}`}
           />
-          <div className="mt-3 flex items-center gap-2 text-[12.5px] text-text-3">
-            <span className="h-px flex-1 bg-border" /> {u.or} <span className="h-px flex-1 bg-border" />
-          </div>
+          <OrDivider label={u.or} className="mt-3" />
           <div className="mt-3 grid h-28 place-items-center border border-dashed border-border text-[13px] text-text-3">
             {u.drop}
           </div>

@@ -3,7 +3,7 @@
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
 import { pluralCount } from "@/i18n/format";
-import { useSaved } from "../save/SavedProvider";
+import { useSaveCount } from "../save/SavedProvider";
 import type { Item } from "@/lib/data";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
@@ -17,7 +17,7 @@ import { Code, Layers, Sparkle } from "../ui/icons";
 export function Card({ item, crop }: { item: Item; crop?: number }) {
   const { lang, t } = useI18n();
   /* the catalogue's counts are static; yours is live, so it shows the moment you save */
-  const saves = item.saves + (useSaved().isSaved(item.slug) ? 1 : 0);
+  const saves = useSaveCount(item);
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
 
   return (

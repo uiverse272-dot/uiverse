@@ -1,6 +1,6 @@
 import type { Lang } from "@/i18n/config";
 import type { Dict } from "@/i18n/dict";
-import { fill } from "@/i18n/format";
+import { fill, lower } from "@/i18n/format";
 import { ITEMS } from "@/lib/data";
 import { applyFilters, SCOPES, type Filters, type Scope } from "@/lib/query";
 
@@ -55,7 +55,7 @@ export function landing(g: Goal) {
 export function describe(g: Goal, t: Dict["guide"], lang: Lang) {
   const label = (t.goals[g.id] ?? t.goals.landing)[0];
   const ind = g.industry ? t.industries[g.industry] : undefined;
-  return [lang === "ar" ? label : label.toLowerCase(), ind ? fill(t.forIndustry, { industry: ind }) : null, g.rtl ? t.rtlTag : null]
+  return [lower(label, lang), ind ? fill(t.forIndustry, { industry: ind }) : null, g.rtl ? t.rtlTag : null]
     .filter(Boolean)
     .join(" ");
 }

@@ -1,9 +1,9 @@
-import sharp from "sharp";
-import { shotBytes } from "./shots";
+import { DICTS } from "@/i18n/dict";
+import { cropShot } from "./shots";
 import { ITEMS, type Item } from "./data";
 import { searchItems, applyFilters } from "./query";
 import { buildPrompt, DEFAULT_OPTIONS, STACKS, TOOLS, type StackId, type ToolId } from "./prompt";
-import { BRAND_FONT, colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
+import { colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, COMPONENT_TYPES, INDUSTRIES } from "./taxonomy";
 import type { Viewport } from "./captures";
 
@@ -149,7 +149,7 @@ function search(args: Json, origin: string): ToolResult {
   const { results, terms } = q ? searchItems(q, extra) : { results: applyFilters(ITEMS, extra), terms: [] };
   const real = results.filter((i) => i.capture);
   const items = real.slice(0, limit).map((i) => summary(i, origin));
-  const read = terms.length ? ` (read as: ${terms.map((t) => `${t.dimension} = ${t.label}`).join(", ")})` : "";
+  const read = terms.length ? ` (read as: ${terms.map((t) => `${DICTS.en.search.dimensions[t.param]} = ${t.label}`).join(", ")})` : "";
   const head = `${real.length} match${real.length === 1 ? "" : "es"}${read}; showing ${items.length}.`;
   return text(`${head}\n\n${JSON.stringify(items, null, 2)}`, { total: real.length, results: items });
 }
@@ -176,7 +176,7 @@ function spec(args: Json, origin: string): ToolResult {
     "## Typography",
     "",
     f
-      ? `Headings: ${f.heading}. Body: ${f.body}.${[f.heading, f.body].includes(BRAND_FONT) ? " A brand's own typeface is licensed to it alone — substitute a freely licensed face with similar proportions." : ""}`
+      ? `Headings: ${f.heading}. Body: ${f.body}.${f.branded ? " A brand's own typeface is licensed to it alone — substitute a freely licensed face with similar proportions." : ""}`
       : "",
     "",
     "| Step | Size | Weight | Used for |",
@@ -215,21 +215,14 @@ async function screenshot(args: Json): Promise<ToolResult> {
   const note = vp !== asked ? ` This component couldn't be matched at ${asked} width, so this is the laptop crop.` : "";
 
   const shot = i.capture!.shots[vp];
-  const scale = shot.w / shot.css; // device pixels per CSS pixel
-  const top = crop ? crop.y * shot.docH : 0;
-  const height = Math.min(crop ? crop.h * shot.docH : shot.cssH, maxH, shot.cssH - top);
-  const data = await sharp(await shotBytes(shot.src))
-    .extract({ left: 0, top: Math.round(top * scale), width: shot.w, height: Math.max(1, Math.round(height * scale)) })
-    .resize({ width: Math.min(shot.css, 1200), withoutEnlargement: true })
-    .jpeg({ quality: 72 })
-    .toBuffer();
+  const { jpeg, h, cut } = await cropShot(shot, crop, { maxH, width: Math.min(shot.css, 1200), quality: 72 });
 
   return {
     content: [
-      { type: "image", data: data.toString("base64"), mimeType: "image/jpeg" },
+      { type: "image", data: jpeg.toString("base64"), mimeType: "image/jpeg" },
       {
         type: "text",
-        text: `${i.source.name} — ${i.title}, ${vp} (${shot.css}px wide), ${Math.round(height)}px tall${height < (crop ? crop.h * shot.docH : shot.cssH) ? " (cut at max_height)" : ""}.${note}`,
+        text: `${i.source.name} — ${i.title}, ${vp} (${shot.css}px wide), ${Math.round(h)}px tall${cut ? " (cut at max_height)" : ""}.${note}`,
       },
     ],
   };

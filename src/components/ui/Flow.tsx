@@ -10,12 +10,12 @@ import { useI18n } from "@/i18n/client";
  * the chain follow the paragraph, and the arrow is the one that points along it.
  */
 export function Flow({ text }: { text: string }) {
-  const { lang, t } = useI18n();
+  const { t } = useI18n();
   return (
     <>
       {text.split(/;\s|؛\s/).map((clause, i) => (
         <Fragment key={i}>
-          {i ? (lang === "ar" ? "؛ " : "; ") : null}
+          {i ? t.common.semicolon : null}
           {clause.split(" → ").map((step, j) => (
             <Fragment key={j}>
               {j ? ` ${t.common.arrow} ` : null}

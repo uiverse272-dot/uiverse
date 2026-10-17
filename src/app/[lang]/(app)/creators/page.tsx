@@ -11,8 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t.creators.title };
 }
 
-const ROLE = { Studio: "studio", "Product designer": "product", "Design engineer": "engineer" } as const;
-
 export default async function CreatorsPage() {
   const { lang, t } = await getI18n();
   const c0 = t.creators;
@@ -32,7 +30,7 @@ export default async function CreatorsPage() {
                 <span className="h-9 w-9 shrink-0" style={{ background: work[0]?.palette.accent }} />
                 <div className="min-w-0">
                   <div className="truncate text-[14px] font-semibold">{c.name}</div>
-                  <div className="truncate text-[12px] text-text-3">{c0.roles[ROLE[c.role as keyof typeof ROLE]] ?? c.role}</div>
+                  <div className="truncate text-[12px] text-text-3">{c0.roles[c.role]}</div>
                 </div>
                 {c.available ? (
                   <span className="ms-auto shrink-0 border border-border px-1.5 py-1 text-[10.5px] font-medium text-text-2">

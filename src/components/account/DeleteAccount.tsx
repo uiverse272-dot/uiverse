@@ -5,6 +5,7 @@ import { Link, useI18n } from "@/i18n/client";
 import { localize } from "@/i18n/config";
 import { authClient } from "@/lib/auth-client";
 import * as saves from "../save/store";
+import { FIELD } from "../ui/field";
 
 /**
  * Deleting is two steps and a typed confirmation, because it can't be undone. The server deletes
@@ -59,7 +60,7 @@ export function DeleteAccount({ email }: { email: string }) {
             placeholder={email}
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
-            className="mt-2 h-11 w-full border border-border bg-bg-subtle px-3.5 text-[14px] outline-none placeholder:text-text-3 focus:border-border-strong"
+            className={`mt-2 ${FIELD}`}
           />
           <div className="mt-3 flex flex-wrap gap-2">
             <button

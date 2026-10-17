@@ -1,13 +1,10 @@
 "use client";
 
 import { Link, useI18n, useLocalPath } from "@/i18n/client";
-import type { Dict } from "@/i18n/dict";
 import { ThemeToggle } from "./Theme";
 import { Bookmark, Compass, Grid, Home, Layout, Monitor, Palette, Phone, Upload, User } from "../ui/icons";
 
-type NavKey = keyof Dict["nav"];
-
-const NAV: { href: string; key: NavKey; Icon: (p: { size?: number }) => React.ReactNode }[] = [
+const NAV = [
   { href: "/", key: "home", Icon: Home },
   { href: "/explore", key: "explore", Icon: Compass },
   { href: "/web", key: "web", Icon: Monitor },
@@ -16,12 +13,12 @@ const NAV: { href: string; key: NavKey; Icon: (p: { size?: number }) => React.Re
   { href: "/layouts", key: "layouts", Icon: Layout },
   { href: "/palettes", key: "palettes", Icon: Palette },
   { href: "/saved", key: "saved", Icon: Bookmark },
-];
+] as const;
 
-const FOOT: typeof NAV = [
+const FOOT = [
   { href: "/upload", key: "upload", Icon: Upload },
   { href: "/u/me", key: "profile", Icon: User },
-];
+] as const;
 
 /** The U cradling a planet: UI + universe. Same drawing as app/icon.svg. */
 export function LogoMark({ size = 32, className }: { size?: number; className?: string }) {
@@ -66,12 +63,12 @@ export function Sidebar() {
           screens (~730px) the rail tightens so all eight items fit without scrolling */}
       <nav className="scroll-x flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-y-auto py-4 [@media(max-height:820px)]:gap-0 [@media(max-height:820px)]:py-1">
         {NAV.map((n) => (
-          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key] as string} on={active(n.href)} />
+          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key]} on={active(n.href)} />
         ))}
       </nav>
       <div className="flex flex-col gap-1 py-4 [@media(max-height:820px)]:gap-0 [@media(max-height:820px)]:py-1">
         {FOOT.map((n) => (
-          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key] as string} on={active(n.href)} />
+          <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key]} on={active(n.href)} />
         ))}
         <ThemeToggle rail />
       </div>

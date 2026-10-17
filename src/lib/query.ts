@@ -1,5 +1,4 @@
 import type { Lang } from "@/i18n/config";
-import { DICTS } from "@/i18n/dict";
 import { ITEMS, type Item } from "./data";
 import { CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES, COMPONENT_TYPES, PLATFORMS, name, type Term } from "./taxonomy";
 
@@ -79,6 +78,10 @@ const textOf = (i: Item) =>
     .toLowerCase()
     .normalize("NFC");
 
+/* the catalogue is static, so each item's normalized search text is built once, not per query */
+const TEXT = new Map(ITEMS.map((i) => [i, arNorm(textOf(i))]));
+const searchText = (i: Item) => TEXT.get(i) ?? arNorm(textOf(i));
+
 export function applyFilters(items: Item[], f: Filters): Item[] {
   let out = items;
   if (f.kind) out = out.filter((i) => i.kind === f.kind);
@@ -98,7 +101,7 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   if (f.q) {
     const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean).map(arNorm);
     out = out.filter((i) => {
-      const t = arNorm(textOf(i));
+      const t = searchText(i);
       return terms.every((term) => t.includes(term));
     });
   }
@@ -143,7 +146,12 @@ function spread(sorted: Item[], score: (i: Item) => number, window = 40) {
 /* ------------------------------------------------------------------ */
 
 /** `word` is what the user typed — a synonym like "banking", or a phrase like "real estate" — so removing the chip can remove it. */
-export type ParsedTerm = { dimension: string; label: string; param: string; value: string; word: string };
+/**
+ * `param` doubles as the dimension: the caller labels it from its own dictionary
+ * (t.search.dimensions[param]) — the parser runs in the browser and mustn't pull in every language.
+ */
+export type Dimension = "category" | "component" | "industry" | "style" | "tech" | "platform";
+export type ParsedTerm = { label: string; param: Dimension; value: string; word: string };
 
 const SYNONYMS: Record<string, string> = {
   landing: "landing-page", homepage: "landing-page", marketing: "landing-page",
@@ -204,7 +212,7 @@ export function arNorm(s: string) {
 
 /* `values` holds what the index actually contains, so a word never parses into a filter that matches
    nothing — "saas" is both a Type and an Industry, and only the Industry has items. */
-const TERMS: { list: readonly Term[]; param: keyof (typeof DICTS)["en"]["search"]["dimensions"]; values: Set<string> }[] = [
+const TERMS: { list: readonly Term[]; param: Dimension; values: Set<string> }[] = [
   { list: CATEGORIES, param: "category", values: new Set(ITEMS.map((i) => i.category)) },
   { list: COMPONENT_TYPES, param: "component", values: new Set(ITEMS.map((i) => i.componentType ?? "")) },
   { list: INDUSTRIES, param: "industry", values: new Set(ITEMS.map((i) => i.industry)) },
@@ -212,6 +220,10 @@ const TERMS: { list: readonly Term[]; param: keyof (typeof DICTS)["en"]["search"
   { list: TECHNOLOGIES, param: "tech", values: new Set(ITEMS.flatMap((i) => i.tech)) },
   { list: PLATFORMS, param: "platform", values: new Set(ITEMS.map((i) => i.platform)) },
 ];
+
+/* Arabic taxonomy names, normalized once instead of on every candidate phrase of every keystroke */
+const AR = new Map<string, string>();
+const arOf = (name: string) => AR.get(name) ?? AR.set(name, arNorm(name)).get(name)!;
 
 /** Understands English and Arabic whatever the page language; `lang` only picks the chip labels. */
 export function parseQuery(q: string, lang: Lang = "en"): { terms: ParsedTerm[]; residual: string } {
@@ -230,7 +242,7 @@ export function parseQuery(q: string, lang: Lang = "en"): { terms: ParsedTerm[];
     for (const d of TERMS) {
       if (taken.has(d.param)) continue;
       const hit = d.list.find(
-        (t) => (t.slug === slug || t.name.toLowerCase() === norm || (t.ar !== undefined && arNorm(t.ar) === ar)) && d.values.has(t.slug),
+        (t) => (t.slug === slug || t.name.toLowerCase() === norm || (t.ar !== undefined && arOf(t.ar) === ar)) && d.values.has(t.slug),
       );
       if (hit) return { d, hit };
     }
@@ -245,7 +257,6 @@ export function parseQuery(q: string, lang: Lang = "en"): { terms: ParsedTerm[];
       const m = match(phrase);
       if (!m) continue;
       terms.push({
-        dimension: DICTS[lang].search.dimensions[m.d.param],
         label: name(m.d.list, m.hit.slug, lang),
         param: m.d.param,
         value: m.hit.slug,
@@ -272,11 +283,12 @@ export function searchItems(q: string, extra: Filters = {}, lang: Lang = "en") {
   let results = applyFilters(ITEMS, { ...f, q: undefined });
   if (residual) {
     const rt = residual.split(/\s+/).filter(Boolean).map(arNorm);
-    const narrowed = results.filter((i) => rt.every((term) => arNorm(textOf(i)).includes(term)));
+    const narrowed = results.filter((i) => rt.every((term) => searchText(i).includes(term)));
     /* residual is a recall booster, not a hard gate — fall back if it kills everything */
     if (narrowed.length > 0) results = narrowed;
   }
-  return { results: sortItems(results, extra.sort), terms, residual };
+  /* already sorted by applyFilters (extra.sort rides along in f); narrowing keeps the order */
+  return { results, terms, residual };
 }
 
 export function facetCounts(items: Item[], key: "industry" | "style" | "category") {

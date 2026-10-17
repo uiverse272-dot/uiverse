@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ITEMS, bySlug, compact } from "@/lib/data";
+import { ITEMS, bySlug } from "@/lib/data";
 import { responsiveRules } from "@/lib/spec";
 import { localize, stripLang } from "./config";
 import { blockLabel, itemTitle, ruleText, sourceAbout } from "./content";
@@ -24,8 +24,9 @@ describe("plural", () => {
 });
 
 describe("numbers", () => {
-  it("keeps English exactly as lib/data compact() always did", () => {
-    for (const n of [0, 7, 999, 1000, 2140, 9999, 10000, 48210, 1_250_000]) expect(compactNum(n, "en")).toBe(compact(n));
+  it("compacts English with k and M", () => {
+    const want = { 0: "0", 7: "7", 999: "999", 1000: "1.0k", 2140: "2.1k", 9999: "10.0k", 10000: "10k", 48210: "48k", 1_250_000: "1.3M" };
+    for (const [n, s] of Object.entries(want)) expect(compactNum(Number(n), "en")).toBe(s);
   });
 
   it("writes Arabic with the unit, Latin digits", () => {

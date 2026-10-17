@@ -31,7 +31,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
               providers={providers()}
               next={next}
               errorUrl={href("/sign-in?error=link")}
-              linkError={sp.error === "link" || typeof sp.error === "string"}
+              linkError={typeof sp.error === "string"}
             />
           ) : (
             <p className="border border-border bg-surface p-5 text-[14px] text-text-2">{t.auth.off}</p>

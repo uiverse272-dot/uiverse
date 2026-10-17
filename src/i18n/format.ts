@@ -1,3 +1,4 @@
+import { Fragment, createElement, type ReactNode } from "react";
 import type { Lang } from "./config";
 
 /**
@@ -19,6 +20,13 @@ export const an = (w: string) => `${/^[aeiou]/i.test(w) || /^[FHLMNRSX][A-Z]/.te
 export const fill = (s: string, vars: Record<string, string | number> = {}) =>
   s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
 
+/** `fill` for markup: "Signed in as {email}" + { email: <bdi>…</bdi> } */
+export const fillNodes = (s: string, vars: Record<string, ReactNode>): ReactNode[] =>
+  s.split(/\{(\w+)\}/).map((part, i) => createElement(Fragment, { key: i }, i % 2 ? (part in vars ? vars[part] : `{${part}}`) : part));
+
+/** A label mid-sentence: lowercased in English, left alone in Arabic (which has no case, but may hold a Latin name) */
+export const lower = (s: string, lang: Lang) => (lang === "ar" ? s : s.toLowerCase());
+
 /* CLDR plural rules, integers only */
 function form(n: number, lang: Lang): keyof Plural {
   if (lang === "en") return n === 1 ? "one" : "other";
@@ -36,7 +44,7 @@ export const plural = (p: Plural, n: number, lang: Lang, vars: Record<string, st
 
 export const num = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-/** 2140 → "2.1k" / "2.1 ألف" — the English form is the one lib/data's compact() always produced */
+/** 2140 → "2.1k" / "2.1 ألف" — "k" and "M" in English */
 export function compactNum(n: number, lang: Lang) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}${lang === "ar" ? " مليون" : "M"}`;
   if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}${lang === "ar" ? " ألف" : "k"}`;
