@@ -453,12 +453,12 @@ const ar: Dict = {
         "الانسحاب إدخال واحد لكل نطاق ويشمل نطاقاته الفرعية. ويمنع أيضًا التقاط النطاق مجددًا، فلا يعود مع الزحف التالي.",
       ],
     },
-    /* [text](/path) in a paragraph renders as a link. [CONTACT EMAIL] is a placeholder for the owner to fill in */
+    /* [text](/path) or [text](mailto:…) in a paragraph renders as a link */
     privacy: {
       title: "سياسة الخصوصية",
       updated: "آخر تحديث: 17 أكتوبر 2026",
       body: [
-        "يمكنك تصفّح Uiverse دون حساب. توضّح هذه الصفحة ما نحتفظ به حين تسجّل الدخول أو تراسلنا، وأين يُحفظ، وكيف تحذفه. للأسئلة المتعلقة ببياناتك: [CONTACT EMAIL].",
+        "يمكنك تصفّح Uiverse دون حساب. توضّح هذه الصفحة ما نحتفظ به حين تسجّل الدخول أو تراسلنا، وأين يُحفظ، وكيف تحذفه. للأسئلة المتعلقة ببياناتك: [info@uiverse.tech](mailto:info@uiverse.tech).",
       ],
       sections: [
         {

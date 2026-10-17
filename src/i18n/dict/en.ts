@@ -450,12 +450,12 @@ const en = {
         "Opt-out is one entry per domain and covers its subdomains. It also stops the domain being captured again, so it doesn't come back with the next crawl.",
       ],
     },
-    /* [text](/path) in a paragraph renders as a link. [CONTACT EMAIL] is a placeholder for the owner to fill in */
+    /* [text](/path) or [text](mailto:…) in a paragraph renders as a link */
     privacy: {
       title: "Privacy policy",
       updated: "Last updated 17 October 2026",
       body: [
-        "You can browse Uiverse without an account. This page covers what we keep when you sign in or write to us, where it goes, and how to delete it. Questions about your data: [CONTACT EMAIL].",
+        "You can browse Uiverse without an account. This page covers what we keep when you sign in or write to us, where it goes, and how to delete it. Questions about your data: [info@uiverse.tech](mailto:info@uiverse.tech).",
       ],
       sections: [
         {
