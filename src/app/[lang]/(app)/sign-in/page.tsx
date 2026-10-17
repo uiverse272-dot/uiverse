@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/account/SignInForm";
 import { PageHeader, Shell } from "@/components/feed/Section";
+import { Rich } from "@/components/legal/Rich";
 import { getI18n } from "@/i18n/server";
 import { currentUser, getAuth, providers } from "@/lib/auth";
 
@@ -36,6 +37,11 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           ) : (
             <p className="border border-border bg-surface p-5 text-[14px] text-text-2">{t.auth.off}</p>
           )}
+          {enabled ? (
+            <p className="mt-4 text-[12.5px] leading-relaxed text-text-3">
+              <Rich text={t.legal.signInNote} />
+            </p>
+          ) : null}
         </div>
       </div>
     </Shell>

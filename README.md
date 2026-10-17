@@ -60,7 +60,7 @@ capture pipeline and an MCP server over what it captured.
 | `/search` | Dictionary-first NL parsing with the interpretation shown as removable chips |
 | Prompt generator | On any screen or component: 7 target tools x 5 stacks, built from the Breakdown data |
 | `/saved` | One-click saves, collections, `Move to…` toast |
-| `/layouts`, `/palettes`, `/3d`, `/creators` | Derived-content sections |
+| `/layouts`, `/palettes`, `/3d` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
 | `/legal/takedown` | Opt-out form → webhook / email with a reference; `--opt-out` removes the domain everywhere and blocks recapture (`src/content/optout.json`) |
 | Guide | First-visit coach: pick a goal, industry and RTL, land on a feed with results, then walk open → Breakdown → Prompt → save |

@@ -14,6 +14,7 @@ const en = {
   },
   common: {
     /* list separators — Arabic has its own comma and semicolon */
+    sample: "Sample design",
     comma: ", ",
     semicolon: "; ",
     close: "Close",
@@ -47,7 +48,6 @@ const en = {
     search: "Search",
     more: "More",
     threeD: "3D",
-    creators: "Creators",
     pricing: "Pricing",
     takeGuide: "Take the guide",
     logoHome: "Uiverse home",
@@ -80,7 +80,7 @@ const en = {
   filters: {
     code: "Code",
     rtl: "RTL",
-    trending: "Trending",
+    featured: "Featured",
     type: "Type",
     industry: "Industry",
     style: "Style",
@@ -100,7 +100,6 @@ const en = {
   },
   card: {
     component: "component",
-    saves: { one: "{n} save", other: "{n} saves" } as Plural,
     code: "Code available",
     threeD: "3D / WebGL",
     componentBadge: "Component",
@@ -110,12 +109,11 @@ const en = {
     h1: "Uiverse — discover interfaces worth building",
     categories: "Categories",
     captured: "Captured from the live web",
-    popular: "Popular this week",
+    featured: "Featured",
     recommended: "Recommended for you",
     filtered: "{label} · {results}",
     chips: {
       forYou: "For You",
-      trending: "Trending",
       new: "New",
       web: "Web",
       mobile: "Mobile",
@@ -137,7 +135,7 @@ const en = {
     showDetails: "Show details",
     hide: "Hide pick of the week",
     openBreakdown: "Open breakdown",
-    rows: { saves: "Saves", type: "Type", industry: "Industry", style: "Style", stack: "Stack", captured: "Captured" },
+    rows: { type: "Type", industry: "Industry", style: "Style", stack: "Stack", captured: "Captured" },
   },
   explore: {
     title: "Explore",
@@ -173,7 +171,8 @@ const en = {
     device: "Device",
     viewports: { desktop: "Laptop", tablet: "Tablet", mobile: "Mobile" },
     capturedLive: "Captured {date} from the live site",
-    capturedAgo: "Captured {ago} · {views} views",
+    /* in place of a capture date: sample designs were never captured */
+    sampleDesign: "Sample design, not captured from a live site",
     realCapture: "real capture at this width",
     original: "original design",
     adaptedFrom: "adapted from the {vp} design",
@@ -181,7 +180,7 @@ const en = {
     openLive: "Open live site",
     wouldOpen: "This would open {domain}",
     actions: { prompt: "Prompt", code: "Code", breakdown: "Breakdown" },
-    meta: { type: "Type", industry: "Industry", style: "Style", platform: "Platform", stack: "Stack", direction: "Direction", saves: "Saves" },
+    meta: { type: "Type", industry: "Industry", style: "Style", platform: "Platform", stack: "Stack", direction: "Direction" },
     web: "Web",
     rtl: "Right-to-left",
     ltr: "Left-to-right",
@@ -343,7 +342,6 @@ const en = {
   },
   source: {
     description: "{about} Every captured screen and component.",
-    savesAcross: "{saves} saves across {items}",
     items: { one: "{n} item", other: "{n} items" } as Plural,
     screens: "Screens",
     components: "Components",
@@ -407,7 +405,6 @@ const en = {
   layouts: {
     title: "Layouts",
     sub: "The structure behind a page, separated from its styling. Every layout here was derived from the section order of a real capture — plan the shape first, choose components after.",
-    uses: { one: "{n} use", other: "{n} uses" } as Plural,
     duplicate: "Duplicate",
     builder: "Open in builder",
     footnote: "Duplicating layouts and the layout builder are coming soon.",
@@ -422,14 +419,6 @@ const en = {
   threeD: {
     title: "3D & motion",
     sub: "Scenes, WebGL heroes and interactive elements.",
-  },
-  creators: {
-    title: "Creators",
-    sub: "The studios and designers behind the interfaces here.",
-    available: "Available",
-    screens: { one: "{n} screen", other: "{n} screens" } as Plural,
-    followers: "{n} followers",
-    roles: { studio: "Studio", product: "Product designer", engineer: "Design engineer" },
   },
   profile: {
     title: "Your profile",
@@ -458,6 +447,79 @@ const en = {
         "Opt-out is one entry per domain and covers its subdomains. It also stops the domain being captured again, so it doesn't come back with the next crawl.",
       ],
     },
+    /* [text](/path) in a paragraph renders as a link. [CONTACT EMAIL] is a placeholder for the owner to fill in */
+    privacy: {
+      title: "Privacy policy",
+      updated: "Last updated 17 October 2026",
+      body: [
+        "You can browse Uiverse without an account. This page covers what we keep when you sign in or write to us, where it goes, and how to delete it. Questions about your data: [CONTACT EMAIL].",
+      ],
+      sections: [
+        {
+          h: "No tracking",
+          body: [
+            "There are no analytics, no ads and no third-party trackers here. Like any website, our host receives your IP address and browser details with each request in order to serve the page.",
+          ],
+        },
+        {
+          h: "Your account",
+          body: [
+            "Signing in needs only an email address: we email you a one-time link instead of asking for a password. Each link works once, expires after 5 minutes, and is deleted when used.",
+            "Where Google or GitHub sign-in is offered and you choose it, that service shares your name, email address and profile picture link with us. We store them with your account, along with the account ID and sign-in tokens it issues.",
+            "For each signed-in session we store when it expires, and the IP address and browser (user agent) it started from.",
+            "Your saves and collections are stored with your account so they follow you to every device.",
+          ],
+        },
+        {
+          h: "Email",
+          body: [
+            "Sign-in links are sent through Resend, an email delivery service. We don't send newsletters or marketing email.",
+          ],
+        },
+        {
+          h: "Takedown requests",
+          body: [
+            "The [takedown form](/legal/takedown) asks for your name, email address, whether you run the site or act for whoever does, and any details you add. It isn't stored in our database: it's delivered to us by email (through Resend), to a private team chat, or both, so we can act on it and reply.",
+          ],
+        },
+        {
+          h: "Where it's kept",
+          body: [
+            "The site is hosted on Vercel. Accounts, sessions, saves and pending sign-in links are kept in a Postgres database run by Supabase. These services, and Resend, process data for us to run the site; we don't sell it or share it with anyone else.",
+          ],
+        },
+        {
+          h: "In your browser",
+          body: [
+            "Cookies: one that keeps you signed in (only once you sign in), a short-lived one while you sign in with Google or GitHub, uiv.lang for the language you switched to, and uiv.cols for the number of feed columns you picked. All are ours; none follow you to other sites.",
+            "Local storage keeps your saves while you're signed out (and, signed in, a copy of your account's saves so pages paint quickly), the getting-started guide's progress, your light or dark theme, and how many prompts you've generated this month. It stays on your device; clearing this site's data removes it.",
+          ],
+        },
+        {
+          h: "Abuse limits",
+          body: [
+            "Sign-in, takedown requests and the agent API (/api/mcp) count requests per IP address to stop abuse. Those counts are held briefly in server memory and never written to the database.",
+          ],
+        },
+        {
+          h: "Deleting your data",
+          body: [
+            "You can delete your account from your [profile page](/u/me). That removes your account, any linked Google or GitHub login, your sessions, saves, collections and unused sign-in links from our database, straight away. The copies in that browser are cleared too.",
+          ],
+        },
+        {
+          h: "Websites shown here",
+          body: [
+            "Uiverse shows screenshots of public websites. If you run one of them, you can have everything from your domain removed, and kept out of future captures, through the [takedown page](/legal/takedown).",
+          ],
+        },
+        {
+          h: "Changes",
+          body: ["If this policy changes, we'll update this page and the date at the top."],
+        },
+      ],
+    },
+    signInNote: "We use your email only to sign you in. [Privacy policy](/legal/privacy)",
   },
   takedown: {
     domain: "Domain to remove",
@@ -524,6 +586,12 @@ const en = {
   notFound: {
     title: "Not found",
     body: "That page doesn't exist.",
+    back: "Back to the feed",
+  },
+  error: {
+    title: "Something went wrong",
+    body: "This page hit an error. Try again, or head back to the feed.",
+    retry: "Try again",
     back: "Back to the feed",
   },
 };

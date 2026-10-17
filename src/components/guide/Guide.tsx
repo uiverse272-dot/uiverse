@@ -9,6 +9,7 @@ import { useFocusTrap } from "../ui/useFocusTrap";
 import { Check, Close, Sparkle } from "../ui/icons";
 import { onGuideEvent, onGuideStart, type GuideEvent } from "./events";
 import { describe, GOALS, GUIDE_INDUSTRIES, landing, type Goal } from "./goals";
+import { parseState, type State } from "./state";
 
 /**
  * First-visit guide. It asks what you're building, lands you on real interfaces for it, then
@@ -53,14 +54,12 @@ const STEPS: Step[] = [
   },
 ];
 
-type State = { status: "welcome" | "active" | "finished" | "off"; step: number; goal?: Goal };
 const KEY = "uiv.guide";
 const isDetail = (p: string) => /^\/(screen|component)\//.test(p);
 
 function load(): State | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as State) : null;
+    return parseState(localStorage.getItem(KEY), STEPS.length);
   } catch {
     return null;
   }

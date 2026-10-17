@@ -160,7 +160,7 @@ export function FilterBar({
 
       {sorts ? (
         <div className="ms-auto flex items-center gap-2 ps-2">
-          <Popover label={t.filters.trending} value={sorts.find((s) => s.slug === sort)?.name}>
+          <Popover label={t.filters.featured} value={sorts.find((s) => s.slug === sort)?.name}>
             {(close) => (
               <>
                 {sorts.map((s) => (

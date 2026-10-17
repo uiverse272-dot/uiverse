@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/client";
-import { compactNum, fill } from "@/i18n/format";
+import { fill } from "@/i18n/format";
 import { alternates, getI18n } from "@/i18n/server";
 import { PALETTE_ITEMS } from "@/lib/data";
 import { CopyValue } from "@/components/detail/CopyValue";
@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PalettesPage() {
-  const { lang, t } = await getI18n();
+  const { t } = await getI18n();
   return (
     <Shell>
       <PageHeader title={t.palettes.title} sub={t.palettes.sub} />
@@ -33,10 +33,7 @@ export default async function PalettesPage() {
                 ))}
               </div>
               <div className="p-3.5">
-                <div className="flex items-baseline justify-between">
-                  <bdi className="text-[14px] font-semibold">{p.palette.name}</bdi>
-                  <span className="text-[11.5px] text-text-3 tabular-nums">{compactNum(p.saves, lang)}</span>
-                </div>
+                <bdi className="block text-[14px] font-semibold">{p.palette.name}</bdi>
                 <Link
                   href={`/source/${p.source.slug}`}
                   className="mt-1 block text-[12px] text-text-3 hover:text-text"

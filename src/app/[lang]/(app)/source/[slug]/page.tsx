@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/client";
 import { blockLabel, sourceAbout } from "@/i18n/content";
-import { compactNum, fill, plural } from "@/i18n/format";
+import { fill, plural } from "@/i18n/format";
 import { alternates, getI18n } from "@/i18n/server";
 import { ITEMS, SOURCES } from "@/lib/data";
 import { browseLink, type Scope } from "@/lib/query";
@@ -81,10 +81,7 @@ export default async function SourcePage({
               ))}
               <span className="text-text-3">
                 ·{" "}
-                {fill(t.source.savesAcross, {
-                  saves: compactNum(all.reduce((a, b) => a + b.saves, 0), lang),
-                  items: plural(t.source.items, all.length, lang),
-                })}
+                {plural(t.source.items, all.length, lang)}
               </span>
               {all.some((i) => i.capture) ? (
                 <Link

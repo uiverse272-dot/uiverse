@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle, sourceAbout } from "@/i18n/content";
-import { compactNum, timeAgo } from "@/i18n/format";
+import { timeAgo } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
-import { useSaveCount } from "../save/SavedProvider";
 import { Chevron, Close, Sparkle } from "../ui/icons";
 
 type Mode = "tab" | "card" | "open";
@@ -20,7 +19,6 @@ type Mode = "tab" | "card" | "open";
  */
 export function Featured({ item }: { item: Item }) {
   const { lang, t } = useI18n();
-  const saves = useSaveCount(item);
   /* starts folded and stays that way until asked: unfolding by itself, it covered the feed's
      save buttons a moment after the page loaded */
   const [mode, setMode] = useState<Mode>("tab");
@@ -48,12 +46,11 @@ export function Featured({ item }: { item: Item }) {
 
   const r = t.featured.rows;
   const rows: [string, string][] = [
-    [r.saves, compactNum(saves, lang)],
     [r.type, name(CATEGORIES, item.category, lang)],
     [r.industry, name(INDUSTRIES, item.industry, lang)],
     [r.style, name(STYLES, item.style, lang)],
     [r.stack, item.tech.map((x) => name(TECHNOLOGIES, x)).join(", ")],
-    [r.captured, timeAgo(item.daysAgo, lang)],
+    [r.captured, item.capture ? timeAgo(item.daysAgo, lang) : t.common.sample],
   ];
   const open = mode === "open";
 

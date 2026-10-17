@@ -4,7 +4,6 @@ import { MockScreen } from "@/components/mock/MockScreen";
 import { PageHeader, Shell } from "@/components/feed/Section";
 import { Link } from "@/i18n/client";
 import { blockLabel, layoutName } from "@/i18n/content";
-import { plural } from "@/i18n/format";
 import { alternates, getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,10 +21,7 @@ export default async function LayoutsPage() {
       <div className="grid gap-4 py-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {LAYOUTS.map((l) => (
           <div key={l.slug} className="border border-border bg-surface p-4">
-            <div className="flex items-baseline justify-between pb-3">
-              <h3 className="text-[14px] font-semibold tracking-[-0.015em]">{layoutName(l.example.archetype, l.name, lang)}</h3>
-              <span className="text-[11.5px] text-text-3 tabular-nums">{plural(t.layouts.uses, l.uses, lang)}</span>
-            </div>
+            <h3 className="pb-3 text-[14px] font-semibold tracking-[-0.015em]">{layoutName(l.example.archetype, l.name, lang)}</h3>
             <div className="flex gap-3">
               <div className="w-20 shrink-0 space-y-1">
                 {l.sections.map((s, i) => (

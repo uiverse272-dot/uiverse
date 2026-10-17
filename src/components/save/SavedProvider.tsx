@@ -128,15 +128,6 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   return <SavedCtx.Provider value={value}>{children}</SavedCtx.Provider>;
 }
 
-/**
- * An item's save count with your own save in it. It subscribes to that one item's answer, so a
- * save re-renders only the cards whose count changed — not everything that reads the context.
- */
-export function useSaveCount(item: { slug: string; saves: number }) {
-  const mine = useSyncExternalStore(store.subscribe, () => store.isSaved(item.slug), () => false);
-  return item.saves + (mine ? 1 : 0);
-}
-
 export function useSaved() {
   const ctx = useContext(SavedCtx);
   if (!ctx) throw new Error("useSaved must be used inside SavedProvider");

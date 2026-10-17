@@ -2,7 +2,7 @@
 
 /*
  * A client boundary on purpose. From a server page, a preview's whole element tree would be
- * serialised into the RSC payload as well as the HTML — ~2.6 MB on /creators. As a client
+ * serialised into the RSC payload as well as the HTML — ~2.6 MB on a page of previews. As a client
  * component only the item's props travel; the HTML is still server-rendered.
  */
 import type { ComponentType, CSSProperties } from "react";

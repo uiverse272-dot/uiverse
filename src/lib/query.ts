@@ -108,18 +108,15 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   return sortItems(out, f.sort);
 }
 
-export function sortItems(items: Item[], sort = "trending") {
-  const score: (i: Item) => number =
-    sort === "new" ? (i) => -i.daysAgo
-    : sort === "saved" ? (i) => i.saves
-    : sort === "views" ? (i) => i.views
-    : (i) => i.saves / (i.daysAgo + 12);
+/** "new", else Featured: the catalogue's fixed weight, eased by age. Unknown sorts (old links to "trending", "saved", "views") get Featured. */
+export function sortItems(items: Item[], sort = "featured") {
+  const score: (i: Item) => number = sort === "new" ? (i) => -i.daysAgo : (i) => i.weight / (i.daysAgo + 12);
   return spread([...items].sort((a, b) => score(b) - score(a)), score);
 }
 
 /**
  * Among items that tie on score, don't run one source's items back to back. Real captures all
- * start at zero saves, so without this a fresh batch lists every crop of one site, then the next.
+ * start at zero weight, so without this a fresh batch lists every crop of one site, then the next.
  */
 function spread(sorted: Item[], score: (i: Item) => number, window = 40) {
   const rest = [...sorted];

@@ -13,7 +13,6 @@ import { SectionHead } from "@/components/feed/Section";
 
 const CHIPS: { key: keyof Dict["home"]["chips"]; value?: string; filters: Filters }[] = [
   { key: "forYou", filters: {} },
-  { key: "trending", value: "trending", filters: { sort: "trending" } },
   { key: "new", value: "new", filters: { sort: "new" } },
   { key: "web", value: "web", filters: { platform: "web", kind: "screen" } },
   { key: "mobile", value: "mobile", filters: { device: "mobile" } },
@@ -47,11 +46,11 @@ export default async function HomePage({
   const filtered = applyFilters(ITEMS, active.filters);
   const items = active.value === "components" ? filtered : mixFeed(filtered);
 
-  const trending = sortItems(ITEMS.filter((i) => i.kind === "screen"), "trending");
-  const popular = trending.slice(0, 6);
-  const pick = trending.find((i) => i.device === "desktop") ?? trending[0];
+  const top = sortItems(ITEMS.filter((i) => i.kind === "screen"));
+  const featured = top.slice(0, 6);
+  const pick = top.find((i) => i.device === "desktop") ?? top[0];
   const browsing = !active.value;
-  /* real captures from the live web — newest first, until there are enough to rank by saves */
+  /* real captures from the live web, newest first */
   const captured = sortItems(ITEMS.filter((i) => i.capture && i.kind === "screen"), "new").slice(0, 6);
 
   return (
@@ -77,9 +76,9 @@ export default async function HomePage({
 
         {browsing ? (
           <section className="mt-9">
-            <SectionHead title={t.home.popular} href="/web?sort=trending" more={t.common.more} />
+            <SectionHead title={t.home.featured} href="/web" more={t.common.more} />
             <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-6">
-              {popular.map((i) => (
+              {featured.map((i) => (
                 <Card key={i.slug} item={i} crop={3 / 4} />
               ))}
             </div>

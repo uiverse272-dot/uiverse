@@ -14,7 +14,6 @@ import { Bookmark, Chevron, User } from "../ui/icons";
 
 const MORE = [
   { href: "/3d", key: "threeD" },
-  { href: "/creators", key: "creators" },
   { href: "/pricing", key: "pricing" },
   { href: "/upload", key: "upload" },
 ] as const;
@@ -52,7 +51,7 @@ export function Navbar() {
 
       <LangSwitch className="hidden items-center border-s border-border px-5 text-[13px] transition-colors hover:bg-bg-subtle md:flex" />
 
-      {/* from md: tablets have the rail but not 3D, Creators or Pricing — this menu is their only way in */}
+      {/* from md: tablets have the rail but not 3D or Pricing — this menu is their only way in */}
       <div className="relative hidden border-s border-border md:block" ref={moreRef}>
         <button
           onClick={() => setMoreOpen((o) => !o)}

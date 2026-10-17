@@ -7,7 +7,7 @@ import { SITE_URL } from "@/lib/site";
 /* the sections, then every real capture and its source. Procedural items are noindex (detail/load.ts) */
 const SECTIONS = ["/", "/explore", "/web", "/apps", "/components", "/layouts", "/palettes", "/pricing"];
 /* the documents in dict legal.* */
-const LEGAL = ["/legal/attribution", "/legal/takedown"];
+const LEGAL = ["/legal/attribution", "/legal/takedown", "/legal/privacy"];
 
 const abs = (p: string) => (/^https?:\/\//.test(p) ? p : SITE_URL + p);
 

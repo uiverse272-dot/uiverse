@@ -107,10 +107,8 @@ export const APP_CATEGORIES = [
 ] as const;
 
 export const SORTS = [
-  { slug: "trending", name: "Trending", ar: "الأكثر رواجًا" },
+  { slug: "featured", name: "Featured", ar: "مختارات" },
   { slug: "new", name: "Newest", ar: "الأحدث" },
-  { slug: "saved", name: "Most saved", ar: "الأكثر حفظًا" },
-  { slug: "views", name: "Most viewed", ar: "الأكثر مشاهدة" },
 ] as const;
 
 export type Term = { slug: string; name: string; ar?: string };

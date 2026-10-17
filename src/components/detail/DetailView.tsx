@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { blockLabel, itemTitle, ruleText, sourceAbout } from "@/i18n/content";
-import { an, compactNum, fill, fillNodes, lower, plural, timeAgo } from "@/i18n/format";
+import { an, fill, fillNodes, lower, plural } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
 import { SCOPES } from "@/lib/query";
@@ -11,7 +11,6 @@ import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
-import { useSaveCount } from "../save/SavedProvider";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
@@ -34,7 +33,6 @@ export function DetailView({
   presentation?: "page" | "overlay";
 }) {
   const { lang, t } = useI18n();
-  const saves = useSaveCount(item);
   const [tab, setTab] = useState<Tab>("overview");
   const [promptOpen, setPromptOpen] = useState(false);
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
@@ -100,7 +98,7 @@ export function DetailView({
                       </bdi>
                     ),
                   })
-                : fill(t.detail.capturedAgo, { ago: timeAgo(item.daysAgo, lang), views: compactNum(item.views, lang) })}
+                : t.detail.sampleDesign}
             </span>
           </div>
 
@@ -204,7 +202,6 @@ export function DetailView({
             {item.capture ? (
               <Meta label={t.detail.meta.direction} value={item.capture.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
             ) : null}
-            <Meta label={t.detail.meta.saves} value={compactNum(saves, lang)} />
           </dl>
 
           <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{sourceAbout(item.source, lang)}</p>

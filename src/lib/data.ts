@@ -57,8 +57,8 @@ export type Item = {
   tier: "free" | "premium";
   responsive: boolean;
   has3d: boolean;
-  saves: number;
-  views: number;
+  /** orders the default (Featured) feed. A fixed seed, not usage — never display it */
+  weight: number;
   daysAgo: number;
   colors: string[];
   /** present when the item is a real capture rather than a procedural preview */
@@ -388,8 +388,7 @@ function buildItems(): Item[] {
       tier: i % 7 === 0 ? "premium" : "free",
       responsive: true, // every design renders at laptop, tablet and mobile
       has3d: ["substrate", "tidal", "nimbus", "umbra"].includes(srcSlug) && archetype === "saas-landing",
-      saves: rnd(slug + "sv", 40, 4200),
-      views: rnd(slug + "vw", 900, 92000),
+      weight: rnd(slug + "sv", 40, 4200),
       daysAgo: rnd(slug + "dt", 1, 240),
       colors: [pal.bg, pal.surface, pal.accent, pal.text, pal.muted],
     };
@@ -417,8 +416,7 @@ function buildItems(): Item[] {
         aspect: mobile ? 0.9 : b.type === "footer" || b.type === "navbar" ? 3.2 : 1.55,
         blocks: [b],
         hasCode: (i + bi) % 3 === 0,
-        saves: rnd(cslug + "sv", 20, 2600),
-        views: rnd(cslug + "vw", 400, 40000),
+        weight: rnd(cslug + "sv", 20, 2600),
         daysAgo: rnd(cslug + "dt", 1, 240),
       });
     });
@@ -453,7 +451,6 @@ export const LAYOUTS = Array.from(
       .replace(/\b\w/g, (c) => c.toUpperCase()),
   sections: s.blocks,
   example: s,
-  uses: rnd(s.archetype + "use", 8, 340),
 }));
 
 export const PALETTE_ITEMS = Array.from(
@@ -463,16 +460,6 @@ export const PALETTE_ITEMS = Array.from(
   palette: s.palette,
   source: s.source,
   example: s,
-  saves: rnd(s.palette.key + "sv", 60, 1800),
 }));
 
-export const CREATORS = SOURCES.map((s, i) => ({
-  handle: s.slug,
-  name: s.name,
-  role: (["studio", "product", "engineer"] as const)[i % 3],
-  source: s,
-  screens: screens().filter((x) => x.source.slug === s.slug).length,
-  followers: rnd(s.slug + "fl", 120, 24000),
-  available: i % 4 === 0,
-}));
 

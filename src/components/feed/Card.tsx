@@ -2,8 +2,6 @@
 
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
-import { pluralCount } from "@/i18n/format";
-import { useSaveCount } from "../save/SavedProvider";
 import type { Item } from "@/lib/data";
 import { MockScreen } from "../mock/MockScreen";
 import { SaveButton } from "../save/SaveButton";
@@ -11,13 +9,11 @@ import { Code, Layers, Sparkle } from "../ui/icons";
 
 /**
  * A framed plate: the capture sits inside a ruled mat, the caption reads like a
- * catalogue entry (title, source, saves) with the save toggle on the right.
+ * catalogue entry (title, source) with the save toggle on the right.
  * `crop` (width / height) fixes the plate's aspect so cards line up in a row instead of a masonry.
  */
 export function Card({ item, crop }: { item: Item; crop?: number }) {
   const { lang, t } = useI18n();
-  /* the catalogue's counts are static; yours is live, so it shows the moment you save */
-  const saves = useSaveCount(item);
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
 
   return (
@@ -43,13 +39,12 @@ export function Card({ item, crop }: { item: Item; crop?: number }) {
 
         <div className="mt-2.5 pe-8">
           <div className="line-clamp-2 font-display text-[13.5px] leading-snug">{itemTitle(item, lang)}</div>
-          <div className="mt-0.5 truncate text-[11px] text-text-2">
-            <bdi>{item.source.name}</bdi>
-            {item.kind === "component" ? ` · ${t.card.component}` : null}
-          </div>
-          <div className="mt-1.5 flex items-center gap-1.5 text-[11px] tabular-nums">
+          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-2">
             <span className="h-2.5 w-2.5 shrink-0 border border-border" style={{ background: item.palette.accent }} />
-            {pluralCount(t.card.saves, saves, lang)}
+            <span className="min-w-0 truncate">
+              <bdi>{item.source.name}</bdi>
+              {item.kind === "component" ? ` · ${t.card.component}` : null}
+            </span>
           </div>
         </div>
       </Link>
