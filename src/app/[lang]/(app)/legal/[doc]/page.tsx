@@ -19,7 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ doc: stri
   const { doc } = await params;
   const { lang, t } = await getI18n();
   const d = docOf(t, doc);
-  return d ? { title: d.title, alternates: alternates(lang, `/legal/${doc}`) } : {};
+  if (!d) return {};
+  /* the doc's opening line says what it is */
+  const opening = d.body[0];
+  return { title: d.title, description: opening.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1"), alternates: alternates(lang, `/legal/${doc}`) };
 }
 
 const P = "text-[14.5px] leading-relaxed text-text-2";

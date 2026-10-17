@@ -5,7 +5,7 @@ import { getI18n } from "@/i18n/server";
 export default async function NotFound() {
   const { t } = await getI18n();
   return (
-    <div className="grid min-h-[70vh] place-items-center px-6 text-center">
+    <main className="grid min-h-[70vh] place-items-center px-6 text-center">
       <div>
         <LogoMark size={56} className="mx-auto mb-5" />
         <h1 className="text-[22px] font-semibold tracking-[-0.02em]">{t.notFound.title}</h1>
@@ -17,6 +17,6 @@ export default async function NotFound() {
           {t.notFound.back}
         </Link>
       </div>
-    </div>
+    </main>
   );
 }

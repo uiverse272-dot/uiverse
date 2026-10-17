@@ -6,7 +6,8 @@
  * component only the item's props travel; the HTML is still server-rendered.
  */
 import type { ComponentType, CSSProperties } from "react";
-import { ARCHETYPES, type Archetype, type Item } from "@/lib/data";
+import { ARCHETYPES, type Archetype } from "@/lib/archetypes";
+import type { Item } from "@/lib/data";
 import { mkU, pick, Col, Row, B, VIEWPORTS, type U, type Viewport } from "./primitives";
 import * as S from "./sections";
 import { CaptureScreen } from "./CaptureScreen";
@@ -279,14 +280,17 @@ export function MockScreen({
   full = false,
   measure = false,
   viewport,
+  eager,
 }: {
   item: Item;
   full?: boolean;
   measure?: boolean;
+  /** the page's main image (the detail frame): fetched first rather than lazily */
+  eager?: boolean;
   /** Draw at this device and let the height follow the content (min. one screen). */
   viewport?: Viewport;
 }) {
-  if (item.capture) return <CaptureScreen item={item} viewport={viewport} />;
+  if (item.capture) return <CaptureScreen item={item} viewport={viewport} eager={eager} />;
   const arch = ARCHETYPES[item.archetype];
   const isComponent = item.kind === "component";
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";

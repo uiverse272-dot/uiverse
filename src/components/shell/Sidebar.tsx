@@ -55,13 +55,13 @@ export function Sidebar() {
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-[88px] shrink-0 flex-col border-e border-border bg-bg md:flex">
+    <aside aria-label={t.nav.rail} className="sticky top-0 hidden h-dvh w-[88px] shrink-0 flex-col border-e border-border bg-bg md:flex">
       <div className="border-b border-border">
         <Logo />
       </div>
       {/* min-h-0 lets the list shrink and scroll rather than run under the footer; on short laptop
           screens (~730px) the rail tightens so all eight items fit without scrolling */}
-      <nav className="scroll-x flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-y-auto py-4 [@media(max-height:820px)]:gap-0 [@media(max-height:820px)]:py-1">
+      <nav aria-label={t.nav.label} className="scroll-x flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-y-auto py-4 [@media(max-height:820px)]:gap-0 [@media(max-height:820px)]:py-1">
         {NAV.map((n) => (
           <RailLink key={n.href} href={n.href} Icon={n.Icon} label={t.nav[n.key]} on={active(n.href)} />
         ))}

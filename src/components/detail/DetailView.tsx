@@ -6,7 +6,7 @@ import { blockLabel, itemTitle, ruleText, sourceAbout } from "@/i18n/content";
 import { an, fill, fillNodes, lower, plural } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
-import { SCOPES } from "@/lib/query";
+import { SCOPES } from "@/lib/filters";
 import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
@@ -105,10 +105,13 @@ export function DetailView({
           {/* Long captures scroll inside the frame rather than making the page enormous. */}
           <div className="flex justify-center border border-border bg-bg-subtle p-3 md:p-5">
             <div
+              /* focusable, so the page inside can be scrolled from the keyboard */
+              tabIndex={0}
+              aria-label={`${itemTitle(item, lang)} — ${t.detail.viewports[device]}`}
               className="max-h-[76vh] overflow-y-auto overscroll-contain border border-border transition-[width] duration-200"
               style={{ width: frameWidth }}
             >
-              <MockScreen key={device} item={item} viewport={device} />
+              <MockScreen key={device} item={item} viewport={device} eager />
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
@@ -330,7 +333,7 @@ function Overview({ item }: { item: Item }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <div className="border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-bold">{o.title}</h3>
+        <h2 className="pb-3 text-[14px] font-bold">{o.title}</h2>
         <p className="text-[14px] leading-relaxed text-text-2">{body}</p>
         <ul className="mt-4 space-y-2 text-[13.5px] text-text-2">
           <li>· {item.blocks.some((b) => b.type === "cta") ? o.accentCta : o.accentPrimary}</li>
@@ -339,7 +342,7 @@ function Overview({ item }: { item: Item }) {
         </ul>
       </div>
       <div className="border border-border bg-surface p-5">
-        <h3 className="pb-3 text-[14px] font-bold">{o.palette}</h3>
+        <h2 className="pb-3 text-[14px] font-bold">{o.palette}</h2>
         {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
         <div className="flex overflow-hidden border border-border">
           {item.colors.map((c, i) => (
@@ -386,7 +389,7 @@ function Responsive({ item, onPick }: { item: Item; onPick: (d: Viewport) => voi
         })}
       </div>
       <div className="mt-4 border border-border bg-surface p-5">
-        <h3 className="pb-1 text-[14px] font-bold">{t.detail.responsive.howAdapts}</h3>
+        <h2 className="pb-1 text-[14px] font-bold">{t.detail.responsive.howAdapts}</h2>
         <p className="pb-3 text-[12px] text-text-3">{t.detail.responsive.sequence}</p>
         <dl className="text-[13px]">
           {responsiveRules(item).map(([k, v]) => (
@@ -414,7 +417,7 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
         <div className="flex items-start gap-3">
           <Code size={18} className="mt-0.5 shrink-0 text-text-3" />
           <div>
-            <h3 className="text-[14px] font-bold">{c.noneTitle}</h3>
+            <h2 className="text-[14px] font-bold">{c.noneTitle}</h2>
             <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-text-2">
               {c.noneBody}{" "}
               <Link href="/legal/attribution" className="underline underline-offset-2">
@@ -477,7 +480,7 @@ function Grid({ items }: { items: Item[] }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
       {items.map((i) => (
-        <Card key={i.slug} item={i} />
+        <Card key={i.slug} item={i} lazy />
       ))}
     </div>
   );

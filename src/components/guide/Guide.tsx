@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
 import { stripLang } from "@/i18n/config";
 import { fill, fillNodes, lower, plural } from "@/i18n/format";
@@ -8,7 +8,7 @@ import { fromStart } from "../ui/fromStart";
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { Check, Close, Sparkle } from "../ui/icons";
 import { onGuideEvent, onGuideStart, type GuideEvent } from "./events";
-import { describe, GOALS, GUIDE_INDUSTRIES, landing, type Goal } from "./goals";
+import { describe, GOALS, GUIDE_INDUSTRIES, landing, type Goal, type Landings } from "./goals";
 import { parseState, type State } from "./state";
 
 /**
@@ -70,7 +70,7 @@ function persist(s: State) {
   } catch {}
 }
 
-export function Guide() {
+export function Guide({ landings }: { landings: Landings }) {
   const pathname = useLocalPath();
   const router = useLocalRouter();
   const [state, setState] = useState<State | null>(null);
@@ -116,11 +116,12 @@ export function Guide() {
   if (state.status === "welcome") {
     return (
       <Welcome
+        landings={landings}
         initial={state.goal}
         onSkip={end}
         onGo={(goal) => {
           update({ status: "active", step: 0, goal });
-          router.push(landing(goal).href);
+          router.push(landing(goal, landings).href);
         }}
       />
     );
@@ -129,7 +130,7 @@ export function Guide() {
   if (state.status === "finished") return <Finished onClose={end} />;
 
   const step = STEPS[current];
-  const goalHref = state.goal ? landing(state.goal).href : "/";
+  const goalHref = state.goal ? landing(state.goal, landings).href : "/";
   /* a detail step with no detail open — say how to get back on track instead of pointing at nothing */
   const offTrack = step.page === "detail" && !isDetail(pathname);
   const dodge = !offTrack && target;
@@ -153,14 +154,24 @@ export function Guide() {
 
 /* ------------------------------------------------------------------ */
 
-function Welcome({ initial, onSkip, onGo }: { initial?: Goal; onSkip: () => void; onGo: (g: Goal) => void }) {
+function Welcome({
+  initial,
+  landings,
+  onSkip,
+  onGo,
+}: {
+  initial?: Goal;
+  landings: Landings;
+  onSkip: () => void;
+  onGo: (g: Goal) => void;
+}) {
   const { lang, t } = useI18n();
   const g = t.guide;
   const [goal, setGoal] = useState<Goal>(initial ?? { id: "landing", rtl: false });
   const dialog = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(dialog);
-  const land = useMemo(() => landing(goal), [goal]);
+  const land = landing(goal, landings);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onSkip();

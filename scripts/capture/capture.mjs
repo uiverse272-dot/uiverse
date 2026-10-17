@@ -6,6 +6,7 @@
  *   npm run capture -- https://example.com --name "Example" --title "Homepage" --style minimal
  *   npm run capture -- --rederive          re-run derive.mjs over stored measurements
  *   npm run capture -- --opt-out example.com --ref TD-…   honour a takedown (docs/08 §4)
+ *   npm run capture:cards                  rewrite the feed-card stills (runs after each of the above)
  *
  * Renders the page at laptop, tablet and phone widths, measures it (extract.js),
  * derives design facts (derive.mjs), writes screenshots to public/captures/<slug>/
@@ -13,6 +14,7 @@
  */
 import { chromium, devices } from "playwright";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -321,7 +323,14 @@ function report(rec) {
   console.log(`  tech     ${rec.tech.join(", ") || "—"}`);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+/* the feed-card stills follow the index: new ones for new captures, all of them after a re-derive
+   (crops may have moved), and stale ones removed after an opt-out */
+const cards = () =>
+  spawnSync("npx", ["tsx", "scripts/capture/cards.mts", ...(process.argv.includes("--rederive") ? ["--all"] : [])], { cwd: ROOT, stdio: "inherit" });
+
+main()
+  .then(cards)
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

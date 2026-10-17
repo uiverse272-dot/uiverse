@@ -8,7 +8,7 @@ import { PageHeader, Shell } from "@/components/feed/Section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { lang, t } = await getI18n();
-  return { title: t.palettes.title, alternates: alternates(lang, "/palettes") };
+  return { title: t.palettes.title, description: t.palettes.sub, alternates: alternates(lang, "/palettes") };
 }
 
 export default async function PalettesPage() {

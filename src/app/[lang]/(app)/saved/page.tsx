@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
-import { ITEMS } from "@/lib/data";
+import type { Item } from "@/lib/data";
+import { itemsBySlug } from "@/components/save/items";
 import { useSaved } from "@/components/save/SavedProvider";
 import { Feed } from "@/components/feed/Feed";
 import { PageHeader, Shell } from "@/components/feed/Section";
@@ -17,10 +18,26 @@ export default function SavedPage() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
 
-  const slugs = active === "all" ? saves.map((s) => s.slug) : slugsFor(active);
-  const items = slugs.map((s) => ITEMS.find((i) => i.slug === s)).filter(Boolean) as typeof ITEMS;
+  /* the designs are fetched by slug as saves come in; a slug asked for once isn't asked again */
+  const [known, setKnown] = useState<Map<string, Item>>(new Map());
+  const asked = useRef(new Set<string>());
+  const [fetched, setFetched] = useState(false);
+  useEffect(() => {
+    if (!ready) return;
+    const missing = saves.map((s) => s.slug).filter((s) => !asked.current.has(s));
+    if (!missing.length) return setFetched(true);
+    for (const s of missing) asked.current.add(s);
+    /* not cancelled when saves change mid-request: those slugs are marked asked, so the answer must land */
+    itemsBySlug(missing)
+      .then((found) => setKnown((m) => new Map([...m, ...found.map((i) => [i.slug, i] as const)])))
+      .catch(() => missing.forEach((s) => asked.current.delete(s)))
+      .finally(() => setFetched(true));
+  }, [ready, saves]);
 
-  if (!ready) return null;
+  const slugs = active === "all" ? saves.map((s) => s.slug) : slugsFor(active);
+  const items = slugs.flatMap((s) => known.get(s) ?? []);
+
+  if (!ready || (saves.length && !fetched)) return null;
 
   return (
     <Shell>

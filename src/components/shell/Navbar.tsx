@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { plural } from "@/i18n/format";
 import { LangSwitch } from "./LangSwitch";
+import type { Present } from "@/lib/parse";
 import { SearchField } from "./SearchCommand";
 import { startGuide } from "../guide/events";
 import { ThemeToggle } from "./Theme";
@@ -22,7 +23,7 @@ const MORE = [
  * A row of ruled cells: search (the signal-yellow cell), more, profile, saved.
  * Primary navigation lives in the Sidebar rail on desktop and BottomNav on phones.
  */
-export function Navbar() {
+export function Navbar({ present }: { present: Present }) {
   const { lang, t } = useI18n();
   const { saves } = useSaved();
   const user = authClient.useSession().data?.user;
@@ -45,7 +46,7 @@ export function Navbar() {
 
       <div className="flex min-w-0 flex-1 items-center bg-signal px-3 text-on-signal md:px-5">
         <div className="w-full max-w-[460px]">
-          <SearchField />
+          <SearchField present={present} />
         </div>
       </div>
 

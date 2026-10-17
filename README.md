@@ -28,7 +28,10 @@ The architecture lives in `docs/`; read it before building anything new.
 npm install
 npm run dev     # http://localhost:3000
 npm test        # vitest: search parser, prompt generator, MCP spec, i18n
+npm run build && npm run e2e   # browser suites on the build: pages, headers, sign-in, saves, deletion
 ```
+
+CI (`.github/workflows/ci.yml`) runs types, lint, tests, the build and the browser suites on every push and pull request.
 
 To capture a live page into the index (needs `npx playwright install chromium` once):
 
@@ -36,6 +39,7 @@ To capture a live page into the index (needs `npx playwright install chromium` o
 npm run capture -- https://example.com/pricing --industry saas
 npm run capture -- --batch seeds/rtl-gulf.json --concurrency 3
 npm run capture -- --rederive     # re-derive every record from stored measurements
+npm run capture:cards             # feed-card stills (runs after each capture; --all rewrites them)
 npm run capture:upload            # sync public/captures to the bucket (--dry-run, --prune)
 npm run capture -- --opt-out example.com --ref TD-…   # honour a takedown request
 ```

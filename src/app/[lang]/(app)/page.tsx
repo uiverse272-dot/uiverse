@@ -67,8 +67,9 @@ export default async function HomePage({
           <section className="mt-9">
             <SectionHead title={t.home.captured} href="/search?q=captured" more={t.common.more} />
             <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 xl:grid-cols-6">
-              {captured.map((i) => (
-                <Card key={i.slug} item={i} crop={3 / 4} />
+              {captured.map((i, n) => (
+                /* the first row is the first thing on screen: its images load first (more than two compete on a slow connection) */
+                <Card key={i.slug} item={i} crop={3 / 4} eager={n < 2} />
               ))}
             </div>
           </section>

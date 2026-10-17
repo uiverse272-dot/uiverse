@@ -35,6 +35,8 @@ const ar: Dict = {
     label: "Read Uiverse in English",
   },
   nav: {
+    label: "التنقل الرئيسي",
+    rail: "الشريط الجانبي",
     home: "الرئيسية",
     explore: "استكشاف",
     web: "الويب",
@@ -110,10 +112,10 @@ const ar: Dict = {
     categories: "الفئات",
     captured: "مُلتقطة من الويب الحي",
     featured: "مختارات",
-    recommended: "مقترحة لك",
+    recommended: "المزيد للاستكشاف",
     filtered: "{label} · {results}",
     chips: {
-      forYou: "مقترح لك",
+      forYou: "الكل",
       new: "جديد",
       web: "الويب",
       mobile: "الجوال",
@@ -130,7 +132,7 @@ const ar: Dict = {
     },
   },
   featured: {
-    pick: "اختيار الأسبوع",
+    pick: "اختيار مميز",
     showLess: "عرض أقل",
     showDetails: "عرض التفاصيل",
     hide: "إخفاء اختيار الأسبوع",

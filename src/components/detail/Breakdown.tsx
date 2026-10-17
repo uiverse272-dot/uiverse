@@ -20,7 +20,7 @@ function Panel({ title, note, children }: { title: string; note?: string; childr
   return (
     <section className="border border-border bg-surface p-5">
       <div className="flex items-baseline justify-between gap-3 pb-4">
-        <h3 className="text-[14px] font-semibold tracking-[-0.015em]">{title}</h3>
+        <h2 className="text-[14px] font-semibold tracking-[-0.015em]">{title}</h2>
         {note ? <span className="text-[11.5px] text-text-3">{note}</span> : null}
       </div>
       {children}

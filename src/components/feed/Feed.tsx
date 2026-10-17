@@ -9,6 +9,8 @@ import { Card } from "./Card";
 
 const PAGE = 28;
 const AUTO_PAGES = 5;
+/* enough to fill the first screen at any column count */
+const EAGER = 12;
 
 export function Feed({ items, maxCols, ssrCols }: { items: Item[]; maxCols?: number; ssrCols?: number }) {
   const { lang, t } = useI18n();
@@ -50,7 +52,7 @@ export function Feed({ items, maxCols, ssrCols }: { items: Item[]; maxCols?: num
 
   return (
     <>
-      <Masonry items={shown} maxCols={maxCols} ssrCols={ssrCols} render={(item) => <Card item={item} />} />
+      <Masonry items={shown} maxCols={maxCols} ssrCols={ssrCols} render={(item, i) => <Card item={item} lazy={i >= EAGER} eager={i < 2} />} />
       <div ref={sentinel} className="h-px" />
       {more ? (
         <div className="flex justify-center py-10">

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { searchItems } from "@/lib/query";
+import { PRESENT, searchItems } from "@/lib/query";
 import { Feed } from "@/components/feed/Feed";
 import { ssrColumns } from "@/components/feed/ssrColumns";
 import { Shell, StickyBar } from "@/components/feed/Section";
@@ -38,9 +38,10 @@ export default async function SearchPage({
   return (
     <>
       <Shell>
+        <h1 className="sr-only">{q ? `${t.search.title}: ${q}` : t.search.title}</h1>
         <div className="mx-auto max-w-[620px] pb-5 pt-8">
           {/* keyed by the query, so a new search (or a removed chip) resets the field to match */}
-          <SearchField big initial={q} key={q} />
+          <SearchField big initial={q} key={q} present={PRESENT} />
         </div>
       </Shell>
 

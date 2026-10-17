@@ -37,7 +37,7 @@ export default async function UploadPage() {
         <div className="border border-border bg-surface p-5">
           <div className="flex items-center gap-2 pb-1">
             <Sparkle size={15} className="text-text-3" />
-            <h3 className="text-[13px] font-semibold">{u.suggested}</h3>
+            <h2 className="text-[13px] font-semibold">{u.suggested}</h2>
             <span className="text-[11.5px] text-text-3">{u.editable}</span>
           </div>
           <p className="pb-4 text-[13px] text-text-2">{u.suggestedBody}</p>
@@ -54,7 +54,7 @@ export default async function UploadPage() {
         </div>
 
         <div className="border border-border bg-surface p-5">
-          <h3 className="pb-2 text-[13px] font-semibold">{u.attribution}</h3>
+          <h2 className="pb-2 text-[13px] font-semibold">{u.attribution}</h2>
           <p className="text-[13px] leading-relaxed text-text-2">{u.attributionBody}</p>
         </div>
 

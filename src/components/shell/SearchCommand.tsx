@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n, useLocalRouter } from "@/i18n/client";
 import { fill } from "@/i18n/format";
-import { parseQuery } from "@/lib/query";
+import { parseTerms, type Present } from "@/lib/parse";
 import { Search } from "../ui/icons";
 
 /** `initial` seeds the field — the results page passes its query so it can be refined in place. */
-export function SearchField({ big = false, initial = "" }: { big?: boolean; initial?: string }) {
+export function SearchField({ big = false, initial = "", present }: { big?: boolean; initial?: string; present: Present }) {
   const { lang, t } = useI18n();
   const router = useLocalRouter();
   const EXAMPLES = t.search.examples;
@@ -35,7 +35,7 @@ export function SearchField({ big = false, initial = "" }: { big?: boolean; init
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const parsed = parseQuery(q, lang);
+  const parsed = parseTerms(q, lang, present);
 
   /* the header field is a launcher: it empties after a search, so it can't go stale while the
      results page's own field (seeded with the query) gets refined */

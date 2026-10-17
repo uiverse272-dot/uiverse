@@ -1,8 +1,7 @@
 import type { Lang } from "@/i18n/config";
 import type { Dict } from "@/i18n/dict";
 import { fill, lower } from "@/i18n/format";
-import { ITEMS } from "@/lib/data";
-import { applyFilters, SCOPES, type Filters, type Scope } from "@/lib/query";
+import { SCOPES, type Scope } from "@/lib/filters";
 
 /** What someone can say they're building — each one is a feed they can land in. Labels: dict guide.goals */
 export const GOALS: { id: string; scope: Scope; category?: string }[] = [
@@ -21,35 +20,14 @@ export const GUIDE_INDUSTRIES = ["fintech", "saas", "ecommerce", "food", "health
 
 export type Goal = { id: string; industry?: string; rtl: boolean };
 
-function filtersFor(g: Goal, drop: ("industry" | "dir")[] = []): Filters {
-  const def = GOALS.find((x) => x.id === g.id) ?? GOALS[0];
-  return {
-    ...SCOPES[def.scope].base,
-    category: def.category,
-    industry: drop.includes("industry") ? undefined : g.industry,
-    dir: drop.includes("dir") || !g.rtl ? undefined : "rtl",
-  };
-}
+/** Where a goal lands and how much is there — worked out on the server (guide/landings.ts) */
+export type Landing = { href: string; count: number; relaxed: ("industry" | "dir")[] };
+export type Landings = Record<string, Landing>;
+export const goalKey = (g: Goal) => `${g.id}|${g.industry ?? ""}|${g.rtl ? "rtl" : ""}`;
 
-/**
- * Where a goal lands, and how many results are there. If the exact combination is empty it
- * relaxes industry first, then direction — a guide must never open on an empty page.
- */
-export function landing(g: Goal) {
+export function landing(g: Goal, landings: Landings): Landing {
   const def = GOALS.find((x) => x.id === g.id) ?? GOALS[0];
-  for (const drop of [[], ["industry"], ["industry", "dir"]] as ("industry" | "dir")[][]) {
-    const f = filtersFor(g, drop);
-    const count = applyFilters(ITEMS, f).length;
-    if (count > 0 || drop.length === 2) {
-      const params = new URLSearchParams();
-      if (def.category) params.set("category", def.category);
-      if (f.industry) params.set("industry", f.industry);
-      if (f.dir) params.set("dir", f.dir);
-      const qs = params.toString();
-      return { href: `${SCOPES[def.scope].path}${qs ? `?${qs}` : ""}`, count, relaxed: drop };
-    }
-  }
-  return { href: SCOPES[def.scope].path, count: 0, relaxed: [] };
+  return landings[goalKey(g)] ?? { href: SCOPES[def.scope].path, count: 0, relaxed: [] };
 }
 
 export function describe(g: Goal, t: Dict["guide"], lang: Lang) {

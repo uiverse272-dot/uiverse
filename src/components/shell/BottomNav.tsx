@@ -45,7 +45,7 @@ export function BottomNav() {
   return (
     <>
       {open ? <MoreSheet pathname={pathname} onClose={() => setOpen(false)} /> : null}
-      <nav className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label={t.nav.label} className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-bg pb-[env(safe-area-inset-bottom)] md:hidden">
         <div className="flex h-14 items-stretch">
           {TABS.map(({ href, key, Icon }) => {
             const active = !open && isOn(pathname, href);

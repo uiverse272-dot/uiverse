@@ -5,7 +5,7 @@ import { alternates, getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { lang, t } = await getI18n();
-  return { title: t.nav.pricing, alternates: alternates(lang, "/pricing") };
+  return { title: t.nav.pricing, description: t.pricing.sub, alternates: alternates(lang, "/pricing") };
 }
 
 /*

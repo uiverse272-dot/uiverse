@@ -35,6 +35,9 @@ const en = {
     label: "Read Uiverse in Arabic",
   },
   nav: {
+    label: "Main",
+    /* the desktop rail: logo, sections, theme */
+    rail: "Sidebar",
     home: "Home",
     explore: "Explore",
     web: "Web",
@@ -110,10 +113,10 @@ const en = {
     categories: "Categories",
     captured: "Captured from the live web",
     featured: "Featured",
-    recommended: "Recommended for you",
+    recommended: "More to explore",
     filtered: "{label} · {results}",
     chips: {
-      forYou: "For You",
+      forYou: "All",
       new: "New",
       web: "Web",
       mobile: "Mobile",
@@ -130,7 +133,7 @@ const en = {
     },
   },
   featured: {
-    pick: "Pick of the week",
+    pick: "Featured pick",
     showLess: "Show less",
     showDetails: "Show details",
     hide: "Hide pick of the week",

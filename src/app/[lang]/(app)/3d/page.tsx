@@ -3,11 +3,11 @@ import { ITEMS } from "@/lib/data";
 import { applyFilters } from "@/lib/query";
 import { Feed } from "@/components/feed/Feed";
 import { PageHeader, Shell } from "@/components/feed/Section";
-import { getI18n } from "@/i18n/server";
+import { alternates, getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getI18n();
-  return { title: t.threeD.title };
+  const { lang, t } = await getI18n();
+  return { title: t.threeD.title, description: t.threeD.sub, alternates: alternates(lang, "/3d") };
 }
 
 export default async function ThreeDPage() {

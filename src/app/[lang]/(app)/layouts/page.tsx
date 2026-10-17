@@ -8,7 +8,7 @@ import { alternates, getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { lang, t } = await getI18n();
-  return { title: t.layouts.title, alternates: alternates(lang, "/layouts") };
+  return { title: t.layouts.title, description: t.layouts.sub, alternates: alternates(lang, "/layouts") };
 }
 
 /** Layouts are derived from the block order of real screens — not authored separately. */
@@ -21,7 +21,7 @@ export default async function LayoutsPage() {
       <div className="grid gap-4 py-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {LAYOUTS.map((l) => (
           <div key={l.slug} className="border border-border bg-surface p-4">
-            <h3 className="pb-3 text-[14px] font-semibold tracking-[-0.015em]">{layoutName(l.example.archetype, l.name, lang)}</h3>
+            <h2 className="pb-3 text-[14px] font-semibold tracking-[-0.015em]">{layoutName(l.example.archetype, l.name, lang)}</h2>
             <div className="flex gap-3">
               <div className="w-20 shrink-0 space-y-1">
                 {l.sections.map((s, i) => (

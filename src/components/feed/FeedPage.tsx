@@ -109,13 +109,13 @@ export function facetRoute(scope: "web" | "apps" | "components", facets: Facet[]
       .find(Boolean);
     const feed = t.feeds[scope];
     const path = [SCOPES[scope].path, ...(facet ?? [])].join("/");
-    return { fromPath, lang, t, path, title: label ? fill(feed.titleWith, { label }) : feed.title };
+    return { fromPath, lang, t, path, title: label ? fill(feed.titleWith, { label }) : feed.title, description: feed.sub };
   }
 
   return {
     async generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-      const { title, lang, path } = await resolve(params);
-      return { title, alternates: alternates(lang, path) };
+      const { title, description, lang, path } = await resolve(params);
+      return { title, description, alternates: alternates(lang, path) };
     },
     async Page({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
       const { fromPath, title, t } = await resolve(params);

@@ -10,7 +10,7 @@ import { PageHeader, Shell } from "@/components/feed/Section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { lang, t } = await getI18n();
-  return { title: t.explore.title, alternates: alternates(lang, "/explore") };
+  return { title: t.explore.title, description: t.explore.sub, alternates: alternates(lang, "/explore") };
 }
 
 /** Explore is a directory, not a second feed. Its job is turning a vague intent into a URL. */
