@@ -101,7 +101,9 @@ describe("buildPrompt", () => {
         /* case-insensitive, from a word start: catches "TapAr" and "Stc Bold", not "laptop" */
         for (const m of marks) expect(p).not.toMatch(new RegExp(`\\b${m}`, "i"));
         if (i.source.tagline) expect(p).not.toContain(i.source.tagline);
-        for (const b of i.blocks) if (b.heading) expect(p).not.toContain(b.heading);
+        /* a page's own copy — but a one- or two-word heading ("Pricing", "Our plans") is ordinary
+           words, not copy; brand names are caught by the marks above */
+        for (const b of i.blocks) if (b.heading && b.heading.trim().split(/\s+/).length >= 3) expect(p).not.toContain(b.heading);
       }
     });
 

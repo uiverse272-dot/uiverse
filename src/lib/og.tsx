@@ -1,4 +1,11 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { ImageResponse } from "next/og";
+import type { Lang } from "@/i18n/config";
+import { itemTitle } from "@/i18n/content";
+import { DICTS } from "@/i18n/dict";
+import { fill } from "@/i18n/format";
+import { arabicForms } from "./arabicForms";
 import type { Item } from "./data";
 import { cropShot } from "./shots";
 import { name, CATEGORIES, COMPONENT_TYPES, INDUSTRIES } from "./taxonomy";
@@ -19,15 +26,58 @@ const ACCENT = "#f47a2c";
 const SIGNAL = "#f8dc3d";
 const PANEL = { w: 500, h: 520 };
 
+/*
+ * Arabic cards. The renderer joins Arabic letters but lays every line out left to right, and reads
+ * neither variable fonts nor Readex Pro's (or Noto's) contextual lookups — so the face is Tajawal
+ * (static, OFL, Latin included), and Arabic text is laid out word by word, right to left.
+ */
+let tajawal: { name: string; data: Buffer; weight: 400 | 700; style: "normal" }[] | undefined;
+/* whole literal paths, so the deployment's file tracing ships the fonts with the function */
+const arabicFonts = () =>
+  (tajawal ??= [
+    { name: "Tajawal", data: readFileSync(path.join(process.cwd(), "src/lib/fonts/Tajawal-Regular.ttf")), weight: 400, style: "normal" },
+    { name: "Tajawal", data: readFileSync(path.join(process.cwd(), "src/lib/fonts/Tajawal-Bold.ttf")), weight: 700, style: "normal" },
+  ]);
+const options = (lang: Lang) => (lang === "ar" ? { ...OG_SIZE, fonts: arabicFonts() } : OG_SIZE);
+
+const ARABIC = /[\u0600-\u06FF]/;
+/*
+ * An Arabic word in the order the renderer should draw it: shaped letters, reversed — except that
+ * it still reverses runs of unjoined letters itself ("وا" in «واجهات», "ان" in «الألوان»), so those
+ * runs are put back first.
+ */
+const visual = (word: string) =>
+  [...arabicForms(word)]
+    .reverse()
+    .join("")
+    .replace(/[\u0600-\u06FF]{2,}/g, (run) => [...run].reverse().join(""));
+/** A line of text in the card's direction. In Arabic, a run of Latin words ("Al Rajhi Bank") stays together and in order. */
+function Text({ text, lang, style }: { text: string; lang: Lang; style: React.CSSProperties }) {
+  if (lang !== "ar") return <div style={{ display: "flex", ...style }}>{text}</div>;
+  const runs: string[] = [];
+  for (const w of text.split(/\s+/).filter(Boolean)) {
+    const last = runs.length - 1;
+    if (last >= 0 && !ARABIC.test(w) && !ARABIC.test(runs[last])) runs[last] += ` ${w}`;
+    else runs.push(w);
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "row-reverse", flexWrap: "wrap", columnGap: "0.25em", ...style }}>
+      {runs.map((r, n) => (
+        <span key={n}>{ARABIC.test(r) ? visual(r) : r}</span>
+      ))}
+    </div>
+  );
+}
+
 const LOGO =
   "data:image/svg+xml;base64," +
   Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" fill="#f47a2c" stroke="#1c1b18" stroke-width="2"/><path d="M9 7v11a7 7 0 0 0 14 0V7" fill="none" stroke="#1c1b18" stroke-width="4.5" stroke-linecap="square"/><circle cx="16" cy="17.5" r="3" fill="#f8dc3d" stroke="#1c1b18" stroke-width="1.5"/></svg>',
   ).toString("base64");
 
-function Wordmark() {
+function Wordmark({ lang }: { lang: Lang }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: lang === "ar" ? "row-reverse" : "row", alignItems: "center", gap: 14 }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- rendered by ImageResponse, not the browser */}
       <img src={LOGO} width={44} height={44} alt="" />
       <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: -0.5, color: INK }}>Uiverse</div>
@@ -84,21 +134,36 @@ function Wireframe({ item }: { item: Item }) {
   );
 }
 
-export async function itemCard(item: Item) {
+export async function itemCard(item: Item, lang: Lang = "en") {
+  const t = DICTS[lang].og;
+  const ar = lang === "ar";
   const shot = await screenshot(item);
-  const kind = item.kind === "component" ? name(COMPONENT_TYPES, item.componentType) : name(CATEGORIES, item.category);
-  const tags = [item.kind === "component" ? "Component" : "Screen", kind, name(INDUSTRIES, item.industry)];
-  if (item.capture?.dir === "rtl") tags.push("RTL");
+  const kind = item.kind === "component" ? name(COMPONENT_TYPES, item.componentType, lang) : name(CATEGORIES, item.category, lang);
+  const tags = [item.kind === "component" ? t.component : t.screen, kind, name(INDUSTRIES, item.industry, lang)];
+  if (item.capture?.dir === "rtl") tags.push(t.rtl);
 
   return new ImageResponse(
     (
-      <div style={{ display: "flex", width: "100%", height: "100%", background: PAPER, padding: 48, gap: 48, color: INK }}>
-        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <Wordmark />
-          <div style={{ display: "flex", gap: 8, marginTop: 44, flexWrap: "wrap" }}>
-            {tags.map((t, n) => (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: ar ? "row-reverse" : "row",
+          width: "100%",
+          height: "100%",
+          background: PAPER,
+          padding: 48,
+          gap: 48,
+          color: INK,
+          /* the renderer can't take an unset font, so English keeps its default by not naming one */
+          ...(ar ? { fontFamily: "Tajawal" } : {}),
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: ar ? "flex-end" : "flex-start", flex: 1 }}>
+          <Wordmark lang={lang} />
+          <div style={{ display: "flex", flexDirection: ar ? "row-reverse" : "row", gap: 8, marginTop: 44, flexWrap: "wrap" }}>
+            {tags.map((tag, n) => (
               <div
-                key={t}
+                key={tag}
                 style={{
                   display: "flex",
                   fontSize: 20,
@@ -106,26 +171,26 @@ export async function itemCard(item: Item) {
                   border: `2px solid ${INK}`,
                   background: n === 0 ? SIGNAL : PAPER,
                   textTransform: "uppercase",
-                  letterSpacing: 1,
+                  letterSpacing: ar ? 0 : 1,
                 }}
               >
-                {t}
+                <Text text={tag} lang={lang} style={{}} />
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", fontSize: 76, fontWeight: 700, lineHeight: 1.02, letterSpacing: -2, marginTop: 28 }}>
-            {item.source.name}
-          </div>
-          <div style={{ display: "flex", fontSize: 38, color: MUTED, marginTop: 10 }}>{item.title}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: "auto" }}>
+          <Text text={item.source.name} lang={lang} style={{ fontSize: 76, fontWeight: 700, lineHeight: 1.02, letterSpacing: ar ? 0 : -2, marginTop: 28 }} />
+          <Text text={itemTitle(item, lang)} lang={lang} style={{ fontSize: 38, color: MUTED, marginTop: 10 }} />
+          <div style={{ display: "flex", flexDirection: ar ? "row-reverse" : "row", alignItems: "center", gap: 18, marginTop: "auto" }}>
             <div style={{ display: "flex" }}>
               {item.colors.slice(0, 5).map((c, n) => (
                 <div key={n} style={{ display: "flex", width: 44, height: 44, background: c, border: `2px solid ${INK}`, marginLeft: n ? -2 : 0 }} />
               ))}
             </div>
-            <div style={{ display: "flex", fontSize: 22, color: MUTED }}>
-              {item.capture ? `Captured from ${item.source.domain}` : "Palette · type scale · layout"}
-            </div>
+            <Text
+              text={item.capture ? fill(t.capturedFrom, { domain: item.source.domain }) : t.sample}
+              lang={lang}
+              style={{ fontSize: 22, color: MUTED }}
+            />
           </div>
         </div>
         <div
@@ -150,30 +215,41 @@ export async function itemCard(item: Item) {
         </div>
       </div>
     ),
-    OG_SIZE,
+    options(lang),
   );
 }
 
 /* the default card, for every page without its own */
-export function siteCard() {
+export function siteCard(lang: Lang = "en") {
+  const t = DICTS[lang].og;
+  const ar = lang === "ar";
   const swatches = [ACCENT, SIGNAL, "#2d6a4f", "#1d3557", "#e9c46a", INK];
   return new ImageResponse(
     (
-      <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: PAPER, padding: 64, color: INK }}>
-        <Wordmark />
-        <div style={{ display: "flex", fontSize: 92, fontWeight: 700, lineHeight: 1, letterSpacing: -3, marginTop: 64, maxWidth: 900 }}>
-          Interfaces worth building.
-        </div>
-        <div style={{ display: "flex", fontSize: 32, color: MUTED, marginTop: 28, maxWidth: 860, lineHeight: 1.3 }}>
-          Real websites, apps and components, broken down into palette, type scale, spacing and layout.
-        </div>
-        <div style={{ display: "flex", marginTop: "auto" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: ar ? "flex-end" : "flex-start",
+          width: "100%",
+          height: "100%",
+          background: PAPER,
+          padding: 64,
+          color: INK,
+          /* the renderer can't take an unset font, so English keeps its default by not naming one */
+          ...(ar ? { fontFamily: "Tajawal" } : {}),
+        }}
+      >
+        <Wordmark lang={lang} />
+        <Text text={t.headline} lang={lang} style={{ fontSize: 92, fontWeight: 700, lineHeight: 1.1, letterSpacing: ar ? 0 : -3, marginTop: 64, maxWidth: 900 }} />
+        <Text text={t.sub} lang={lang} style={{ fontSize: 32, color: MUTED, marginTop: 28, maxWidth: 860, lineHeight: 1.4 }} />
+        <div style={{ display: "flex", flexDirection: ar ? "row-reverse" : "row", marginTop: "auto" }}>
           {swatches.map((c, n) => (
             <div key={n} style={{ display: "flex", width: 72, height: 72, background: c, border: `2px solid ${INK}`, marginLeft: n ? -2 : 0 }} />
           ))}
         </div>
       </div>
     ),
-    OG_SIZE,
+    options(lang),
   );
 }

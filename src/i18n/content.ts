@@ -14,6 +14,9 @@ import { plural, type Plural } from "./format";
  */
 
 const TITLES: Record<string, string> = {
+  /* real captures' other page types */
+  About: "من نحن", Business: "للأعمال", Solutions: "الحلول", Partnership: "الشراكات", "Online store": "المتجر الإلكتروني",
+  "Accept payments": "قبول المدفوعات", "Payment methods": "طرق الدفع", "Careem for Business": "كريم للأعمال",
   Homepage: "الصفحة الرئيسية", "Spend overview": "نظرة على الإنفاق", Pricing: "الأسعار", "Sign in": "تسجيل الدخول",
   Documentation: "التوثيق", Plans: "الخطط", "Care schedule": "جدول الرعاية", "Model evaluations": "تقييمات النماذج",
   "API reference": "مرجع API", "Shop all": "تسوّق الكل", Lookbook: "كتالوج الإطلالات", Checkout: "إتمام الشراء",

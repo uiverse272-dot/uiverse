@@ -1,3 +1,4 @@
+import { isLang } from "@/i18n/config";
 import { OG_SIZE, siteCard } from "@/lib/og";
 
 export const alt = "Uiverse — interfaces worth building";
@@ -6,6 +7,7 @@ export const contentType = "image/png";
 
 /* here rather than at app/: every page lives under [lang], and the image applies to its own segment
    and the ones below it — at app/ it reached no page at all */
-export default function Image() {
-  return siteCard();
+export default async function Image({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  return siteCard(isLang(lang) ? lang : "en");
 }

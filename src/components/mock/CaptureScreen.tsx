@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type ImageProps } from "next/image";
+import { useState } from "react";
 import type { Item } from "@/lib/data";
 import type { Viewport } from "@/lib/captures";
 import { captureSrc } from "@/lib/captureSrc";
-import { cardOf } from "@/lib/cards";
+import { cardOf, firstOf } from "@/lib/cards";
 
 /**
  * A real capture, drawn from its screenshot. Same contract as MockScreen: without
@@ -58,7 +59,7 @@ export function CaptureScreen({ item, viewport, eager = false }: { item: Item; v
       </div>
     );
   }
-  const img = (style?: React.CSSProperties) => (
+  const img = (style?: React.CSSProperties, extra?: Partial<ImageProps>) => (
     <Image
       src={captureSrc(useShot.src)}
       width={useShot.w}
@@ -67,12 +68,17 @@ export function CaptureScreen({ item, viewport, eager = false }: { item: Item; v
       alt={`${item.source.name} — ${item.title}${viewport ? `, ${vp}` : ""}`}
       draggable={false}
       {...(eager ? { loading: "eager" as const, fetchPriority: "high" as const } : {})}
+      {...extra}
       style={{ display: "block", width: "100%", height: "auto", maxWidth: "none", ...style }}
     />
   );
 
   /* full page at a chosen width: natural height, the frame around it scrolls */
-  if (viewport && !useCrop) return <div style={{ background: item.palette.bg }}>{img()}</div>;
+  if (viewport && !useCrop) {
+    const first = firstOf(item, vp);
+    if (!first) return <div style={{ background: item.palette.bg }}>{img()}</div>;
+    return <FullPage item={item} first={first} sizes={sizes} eager={eager} page={img} />;
+  }
 
   const offset = useCrop ? `-${((useCrop.y * useShot.docH) / useShot.css) * 100}%` : "0%";
   /* the block's own shape; a frame wider than it (a thin navbar in a card) letterboxes it */
@@ -96,6 +102,45 @@ export function CaptureScreen({ item, viewport, eager = false }: { item: Item; v
       <div style={{ width: "100%", overflow: "hidden", aspectRatio: letterbox ? String(blockAspect) : undefined }}>
         {img({ marginTop: offset })}
       </div>
+    </div>
+  );
+}
+
+/*
+ * The whole page is thousands of pixels tall, so the frame opens on a still of its first screen
+ * (lib/cards.ts firstOf) and the page takes over once it has loaded. The page sits underneath from
+ * the start, so the frame's height and scroll are right before the swap.
+ */
+function FullPage({
+  item,
+  first,
+  sizes,
+  eager,
+  page,
+}: {
+  item: Item;
+  first: NonNullable<ReturnType<typeof firstOf>>;
+  sizes: string;
+  eager: boolean;
+  page: (style?: React.CSSProperties, extra?: Partial<ImageProps>) => React.ReactNode;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div style={{ background: item.palette.bg, position: "relative" }}>
+      {page(undefined, { onLoad: () => setLoaded(true) })}
+      {loaded ? null : (
+        <Image
+          src={captureSrc(first.src)}
+          width={first.w}
+          height={first.h}
+          sizes={sizes}
+          alt=""
+          aria-hidden
+          draggable={false}
+          {...(eager ? { loading: "eager" as const, fetchPriority: "high" as const } : {})}
+          style={{ position: "absolute", top: 0, insetInlineStart: 0, display: "block", width: "100%", height: "auto" }}
+        />
+      )}
     </div>
   );
 }

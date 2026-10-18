@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
 import type { Item } from "@/lib/data";
-import { MockScreen } from "../mock/MockScreen";
+import { LazyPreview } from "../mock/LazyPreview";
 import { SaveButton } from "../save/SaveButton";
 import { Code, Layers, Sparkle } from "../ui/icons";
 
@@ -24,7 +23,7 @@ export function Card({ item, crop, lazy = false, eager = false }: { item: Item; 
       <Link href={href} className="block focus-visible:outline-none" prefetch={false}>
         <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--focus)]">
           <div className="relative overflow-hidden border border-border">
-            <Preview item={crop ? { ...item, aspect: crop } : item} lazy={lazy} eager={eager} />
+            <LazyPreview item={crop ? { ...item, aspect: crop } : item} lazy={lazy} eager={eager} />
 
             <div className="absolute bottom-1.5 end-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">
               {item.hasCode ? <Badge title={t.card.code}><Code size={12} /></Badge> : null}
@@ -68,22 +67,4 @@ function Badge({ children, title }: { children: React.ReactNode; title: string }
       {children}
     </span>
   );
-}
-
-/*
- * A sample design is drawn in HTML — a few hundred elements a card — so a long feed drawn up front
- * runs to thousands. Below the first screen it's drawn as the card comes within reach; until then
- * the frame holds its size in the design's own background. Real captures are one image either way.
- */
-function Preview({ item, lazy, eager }: { item: Item; lazy: boolean; eager: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [near, setNear] = useState(!lazy || !!item.capture);
-  useEffect(() => {
-    if (near || !ref.current) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: "800px 0px" });
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [near]);
-  if (near) return <MockScreen item={item} eager={eager} />;
-  return <div ref={ref} style={{ aspectRatio: String(item.aspect), background: item.palette.bg }} />;
 }

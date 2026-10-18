@@ -1,3 +1,4 @@
+import type { Viewport } from "./captures";
 import type { Item } from "./data";
 
 /**
@@ -27,5 +28,27 @@ export function cardOf(item: Item) {
     region: { left: 0, top: px, width: shot.w, height: Math.max(1, Math.min(Math.round(height * scale), shot.h - px)) },
     w: CARD_W,
     h: Math.max(1, Math.round((CARD_W * height) / shot.css)),
+  };
+}
+
+/* a little more than one screen at each width, in CSS pixels */
+const FIRST_H: Record<Viewport, number> = { desktop: 1100, tablet: 1300, mobile: 950 };
+
+/**
+ * The first screen of a capture at one width — what the detail frame shows while the full page,
+ * thousands of pixels tall, is still on its way. Screens only: a component's frame is its block.
+ */
+export function firstOf(item: Item, vp: Viewport) {
+  const shot = item.capture && item.kind === "screen" ? item.capture.shots[vp] : undefined;
+  if (!shot) return null;
+  const height = Math.min(FIRST_H[vp], shot.cssH);
+  const scale = shot.w / shot.css;
+  const w = Math.min(shot.w, 1200);
+  return {
+    src: shot.src.replace(/[^/]+$/, `first-${vp}.jpg`),
+    from: shot.src,
+    region: { left: 0, top: 0, width: shot.w, height: Math.min(Math.round(height * scale), shot.h) },
+    w,
+    h: Math.round((w * height) / shot.css),
   };
 }

@@ -6,6 +6,16 @@ import type { Plural } from "../format";
  * {name} placeholders are filled by `fill`; counts go through `plural`.
  */
 const en = {
+  /* share cards (lib/og.tsx) */
+  og: {
+    headline: "Interfaces worth building.",
+    sub: "Real websites, apps and components, broken down into palette, type scale, spacing and layout.",
+    screen: "Screen",
+    component: "Component",
+    rtl: "RTL",
+    capturedFrom: "Captured from {domain}",
+    sample: "Palette · type scale · layout",
+  },
   meta: {
     title: "Uiverse — Discover interfaces worth building",
     template: "%s · Uiverse",

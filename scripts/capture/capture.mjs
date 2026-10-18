@@ -18,6 +18,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 import { measurePage } from "./extract.mjs";
 import * as D from "./derive.mjs";
 
@@ -47,6 +48,11 @@ function args(argv) {
 
 const slugify = (s) => s.toLowerCase().replace(/^www\./, "").replace(/[^a-z0-9؀-ۿ]+/g, "-").replace(/^-|-$/g, "");
 
+/* the classes scroll-animation libraries (AOS, WOW, Animate.css and hand-rolled ones) hide content with */
+const REVEAL = `[data-aos], .aos-init, .wow, .reveal, .fade-in, .fadeIn, .animate__animated, [class*="reveal"],
+  [class*="fade-up"], [class*="fadeUp"], [class*="in-view"], [class*="inview"]
+  { opacity: 1 !important; transform: none !important; visibility: visible !important; }`;
+
 async function settle(page) {
   await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
   /* consent banners cover the page; accept the common ones rather than capture them */
@@ -58,14 +64,27 @@ async function settle(page) {
       break;
     }
   }
-  /* scroll through once so lazy images load and scroll-triggered reveals fire */
+  /* scroll through once, slowly enough for lazy images to load and scroll-triggered reveals to fire */
   await page.evaluate(async () => {
     const step = innerHeight * 0.8;
     for (let y = 0; y < document.documentElement.scrollHeight && y < 20000; y += step) {
       scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 120));
+      await new Promise((r) => setTimeout(r, 400));
     }
     scrollTo(0, 0);
+  });
+  /* the full-page shot is taken from the top, where content that animates in "while in view" is
+     hidden again — show it as a visitor scrolling down would see it. In-flow elements only: a menu
+     or modal waiting at opacity 0 is fixed or absolute, and stays hidden */
+  await page.addStyleTag({ content: REVEAL }).catch(() => {});
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll("body *")) {
+      const cs = getComputedStyle(el);
+      if (cs.opacity === "0" && cs.position !== "fixed" && cs.position !== "absolute" && el.getBoundingClientRect().height > 40) {
+        el.style.setProperty("opacity", "1", "important");
+        el.style.setProperty("transform", "none", "important");
+      }
+    }
   });
   await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
   await page.waitForTimeout(600);
@@ -286,6 +305,24 @@ function rejection(raw) {
   return null;
 }
 
+/*
+ * Content that fades in as you scroll can stay invisible in a full-page shot, leaving long empty
+ * bands — measured text and sections, but nothing drawn. Rows of a single flat colour, by share.
+ */
+/* ~40% sits between a spacious page with generous white space (D360's business page, 37%) and one
+   whose sections never drew (Moyasar's before the reveal fix, 42%) */
+const MAX_BLANK = 0.4;
+async function blankRender(file) {
+  const { data, info } = await sharp(file).greyscale().resize({ width: 60, height: 200, fit: "fill" }).raw().toBuffer({ resolveWithObject: true });
+  let flat = 0;
+  for (let y = 0; y < info.height; y++) {
+    const row = data.subarray(y * info.width, (y + 1) * info.width);
+    if (Math.max(...row) - Math.min(...row) < 6) flat++;
+  }
+  const share = flat / info.height;
+  return share > MAX_BLANK ? `${Math.round(share * 100)}% of the page rendered blank` : null;
+}
+
 async function captureOne(browser, url, flags) {
   if (covered(await optOuts(), hostOf(url))) throw new Error(`${hostOf(url)} opted out — see src/content/optout.json`);
   const slug = slugFor(url, flags);
@@ -298,7 +335,7 @@ async function captureOne(browser, url, flags) {
   try {
     for (const vp of Object.keys(VIEWPORTS)) {
       const { raw, shot } = await shoot(browser, url, vp, outDir, flags.locale);
-      const why = vp === "desktop" ? rejection(raw) : null;
+      const why = vp === "desktop" ? rejection(raw) ?? (await blankRender(path.join(outDir, "desktop.jpg"))) : null;
       if (why) throw new Error(why);
       byVp[vp] = raw;
       shots[vp] = { src: `/captures/${slug}/${vp}.jpg`, ...shot };

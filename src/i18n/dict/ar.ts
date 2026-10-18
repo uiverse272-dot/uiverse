@@ -8,6 +8,15 @@ import type { Dict } from "./en";
  * Machine-drafted: have a native speaker review before launch.
  */
 const ar: Dict = {
+  og: {
+    headline: "واجهات تستحق البناء.",
+    sub: "مواقع وتطبيقات ومكوّنات حقيقية، مفكّكة إلى الألوان ومقياس الخطوط والمسافات والتخطيط.",
+    screen: "شاشة",
+    component: "مكوّن",
+    rtl: "من اليمين لليسار",
+    capturedFrom: "مُلتقطة من {domain}",
+    sample: "الألوان · مقياس الخطوط · التخطيط",
+  },
   meta: {
     title: "Uiverse — اكتشف واجهات تستحق البناء",
     template: "%s · Uiverse",

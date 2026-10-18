@@ -1,0 +1,146 @@
+[
+ {
+  "url": "https://linear.app/pricing",
+  "name": "Linear",
+  "industry": "saas",
+  "title": "Pricing",
+  "category": "pricing"
+ },
+ {
+  "url": "https://linear.app/login",
+  "name": "Linear",
+  "industry": "saas",
+  "title": "Log in",
+  "category": "auth"
+ },
+ {
+  "url": "https://linear.app/about",
+  "name": "Linear",
+  "industry": "saas",
+  "title": "About"
+ },
+ {
+  "url": "https://zid.sa/ar/pricing",
+  "name": "Zid",
+  "industry": "ecommerce",
+  "title": "Pricing",
+  "locale": "ar-SA",
+  "category": "pricing"
+ },
+ {
+  "url": "https://zid.sa/ar/solutions/e-store",
+  "name": "Zid",
+  "industry": "ecommerce",
+  "title": "Online store",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.foodics.com/ar/foodics-pricing-egypt",
+  "name": "Foodics",
+  "industry": "saas",
+  "title": "Pricing",
+  "locale": "ar-SA",
+  "category": "pricing"
+ },
+ {
+  "url": "https://moyasar.com/ar/products/accept-payments",
+  "name": "Moyasar",
+  "industry": "fintech",
+  "title": "Accept payments",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.careem.com/ar-AE/careem-for-business",
+  "name": "Careem",
+  "industry": "travel",
+  "title": "Careem for Business",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.d360.com/ar/business",
+  "name": "D360 Bank",
+  "industry": "fintech",
+  "title": "Business",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.tap.company/ar-sa/products/payment-methods",
+  "name": "Tap Payments",
+  "industry": "fintech",
+  "title": "Payment methods",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://tamara.co/ar-sa/financing-product-prices",
+  "name": "Tamara",
+  "industry": "fintech",
+  "title": "Pricing",
+  "locale": "ar-SA",
+  "category": "pricing"
+ },
+ {
+  "url": "https://tabby.ai/ar-SA/business",
+  "name": "Tabby",
+  "industry": "fintech",
+  "title": "Business",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.nahdionline.com/ar-sa/login",
+  "name": "Nahdi",
+  "industry": "healthcare",
+  "title": "Log in",
+  "locale": "ar-SA",
+  "category": "auth"
+ },
+ {
+  "url": "https://www.ounass.ae/customer/login",
+  "name": "Ounass",
+  "industry": "fashion",
+  "title": "Log in",
+  "locale": "ar-SA",
+  "category": "auth"
+ },
+ {
+  "url": "https://altibbi.com/member/auth",
+  "name": "Altibbi",
+  "industry": "healthcare",
+  "title": "Log in",
+  "locale": "ar-SA",
+  "category": "auth"
+ },
+ {
+  "url": "https://lucidya.com/ar/solutions",
+  "name": "Lucidya",
+  "industry": "ai",
+  "title": "Solutions",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://hungerstation.com/sa-ar/about-us",
+  "name": "HungerStation",
+  "industry": "food",
+  "title": "About",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://mrsool.co/partnership",
+  "name": "Mrsool",
+  "industry": "food",
+  "title": "Partnership"
+ },
+ {
+  "url": "https://www.d360.com/ar/about-us",
+  "name": "D360 Bank",
+  "industry": "fintech",
+  "title": "About",
+  "locale": "ar-SA"
+ },
+ {
+  "url": "https://www.tap.company/ar-sa/company/about",
+  "name": "Tap Payments",
+  "industry": "fintech",
+  "title": "About",
+  "locale": "ar-SA"
+ }
+]

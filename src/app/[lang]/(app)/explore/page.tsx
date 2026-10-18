@@ -5,7 +5,7 @@ import { alternates, getI18n } from "@/i18n/server";
 import type { Item } from "@/lib/data";
 import { browseLink, type Scope } from "@/lib/query";
 import { CATEGORIES, COMPONENT_TYPES, INDUSTRIES, STYLES, TECHNOLOGIES, PLATFORMS, name, type Term } from "@/lib/taxonomy";
-import { MockScreen } from "@/components/mock/MockScreen";
+import { LazyPreview } from "@/components/mock/LazyPreview";
 import { PageHeader, Shell } from "@/components/feed/Section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,10 +29,12 @@ function Group({
   title,
   note,
   tiles,
+  lazy = true,
 }: {
   title: string;
   note?: string;
   tiles: Tile[];
+  lazy?: boolean;
 }) {
   return (
     <section className="pb-12">
@@ -49,7 +51,7 @@ function Group({
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-bg-subtle">
               <div className="absolute inset-0 origin-top scale-[1.02]">
-                <MockScreen item={{ ...t.item, aspect: 4 / 3 }} />
+                <LazyPreview item={{ ...t.item, aspect: 4 / 3 }} lazy={lazy} />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent opacity-80" />
             </div>
@@ -72,7 +74,8 @@ export default async function ExplorePage() {
       <PageHeader title={e.title} sub={e.sub} />
 
       <div className="pt-8">
-        <Group title={e.byType} tiles={tiles(lang, "category", CATEGORIES)} />
+        {/* the first group is on screen; the rest draw their sample previews as they come near */}
+        <Group title={e.byType} tiles={tiles(lang, "category", CATEGORIES)} lazy={false} />
         <Group title={e.byComponent} note={e.componentNote} tiles={tiles(lang, "component", COMPONENT_TYPES, ["components"])} />
         <Group title={e.byIndustry} tiles={tiles(lang, "industry", INDUSTRIES)} />
         <Group title={e.byStyle} tiles={tiles(lang, "style", STYLES)} />

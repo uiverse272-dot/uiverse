@@ -111,7 +111,10 @@ export function DetailView({
               className="max-h-[76vh] overflow-y-auto overscroll-contain border border-border transition-[width] duration-200"
               style={{ width: frameWidth }}
             >
-              <MockScreen key={device} item={item} viewport={device} eager />
+              {/* a sample's text is invented: the frame's label names it, screen readers skip the rest */}
+              <div aria-hidden={!item.capture || undefined}>
+                <MockScreen key={device} item={item} viewport={device} eager />
+              </div>
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">

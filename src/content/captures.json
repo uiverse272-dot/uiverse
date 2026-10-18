@@ -897,7 +897,7 @@
  {
   "slug": "alrajhibank-com-sa-ar",
   "url": "https://www.alrajhibank.com.sa/ar",
-  "capturedAt": "2026-10-13T11:30:10.377Z",
+  "capturedAt": "2026-10-18T11:26:40.861Z",
   "title": "Homepage",
   "source": {
    "slug": "alrajhibank-com-sa",
@@ -1027,7 +1027,7 @@
     "label": "Hero",
     "heading": "تجربة مصرفية صُمّمت لك",
     "y": 0,
-    "h": 0.1191,
+    "h": 0.119,
     "px": {
      "y": 0,
      "h": 829
@@ -1040,12 +1040,13 @@
     "type": "feature",
     "label": "Feature section",
     "heading": "فئات مصرفية متنوعة",
-    "y": 0.1283,
+    "y": 0.1282,
     "h": 0.1046,
     "px": {
      "y": 893,
      "h": 728
     },
+    "columns": 1,
     "headingSize": 40,
     "links": 4
    },
@@ -1053,7 +1054,7 @@
     "type": "feature",
     "label": "Feature section",
     "heading": "عروض اليوم الوطني",
-    "y": 0.2421,
+    "y": 0.242,
     "h": 0.1063,
     "px": {
      "y": 1685,
@@ -1066,7 +1067,7 @@
     "type": "section",
     "label": "Content section",
     "heading": "برامجنا",
-    "y": 0.3576,
+    "y": 0.3575,
     "h": 0.0796,
     "px": {
      "y": 2489,
@@ -1079,7 +1080,7 @@
     "type": "feature",
     "label": "Feature section",
     "heading": "+ 200 خدمة في تطبيق مصرف الراجحي",
-    "y": 0.4464,
+    "y": 0.4463,
     "h": 0.1159,
     "px": {
      "y": 3107,
@@ -1093,7 +1094,7 @@
     "type": "cards",
     "label": "Card grid",
     "heading": "آخر اخبارنا",
-    "y": 0.5715,
+    "y": 0.5713,
     "h": 0.0899,
     "px": {
      "y": 3977,
@@ -1107,7 +1108,7 @@
     "type": "cards",
     "label": "Card grid",
     "heading": "لأرقامنا بصمة",
-    "y": 0.6706,
+    "y": 0.6704,
     "h": 0.0833,
     "px": {
      "y": 4667,
@@ -1118,15 +1119,16 @@
     "links": 1
    },
    {
-    "type": "section",
-    "label": "Content section",
+    "type": "cards",
+    "label": "Card grid",
     "heading": "منظومة مالية متكاملة لمستقبل واعد",
-    "y": 0.7631,
-    "h": 0.0746,
+    "y": 0.7629,
+    "h": 0.0745,
     "px": {
      "y": 5311,
      "h": 519
     },
+    "columns": 5,
     "headingSize": 40,
     "links": 12
    },
@@ -1134,11 +1136,11 @@
     "type": "footer",
     "label": "Footer",
     "heading": "الأفراد",
-    "y": 0.8377,
-    "h": 0.1304,
+    "y": 0.8375,
+    "h": 0.1306,
     "px": {
      "y": 5830,
-     "h": 907
+     "h": 909
     },
     "columns": 1,
     "headingSize": 18,
@@ -1148,56 +1150,145 @@
   "crops": {
    "tablet": [
     {
-     "type": "feature",
-     "y": 0.0217,
-     "h": 0.5553,
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0146
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0972,
+     "heading": "تجربة مصرفية صُمّمت لك"
+    },
+    {
+     "type": "cards",
+     "y": 0.1049,
+     "h": 0.0963,
      "heading": "فئات مصرفية متنوعة"
     },
     {
+     "type": "cards",
+     "y": 0.2089,
+     "h": 0.071,
+     "heading": "عروض اليوم الوطني"
+    },
+    {
+     "type": "section",
+     "y": 0.2875,
+     "h": 0.0698,
+     "heading": "برامجنا"
+    },
+    {
+     "type": "feature",
+     "y": 0.365,
+     "h": 0.1109,
+     "heading": "+ 200 خدمة في تطبيق مصرف الراجحي"
+    },
+    {
+     "type": "cards",
+     "y": 0.4835,
+     "h": 0.0704,
+     "heading": "آخر اخبارنا"
+    },
+    {
+     "type": "feature",
+     "y": 0.5616,
+     "h": 0.1366,
+     "heading": "لأرقامنا بصمة"
+    },
+    {
+     "type": "cards",
+     "y": 0.7059,
+     "h": 0.0939,
+     "heading": "منظومة مالية متكاملة لمستقبل واعد"
+    },
+    {
      "type": "footer",
-     "y": 0.5868,
-     "h": 0.4036
+     "y": 0.7998,
+     "h": 0.1735,
+     "heading": "الأفراد"
     }
    ],
    "mobile": [
     {
-     "type": "feature",
-     "y": 0.0398,
-     "h": 0.4289,
-     "heading": "فئات مصرفية متنوعة"
+     "type": "section",
+     "y": -0.0271,
+     "h": 0.0059
     },
     {
      "type": "footer",
-     "y": 0.5868,
-     "h": 0.4036
+     "y": -0.0149,
+     "h": 0.9878
     }
    ]
   },
   "responsive": [
    [
     "Navbar",
-    "12 links → — → 4 links",
+    "12 links → menu button → menu button",
     [
      "navbar"
     ]
    ],
    [
     "Hero: تجربة مصرفية صُمّمت لك",
-    "heading 40px → 24px → —px",
+    "heading 40px → 30px → —px",
     [
      "hero"
     ]
    ],
    [
+    "Feature section: فئات مصرفية متنوعة",
+    "heading 40px → 40px → —px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: عروض اليوم الوطني",
+    "heading 40px → 30px → 16px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: برامجنا",
+    "heading 40px → 40px → —px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: + 200 خدمة في تطبيق مصرف الراجحي",
+    "heading 40px → 40px → —px",
+    [
+     "feature"
+    ]
+   ],
+   [
     "Card grid: آخر اخبارنا",
-    "6 columns → 1 → 1",
+    "heading 40px → 40px → —px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: لأرقامنا بصمة",
+    "heading 40px → 40px → —px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: منظومة مالية متكاملة لمستقبل واع",
+    "5 columns → 2 → 1; heading 40px → 40px → —px",
     [
      "cards"
     ]
    ],
    [
     "Page length",
-    "6960px → 2175px → 2175px",
+    "6962px → 8329px → 8203px",
     []
    ]
   ],
@@ -1205,26 +1296,26 @@
    "desktop": {
     "src": "/captures/alrajhibank-com-sa-ar/desktop.jpg",
     "w": 1440,
-    "h": 6960,
+    "h": 6962,
     "css": 1440,
-    "cssH": 6960,
-    "docH": 6960
+    "cssH": 6962,
+    "docH": 6962
    },
    "tablet": {
     "src": "/captures/alrajhibank-com-sa-ar/tablet.jpg",
     "w": 834,
-    "h": 2175,
+    "h": 8329,
     "css": 834,
-    "cssH": 2175,
-    "docH": 2175
+    "cssH": 8329,
+    "docH": 8329
    },
    "mobile": {
     "src": "/captures/alrajhibank-com-sa-ar/mobile.jpg",
     "w": 780,
-    "h": 4350,
+    "h": 16406,
     "css": 390,
-    "cssH": 2175,
-    "docH": 2175
+    "cssH": 8203,
+    "docH": 8203
    }
   }
  },
@@ -2251,6 +2342,436 @@
   }
  },
  {
+  "slug": "careem-com-ar-ae-careem-for-business",
+  "url": "https://www.careem.com/ar-AE/careem-for-business",
+  "capturedAt": "2026-10-18T08:07:19.186Z",
+  "title": "Careem for Business",
+  "source": {
+   "slug": "careem-com",
+   "name": "Careem",
+   "domain": "careem.com",
+   "about": "Careem For Business",
+   "tagline": "Careem For Business | Careem"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "travel",
+  "style": "light",
+  "tech": [
+   "vue",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar-AE",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F4F8FB",
+   "raised": "#EAEEF1",
+   "text": "#1F2937",
+   "muted": "#6B7280",
+   "accent": "#00493E",
+   "accentFg": "#FFFFFF",
+   "border": "#E5E7EB",
+   "chart": [
+    "#00493E",
+    "#00EB79",
+    "#80A49F",
+    "#BFD2CF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 48,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "رحلاتك"
+    },
+    {
+     "name": "H1",
+     "size": 36,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "اكتشف المزيد مع Careem"
+    },
+    {
+     "name": "H2",
+     "size": 32,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "تنظيم رحلات شركتك."
+    },
+    {
+     "name": "H3",
+     "size": 18,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "المصداقية"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "خدماتنا"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "All rights reserved. Careem © 2026"
+    }
+   ],
+   "body": "14px / 1.5",
+   "fonts": {
+    "heading": "GraphikArabic",
+    "body": "GraphikArabic"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    20,
+    24,
+    32,
+    36
+   ],
+   "radius": "6 / 12 / 16px",
+   "container": "1310px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0.0033,
+    "h": 0.0133,
+    "px": {
+     "y": 18,
+     "h": 72
+    },
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.0162,
+    "h": 0.0994,
+    "px": {
+     "y": 88,
+     "h": 539
+    },
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "المصداقية",
+    "y": 0.1274,
+    "h": 0.0586,
+    "px": {
+     "y": 691,
+     "h": 318
+    },
+    "columns": 2,
+    "headingSize": 18,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "تنظيم رحلات شركتك.",
+    "y": 0.2053,
+    "h": 0.1125,
+    "px": {
+     "y": 1113,
+     "h": 610
+    },
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "دفع نفقات التنقل أصبح أمرًا غاية في السهولة.",
+    "y": 0.337,
+    "h": 0.0601,
+    "px": {
+     "y": 1827,
+     "h": 326
+    },
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "سنتولى نحن أمر رحلتك، فلا تشغل بالك.",
+    "y": 0.4163,
+    "h": 0.1125,
+    "px": {
+     "y": 2257,
+     "h": 610
+    },
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "لعشاق رحلات العمل",
+    "y": 0.548,
+    "h": 0.0601,
+    "px": {
+     "y": 2971,
+     "h": 326
+    },
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "اكتشف المزيد مع Careem",
+    "y": 0.8089,
+    "h": 0.1033,
+    "px": {
+     "y": 4386,
+     "h": 560
+    },
+    "columns": 4,
+    "headingSize": 36,
+    "links": 16
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "خدماتنا",
+    "y": 0.9299,
+    "h": 0.0612,
+    "px": {
+     "y": 5042,
+     "h": 332
+    },
+    "columns": 2,
+    "headingSize": 18,
+    "links": 26
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0.0006,
+     "h": 0.0115
+    },
+    {
+     "type": "section",
+     "y": 0.0128,
+     "h": 0.064
+    },
+    {
+     "type": "section",
+     "y": 0.0871,
+     "h": 0.0509,
+     "heading": "المصداقية"
+    },
+    {
+     "type": "feature",
+     "y": 0.1546,
+     "h": 0.0976,
+     "heading": "تنظيم رحلات شركتك."
+    },
+    {
+     "type": "section",
+     "y": 0.2688,
+     "h": 0.0554,
+     "heading": "دفع نفقات التنقل أصبح أمرًا غاية في السهولة."
+    },
+    {
+     "type": "feature",
+     "y": 0.3409,
+     "h": 0.0976,
+     "heading": "سنتولى نحن أمر رحلتك، فلا تشغل بالك."
+    },
+    {
+     "type": "section",
+     "y": 0.4551,
+     "h": 0.0554,
+     "heading": "لعشاق رحلات العمل"
+    },
+    {
+     "type": "feature",
+     "y": 0.5271,
+     "h": 0.1378,
+     "heading": "سيتواصل معك أحد مندوبينا المتخصصين!"
+    },
+    {
+     "type": "cards",
+     "y": 0.6815,
+     "h": 0.0896,
+     "heading": "اكتشف المزيد مع Careem"
+    },
+    {
+     "type": "footer",
+     "y": 0.7776,
+     "h": 0.2173,
+     "heading": "خدماتنا"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0115
+    },
+    {
+     "type": "section",
+     "y": 0.0127,
+     "h": 0.0422
+    },
+    {
+     "type": "cards",
+     "y": 0.0625,
+     "h": 0.0402,
+     "heading": "المصداقية"
+    },
+    {
+     "type": "feature",
+     "y": 0.1129,
+     "h": 0.1161,
+     "heading": "تنظيم رحلات شركتك."
+    },
+    {
+     "type": "section",
+     "y": 0.2393,
+     "h": 0.0738,
+     "heading": "دفع نفقات التنقل أصبح أمرًا غاية في السهولة."
+    },
+    {
+     "type": "feature",
+     "y": 0.3232,
+     "h": 0.1161,
+     "heading": "سنتولى نحن أمر رحلتك، فلا تشغل بالك."
+    },
+    {
+     "type": "section",
+     "y": 0.4496,
+     "h": 0.0804,
+     "heading": "لعشاق رحلات العمل"
+    },
+    {
+     "type": "feature",
+     "y": 0.5401,
+     "h": 0.146,
+     "heading": "سيتواصل معك أحد مندوبينا المتخصصين!"
+    },
+    {
+     "type": "cards",
+     "y": 0.6963,
+     "h": 0.0738,
+     "heading": "اكتشف المزيد مع Careem"
+    },
+    {
+     "type": "footer",
+     "y": 0.7765,
+     "h": 0.2184,
+     "heading": "خدماتنا"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "5 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Feature section: تنظيم رحلات شركتك.",
+    "heading 32px → 28px → 22px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: دفع نفقات التنقل أصبح أمرًا غاية",
+    "heading 32px → 28px → 22px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: سنتولى نحن أمر رحلتك، فلا تشغل ب",
+    "heading 32px → 28px → 22px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: لعشاق رحلات العمل",
+    "heading 32px → 28px → 22px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Card grid: اكتشف المزيد مع Careem",
+    "heading 36px → 36px → 32px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Footer",
+    "2 columns → 1 → 1",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "5422px → 6249px → 6286px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/careem-com-ar-ae-careem-for-business/desktop.jpg",
+    "w": 1440,
+    "h": 5422,
+    "css": 1440,
+    "cssH": 5422,
+    "docH": 5422
+   },
+   "tablet": {
+    "src": "/captures/careem-com-ar-ae-careem-for-business/tablet.jpg",
+    "w": 834,
+    "h": 6249,
+    "css": 834,
+    "cssH": 6249,
+    "docH": 6249
+   },
+   "mobile": {
+    "src": "/captures/careem-com-ar-ae-careem-for-business/mobile.jpg",
+    "w": 780,
+    "h": 12572,
+    "css": 390,
+    "cssH": 6286,
+    "docH": 6286
+   }
+  }
+ },
+ {
   "slug": "d360-com-ar",
   "url": "https://www.d360.com/ar",
   "capturedAt": "2026-10-13T11:30:46.591Z",
@@ -2589,6 +3110,686 @@
     "css": 390,
     "cssH": 844,
     "docH": 844
+   }
+  }
+ },
+ {
+  "slug": "d360-com-ar-about-us",
+  "url": "https://www.d360.com/ar/about-us",
+  "capturedAt": "2026-10-18T08:09:24.996Z",
+  "title": "About",
+  "source": {
+   "slug": "d360-com",
+   "name": "D360 Bank",
+   "domain": "d360.com",
+   "about": "اعرف أكثر عن بنك D360، أول بنك سعودي رقمي في السعودية. تعرف على هدفنا، مستثمرينا، قادتنا والمزيد عن ما تحتاجه لفتح حساب في بنك D360 اليوم.",
+   "tagline": "تعرف علينا | أول بنك سعودي رقمي في السعودية | بنك D360"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F5F7FA",
+   "raised": "#EBEDF0",
+   "text": "#293242",
+   "muted": "#737C89",
+   "accent": "#E74529",
+   "accentFg": "#FFFFFF",
+   "border": "#E5E6E8",
+   "chart": [
+    "#E74529",
+    "#FE5943",
+    "#EB644C",
+    "#F9D1CA"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 125,
+     "weight": 800,
+     "use": "Page headline",
+     "sample": "أول بنك"
+    },
+    {
+     "name": "H1",
+     "size": 60,
+     "weight": 800,
+     "use": "Section header",
+     "sample": "من نحن"
+    },
+    {
+     "name": "H2",
+     "size": 55,
+     "weight": 800,
+     "use": "Section header",
+     "sample": "الأسئلة الشائعة"
+    },
+    {
+     "name": "H3",
+     "size": 40,
+     "weight": 800,
+     "use": "Card title",
+     "sample": "تعرف على قادتنا"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "الرئيس التنفيذي"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 800,
+     "use": "Paragraph",
+     "sample": "الوعي الأمني"
+    }
+   ],
+   "body": "14px / 1.43",
+   "fonts": {
+    "heading": "tajawal",
+    "body": "tajawal"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    6,
+    8,
+    12,
+    16,
+    24,
+    32,
+    40,
+    64,
+    80
+   ],
+   "radius": "10 / 14 / 16px",
+   "container": "1248px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0233,
+    "px": {
+     "y": 0,
+     "h": 118
+    },
+    "links": 7
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "أول بنك سعودي رقمي",
+    "y": 0,
+    "h": 0.1778,
+    "px": {
+     "y": 0,
+     "h": 900
+    },
+    "headingSize": 124.8,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "من نحن",
+    "y": 0.1778,
+    "h": 0.1309,
+    "px": {
+     "y": 900,
+     "h": 662
+    },
+    "headingSize": 60,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "مستثمرينا الأساسيين",
+    "y": 0.3087,
+    "h": 0.0925,
+    "px": {
+     "y": 1562,
+     "h": 468
+    },
+    "headingSize": 60,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "تعرف على قادتنا",
+    "y": 0.4091,
+    "h": 0.2273,
+    "px": {
+     "y": 2071,
+     "h": 1150
+    },
+    "columns": 5,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "الأسئلة الشائعة",
+    "y": 0.6601,
+    "h": 0.1307,
+    "px": {
+     "y": 3341,
+     "h": 662
+    },
+    "columns": 1,
+    "headingSize": 55,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "كيف تقدر توصلنا؟",
+    "y": 0.794,
+    "h": 0.1311,
+    "px": {
+     "y": 4018,
+     "h": 664
+    },
+    "columns": 1,
+    "headingSize": 60,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "تابعنا",
+    "y": 0.9251,
+    "h": 0.0749,
+    "px": {
+     "y": 4682,
+     "h": 379
+    },
+    "headingSize": 20,
+    "links": 19
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0253
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.2306,
+     "heading": "أول بنك سعودي رقمي"
+    },
+    {
+     "type": "section",
+     "y": 0.2306,
+     "h": 0.0698,
+     "heading": "من نحن"
+    },
+    {
+     "type": "section",
+     "y": 0.3004,
+     "h": 0.0758,
+     "heading": "مستثمرينا الأساسيين"
+    },
+    {
+     "type": "feature",
+     "y": 0.3762,
+     "h": 0.2621,
+     "heading": "تعرف على قادتنا"
+    },
+    {
+     "type": "faq",
+     "y": 0.6469,
+     "h": 0.112,
+     "heading": "الأسئلة الشائعة"
+    },
+    {
+     "type": "feature",
+     "y": 0.7624,
+     "h": 0.1308,
+     "heading": "كيف تقدر توصلنا؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.8932,
+     "h": 0.1069,
+     "heading": "تابعنا"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0191
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.1395,
+     "heading": "أول بنك سعودي رقمي"
+    },
+    {
+     "type": "section",
+     "y": 0.1395,
+     "h": 0.0727,
+     "heading": "من نحن"
+    },
+    {
+     "type": "section",
+     "y": 0.2123,
+     "h": 0.0512,
+     "heading": "مستثمرينا الأساسيين"
+    },
+    {
+     "type": "feature",
+     "y": 0.2709,
+     "h": 0.3786,
+     "heading": "إزي سفير"
+    },
+    {
+     "type": "faq",
+     "y": 0.6715,
+     "h": 0.0768,
+     "heading": "الأسئلة الشائعة"
+    },
+    {
+     "type": "feature",
+     "y": 0.7512,
+     "h": 0.1239,
+     "heading": "كيف تقدر توصلنا؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.8751,
+     "h": 0.1249,
+     "heading": "تابعنا"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "7 links → 7 links → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: أول بنك سعودي رقمي",
+    "heading 124.8px → 40px → 40px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: من نحن",
+    "heading 60px → 30px → 30px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: مستثمرينا الأساسيين",
+    "heading 60px → 30px → 30px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: تعرف على قادتنا",
+    "5 columns → 5 → 2; heading 40px → 30px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "FAQ: الأسئلة الشائعة",
+    "heading 55px → 18px → 18px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: كيف تقدر توصلنا؟",
+    "heading 60px → 30px → 30px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Footer",
+    "heading 20px → 20px → 20px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "5061px → 4659px → 5444px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/d360-com-ar-about-us/desktop.jpg",
+    "w": 1440,
+    "h": 5061,
+    "css": 1440,
+    "cssH": 5061,
+    "docH": 5061
+   },
+   "tablet": {
+    "src": "/captures/d360-com-ar-about-us/tablet.jpg",
+    "w": 834,
+    "h": 4659,
+    "css": 834,
+    "cssH": 4659,
+    "docH": 4659
+   },
+   "mobile": {
+    "src": "/captures/d360-com-ar-about-us/mobile.jpg",
+    "w": 780,
+    "h": 10888,
+    "css": 390,
+    "cssH": 5444,
+    "docH": 5444
+   }
+  }
+ },
+ {
+  "slug": "d360-com-ar-business",
+  "url": "https://www.d360.com/ar/business",
+  "capturedAt": "2026-10-18T08:08:09.133Z",
+  "title": "Business",
+  "source": {
+   "slug": "d360-com",
+   "name": "D360 Bank",
+   "domain": "d360.com",
+   "about": "تعرف على الحلول المالية المتوفرة لدى بنك D360 أونلاين. نمد الشركات الناشئة والمنشآت التقنية بحلول مالية سهلة وسريعة.",
+   "tagline": "بنك الأعمال والشركات | حلول مالية لشركتك | بنك D360"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F5F7FA",
+   "raised": "#EBEDF0",
+   "text": "#293242",
+   "muted": "#737C89",
+   "accent": "#FE5943",
+   "accentFg": "#000000",
+   "border": "#E5E6E8",
+   "chart": [
+    "#FE5943",
+    "#EB644C",
+    "#FFACA1",
+    "#FFD6D0"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 112,
+     "weight": 800,
+     "use": "Page headline",
+     "sample": "مصرفية رقمية"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 800,
+     "use": "Card title",
+     "sample": "حلول مبتكرة لتمكين منشأتك"
+    },
+    {
+     "name": "H2",
+     "size": 30,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "نمد الشركات الناشئة والمنشآت التقنية بحلول مالية سهلة وسريعة"
+    },
+    {
+     "name": "H3",
+     "size": 20,
+     "weight": 500,
+     "use": "Links, buttons",
+     "sample": "تابعنا"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "اربط الخدمات البنكية مع نظام منشأتك بشكل مباشر"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 800,
+     "use": "Paragraph",
+     "sample": "الوعي الأمني"
+    }
+   ],
+   "body": "14px / 1.63",
+   "fonts": {
+    "heading": "tajawal",
+    "body": "tajawal"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40,
+    80
+   ],
+   "radius": "16px",
+   "container": "1278px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0601,
+    "px": {
+     "y": 0,
+     "h": 118
+    },
+    "links": 7
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "مصرفية رقمية للأعمال والشركات",
+    "y": 0.0204,
+    "h": 0.458,
+    "px": {
+     "y": 40,
+     "h": 900
+    },
+    "headingSize": 112,
+    "links": 0
+   },
+   {
+    "type": "table",
+    "label": "Data table",
+    "heading": "حلول مبتكرة لتمكين منشأتك",
+    "y": 0.4784,
+    "h": 0.3289,
+    "px": {
+     "y": 940,
+     "h": 646
+    },
+    "columns": 5,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "تابعنا",
+    "y": 0.8073,
+    "h": 0.1929,
+    "px": {
+     "y": 1586,
+     "h": 379
+    },
+    "headingSize": 20,
+    "links": 19
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0459
+    },
+    {
+     "type": "hero",
+     "y": 0.0156,
+     "h": 0.4644,
+     "heading": "مصرفية رقمية للأعمال والشركات"
+    },
+    {
+     "type": "table",
+     "y": 0.48,
+     "h": 0.3264,
+     "heading": "حلول مبتكرة لتمكين منشأتك"
+    },
+    {
+     "type": "footer",
+     "y": 0.8064,
+     "h": 0.1937,
+     "heading": "تابعنا"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0449
+    },
+    {
+     "type": "hero",
+     "y": 0.0173,
+     "h": 0.3647,
+     "heading": "مصرفية رقمية للأعمال والشركات"
+    },
+    {
+     "type": "table",
+     "y": 0.382,
+     "h": 0.3239,
+     "heading": "حلول مبتكرة لتمكين منشأتك"
+    },
+    {
+     "type": "footer",
+     "y": 0.7059,
+     "h": 0.2939,
+     "heading": "تابعنا"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "7 links → 7 links → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: مصرفية رقمية للأعمال والشركات",
+    "heading 112px → 40px → 40px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Data table: حلول مبتكرة لتمكين منشأتك",
+    "heading 40px → 40px → 30px",
+    [
+     "table"
+    ]
+   ],
+   [
+    "Footer",
+    "heading 20px → 20px → 20px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "1965px → 2571px → 2314px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/d360-com-ar-business/desktop.jpg",
+    "w": 1440,
+    "h": 1965,
+    "css": 1440,
+    "cssH": 1965,
+    "docH": 1965
+   },
+   "tablet": {
+    "src": "/captures/d360-com-ar-business/tablet.jpg",
+    "w": 834,
+    "h": 2571,
+    "css": 834,
+    "cssH": 2571,
+    "docH": 2571
+   },
+   "mobile": {
+    "src": "/captures/d360-com-ar-business/mobile.jpg",
+    "w": 780,
+    "h": 4628,
+    "css": 390,
+    "cssH": 2314,
+    "docH": 2314
    }
   }
  },
@@ -2984,6 +4185,280 @@
     "css": 390,
     "cssH": 8527,
     "docH": 8527
+   }
+  }
+ },
+ {
+  "slug": "foodics-com-ar-foodics-pricing-egypt",
+  "url": "https://www.foodics.com/ar/foodics-pricing-egypt",
+  "capturedAt": "2026-10-18T08:07:03.002Z",
+  "title": "Pricing",
+  "source": {
+   "slug": "foodics-com",
+   "name": "Foodics",
+   "domain": "foodics.com",
+   "about": "اختر الباقة الأنسب لمطعمك صممنا باقاتنا والميزات التي فيها لتتناسب مع احتياجاتك المالية والتشغيلية. توفير أكثر سنوي ربع سنوية اشترك مع فودكس اليوم للارتقاء بعمليات مطعمك! وسوف نساعدك على اختيار المنتجات والأدوات التي تناسب مطعمك. إملأ الطّلب وسيتواصل معك أحد خبراء فودكس خلال 24 ساعة لإعداد نسختك التّجريبيّة تتضمّن النّسخة التّجريبيّة دورةً تدريبيّة مصمّمة خصّيصًا […]",
+   "tagline": "Foodics Pricing Egypt - Foodics"
+  },
+  "category": "pricing",
+  "archetype": "pricing",
+  "industry": "saas",
+  "style": "light",
+  "tech": [],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#F2F2F2",
+   "surface": "#FFFFFF",
+   "raised": "#EDE9F8",
+   "text": "#2E2D2C",
+   "muted": "#808080",
+   "accent": "#440099",
+   "accentFg": "#FFFFFF",
+   "border": "#E2E3E1",
+   "chart": [
+    "#440099",
+    "#7C3AED",
+    "#9B79C5",
+    "#C6B5DC"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 46,
+     "weight": 600,
+     "use": "Page headline",
+     "sample": "اختر الباقة الأنسب لمطعمك"
+    },
+    {
+     "name": "H1",
+     "size": 32,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "اشترك مع فودكس اليوم للارتقاء بعمليات مطعمك!"
+    },
+    {
+     "name": "H2",
+     "size": 28,
+     "weight": 400,
+     "use": "Card title",
+     "sample": "الباقة الاساسیة"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 400,
+     "use": "Card title",
+     "sample": "صممنا باقاتنا والميزات التي فيها لتتناسب مع احتياجاتك المالي"
+    },
+    {
+     "name": "Body",
+     "size": 13.5,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "حلول فودكس"
+    }
+   ],
+   "body": "13.5px / 1.33",
+   "fonts": {
+    "heading": "IBM Plex Sans Arabic",
+    "body": "IBM Plex Sans Arabic"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    3,
+    4,
+    5,
+    6,
+    9,
+    10,
+    14,
+    15,
+    20,
+    30
+   ],
+   "radius": "6 / 10 / 20px",
+   "container": "1300px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0552,
+    "px": {
+     "y": 0,
+     "h": 152
+    },
+    "links": 17
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "اختر الباقة الأنسب لمطعمك",
+    "y": 0.0733,
+    "h": 0.1014,
+    "px": {
+     "y": 202,
+     "h": 279
+    },
+    "headingSize": 46,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "الباقة الاساسیة",
+    "y": 0.182,
+    "h": 0.3197,
+    "px": {
+     "y": 501,
+     "h": 879
+    },
+    "headingSize": 28,
+    "links": 2
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "اشترك مع فودكس اليوم للارتقاء بعمليات مطعمك!",
+    "y": 0.5308,
+    "h": 0.2981,
+    "px": {
+     "y": 1460,
+     "h": 820
+    },
+    "columns": 4,
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.8289,
+    "h": 0.1711,
+    "px": {
+     "y": 2280,
+     "h": 471
+    },
+    "columns": 4,
+    "links": 22
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0617
+    },
+    {
+     "type": "hero",
+     "y": 0.0617,
+     "h": 0.381,
+     "heading": "اختر الباقة الأنسب لمطعمك"
+    },
+    {
+     "type": "feature",
+     "y": 0.4428,
+     "h": 0.3511,
+     "heading": "اشترك مع فودكس اليوم للارتقاء بعمليات مطعمك!"
+    },
+    {
+     "type": "footer",
+     "y": 0.7939,
+     "h": 0.206
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0452
+    },
+    {
+     "type": "hero",
+     "y": 0.0452,
+     "h": 0.2381,
+     "heading": "اختر الباقة الأنسب لمطعمك"
+    },
+    {
+     "type": "feature",
+     "y": 0.2884,
+     "h": 0.4966,
+     "heading": "اشترك مع فودكس اليوم للارتقاء بعمليات مطعمك!"
+    },
+    {
+     "type": "footer",
+     "y": 0.7978,
+     "h": 0.2022
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "17 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: اختر الباقة الأنسب لمطعمك",
+    "heading 46px → 46px → 46px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: الباقة الاساسیة",
+    "heading 28px → —px → 32px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: اشترك مع فودكس اليوم للارتقاء بع",
+    "4 columns → 1 → 2; heading 32px → 32px → —px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Page length",
+    "2751px → 2489px → 3915px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/foodics-com-ar-foodics-pricing-egypt/desktop.jpg",
+    "w": 1440,
+    "h": 2751,
+    "css": 1440,
+    "cssH": 2751,
+    "docH": 2751
+   },
+   "tablet": {
+    "src": "/captures/foodics-com-ar-foodics-pricing-egypt/tablet.jpg",
+    "w": 834,
+    "h": 2489,
+    "css": 834,
+    "cssH": 2489,
+    "docH": 2489
+   },
+   "mobile": {
+    "src": "/captures/foodics-com-ar-foodics-pricing-egypt/mobile.jpg",
+    "w": 780,
+    "h": 7830,
+    "css": 390,
+    "cssH": 3915,
+    "docH": 3915
    }
   }
  },
@@ -3453,6 +4928,243 @@
     "css": 390,
     "cssH": 8636,
     "docH": 8636
+   }
+  }
+ },
+ {
+  "slug": "hungerstation-com-sa-ar-about-us",
+  "url": "https://hungerstation.com/sa-ar/about-us",
+  "capturedAt": "2026-10-18T08:08:25.610Z",
+  "title": "About",
+  "source": {
+   "slug": "hungerstation-com",
+   "name": "HungerStation",
+   "domain": "hungerstation.com",
+   "about": "نحن أول تطبيق سعودي لتوصيل الطعام في المنطقة! تصفح أكبر مجموعة من المطاعم ومحلات السوبر ماركت والصيدليات في السعودية.",
+   "tagline": "عن الشركة | هنقرستيشن السعودية"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "food",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#E8F9FF",
+   "raised": "#DFEFF5",
+   "text": "#000000",
+   "muted": "#6B6B6B",
+   "accent": "#562810",
+   "accentFg": "#FFFFFF",
+   "border": "#F2F2F2",
+   "chart": [
+    "#562810",
+    "#FFEA00",
+    "#1FCAFF",
+    "#D5C9C3"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 30,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "عن هنقرستيشن"
+    },
+    {
+     "name": "H1",
+     "size": 24,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "ليه هنقرستيشن؟"
+    },
+    {
+     "name": "H2",
+     "size": 20,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "كيف تطلب؟"
+    },
+    {
+     "name": "H3",
+     "size": 18,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "استمتع بميزات حصرية داخل التطبيق وعروض وخصومات مميزة. وتوصيل"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "عربي"
+    }
+   ],
+   "body": "14px / 1.43",
+   "fonts": {
+    "heading": "regular",
+    "body": "light"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    4,
+    8,
+    12,
+    14,
+    16,
+    20,
+    24,
+    28,
+    32,
+    40
+   ],
+   "radius": "12 / 24 / 32px",
+   "container": "1392px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0524,
+    "px": {
+     "y": 0,
+     "h": 88
+    },
+    "links": 1
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "عن هنقرستيشن",
+    "y": 0.0596,
+    "h": 0.6156,
+    "px": {
+     "y": 100,
+     "h": 1034
+    },
+    "columns": 3,
+    "headingSize": 30,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "المطاعم",
+    "y": 0.699,
+    "h": 0.3008,
+    "px": {
+     "y": 1174,
+     "h": 505
+    },
+    "columns": 6,
+    "headingSize": 20,
+    "links": 43
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0465
+    },
+    {
+     "type": "hero",
+     "y": 0.0529,
+     "h": 0.5955,
+     "heading": "عن هنقرستيشن"
+    },
+    {
+     "type": "footer",
+     "y": 0.6695,
+     "h": 0.3303,
+     "heading": "المطاعم"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0217
+    },
+    {
+     "type": "feature",
+     "y": 0.039,
+     "h": 0.3146,
+     "heading": "ليه هنقرستيشن؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.3645,
+     "h": 0.6354,
+     "heading": "المطاعم"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "menu button → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: عن هنقرستيشن",
+    "3 columns → 1 → 1; heading 30px → 30px → 24px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Footer",
+    "6 columns → 1 → 1; heading 20px → 20px → 20px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "1679px → 1892px → 3691px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/hungerstation-com-sa-ar-about-us/desktop.jpg",
+    "w": 1440,
+    "h": 1679,
+    "css": 1440,
+    "cssH": 1679,
+    "docH": 1679
+   },
+   "tablet": {
+    "src": "/captures/hungerstation-com-sa-ar-about-us/tablet.jpg",
+    "w": 834,
+    "h": 1892,
+    "css": 834,
+    "cssH": 1892,
+    "docH": 1892
+   },
+   "mobile": {
+    "src": "/captures/hungerstation-com-sa-ar-about-us/mobile.jpg",
+    "w": 780,
+    "h": 7382,
+    "css": 390,
+    "cssH": 3691,
+    "docH": 3691
    }
   }
  },
@@ -3943,6 +5655,737 @@
     "css": 390,
     "cssH": 5876,
     "docH": 5876
+   }
+  }
+ },
+ {
+  "slug": "linear-app-about",
+  "url": "https://linear.app/about",
+  "capturedAt": "2026-10-18T08:06:39.625Z",
+  "title": "About",
+  "source": {
+   "slug": "linear-app",
+   "name": "Linear",
+   "domain": "linear.app",
+   "about": "We’re bringing magic back to software.",
+   "tagline": "About – Linear"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "dark",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#08090A",
+   "surface": "#0F1011",
+   "raised": "#191A1B",
+   "text": "#8A8F98",
+   "muted": "#62666D",
+   "accent": "#E5E5E6",
+   "accentFg": "#08090A",
+   "border": "#23252A",
+   "chart": [
+    "#E5E5E6",
+    "#AEAEAF",
+    "#777778",
+    "#3F4041"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 72,
+     "weight": 510,
+     "use": "Section header",
+     "sample": "Built for the future. Available today."
+    },
+    {
+     "name": "H1",
+     "size": 64,
+     "weight": 510,
+     "use": "Page headline",
+     "sample": "Building tools for the next"
+    },
+    {
+     "name": "H2",
+     "size": 48,
+     "weight": 510,
+     "use": "Section header",
+     "sample": "A new species of"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Software development is at an inflection point. Artificial i"
+    },
+    {
+     "name": "Body",
+     "size": 15,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "AI is fundamentally changing how products get built. We are "
+    },
+    {
+     "name": "Small",
+     "size": 13,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "Product"
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "Seek to:"
+    }
+   ],
+   "body": "15px / 1.6",
+   "fonts": {
+    "heading": "Inter",
+    "body": "Inter"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    2,
+    4,
+    6,
+    8,
+    12,
+    16,
+    24,
+    32,
+    46,
+    128
+   ],
+   "radius": "4 / 8px",
+   "container": "1344px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.01,
+    "px": {
+     "y": 0,
+     "h": 73
+    },
+    "links": 7
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Building tools for the next era of product development",
+    "y": 0.0372,
+    "h": 0.1375,
+    "px": {
+     "y": 272,
+     "h": 1004
+    },
+    "columns": 1,
+    "headingSize": 64,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "A new species of product tool",
+    "y": 0.1747,
+    "h": 0.0909,
+    "px": {
+     "y": 1276,
+     "h": 664
+    },
+    "columns": 1,
+    "headingSize": 48,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Meet the team behind Linear",
+    "y": 0.2832,
+    "h": 0.3726,
+    "px": {
+     "y": 2069,
+     "h": 2722
+    },
+    "columns": 4,
+    "headingSize": 48,
+    "links": 9
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Backed by the best",
+    "y": 0.6735,
+    "h": 0.1662,
+    "px": {
+     "y": 4919,
+     "h": 1214
+    },
+    "headingSize": 48,
+    "links": 2
+   },
+   {
+    "type": "cta",
+    "label": "CTA band",
+    "heading": "Built for the future. Available today.",
+    "y": 0.8705,
+    "h": 0.0312,
+    "px": {
+     "y": 6358,
+     "h": 228
+    },
+    "headingSize": 72,
+    "links": 2
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Product",
+    "y": 0.9324,
+    "h": 0.0676,
+    "px": {
+     "y": 6810,
+     "h": 494
+    },
+    "columns": 5,
+    "headingSize": 13,
+    "links": 38
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0102
+    },
+    {
+     "type": "hero",
+     "y": 0.0274,
+     "h": 0.0957,
+     "heading": "Building tools for the next era of product development"
+    },
+    {
+     "type": "feature",
+     "y": 0.1231,
+     "h": 0.1218,
+     "heading": "A new species of product tool"
+    },
+    {
+     "type": "section",
+     "y": 0.2628,
+     "h": 0.0325,
+     "heading": "Meet the team behind Linear"
+    },
+    {
+     "type": "cards",
+     "y": 0.3132,
+     "h": 0.0723
+    },
+    {
+     "type": "section",
+     "y": 0.399,
+     "h": 0.2304
+    },
+    {
+     "type": "feature",
+     "y": 0.6474,
+     "h": 0.1622,
+     "heading": "Backed by the best"
+    },
+    {
+     "type": "cta",
+     "y": 0.841,
+     "h": 0.024,
+     "heading": "Built for the future. Available today."
+    },
+    {
+     "type": "footer",
+     "y": 0.8963,
+     "h": 0.1037,
+     "heading": "Product"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0136
+    },
+    {
+     "type": "hero",
+     "y": 0.0328,
+     "h": 0.0512,
+     "heading": "Building tools for the next era of product development"
+    },
+    {
+     "type": "section",
+     "y": 0.0916,
+     "h": 0.0461
+    },
+    {
+     "type": "feature",
+     "y": 0.1376,
+     "h": 0.1302,
+     "heading": "A new species of product tool"
+    },
+    {
+     "type": "feature",
+     "y": 0.2747,
+     "h": 0.2484,
+     "heading": "Meet the team behind Linear"
+    },
+    {
+     "type": "feature",
+     "y": 0.53,
+     "h": 0.2101,
+     "heading": "Backed by the best"
+    },
+    {
+     "type": "cta",
+     "y": 0.7604,
+     "h": 0.0352,
+     "heading": "Built for the future. Available today."
+    },
+    {
+     "type": "footer",
+     "y": 0.8158,
+     "h": 0.1843,
+     "heading": "Product"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "7 links → 6 links → 3 links",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: Building tools for the next era ",
+    "heading 64px → 56px → 40px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: A new species of product tool",
+    "heading 48px → 40px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Meet the team behind Linear",
+    "4 columns → 4 → 2; heading 48px → 40px → 24px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: Backed by the best",
+    "heading 48px → 40px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "CTA band: Built for the future. Available ",
+    "heading 72px → 40px → 38px",
+    [
+     "cta"
+    ]
+   ],
+   [
+    "Footer",
+    "5 columns → 3 → 2",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "7304px → 7158px → 4762px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/linear-app-about/desktop.jpg",
+    "w": 1440,
+    "h": 7304,
+    "css": 1440,
+    "cssH": 7304,
+    "docH": 7304
+   },
+   "tablet": {
+    "src": "/captures/linear-app-about/tablet.jpg",
+    "w": 834,
+    "h": 7158,
+    "css": 834,
+    "cssH": 7158,
+    "docH": 7158
+   },
+   "mobile": {
+    "src": "/captures/linear-app-about/mobile.jpg",
+    "w": 780,
+    "h": 9524,
+    "css": 390,
+    "cssH": 4762,
+    "docH": 4762
+   }
+  }
+ },
+ {
+  "slug": "linear-app-pricing",
+  "url": "https://linear.app/pricing",
+  "capturedAt": "2026-10-18T08:06:39.817Z",
+  "title": "Pricing",
+  "source": {
+   "slug": "linear-app",
+   "name": "Linear",
+   "domain": "linear.app",
+   "about": "Use Linear for free with your whole team. Upgrade to enable unlimited issues, enhanced security controls, and additional features.",
+   "tagline": "Pricing – Linear"
+  },
+  "category": "pricing",
+  "archetype": "pricing",
+  "industry": "saas",
+  "style": "dark",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#08090A",
+   "surface": "#0F1011",
+   "raised": "#191A1B",
+   "text": "#F7F8F8",
+   "muted": "#8A8F98",
+   "accent": "#E5E5E6",
+   "accentFg": "#08090A",
+   "border": "#202122",
+   "chart": [
+    "#E5E5E6",
+    "#AEAEAF",
+    "#777778",
+    "#3F4041"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "H1",
+     "size": 72,
+     "weight": 510,
+     "use": "Section header",
+     "sample": "Built for the future. Available today."
+    },
+    {
+     "name": "H2",
+     "size": 48,
+     "weight": 510,
+     "use": "Page headline",
+     "sample": "Pricing"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 510,
+     "use": "Heading",
+     "sample": "Free"
+    },
+    {
+     "name": "Body",
+     "size": 15,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Trusted by more than"
+    },
+    {
+     "name": "Small",
+     "size": 13,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "Product"
+    }
+   ],
+   "body": "15px / 1.6",
+   "fonts": {
+    "heading": "Inter",
+    "body": "Inter"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    2,
+    8,
+    12,
+    14,
+    16,
+    20,
+    24,
+    32,
+    42,
+    46
+   ],
+   "radius": "12px",
+   "container": "1344px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0118,
+    "px": {
+     "y": 0,
+     "h": 73
+    },
+    "links": 7
+   },
+   {
+    "type": "pricing",
+    "label": "Pricing tiers",
+    "heading": "Pricing",
+    "y": 0.0116,
+    "h": 0.159,
+    "px": {
+     "y": 72,
+     "h": 984
+    },
+    "columns": 4,
+    "headingSize": 48,
+    "links": 5
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "y": 0.1706,
+    "h": 0.0065,
+    "px": {
+     "y": 1056,
+     "h": 40
+    },
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.215,
+    "h": 0.009,
+    "px": {
+     "y": 1331,
+     "h": 56
+    },
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.2332,
+    "h": 0.559,
+    "px": {
+     "y": 1444,
+     "h": 3461
+    },
+    "columns": 1,
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Built for the future. Available today.",
+    "y": 0.7974,
+    "h": 0.0867,
+    "px": {
+     "y": 4937,
+     "h": 537
+    },
+    "headingSize": 72,
+    "links": 3
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Product",
+    "y": 0.9203,
+    "h": 0.0798,
+    "px": {
+     "y": 5698,
+     "h": 494
+    },
+    "columns": 5,
+    "headingSize": 13,
+    "links": 38
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0107
+    },
+    {
+     "type": "pricing",
+     "y": 0.0106,
+     "h": 0.2138,
+     "heading": "Pricing"
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.2243,
+     "h": 0.0059
+    },
+    {
+     "type": "section",
+     "y": 0.2658,
+     "h": 0.007
+    },
+    {
+     "type": "section",
+     "y": 0.2776,
+     "h": 0.5114
+    },
+    {
+     "type": "cta",
+     "y": 0.8331,
+     "h": 0.0252,
+     "heading": "Built for the future. Available today."
+    },
+    {
+     "type": "footer",
+     "y": 0.8912,
+     "h": 0.1088,
+     "heading": "Product"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "hero",
+     "y": 0.0084,
+     "h": 0.0246,
+     "heading": "Pricing"
+    },
+    {
+     "type": "section",
+     "y": 0.033,
+     "h": 0.0538,
+     "heading": "Free"
+    },
+    {
+     "type": "section",
+     "y": 0.0952,
+     "h": 0.0538,
+     "heading": "Basic"
+    },
+    {
+     "type": "section",
+     "y": 0.1575,
+     "h": 0.0725,
+     "heading": "Business"
+    },
+    {
+     "type": "section",
+     "y": 0.2384,
+     "h": 0.5888,
+     "heading": "Enterprise"
+    },
+    {
+     "type": "cta",
+     "y": 0.8499,
+     "h": 0.022,
+     "heading": "Built for the future. Available today."
+    },
+    {
+     "type": "footer",
+     "y": 0.8846,
+     "h": 0.1154,
+     "heading": "Product"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "7 links → 6 links → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Pricing tiers: Pricing",
+    "4 columns → 2 → 1; heading 48px → 48px → 24px",
+    [
+     "pricing"
+    ]
+   ],
+   [
+    "Content section: Built for the future. Available ",
+    "heading 72px → 40px → 38px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Footer",
+    "5 columns → 3 → 2",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "6192px → 6819px → 7605px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/linear-app-pricing/desktop.jpg",
+    "w": 1440,
+    "h": 6192,
+    "css": 1440,
+    "cssH": 6192,
+    "docH": 6192
+   },
+   "tablet": {
+    "src": "/captures/linear-app-pricing/tablet.jpg",
+    "w": 834,
+    "h": 6819,
+    "css": 834,
+    "cssH": 6819,
+    "docH": 6819
+   },
+   "mobile": {
+    "src": "/captures/linear-app-pricing/mobile.jpg",
+    "w": 780,
+    "h": 15210,
+    "css": 390,
+    "cssH": 7605,
+    "docH": 7605
    }
   }
  },
@@ -4490,6 +6933,423 @@
   }
  },
  {
+  "slug": "lucidya-com-ar-solutions",
+  "url": "https://lucidya.com/ar/solutions",
+  "capturedAt": "2026-10-18T08:08:41.302Z",
+  "title": "Solutions",
+  "source": {
+   "slug": "lucidya-com",
+   "name": "Lucidya",
+   "domain": "lucidya.com",
+   "about": "اكتشف كيف تساعدك لوسيديا في تحسين الأداء من خلال تحليل المشاعر، مراقبة الحملات، وجمع تعليقات العملاء بلغات متعددة.",
+   "tagline": "حلول مخصصة لقطاعات مختلفة من الأعمال - لوسيديا"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "ai",
+  "style": "light",
+  "tech": [
+   "tailwind",
+   "webflow"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F4F4F4",
+   "raised": "#E6E7E8",
+   "text": "#61616B",
+   "muted": "#A3A3A9",
+   "accent": "#466AAF",
+   "accentFg": "#FFFFFF",
+   "border": "#D9D8D8",
+   "chart": [
+    "#466AAF",
+    "#B4C3F8",
+    "#33508B",
+    "#FF2C2C"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 40,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "حلول موحّدة لإدارة تجربة العملاء تراعي الفروق الثقافية وتتعا"
+    },
+    {
+     "name": "H1",
+     "size": 37,
+     "weight": 700,
+     "use": "Card title",
+     "sample": "منصة تراعي تنوع الجمهور واختلافاته الثقافي"
+    },
+    {
+     "name": "H2",
+     "size": 32,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "للعلامات التجارية التي تجعل التميّز معيارها"
+    },
+    {
+     "name": "H3",
+     "size": 22,
+     "weight": 300,
+     "use": "Paragraph",
+     "sample": "منصّة تجمع كل ما يصدر عن عملائك"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "الحلول"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "بياناتك محمية ولن تُستخدم إلا للتواصل معك بشأن طلب العرض الت"
+    }
+   ],
+   "body": "14px / 1.52",
+   "fonts": {
+    "heading": "Ge Ss Two",
+    "body": "Ge Ss Two"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    2,
+    4,
+    8,
+    10,
+    12,
+    15,
+    20,
+    26,
+    30,
+    40
+   ],
+   "radius": "12 / 18 / 44px",
+   "container": "1080px"
+  },
+  "blocks": [
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "All Solutions",
+    "y": 0,
+    "h": 0.1561,
+    "px": {
+     "y": 0,
+     "h": 941
+    },
+    "columns": 2,
+    "headingSize": 36,
+    "links": 6
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "مصدر موحّد وموثوق لجميع بيانات عملائك",
+    "y": 0.1561,
+    "h": 0.1901,
+    "px": {
+     "y": 941,
+     "h": 1146
+    },
+    "columns": 3,
+    "headingSize": 32,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "حلولنا",
+    "y": 0.3462,
+    "h": 0.1198,
+    "px": {
+     "y": 2087,
+     "h": 722
+    },
+    "columns": 1,
+    "headingSize": 32,
+    "links": 6
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "منصة تراعي تنوع الجمهور واختلافاته الثقافي",
+    "y": 0.466,
+    "h": 0.1066,
+    "px": {
+     "y": 2810,
+     "h": 643
+    },
+    "columns": 5,
+    "headingSize": 37,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "حصاد الإنجازات بشهادة العملاء",
+    "y": 0.5726,
+    "h": 0.1348,
+    "px": {
+     "y": 3452,
+     "h": 813
+    },
+    "headingSize": 32,
+    "links": 3
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Dive deeper with fresh perspectives for smarter CX",
+    "y": 0.7075,
+    "h": 0.1045,
+    "px": {
+     "y": 4265,
+     "h": 630
+    },
+    "columns": 8,
+    "headingSize": 32,
+    "links": 32
+   },
+   {
+    "type": "signup",
+    "label": "Sign-up form",
+    "heading": "بادر بالخطوة الأولى نحو تجربة عملاء متميّزة",
+    "y": 0.812,
+    "h": 0.0843,
+    "px": {
+     "y": 4896,
+     "h": 508
+    },
+    "headingSize": 32,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Choose your region",
+    "y": 0.8996,
+    "h": 0.1004,
+    "px": {
+     "y": 5424,
+     "h": 606
+    },
+    "columns": 6,
+    "headingSize": 32,
+    "links": 54
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.1453,
+     "heading": "All Solutions"
+    },
+    {
+     "type": "cards",
+     "y": 0.1453,
+     "h": 0.1725,
+     "heading": "مصدر موحّد وموثوق لجميع بيانات عملائك"
+    },
+    {
+     "type": "feature",
+     "y": 0.3178,
+     "h": 0.1218,
+     "heading": "حلولنا"
+    },
+    {
+     "type": "hero",
+     "y": 0.4396,
+     "h": 0.1115,
+     "heading": "منصة تراعي تنوع الجمهور واختلافاته الثقافي"
+    },
+    {
+     "type": "feature",
+     "y": 0.5511,
+     "h": 0.1194,
+     "heading": "حصاد الإنجازات بشهادة العملاء"
+    },
+    {
+     "type": "cards",
+     "y": 0.6705,
+     "h": 0.0803,
+     "heading": "Dive deeper with fresh perspectives for smarter CX"
+    },
+    {
+     "type": "signup",
+     "y": 0.7508,
+     "h": 0.0773,
+     "heading": "بادر بالخطوة الأولى نحو تجربة عملاء متميّزة"
+    },
+    {
+     "type": "footer",
+     "y": 0.8315,
+     "h": 0.1685,
+     "heading": "Choose your region"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.1013,
+     "heading": "All Solutions"
+    },
+    {
+     "type": "cards",
+     "y": 0.1013,
+     "h": 0.0406,
+     "heading": "للعلامات التجارية التي تجعل التميّز معيارها"
+    },
+    {
+     "type": "feature",
+     "y": 0.15,
+     "h": 0.2235,
+     "heading": "مصدر موحّد وموثوق لجميع بيانات عملائك"
+    },
+    {
+     "type": "feature",
+     "y": 0.3776,
+     "h": 0.0821,
+     "heading": "حلولنا"
+    },
+    {
+     "type": "hero",
+     "y": 0.4638,
+     "h": 0.0737,
+     "heading": "منصة تراعي تنوع الجمهور واختلافاته الثقافي"
+    },
+    {
+     "type": "feature",
+     "y": 0.5375,
+     "h": 0.1001,
+     "heading": "حصاد الإنجازات بشهادة العملاء"
+    },
+    {
+     "type": "cards",
+     "y": 0.6377,
+     "h": 0.095,
+     "heading": "Dive deeper with fresh perspectives for smarter CX"
+    },
+    {
+     "type": "signup",
+     "y": 0.7326,
+     "h": 0.0642,
+     "heading": "بادر بالخطوة الأولى نحو تجربة عملاء متميّزة"
+    },
+    {
+     "type": "footer",
+     "y": 0.7996,
+     "h": 0.2004,
+     "heading": "Choose your region"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "FAQ: All Solutions",
+    "heading 36px → 36px → 36px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: مصدر موحّد وموثوق لجميع بيانات ع",
+    "3 columns → 3 → 1; heading 32px → 32px → 32px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: حلولنا",
+    "heading 32px → 32px → 32px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Hero: منصة تراعي تنوع الجمهور واختلافا",
+    "heading 37px → 37px → 37px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: حصاد الإنجازات بشهادة العملاء",
+    "heading 32px → 32px → 32px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Dive deeper with fresh perspecti",
+    "heading 32px → 32px → 32px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Sign-up form: بادر بالخطوة الأولى نحو تجربة عم",
+    "heading 32px → 32px → 32px",
+    [
+     "signup"
+    ]
+   ],
+   [
+    "Footer",
+    "6 columns → 3 → 2; heading 32px → 32px → 32px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "6029px → 5953px → 7391px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/lucidya-com-ar-solutions/desktop.jpg",
+    "w": 1440,
+    "h": 6029,
+    "css": 1440,
+    "cssH": 6029,
+    "docH": 6029
+   },
+   "tablet": {
+    "src": "/captures/lucidya-com-ar-solutions/tablet.jpg",
+    "w": 834,
+    "h": 5953,
+    "css": 834,
+    "cssH": 5953,
+    "docH": 5953
+   },
+   "mobile": {
+    "src": "/captures/lucidya-com-ar-solutions/mobile.jpg",
+    "w": 780,
+    "h": 14782,
+    "css": 390,
+    "cssH": 7391,
+    "docH": 7391
+   }
+  }
+ },
+ {
   "slug": "moyasar-com-ar",
   "url": "https://moyasar.com/ar/",
   "capturedAt": "2026-10-13T11:29:56.989Z",
@@ -4816,6 +7676,387 @@
     "css": 390,
     "cssH": 10749,
     "docH": 10749
+   }
+  }
+ },
+ {
+  "slug": "moyasar-com-ar-products-accept-payments",
+  "url": "https://moyasar.com/ar/products/accept-payments",
+  "capturedAt": "2026-10-18T11:26:42.358Z",
+  "title": "Accept payments",
+  "source": {
+   "slug": "moyasar-com",
+   "name": "Moyasar",
+   "domain": "moyasar.com",
+   "about": "اقبل مدفوعات مدى وفيزا وماستركارد وأبل باي وسامسوج باي وSTC Pay عبر صفحة الدفع وروابط الدفع ومجموعات SDK. حاصلون على شهادة PCI DSS من المستوى الأول.",
+   "tagline": "قبول المدفوعات الإلكترونية | ميسر"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F5F5F4",
+   "raised": "#E6EAFF",
+   "text": "#000000",
+   "muted": "#564E4A",
+   "accent": "#5364B4",
+   "accentFg": "#FFFFFF",
+   "border": "#E7E4E3",
+   "chart": [
+    "#5364B4",
+    "#6275D4",
+    "#768DFF",
+    "#D4D8EC"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 80,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "حوِّل مدفوعاتك"
+    },
+    {
+     "name": "H1",
+     "size": 57,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "ابدأ تجربة دفع مختلفة مع ميسر"
+    },
+    {
+     "name": "H2",
+     "size": 48,
+     "weight": 700,
+     "use": "Card title",
+     "sample": "عزّز أعمالك بخيارات دفع يثق بها عملاؤك"
+    },
+    {
+     "name": "H3",
+     "size": 40,
+     "weight": 700,
+     "use": "Label",
+     "sample": "عندك سؤال؟ عندنا الجواب"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "ما هي مُيسر؟ وما الخدمات التي تقدمها؟"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "عندما تريد البدء في قبول المدفوعات فورًا، عندما تحتاج إلى صف"
+    }
+   ],
+   "body": "16px / 1.5",
+   "fonts": {
+    "heading": "Readex Pro",
+    "body": "Readex Pro"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64,
+    80
+   ],
+   "radius": "12 / 16 / 24px",
+   "container": "1300px"
+  },
+  "blocks": [
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 0.005,
+    "px": {
+     "y": 0,
+     "h": 40
+    },
+    "links": 0
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "حوِّل مدفوعاتك إلى قوة نمو",
+    "y": 0,
+    "h": 0.0687,
+    "px": {
+     "y": 0,
+     "h": 552
+    },
+    "headingSize": 80,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.0687,
+    "h": 0.0792,
+    "px": {
+     "y": 552,
+     "h": 636
+    },
+    "columns": 4,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.1579,
+    "h": 0.2082,
+    "px": {
+     "y": 1268,
+     "h": 1672
+    },
+    "columns": 2,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.376,
+    "h": 0.1393,
+    "px": {
+     "y": 3020,
+     "h": 1119
+    },
+    "columns": 7,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.5153,
+    "h": 0.1443,
+    "px": {
+     "y": 4139,
+     "h": 1159
+    },
+    "columns": 7,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "ما هي مُيسر؟ وما الخدمات التي تقدمها؟",
+    "y": 0.6596,
+    "h": 0.1439,
+    "px": {
+     "y": 5298,
+     "h": 1156
+    },
+    "columns": 1,
+    "headingSize": 16,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "ابدأ تجربة دفع مختلفة مع ميسر",
+    "y": 0.8235,
+    "h": 0.1766,
+    "px": {
+     "y": 6614,
+     "h": 1418
+    },
+    "headingSize": 57,
+    "links": 23
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0039
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0635,
+     "heading": "حوِّل مدفوعاتك إلى قوة نمو"
+    },
+    {
+     "type": "section",
+     "y": 0.0635,
+     "h": 0.0796
+    },
+    {
+     "type": "section",
+     "y": 0.1509,
+     "h": 0.2984
+    },
+    {
+     "type": "section",
+     "y": 0.4572,
+     "h": 0.1508
+    },
+    {
+     "type": "section",
+     "y": 0.608,
+     "h": 0.1194
+    },
+    {
+     "type": "feature",
+     "y": 0.7274,
+     "h": 0.1133,
+     "heading": "ما هي مُيسر؟ وما الخدمات التي تقدمها؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.8406,
+     "h": 0.1593,
+     "heading": "ابدأ تجربة دفع مختلفة مع ميسر"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0032
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0639,
+     "heading": "حوِّل مدفوعاتك إلى قوة نمو"
+    },
+    {
+     "type": "section",
+     "y": 0.0639,
+     "h": 0.0866
+    },
+    {
+     "type": "section",
+     "y": 0.1537,
+     "h": 0.0222
+    },
+    {
+     "type": "section",
+     "y": 0.1823,
+     "h": 0.0657
+    },
+    {
+     "type": "section",
+     "y": 0.2512,
+     "h": 0.0657
+    },
+    {
+     "type": "section",
+     "y": 0.3201,
+     "h": 0.0657
+    },
+    {
+     "type": "section",
+     "y": 0.389,
+     "h": 0.0712
+    },
+    {
+     "type": "section",
+     "y": 0.4666,
+     "h": 0.1096
+    },
+    {
+     "type": "section",
+     "y": 0.5796,
+     "h": 0.027
+    },
+    {
+     "type": "section",
+     "y": 0.6131,
+     "h": 0.0962
+    },
+    {
+     "type": "feature",
+     "y": 0.7144,
+     "h": 0.1009,
+     "heading": "ما هي مُيسر؟ وما الخدمات التي تقدمها؟"
+    },
+    {
+     "type": "feature",
+     "y": 0.8282,
+     "h": 0.1718,
+     "heading": "ابدأ تجربة دفع مختلفة مع ميسر"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Hero: حوِّل مدفوعاتك إلى قوة نمو",
+    "heading 80px → 80px → 36px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Card grid",
+    "4 columns → 4 → 1",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: ابدأ تجربة دفع مختلفة مع ميسر",
+    "heading 57px → 57px → 30px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Page length",
+    "8032px → 10207px → 12427px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/moyasar-com-ar-products-accept-payments/desktop.jpg",
+    "w": 1440,
+    "h": 8032,
+    "css": 1440,
+    "cssH": 8032,
+    "docH": 8032
+   },
+   "tablet": {
+    "src": "/captures/moyasar-com-ar-products-accept-payments/tablet.jpg",
+    "w": 834,
+    "h": 10207,
+    "css": 834,
+    "cssH": 10207,
+    "docH": 10207
+   },
+   "mobile": {
+    "src": "/captures/moyasar-com-ar-products-accept-payments/mobile.jpg",
+    "w": 780,
+    "h": 24854,
+    "css": 390,
+    "cssH": 12427,
+    "docH": 12427
    }
   }
  },
@@ -5370,604 +8611,6 @@
     "css": 390,
     "cssH": 11926,
     "docH": 11926
-   }
-  }
- },
- {
-  "slug": "mrsool-co",
-  "url": "https://mrsool.co/",
-  "capturedAt": "2026-10-13T11:35:54.491Z",
-  "title": "Homepage",
-  "source": {
-   "slug": "mrsool-co",
-   "name": "Mrsool",
-   "domain": "mrsool.co",
-   "about": "Mrsool helps you, Born from Everyday Hassles, Built for Everyday Solutions Order now Trusted Brother What if you could have a brother in every corner of the city?This simple yet transformative question sparked the idea for Mrsool. Inspired by the daily challenges of managing errands and balancing responsibilities, the vision was to create a platform",
-   "tagline": "MRSOOL | We Say It, We Do It"
-  },
-  "category": "landing-page",
-  "archetype": "saas-landing",
-  "industry": "food",
-  "style": "light",
-  "tech": [],
-  "dir": "ltr",
-  "lang": "en-US",
-  "palette": {
-   "bg": "#FFFFFF",
-   "surface": "#DFF5EB",
-   "raised": "#D6EBE2",
-   "text": "#646464",
-   "muted": "#69727D",
-   "accent": "#CC3366",
-   "accentFg": "#FFFFFF",
-   "border": "#FFC600",
-   "chart": [
-    "#CC3366",
-    "#12B36A",
-    "#E699B3",
-    "#F2CCD9"
-   ],
-   "dark": false
-  },
-  "type": {
-   "scale": [
-    {
-     "name": "Display",
-     "size": 150,
-     "weight": 400,
-     "use": "Section header",
-     "sample": "Values"
-    },
-    {
-     "name": "H1",
-     "size": 120,
-     "weight": 400,
-     "use": "Section header",
-     "sample": "Order Anything"
-    },
-    {
-     "name": "H2",
-     "size": 115,
-     "weight": 700,
-     "use": "Heading",
-     "sample": "1.1"
-    },
-    {
-     "name": "H3",
-     "size": 80,
-     "weight": 400,
-     "use": "Section header",
-     "sample": "Customer First!"
-    },
-    {
-     "name": "Body",
-     "size": 16,
-     "weight": 400,
-     "use": "Paragraph",
-     "sample": "Mrsool can get anything from anywhere in your city"
-    }
-   ],
-   "body": "16px / 1.5",
-   "fonts": {
-    "heading": "mrsool",
-    "body": "mrsool"
-   }
-  },
-  "rhythm": {
-   "base": 4,
-   "spacing": [
-    9,
-    10,
-    12,
-    13,
-    14,
-    20,
-    29,
-    33,
-    46,
-    72
-   ],
-   "radius": "100px",
-   "container": "1140px"
-  },
-  "blocks": [
-   {
-    "type": "hero",
-    "label": "Hero",
-    "heading": "Mrsool helps you, Get Any|",
-    "y": -0.0003,
-    "h": 0.0511,
-    "px": {
-     "y": -5,
-     "h": 900
-    },
-    "columns": 1,
-    "headingSize": 64,
-    "links": 1
-   },
-   {
-    "type": "section",
-    "label": "Content section",
-    "y": 0,
-    "h": 0.0045,
-    "px": {
-     "y": 0,
-     "h": 80
-    },
-    "links": 8
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Trusted Brother",
-    "y": 0.0508,
-    "h": 0.0511,
-    "px": {
-     "y": 895,
-     "h": 900
-    },
-    "headingSize": 72,
-    "links": 1
-   },
-   {
-    "type": "stats",
-    "label": "Metrics band",
-    "y": 0.1019,
-    "h": 0.0511,
-    "px": {
-     "y": 1795,
-     "h": 900
-    },
-    "columns": 2,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Values",
-    "y": 0.153,
-    "h": 0.3065,
-    "px": {
-     "y": 2695,
-     "h": 5400
-    },
-    "columns": 1,
-    "headingSize": 150,
-    "links": 0
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Order Anything",
-    "y": 0.4594,
-    "h": 0.0511,
-    "px": {
-     "y": 8095,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Send Or Receive Anything",
-    "y": 0.5105,
-    "h": 0.0511,
-    "px": {
-     "y": 8995,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Get Me",
-    "y": 0.5616,
-    "h": 0.0511,
-    "px": {
-     "y": 9895,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Moaaqeb (Mrsool agent)",
-    "y": 0.6127,
-    "h": 0.0511,
-    "px": {
-     "y": 10795,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Battery Jump",
-    "y": 0.6638,
-    "h": 0.0511,
-    "px": {
-     "y": 11695,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Furniture Transfer",
-    "y": 0.7149,
-    "h": 0.0511,
-    "px": {
-     "y": 12595,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Gas Delivery",
-    "y": 0.7659,
-    "h": 0.0511,
-    "px": {
-     "y": 13495,
-     "h": 900
-    },
-    "headingSize": 120,
-    "links": 1
-   },
-   {
-    "type": "pricing",
-    "label": "Pricing tiers",
-    "heading": "Unlimited Free Delivery!",
-    "y": 0.817,
-    "h": 0.0511,
-    "px": {
-     "y": 14395,
-     "h": 900
-    },
-    "columns": 3,
-    "headingSize": 35.2,
-    "links": 0
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "Drive with Purpose, Deliver with Pride",
-    "y": 0.9192,
-    "h": 0.0511,
-    "px": {
-     "y": 16195,
-     "h": 900
-    },
-    "headingSize": 72,
-    "links": 1
-   },
-   {
-    "type": "footer",
-    "label": "Footer",
-    "y": 0.9703,
-    "h": 0.0297,
-    "px": {
-     "y": 17095,
-     "h": 524
-    },
-    "columns": 2,
-    "links": 17
-   }
-  ],
-  "crops": {
-   "tablet": [
-    {
-     "type": "hero",
-     "y": -0.0002,
-     "h": 0.0482,
-     "heading": "Mrsool helps you, Get You Gas to Cook|"
-    },
-    {
-     "type": "section",
-     "y": 0,
-     "h": 0.0032
-    },
-    {
-     "type": "feature",
-     "y": 0.048,
-     "h": 0.0482,
-     "heading": "Trusted Brother"
-    },
-    {
-     "type": "stats",
-     "y": 0.0963,
-     "h": 0.0482
-    },
-    {
-     "type": "feature",
-     "y": 0.1445,
-     "h": 0.2894,
-     "heading": "Values"
-    },
-    {
-     "type": "feature",
-     "y": 0.434,
-     "h": 0.0482,
-     "heading": "Order Anything"
-    },
-    {
-     "type": "feature",
-     "y": 0.4822,
-     "h": 0.0482,
-     "heading": "Send Or Receive Anything"
-    },
-    {
-     "type": "feature",
-     "y": 0.5304,
-     "h": 0.0482,
-     "heading": "Get Me"
-    },
-    {
-     "type": "feature",
-     "y": 0.5787,
-     "h": 0.0482,
-     "heading": "Moaaqeb (Mrsool agent)"
-    },
-    {
-     "type": "feature",
-     "y": 0.6269,
-     "h": 0.0482,
-     "heading": "Battery Jump"
-    },
-    {
-     "type": "feature",
-     "y": 0.6752,
-     "h": 0.0482,
-     "heading": "Furniture Transfer"
-    },
-    {
-     "type": "feature",
-     "y": 0.7234,
-     "h": 0.0482,
-     "heading": "Gas Delivery"
-    },
-    {
-     "type": "pricing",
-     "y": 0.7716,
-     "h": 0.0482,
-     "heading": "Unlimited Free Delivery!"
-    },
-    {
-     "type": "feature",
-     "y": 0.8681,
-     "h": 0.0482,
-     "heading": "Drive with Purpose, Deliver with Pride"
-    },
-    {
-     "type": "footer",
-     "y": 0.9164,
-     "h": 0.0836
-    }
-   ],
-   "mobile": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0047
-    },
-    {
-     "type": "hero",
-     "y": 0,
-     "h": 0.0467,
-     "heading": "Mrsool helps you, Get Any|"
-    },
-    {
-     "type": "feature",
-     "y": 0.0467,
-     "h": 0.0549,
-     "heading": "Trusted Brother"
-    },
-    {
-     "type": "stats",
-     "y": 0.1016,
-     "h": 0.048
-    },
-    {
-     "type": "feature",
-     "y": 0.1496,
-     "h": 0.2804,
-     "heading": "Values"
-    },
-    {
-     "type": "feature",
-     "y": 0.43,
-     "h": 0.0467,
-     "heading": "Order Anything"
-    },
-    {
-     "type": "testimonials",
-     "y": 0.4767,
-     "h": 0.0467,
-     "heading": "Send Or Receive Anything"
-    },
-    {
-     "type": "testimonials",
-     "y": 0.5235,
-     "h": 0.0467,
-     "heading": "Get Me"
-    },
-    {
-     "type": "feature",
-     "y": 0.5702,
-     "h": 0.0467,
-     "heading": "Moaaqeb (Mrsool agent)"
-    },
-    {
-     "type": "feature",
-     "y": 0.6169,
-     "h": 0.0467,
-     "heading": "Battery Jump"
-    },
-    {
-     "type": "testimonials",
-     "y": 0.6637,
-     "h": 0.0467,
-     "heading": "Furniture Transfer"
-    },
-    {
-     "type": "feature",
-     "y": 0.7104,
-     "h": 0.0467,
-     "heading": "Gas Delivery"
-    },
-    {
-     "type": "pricing",
-     "y": 0.7571,
-     "h": 0.0499,
-     "heading": "Unlimited Free Delivery!"
-    },
-    {
-     "type": "feature",
-     "y": 0.8569,
-     "h": 0.0491,
-     "heading": "Drive with Purpose, Deliver with Pride"
-    },
-    {
-     "type": "footer",
-     "y": 0.906,
-     "h": 0.094
-    }
-   ]
-  },
-  "responsive": [
-   [
-    "Hero: Mrsool helps you, Get Any|",
-    "heading 64px → 64px → 64px",
-    [
-     "hero"
-    ]
-   ],
-   [
-    "Feature section: Trusted Brother",
-    "heading 72px → 45px → 32px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Values",
-    "heading 150px → 45px → 64px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Order Anything",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Send Or Receive Anything",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Get Me",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Moaaqeb (Mrsool agent)",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Battery Jump",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Furniture Transfer",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: Gas Delivery",
-    "heading 120px → 120px → 60px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Pricing tiers: Unlimited Free Delivery!",
-    "3 columns → 2 → 2; heading 35.2px → 35.2px → 32px",
-    [
-     "pricing"
-    ]
-   ],
-   [
-    "Feature section: Drive with Purpose, Deliver with",
-    "heading 72px → 45px → 32px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Footer",
-    "2 columns → 2 → 1",
-    [
-     "footer"
-    ]
-   ],
-   [
-    "Page length",
-    "17619px → 24751px → 18060px",
-    []
-   ]
-  ],
-  "shots": {
-   "desktop": {
-    "src": "/captures/mrsool-co/desktop.jpg",
-    "w": 1440,
-    "h": 14000,
-    "css": 1440,
-    "cssH": 14000,
-    "docH": 17619
-   },
-   "tablet": {
-    "src": "/captures/mrsool-co/tablet.jpg",
-    "w": 834,
-    "h": 14000,
-    "css": 834,
-    "cssH": 14000,
-    "docH": 24751
-   },
-   "mobile": {
-    "src": "/captures/mrsool-co/mobile.jpg",
-    "w": 780,
-    "h": 28000,
-    "css": 390,
-    "cssH": 14000,
-    "docH": 18060
    }
   }
  },
@@ -7168,238 +9811,6 @@
   }
  },
  {
-  "slug": "ounass-ae-ar",
-  "url": "https://www.ounass.ae/ar",
-  "capturedAt": "2026-10-13T11:34:50.326Z",
-  "title": "Homepage",
-  "source": {
-   "slug": "ounass-ae",
-   "name": "Ounass",
-   "domain": "ounass.ae",
-   "about": "",
-   "tagline": ""
-  },
-  "category": "landing-page",
-  "archetype": "saas-landing",
-  "industry": "fashion",
-  "style": "minimal",
-  "tech": [
-   "tailwind"
-  ],
-  "dir": "ltr",
-  "lang": "en",
-  "palette": {
-   "bg": "#FFFFFF",
-   "surface": "#F7F7F7",
-   "raised": "#EDEDED",
-   "text": "#000000",
-   "muted": "#2D2D2D",
-   "accent": "#2D2D2D",
-   "accentFg": "#FFFFFF",
-   "border": "#E0E0E0",
-   "chart": [
-    "#2D2D2D",
-    "#B87253",
-    "#969696",
-    "#CBCBCB"
-   ],
-   "dark": false
-  },
-  "type": {
-   "scale": [
-    {
-     "name": "H2",
-     "size": 30,
-     "weight": 400,
-     "use": "Page headline",
-     "sample": "The page you were looking for doesn’t exist."
-    },
-    {
-     "name": "H3",
-     "size": 18,
-     "weight": 400,
-     "use": "Paragraph",
-     "sample": "Discover New In or one of the categories below instead."
-    },
-    {
-     "name": "Body",
-     "size": 13,
-     "weight": 400,
-     "use": "Paragraph",
-     "sample": "WOMEN"
-    },
-    {
-     "name": "Small",
-     "size": 12,
-     "weight": 400,
-     "use": "Links, buttons",
-     "sample": "Top Brands"
-    },
-    {
-     "name": "Caption",
-     "size": 11,
-     "weight": 700,
-     "use": "Form labels",
-     "sample": "Follow Ounass"
-    }
-   ],
-   "body": "13px / 1.23",
-   "fonts": {
-    "heading": "NunitoSans",
-    "body": "NunitoSans"
-   }
-  },
-  "rhythm": {
-   "base": 4,
-   "spacing": [
-    1,
-    2,
-    4,
-    8,
-    12,
-    16,
-    20,
-    24,
-    30,
-    40
-   ],
-   "radius": "2 / 4px",
-   "container": "1180px"
-  },
-  "blocks": [
-   {
-    "type": "navbar",
-    "label": "Navbar",
-    "y": 0,
-    "h": 0.1548,
-    "px": {
-     "y": 0,
-     "h": 185
-    },
-    "links": 21
-   },
-   {
-    "type": "hero",
-    "label": "Hero",
-    "heading": "The page you were looking for doesn’t exist.",
-    "y": 0.1548,
-    "h": 0.3146,
-    "px": {
-     "y": 185,
-     "h": 376
-    },
-    "headingSize": 30,
-    "links": 1
-   },
-   {
-    "type": "footer",
-    "label": "Footer",
-    "heading": "Top Brands",
-    "y": 0.4695,
-    "h": 0.5305,
-    "px": {
-     "y": 561,
-     "h": 634
-    },
-    "columns": 5,
-    "headingSize": 12,
-    "links": 32
-   }
-  ],
-  "crops": {
-   "tablet": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0362
-    },
-    {
-     "type": "hero",
-     "y": 0.0362,
-     "h": 0.2074,
-     "heading": "The page you were looking for doesn’t exist."
-    },
-    {
-     "type": "footer",
-     "y": 0.2436,
-     "h": 0.7562
-    }
-   ],
-   "mobile": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0349
-    },
-    {
-     "type": "hero",
-     "y": 0.0349,
-     "h": 0.2367,
-     "heading": "The page you were looking for doesn’t exist."
-    },
-    {
-     "type": "footer",
-     "y": 0.2716,
-     "h": 0.7282
-    }
-   ]
-  },
-  "responsive": [
-   [
-    "Navbar",
-    "21 links → 3 links → 3 links",
-    [
-     "navbar"
-    ]
-   ],
-   [
-    "Hero: The page you were looking for do",
-    "heading 30px → 20px → 20px",
-    [
-     "hero"
-    ]
-   ],
-   [
-    "Footer",
-    "5 columns → 1 → 1",
-    [
-     "footer"
-    ]
-   ],
-   [
-    "Page length",
-    "1195px → 1326px → 1377px",
-    []
-   ]
-  ],
-  "shots": {
-   "desktop": {
-    "src": "/captures/ounass-ae-ar/desktop.jpg",
-    "w": 1440,
-    "h": 1195,
-    "css": 1440,
-    "cssH": 1195,
-    "docH": 1195
-   },
-   "tablet": {
-    "src": "/captures/ounass-ae-ar/tablet.jpg",
-    "w": 834,
-    "h": 1326,
-    "css": 834,
-    "cssH": 1326,
-    "docH": 1326
-   },
-   "mobile": {
-    "src": "/captures/ounass-ae-ar/mobile.jpg",
-    "w": 780,
-    "h": 2754,
-    "css": 390,
-    "cssH": 1377,
-    "docH": 1377
-   }
-  }
- },
- {
   "slug": "propertyfinder-ae-ar",
   "url": "https://www.propertyfinder.ae/ar/",
   "capturedAt": "2026-10-13T11:36:26.378Z",
@@ -7949,867 +10360,6 @@
   }
  },
  {
-  "slug": "rewaatech-com",
-  "url": "https://www.rewaatech.com/",
-  "capturedAt": "2026-10-13T11:34:42.720Z",
-  "title": "Homepage",
-  "source": {
-   "slug": "rewaatech-com",
-   "name": "Rewaa",
-   "domain": "rewaatech.com",
-   "about": "تعرّف على أفضل برنامج محاسبة وكاشير لإدارة نشاطك تجاري - حلول متكاملة تجمع الكاشير، والمحاسبة، والمخزون، و الفوترة الإلكترونية في نظام واحد",
-   "tagline": "رواء | كاشير ومحاسبة وإدارة مخزون وفوترة وأكثر"
-  },
-  "category": "landing-page",
-  "archetype": "saas-landing",
-  "industry": "saas",
-  "style": "light",
-  "tech": [],
-  "dir": "rtl",
-  "lang": "ar",
-  "palette": {
-   "bg": "#FFFFFF",
-   "surface": "#F7F7F7",
-   "raised": "#EDEDED",
-   "text": "#919191",
-   "muted": "#BFBFBF",
-   "accent": "#00A4A6",
-   "accentFg": "#FBFBFB",
-   "border": "#A6B7C3",
-   "chart": [
-    "#00A4A6",
-    "#17A9A7",
-    "#CC3366",
-    "#BFE8E9"
-   ],
-   "dark": false
-  },
-  "type": {
-   "scale": [
-    {
-     "name": "Display",
-     "size": 120,
-     "weight": 300,
-     "use": "Page headline",
-     "sample": "من شاشة وحدة!"
-    },
-    {
-     "name": "H1",
-     "size": 55,
-     "weight": 300,
-     "use": "Section header",
-     "sample": "أكثر من 23000 عميل يثقون في رواء"
-    },
-    {
-     "name": "H2",
-     "size": 48,
-     "weight": 300,
-     "use": "Heading",
-     "sample": "إدارة مبيعاتك التجارية"
-    },
-    {
-     "name": "H3",
-     "size": 36,
-     "weight": 300,
-     "use": "Card title",
-     "sample": "حلول تقنيـة مخصصة لإدارة محـلات التجزئة"
-    },
-    {
-     "name": "Body",
-     "size": 16,
-     "weight": 300,
-     "use": "Paragraph",
-     "sample": "Skip to content"
-    }
-   ],
-   "body": "16px / 1.88",
-   "fonts": {
-    "heading": "Noto Kufi Arabic",
-    "body": "Noto Kufi Arabic"
-   }
-  },
-  "rhythm": {
-   "base": 2,
-   "spacing": [
-    2,
-    5,
-    6,
-    10,
-    15,
-    20,
-    25,
-    30,
-    45,
-    50
-   ],
-   "radius": "20 / 40 / 50px",
-   "container": "1368px"
-  },
-  "blocks": [
-   {
-    "type": "navbar",
-    "label": "Navbar",
-    "y": 0,
-    "h": 0.0101,
-    "px": {
-     "y": 0,
-     "h": 62
-    },
-    "links": 9
-   },
-   {
-    "type": "hero",
-    "label": "Hero",
-    "heading": "من شاشة وحدة!",
-    "y": 0.0101,
-    "h": 0.114,
-    "px": {
-     "y": 62,
-     "h": 700
-    },
-    "columns": 1,
-    "headingSize": 120,
-    "links": 2
-   },
-   {
-    "type": "logo-cloud",
-    "label": "Logo cloud",
-    "heading": "أكثر من 23000 عميل يثقون في رواء",
-    "y": 0.1241,
-    "h": 0.0578,
-    "px": {
-     "y": 762,
-     "h": 355
-    },
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "cards",
-    "label": "Card grid",
-    "heading": "ليش التجار يفضّلون رواء",
-    "y": 0.1819,
-    "h": 0.1539,
-    "px": {
-     "y": 1117,
-     "h": 945
-    },
-    "columns": 4,
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "cards",
-    "label": "Card grid",
-    "heading": "نمو تشهد عليه الأرقام",
-    "y": 0.3357,
-    "h": 0.079,
-    "px": {
-     "y": 2062,
-     "h": 485
-    },
-    "columns": 3,
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "حلول رواء المتكاملة تخدم كل احتياجات التجار",
-    "y": 0.4147,
-    "h": 0.1514,
-    "px": {
-     "y": 2547,
-     "h": 930
-    },
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "section",
-    "label": "Content section",
-    "heading": "ايش مجالك؟ رواء تخدمك",
-    "y": 0.5661,
-    "h": 0.0879,
-    "px": {
-     "y": 3477,
-     "h": 540
-    },
-    "headingSize": 36,
-    "links": 0
-   },
-   {
-    "type": "cards",
-    "label": "Card grid",
-    "heading": "على لسان التجار",
-    "y": 0.654,
-    "h": 0.1096,
-    "px": {
-     "y": 4017,
-     "h": 673
-    },
-    "columns": 5,
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "cards",
-    "label": "Card grid",
-    "heading": "تعرّف على جديد التجارة وإدارة الأعمال",
-    "y": 0.7636,
-    "h": 0.0871,
-    "px": {
-     "y": 4690,
-     "h": 535
-    },
-    "columns": 5,
-    "headingSize": 55,
-    "links": 10
-   },
-   {
-    "type": "section",
-    "label": "Content section",
-    "heading": "جرّب رواء مجانًا لـ 14 يوم!",
-    "y": 0.8507,
-    "h": 0.0414,
-    "px": {
-     "y": 5225,
-     "h": 254
-    },
-    "headingSize": 55,
-    "links": 0
-   },
-   {
-    "type": "footer",
-    "label": "Footer",
-    "heading": "حلول تقنيـة مخصصة لإدارة محـلات التجزئة",
-    "y": 0.8921,
-    "h": 0.1079,
-    "px": {
-     "y": 5479,
-     "h": 663
-    },
-    "columns": 4,
-    "headingSize": 36,
-    "links": 37
-   }
-  ],
-  "crops": {
-   "tablet": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0074
-    },
-    {
-     "type": "hero",
-     "y": 0.0074,
-     "h": 0.0716,
-     "heading": "من شاشة وحدة!"
-    },
-    {
-     "type": "cards",
-     "y": 0.079,
-     "h": 0.0621,
-     "heading": "أكثر من 23000 عميل يثقون في رواء"
-    },
-    {
-     "type": "feature",
-     "y": 0.1411,
-     "h": 0.1904,
-     "heading": "ليش التجار يفضّلون رواء"
-    },
-    {
-     "type": "section",
-     "y": 0.3316,
-     "h": 0.0275,
-     "heading": "نمو تشهد عليه الأرقام"
-    },
-    {
-     "type": "cards",
-     "y": 0.359,
-     "h": 0.0412
-    },
-    {
-     "type": "feature",
-     "y": 0.4002,
-     "h": 0.1205,
-     "heading": "حلول رواء المتكاملة تخدم كل احتياجات التجار"
-    },
-    {
-     "type": "feature",
-     "y": 0.5207,
-     "h": 0.104,
-     "heading": "ايش مجالك؟ رواء تخدمك"
-    },
-    {
-     "type": "cards",
-     "y": 0.6248,
-     "h": 0.0843,
-     "heading": "على لسان التجار"
-    },
-    {
-     "type": "cards",
-     "y": 0.7091,
-     "h": 0.0877,
-     "heading": "تعرّف على جديد التجارة وإدارة الأعمال"
-    },
-    {
-     "type": "section",
-     "y": 0.7967,
-     "h": 0.0441,
-     "heading": "جرّب رواء مجانًا لـ 14 يوم!"
-    },
-    {
-     "type": "footer",
-     "y": 0.8409,
-     "h": 0.1592,
-     "heading": "حلول تقنيـة مخصصة لإدارة محـلات التجزئة"
-    }
-   ],
-   "mobile": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.006
-    },
-    {
-     "type": "hero",
-     "y": 0.006,
-     "h": 0.0678,
-     "heading": "من شاشة وحدة!"
-    },
-    {
-     "type": "logo-cloud",
-     "y": 0.0738,
-     "h": 0.0329,
-     "heading": "أكثر من 23000 عميل يثقون في رواء"
-    },
-    {
-     "type": "section",
-     "y": 0.1274,
-     "h": 0.056
-    },
-    {
-     "type": "section",
-     "y": 0.1834,
-     "h": 0.056
-    },
-    {
-     "type": "section",
-     "y": 0.2394,
-     "h": 0.056
-    },
-    {
-     "type": "section",
-     "y": 0.2954,
-     "h": 0.053
-    },
-    {
-     "type": "feature",
-     "y": 0.3524,
-     "h": 0.0718,
-     "heading": "نمو تشهد عليه الأرقام"
-    },
-    {
-     "type": "feature",
-     "y": 0.4242,
-     "h": 0.0911,
-     "heading": "حلول رواء المتكاملة تخدم كل احتياجات التجار"
-    },
-    {
-     "type": "feature",
-     "y": 0.5178,
-     "h": 0.1185,
-     "heading": "ايش مجالك؟ رواء تخدمك"
-    },
-    {
-     "type": "cards",
-     "y": 0.6388,
-     "h": 0.0679,
-     "heading": "على لسان التجار"
-    },
-    {
-     "type": "cards",
-     "y": 0.7067,
-     "h": 0.0716,
-     "heading": "تعرّف على جديد التجارة وإدارة الأعمال"
-    },
-    {
-     "type": "section",
-     "y": 0.7784,
-     "h": 0.0355,
-     "heading": "جرّب رواء مجانًا لـ 14 يوم!"
-    },
-    {
-     "type": "footer",
-     "y": 0.8138,
-     "h": 0.1862,
-     "heading": "حلول تقنيـة مخصصة لإدارة محـلات التجزئة"
-    }
-   ]
-  },
-  "responsive": [
-   [
-    "Navbar",
-    "9 links → 9 links → menu button",
-    [
-     "navbar"
-    ]
-   ],
-   [
-    "Hero: من شاشة وحدة!",
-    "heading 120px → 120px → 70px",
-    [
-     "hero"
-    ]
-   ],
-   [
-    "Logo cloud: أكثر من 23000 عميل يثقون في رواء",
-    "heading 55px → 55px → 28px",
-    [
-     "logo-cloud"
-    ]
-   ],
-   [
-    "Card grid: ليش التجار يفضّلون رواء",
-    "4 columns → 2 → 1; heading 55px → 55px → —px",
-    [
-     "cards"
-    ]
-   ],
-   [
-    "Card grid: نمو تشهد عليه الأرقام",
-    "3 columns → 3 → 1; heading 55px → 55px → 28px",
-    [
-     "cards"
-    ]
-   ],
-   [
-    "Feature section: حلول رواء المتكاملة تخدم كل احتي",
-    "heading 55px → 55px → 28px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Content section: ايش مجالك؟ رواء تخدمك",
-    "heading 36px → 36px → 24px",
-    [
-     "section"
-    ]
-   ],
-   [
-    "Card grid: على لسان التجار",
-    "heading 55px → 55px → 28px",
-    [
-     "cards"
-    ]
-   ],
-   [
-    "Card grid: تعرّف على جديد التجارة وإدارة ال",
-    "heading 55px → 55px → 28px",
-    [
-     "cards"
-    ]
-   ],
-   [
-    "Content section: جرّب رواء مجانًا لـ 14 يوم!",
-    "heading 55px → 55px → 28px",
-    [
-     "section"
-    ]
-   ],
-   [
-    "Footer",
-    "4 columns → 4 → 1; heading 36px → 36px → 24px",
-    [
-     "footer"
-    ]
-   ],
-   [
-    "Page length",
-    "6142px → 8375px → 9963px",
-    []
-   ]
-  ],
-  "shots": {
-   "desktop": {
-    "src": "/captures/rewaatech-com/desktop.jpg",
-    "w": 1440,
-    "h": 6142,
-    "css": 1440,
-    "cssH": 6142,
-    "docH": 6142
-   },
-   "tablet": {
-    "src": "/captures/rewaatech-com/tablet.jpg",
-    "w": 834,
-    "h": 8375,
-    "css": 834,
-    "cssH": 8375,
-    "docH": 8375
-   },
-   "mobile": {
-    "src": "/captures/rewaatech-com/mobile.jpg",
-    "w": 780,
-    "h": 19926,
-    "css": 390,
-    "cssH": 9963,
-    "docH": 9963
-   }
-  }
- },
- {
-  "slug": "stcbank-com-sa",
-  "url": "https://stcbank.com.sa/",
-  "capturedAt": "2026-10-13T11:30:14.225Z",
-  "title": "Homepage",
-  "source": {
-   "slug": "stcbank-com-sa",
-   "name": "STC Bank",
-   "domain": "stcbank.com.sa",
-   "about": "",
-   "tagline": "Home - STC Bank"
-  },
-  "category": "landing-page",
-  "archetype": "saas-landing",
-  "industry": "fintech",
-  "style": "dark",
-  "tech": [],
-  "dir": "rtl",
-  "lang": "ar-SA",
-  "palette": {
-   "bg": "#34005B",
-   "surface": "#3A0860",
-   "raised": "#421266",
-   "text": "#FFFFFF",
-   "muted": "#A3A3AF",
-   "accent": "#03BB86",
-   "accentFg": "#FFFFFF",
-   "border": "#0C1620",
-   "chart": [
-    "#03BB86",
-    "#34005B",
-    "#4F008C",
-    "#282F66"
-   ],
-   "dark": true
-  },
-  "type": {
-   "scale": [
-    {
-     "name": "Display",
-     "size": 64,
-     "weight": 400,
-     "use": "Page headline",
-     "sample": "تطبيق"
-    },
-    {
-     "name": "H1",
-     "size": 52,
-     "weight": 400,
-     "use": "Section header",
-     "sample": "Home"
-    },
-    {
-     "name": "H2",
-     "size": 32,
-     "weight": 400,
-     "use": "Card title",
-     "sample": "كلاسيكو ريال مدريد وبرشلونة"
-    },
-    {
-     "name": "H3",
-     "size": 24,
-     "weight": 400,
-     "use": "Heading",
-     "sample": "قسّم المصاريف"
-    },
-    {
-     "name": "Body",
-     "size": 14,
-     "weight": 400,
-     "use": "Paragraph",
-     "sample": "English"
-    },
-    {
-     "name": "Small",
-     "size": 12,
-     "weight": 400,
-     "use": "Meta, labels",
-     "sample": "داخل المملكة"
-    },
-    {
-     "name": "Caption",
-     "size": 10,
-     "weight": 600,
-     "use": "Eyebrow, badges",
-     "sample": "اللون: أسود"
-    }
-   ],
-   "body": "14px / 1",
-   "fonts": {
-    "heading": "Stc Bold",
-    "body": "Stc Regular"
-   }
-  },
-  "rhythm": {
-   "base": 4,
-   "spacing": [
-    4,
-    8,
-    9,
-    12,
-    15,
-    16,
-    20,
-    24,
-    40,
-    72
-   ],
-   "radius": "8 / 12 / 16px",
-   "container": "1360px"
-  },
-  "blocks": [
-   {
-    "type": "navbar",
-    "label": "Navbar",
-    "heading": "عرض القائمة",
-    "y": 0,
-    "h": 0.0029,
-    "px": {
-     "y": 0,
-     "h": 72
-    },
-    "headingSize": 52,
-    "links": 6
-   },
-   {
-    "type": "hero",
-    "label": "Hero",
-    "heading": "تطبيق ياخذك أبعد!",
-    "y": 0,
-    "h": 0.6811,
-    "px": {
-     "y": 0,
-     "h": 16900
-    },
-    "columns": 9,
-    "headingSize": 64,
-    "links": 10
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "اكتشف البطاقات",
-    "y": 0.6811,
-    "h": 0.1975,
-    "px": {
-     "y": 16900,
-     "h": 4900
-    },
-    "columns": 1,
-    "headingSize": 52,
-    "links": 1
-   },
-   {
-    "type": "feature",
-    "label": "Feature section",
-    "heading": "تحكّم بأمورك المالية من مكان واحد!",
-    "y": 0.8786,
-    "h": 0.0336,
-    "px": {
-     "y": 21800,
-     "h": 834
-    },
-    "headingSize": 52,
-    "links": 1
-   },
-   {
-    "type": "cards",
-    "label": "Card grid",
-    "heading": "ناشر الأصول",
-    "y": 0.9122,
-    "h": 0.0403,
-    "px": {
-     "y": 22634,
-     "h": 1000
-    },
-    "columns": 4,
-    "headingSize": 52,
-    "links": 4
-   },
-   {
-    "type": "footer",
-    "label": "Footer",
-    "heading": "روح أبعد مع الخدمات البنكية الرقمية",
-    "y": 0.9554,
-    "h": 0.0283,
-    "px": {
-     "y": 23706,
-     "h": 702
-    },
-    "columns": 1,
-    "headingSize": 52,
-    "links": 26
-   }
-  ],
-  "crops": {
-   "tablet": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0025,
-     "heading": "عرض القائمة"
-    },
-    {
-     "type": "hero",
-     "y": 0,
-     "h": 0.6656,
-     "heading": "تطبيق ياخذك أبعد!"
-    },
-    {
-     "type": "feature",
-     "y": 0.6656,
-     "h": 0.2011,
-     "heading": "اكتشف البطاقات"
-    },
-    {
-     "type": "cta",
-     "y": 0.8667,
-     "h": 0.0196,
-     "heading": "تحكّم بأمورك المالية من مكان واحد!"
-    },
-    {
-     "type": "cards",
-     "y": 0.8863,
-     "h": 0.0312,
-     "heading": "ناشر الأصول"
-    },
-    {
-     "type": "footer",
-     "y": 0.9194,
-     "h": 0.0345,
-     "heading": "روح أبعد مع الخدمات البنكية الرقمية"
-    }
-   ],
-   "mobile": [
-    {
-     "type": "navbar",
-     "y": 0,
-     "h": 0.0023,
-     "heading": "عرض القائمة"
-    },
-    {
-     "type": "hero",
-     "y": 0,
-     "h": 0.6869,
-     "heading": "تطبيق ياخذك أبعد!"
-    },
-    {
-     "type": "feature",
-     "y": 0.6869,
-     "h": 0.1976,
-     "heading": "اكتشف البطاقات"
-    },
-    {
-     "type": "feature",
-     "y": 0.8845,
-     "h": 0.0357,
-     "heading": "تحكّم بأمورك المالية من مكان واحد!"
-    },
-    {
-     "type": "cards",
-     "y": 0.9202,
-     "h": 0.0307,
-     "heading": "ناشر الأصول"
-    },
-    {
-     "type": "footer",
-     "y": 0.9521,
-     "h": 0.0466,
-     "heading": "روح أبعد مع الخدمات البنكية الرقمية"
-    }
-   ]
-  },
-  "responsive": [
-   [
-    "Navbar",
-    "6 links → menu button → menu button; heading 52px → 32px → 32px",
-    [
-     "navbar"
-    ]
-   ],
-   [
-    "Hero: تطبيق ياخذك أبعد!",
-    "heading 64px → 48px → 48px",
-    [
-     "hero"
-    ]
-   ],
-   [
-    "Feature section: اكتشف البطاقات",
-    "heading 52px → 32px → 32px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Feature section: تحكّم بأمورك المالية من مكان واح",
-    "heading 52px → 32px → 32px",
-    [
-     "feature"
-    ]
-   ],
-   [
-    "Card grid: ناشر الأصول",
-    "heading 52px → 32px → 32px",
-    [
-     "cards"
-    ]
-   ],
-   [
-    "Footer",
-    "heading 52px → 32px → 32px",
-    [
-     "footer"
-    ]
-   ],
-   [
-    "Page length",
-    "24812px → 25832px → 24520px",
-    []
-   ]
-  ],
-  "shots": {
-   "desktop": {
-    "src": "/captures/stcbank-com-sa/desktop.jpg",
-    "w": 1440,
-    "h": 14000,
-    "css": 1440,
-    "cssH": 14000,
-    "docH": 24812
-   },
-   "tablet": {
-    "src": "/captures/stcbank-com-sa/tablet.jpg",
-    "w": 834,
-    "h": 14000,
-    "css": 834,
-    "cssH": 14000,
-    "docH": 25832
-   },
-   "mobile": {
-    "src": "/captures/stcbank-com-sa/mobile.jpg",
-    "w": 780,
-    "h": 28000,
-    "css": 390,
-    "cssH": 14000,
-    "docH": 24520
-   }
-  }
- },
- {
   "slug": "tabby-ai-ar-sa",
   "url": "https://tabby.ai/ar-SA",
   "capturedAt": "2026-10-13T11:29:46.002Z",
@@ -9318,6 +10868,550 @@
     "css": 390,
     "cssH": 10421,
     "docH": 10421
+   }
+  }
+ },
+ {
+  "slug": "tabby-ai-ar-sa-business",
+  "url": "https://tabby.ai/ar-SA/business",
+  "capturedAt": "2026-10-18T08:07:52.215Z",
+  "title": "Business",
+  "source": {
+   "slug": "tabby-ai",
+   "name": "Tabby",
+   "domain": "tabby.ai",
+   "about": "دفعات مرنة تساعدك على الوصول إلى 25 مليون متسوّق، زيادة المبيعات واستلام مستحقاتك مقدمًا.",
+   "tagline": "انطلق بأعمالك لأبعد مدى بالدفع المرن | تابي للشركاء"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "minimal",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F5F4F2",
+   "raised": "#EBE7E4",
+   "text": "#1A1919",
+   "muted": "#7A7A7A",
+   "accent": "#1A1919",
+   "accentFg": "#F5F4F2",
+   "border": "#F5F4F2",
+   "chart": [
+    "#1A1919",
+    "#E3715D",
+    "#6CFF93",
+    "#66ABFE"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 60,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "انطلق بأعمالك لأبعد مدى مع تابي"
+    },
+    {
+     "name": "H1",
+     "size": 44,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "دفعات صغيرة تصنع أعمالًا كبيرة"
+    },
+    {
+     "name": "H2",
+     "size": 28,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "لماذا تختار الشركات تابي"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 700,
+     "use": "Card title",
+     "sample": "1 من كل 3 بالغين يستخدم تابي عبر أكثر من 70,000 نشاط تجاري"
+    },
+    {
+     "name": "Body",
+     "size": 20,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "دفعات مرنة تساعدك على الوصول إلى 25 مليون متسوّق، زيادة المب"
+    },
+    {
+     "name": "Small",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "الأفراد"
+    },
+    {
+     "name": "Caption",
+     "size": 14,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "الشريك المؤسس والرئيس التنفيذي لشركة سكوات وولف"
+    }
+   ],
+   "body": "20px / 1.6",
+   "fonts": {
+    "heading": "Tabby Sans Display",
+    "body": "Tabby Sans Text"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    80
+   ],
+   "radius": "1 / 20 / 48px",
+   "container": "1280px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0088,
+    "px": {
+     "y": 0,
+     "h": 81
+    },
+    "links": 1
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "انطلق بأعمالك لأبعد مدى مع تابي",
+    "y": 0.0175,
+    "h": 0.1134,
+    "px": {
+     "y": 161,
+     "h": 1042
+    },
+    "headingSize": 60,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "1 من كل 3 بالغين يستخدم تابي عبر أكثر من 70,000 نشاط تجاري",
+    "y": 0.1397,
+    "h": 0.0431,
+    "px": {
+     "y": 1283,
+     "h": 395
+    },
+    "columns": 6,
+    "headingSize": 24,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "دفعات صغيرة تصنع أعمالًا كبيرة",
+    "y": 0.1827,
+    "h": 0.0462,
+    "px": {
+     "y": 1678,
+     "h": 424
+    },
+    "columns": 3,
+    "headingSize": 44,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "صفحة الدفع الأكثر تحويلًا للعملاء في منطقة الخليج",
+    "y": 0.2289,
+    "h": 0.0871,
+    "px": {
+     "y": 2102,
+     "h": 800
+    },
+    "columns": 3,
+    "headingSize": 44,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "قدِّم خيارات دفع متعددة",
+    "y": 0.316,
+    "h": 0.103,
+    "px": {
+     "y": 2902,
+     "h": 946
+    },
+    "headingSize": 44,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "حوّل المتصفحين إلى عملاء",
+    "y": 0.4382,
+    "h": 0.1309,
+    "px": {
+     "y": 4024,
+     "h": 1202
+    },
+    "columns": 2,
+    "headingSize": 44,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "اوصل إلى أكثر من 25 مليون متسوّق",
+    "y": 0.5777,
+    "h": 0.0797,
+    "px": {
+     "y": 5306,
+     "h": 732
+    },
+    "headingSize": 44,
+    "links": 1
+   },
+   {
+    "type": "testimonials",
+    "label": "Testimonials",
+    "heading": "لماذا تختار الشركات تابي",
+    "y": 0.6574,
+    "h": 0.0631,
+    "px": {
+     "y": 6038,
+     "h": 580
+    },
+    "columns": 3,
+    "headingSize": 28,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "فعّل تابي بالطريقة التي تناسبك",
+    "y": 0.7206,
+    "h": 0.0614,
+    "px": {
+     "y": 6618,
+     "h": 564
+    },
+    "columns": 3,
+    "headingSize": 44,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "جاهز لتنمية أعمالك مع تابي؟",
+    "y": 0.782,
+    "h": 0.1067,
+    "px": {
+     "y": 7182,
+     "h": 980
+    },
+    "headingSize": 60,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.8887,
+    "h": 0.1113,
+    "px": {
+     "y": 8162,
+     "h": 1022
+    },
+    "columns": 4,
+    "links": 16
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0056
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0868,
+     "heading": "انطلق بأعمالك لأبعد مدى مع تابي"
+    },
+    {
+     "type": "cards",
+     "y": 0.0868,
+     "h": 0.0388,
+     "heading": "1 من كل 3 بالغين يستخدم تابي عبر أكثر من 70,000 نشاط تجاري"
+    },
+    {
+     "type": "feature",
+     "y": 0.1255,
+     "h": 0.0541,
+     "heading": "دفعات صغيرة تصنع أعمالًا كبيرة"
+    },
+    {
+     "type": "feature",
+     "y": 0.1852,
+     "h": 0.2899,
+     "heading": "قدِّم خيارات دفع متعددة"
+    },
+    {
+     "type": "feature",
+     "y": 0.4861,
+     "h": 0.0577,
+     "heading": "حوّل المتصفحين إلى عملاء"
+    },
+    {
+     "type": "feature",
+     "y": 0.5466,
+     "h": 0.0511,
+     "heading": "قدّم نقاط بيع مرنة"
+    },
+    {
+     "type": "feature",
+     "y": 0.6004,
+     "h": 0.0549,
+     "heading": "قدّم مبيعاتك خارج حدود متجرك"
+    },
+    {
+     "type": "feature",
+     "y": 0.6608,
+     "h": 0.0815,
+     "heading": "اوصل إلى أكثر من 25 مليون متسوّق"
+    },
+    {
+     "type": "testimonials",
+     "y": 0.7423,
+     "h": 0.0389,
+     "heading": "لماذا تختار الشركات تابي"
+    },
+    {
+     "type": "cards",
+     "y": 0.7812,
+     "h": 0.0596,
+     "heading": "فعّل تابي بالطريقة التي تناسبك"
+    },
+    {
+     "type": "feature",
+     "y": 0.8408,
+     "h": 0.0677,
+     "heading": "جاهز لتنمية أعمالك مع تابي؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.9085,
+     "h": 0.0915
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0066
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0815,
+     "heading": "انطلق بأعمالك لأبعد مدى مع تابي"
+    },
+    {
+     "type": "cards",
+     "y": 0.0815,
+     "h": 0.0339,
+     "heading": "1 من كل 3 بالغين يستخدم تابي عبر أكثر من 70,000 نشاط تجاري"
+    },
+    {
+     "type": "feature",
+     "y": 0.1154,
+     "h": 0.066,
+     "heading": "دفعات صغيرة تصنع أعمالًا كبيرة"
+    },
+    {
+     "type": "feature",
+     "y": 0.1863,
+     "h": 0.2534,
+     "heading": "قسّمها على 4"
+    },
+    {
+     "type": "feature",
+     "y": 0.4494,
+     "h": 0.0574,
+     "heading": "حوّل المتصفحين إلى عملاء"
+    },
+    {
+     "type": "section",
+     "y": 0.5084,
+     "h": 0.0425,
+     "heading": "قدّم نقاط بيع مرنة"
+    },
+    {
+     "type": "section",
+     "y": 0.5525,
+     "h": 0.0464,
+     "heading": "قدّم مبيعاتك خارج حدود متجرك"
+    },
+    {
+     "type": "feature",
+     "y": 0.6037,
+     "h": 0.0698,
+     "heading": "اوصل إلى أكثر من 25 مليون متسوّق"
+    },
+    {
+     "type": "testimonials",
+     "y": 0.6734,
+     "h": 0.0636,
+     "heading": "لماذا تختار الشركات تابي"
+    },
+    {
+     "type": "cards",
+     "y": 0.7371,
+     "h": 0.0584,
+     "heading": "فعّل تابي بالطريقة التي تناسبك"
+    },
+    {
+     "type": "feature",
+     "y": 0.7954,
+     "h": 0.0874,
+     "heading": "جاهز لتنمية أعمالك مع تابي؟"
+    },
+    {
+     "type": "footer",
+     "y": 0.8828,
+     "h": 0.1172
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "menu button → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: انطلق بأعمالك لأبعد مدى مع تابي",
+    "heading 60px → 60px → 44px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Card grid: 1 من كل 3 بالغين يستخدم تابي عبر",
+    "6 columns → 3 → 3; heading 24px → 24px → 24px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: دفعات صغيرة تصنع أعمالًا كبيرة",
+    "3 columns → 1 → 1; heading 44px → 44px → 36px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: قدِّم خيارات دفع متعددة",
+    "heading 44px → 44px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: حوّل المتصفحين إلى عملاء",
+    "heading 44px → 44px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: اوصل إلى أكثر من 25 مليون متسوّق",
+    "heading 44px → 44px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Testimonials: لماذا تختار الشركات تابي",
+    "heading 28px → 28px → 28px",
+    [
+     "testimonials"
+    ]
+   ],
+   [
+    "Card grid: فعّل تابي بالطريقة التي تناسبك",
+    "heading 44px → 44px → 36px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: جاهز لتنمية أعمالك مع تابي؟",
+    "heading 60px → 60px → 44px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Footer",
+    "4 columns → 1 → 1",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9185px → 14485px → 12357px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/tabby-ai-ar-sa-business/desktop.jpg",
+    "w": 1440,
+    "h": 9185,
+    "css": 1440,
+    "cssH": 9185,
+    "docH": 9185
+   },
+   "tablet": {
+    "src": "/captures/tabby-ai-ar-sa-business/tablet.jpg",
+    "w": 834,
+    "h": 14000,
+    "css": 834,
+    "cssH": 14000,
+    "docH": 14485
+   },
+   "mobile": {
+    "src": "/captures/tabby-ai-ar-sa-business/mobile.jpg",
+    "w": 780,
+    "h": 24714,
+    "css": 390,
+    "cssH": 12357,
+    "docH": 12357
    }
   }
  },
@@ -10165,6 +12259,376 @@
   }
  },
  {
+  "slug": "tamara-co-ar-sa-financing-product-prices",
+  "url": "https://tamara.co/ar-sa/financing-product-prices",
+  "capturedAt": "2026-10-18T08:07:52.490Z",
+  "title": "Pricing",
+  "source": {
+   "slug": "tamara-co",
+   "name": "Tamara",
+   "domain": "tamara.co",
+   "about": "Easily calculate your monthly payments with Tamara’s APR Calculator. Enjoy flexible plans up to 24 months and zero fees on the 3-payment split plan.",
+   "tagline": "APR Calculator | Tamara Flexible Payment Plans"
+  },
+  "category": "pricing",
+  "archetype": "pricing",
+  "industry": "fintech",
+  "style": "minimal",
+  "tech": [
+   "webflow"
+  ],
+  "dir": "rtl",
+  "lang": "ar-SA",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F1F3FD",
+   "raised": "#DAE0EB",
+   "text": "#000000",
+   "muted": "#666666",
+   "accent": "#282A2F",
+   "accentFg": "#222222",
+   "border": "#EBEEF4",
+   "chart": [
+    "#282A2F",
+    "#9D00F3",
+    "#9600F1",
+    "#C9CACB"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 100,
+     "weight": 600,
+     "use": "Heading",
+     "sample": ""
+    },
+    {
+     "name": "H1",
+     "size": 83,
+     "weight": 900,
+     "use": "Page headline",
+     "sample": "خطط دفع تمكّنك من حلمك"
+    },
+    {
+     "name": "H2",
+     "size": 60,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "احسب دفعاتك الشهرية"
+    },
+    {
+     "name": "H3",
+     "size": 54,
+     "weight": 600,
+     "use": "Heading",
+     "sample": "شهور"
+    },
+    {
+     "name": "Body",
+     "size": 20,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "تسوّق براحتك وادفع لاحقًا بثقة وبمرونة تناسبك، وبدون أي رسوم"
+    },
+    {
+     "name": "Small",
+     "size": 14,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "للأفراد"
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "عن تمارا"
+    }
+   ],
+   "body": "20px / 1.6",
+   "fonts": {
+    "heading": "Gt America Arabic",
+    "body": "Ibmplexsansarabic"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    32,
+    40,
+    64,
+    80,
+    112
+   ],
+   "radius": "11 / 12 / 50px",
+   "container": "1280px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0153,
+    "px": {
+     "y": 0,
+     "h": 80
+    },
+    "links": 3
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "خطط دفع تمكّنك من حلمك",
+    "y": 0.0153,
+    "h": 0.1254,
+    "px": {
+     "y": 80,
+     "h": 658
+    },
+    "headingSize": 83,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.1406,
+    "h": 0.1125,
+    "px": {
+     "y": 738,
+     "h": 590
+    },
+    "columns": 3,
+    "links": 0
+   },
+   {
+    "type": "stats",
+    "label": "Metrics band",
+    "heading": "احسب دفعاتك الشهرية",
+    "y": 0.2531,
+    "h": 0.2065,
+    "px": {
+     "y": 1328,
+     "h": 1083
+    },
+    "columns": 1,
+    "headingSize": 60,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "أكثر من 20 مليون عميل يثقون بتمارا",
+    "y": 0.4596,
+    "h": 0.1477,
+    "px": {
+     "y": 2411,
+     "h": 775
+    },
+    "headingSize": 60,
+    "links": 0
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "أسئلة ممكن تجي في بالك",
+    "y": 0.6073,
+    "h": 0.1941,
+    "px": {
+     "y": 3185,
+     "h": 1018
+    },
+    "headingSize": 60,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.8014,
+    "h": 0.1986,
+    "px": {
+     "y": 4203,
+     "h": 1042
+    },
+    "columns": 5,
+    "links": 46
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0117
+    },
+    {
+     "type": "hero",
+     "y": 0.0117,
+     "h": 0.1913,
+     "heading": "خطط دفع تمكّنك من حلمك"
+    },
+    {
+     "type": "section",
+     "y": 0.2029,
+     "h": 0.1135
+    },
+    {
+     "type": "stats",
+     "y": 0.3164,
+     "h": 0.1533,
+     "heading": "احسب دفعاتك الشهرية"
+    },
+    {
+     "type": "feature",
+     "y": 0.4697,
+     "h": 0.1354,
+     "heading": "أكثر من 20 مليون عميل يثقون بتمارا"
+    },
+    {
+     "type": "faq",
+     "y": 0.6051,
+     "h": 0.1368,
+     "heading": "أسئلة ممكن تجي في بالك"
+    },
+    {
+     "type": "footer",
+     "y": 0.7419,
+     "h": 0.2581
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0125
+    },
+    {
+     "type": "hero",
+     "y": 0.0125,
+     "h": 0.1409,
+     "heading": "خطط دفع تمكّنك من حلمك"
+    },
+    {
+     "type": "section",
+     "y": 0.1534,
+     "h": 0.1513
+    },
+    {
+     "type": "stats",
+     "y": 0.3047,
+     "h": 0.1487,
+     "heading": "احسب دفعاتك الشهرية"
+    },
+    {
+     "type": "feature",
+     "y": 0.4534,
+     "h": 0.1148,
+     "heading": "أكثر من 20 مليون عميل يثقون بتمارا"
+    },
+    {
+     "type": "pricing",
+     "y": 0.5682,
+     "h": 0.145,
+     "heading": "أسئلة ممكن تجي في بالك"
+    },
+    {
+     "type": "footer",
+     "y": 0.7132,
+     "h": 0.2868
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "3 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: خطط دفع تمكّنك من حلمك",
+    "heading 83px → 80px → 56px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Card grid",
+    "3 columns → 1 → 1",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Metrics band: احسب دفعاتك الشهرية",
+    "heading 60px → 60px → 40px",
+    [
+     "stats"
+    ]
+   ],
+   [
+    "Feature section: أكثر من 20 مليون عميل يثقون بتما",
+    "heading 60px → 60px → 40px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "FAQ: أسئلة ممكن تجي في بالك",
+    "heading 60px → 60px → 40px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Footer",
+    "5 columns → 2 → 1",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "5245px → 6857px → 5752px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/tamara-co-ar-sa-financing-product-prices/desktop.jpg",
+    "w": 1440,
+    "h": 5245,
+    "css": 1440,
+    "cssH": 5245,
+    "docH": 5245
+   },
+   "tablet": {
+    "src": "/captures/tamara-co-ar-sa-financing-product-prices/tablet.jpg",
+    "w": 834,
+    "h": 6857,
+    "css": 834,
+    "cssH": 6857,
+    "docH": 6857
+   },
+   "mobile": {
+    "src": "/captures/tamara-co-ar-sa-financing-product-prices/mobile.jpg",
+    "w": 780,
+    "h": 11504,
+    "css": 390,
+    "cssH": 5752,
+    "docH": 5752
+   }
+  }
+ },
+ {
   "slug": "tap-company-ar-sa",
   "url": "https://www.tap.company/ar-sa",
   "capturedAt": "2026-10-13T11:30:14.106Z",
@@ -10707,6 +13171,556 @@
     "css": 390,
     "cssH": 13023,
     "docH": 13023
+   }
+  }
+ },
+ {
+  "slug": "tap-company-ar-sa-company-about",
+  "url": "https://www.tap.company/ar-sa/company/about",
+  "capturedAt": "2026-10-18T08:09:20.444Z",
+  "title": "About",
+  "source": {
+   "slug": "tap-company",
+   "name": "Tap Payments",
+   "domain": "tap.company",
+   "about": "تعرف على تاب وفريقنا الذي يعمل لبناء مستقبل جديد يكون فيه تأثير التقنية المالية أكبر وأسهل وصولاً إلى جميع المستخدمين في السعودية والشرق الأوسط.",
+   "tagline": "تعرّف على تاب"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar-sa",
+  "palette": {
+   "bg": "#F2F2F2",
+   "surface": "#FFFFFF",
+   "raised": "#F5F5F5",
+   "text": "#202223",
+   "muted": "#20232B",
+   "accent": "#467FC1",
+   "accentFg": "#000000",
+   "border": "#E3E3E3",
+   "chart": [
+    "#467FC1",
+    "#719CCD",
+    "#9CB9DA",
+    "#C7D5E6"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 120,
+     "weight": 515,
+     "use": "Paragraph",
+     "sample": "مصممة لاحتياجات الأعمال في السعودية"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "مكاتبنا حول العالم"
+    },
+    {
+     "name": "H2",
+     "size": 24,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "مع تاب للمدفوعات، تقدر تبني تجربة دفع تدعم أعمالك في السعودي"
+    },
+    {
+     "name": "H3",
+     "size": 18,
+     "weight": 700,
+     "use": "Links, buttons",
+     "sample": "تعرّف على الفريق"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "عزّز نجاحك مع فريقنا اللي يضمّ أكثر من 200 محترف في مجال الم"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "الحرم اليوناني، وسط المدينة,"
+    },
+    {
+     "name": "Caption",
+     "size": 10,
+     "weight": 700,
+     "use": "Paragraph",
+     "sample": "© 2026 تاب للمدفوعات"
+    }
+   ],
+   "body": "16px / 1.3",
+   "fonts": {
+    "heading": "TapAr",
+    "body": "TapAr"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    3,
+    4,
+    5,
+    8,
+    10,
+    12,
+    16,
+    24,
+    32,
+    50
+   ],
+   "radius": "4 / 100px",
+   "container": "983px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0224,
+    "px": {
+     "y": 0,
+     "h": 65
+    },
+    "links": 3
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.0224,
+    "h": 0.8016,
+    "px": {
+     "y": 65,
+     "h": 2331
+    },
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.0224,
+    "h": 0.2724,
+    "px": {
+     "y": 65,
+     "h": 792
+    },
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.2947,
+    "h": 0.1409,
+    "px": {
+     "y": 857,
+     "h": 410
+    },
+    "columns": 3,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.4527,
+    "h": 0.2172,
+    "px": {
+     "y": 1317,
+     "h": 632
+    },
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "القاهرة",
+    "y": 0.703,
+    "h": 0.0879,
+    "px": {
+     "y": 2044,
+     "h": 256
+    },
+    "headingSize": 13,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.8239,
+    "h": 0.1761,
+    "px": {
+     "y": 2396,
+     "h": 512
+    },
+    "columns": 5,
+    "links": 34
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0182
+    },
+    {
+     "type": "section",
+     "y": 0.0182,
+     "h": 0.7678
+    },
+    {
+     "type": "section",
+     "y": 0.0182,
+     "h": 0.2988
+    },
+    {
+     "type": "section",
+     "y": 0.317,
+     "h": 0.1304
+    },
+    {
+     "type": "section",
+     "y": 0.4616,
+     "h": 0.1677
+    },
+    {
+     "type": "section",
+     "y": 0.643,
+     "h": 0.1294,
+     "heading": "القاهرة"
+    },
+    {
+     "type": "footer",
+     "y": 0.786,
+     "h": 0.2139
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0177
+    },
+    {
+     "type": "section",
+     "y": 0.0177,
+     "h": 0.7738
+    },
+    {
+     "type": "section",
+     "y": 0.0177,
+     "h": 0.2059
+    },
+    {
+     "type": "section",
+     "y": 0.2237,
+     "h": 0.1314
+    },
+    {
+     "type": "section",
+     "y": 0.3689,
+     "h": 0.2728
+    },
+    {
+     "type": "section",
+     "y": 0.655,
+     "h": 0.1232,
+     "heading": "القاهرة"
+    },
+    {
+     "type": "footer",
+     "y": 0.7916,
+     "h": 0.2085
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "3 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Card grid",
+    "3 columns → 1 → 1",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Page length",
+    "2908px → 3516px → 3607px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/tap-company-ar-sa-company-about/desktop.jpg",
+    "w": 1440,
+    "h": 2908,
+    "css": 1440,
+    "cssH": 2908,
+    "docH": 2908
+   },
+   "tablet": {
+    "src": "/captures/tap-company-ar-sa-company-about/tablet.jpg",
+    "w": 834,
+    "h": 3516,
+    "css": 834,
+    "cssH": 3516,
+    "docH": 3516
+   },
+   "mobile": {
+    "src": "/captures/tap-company-ar-sa-company-about/mobile.jpg",
+    "w": 780,
+    "h": 7214,
+    "css": 390,
+    "cssH": 3607,
+    "docH": 3607
+   }
+  }
+ },
+ {
+  "slug": "tap-company-ar-sa-products-payment-methods",
+  "url": "https://www.tap.company/ar-sa/products/payment-methods",
+  "capturedAt": "2026-10-18T08:07:36.964Z",
+  "title": "Payment methods",
+  "source": {
+   "slug": "tap-company",
+   "name": "Tap Payments",
+   "domain": "tap.company",
+   "about": "نحن نقدم كافة وسائل الدفع المحلية والإقليمية والعالمية الخاصة بك\nتحتاج الأعمال إلى البيع بنجاح عبر الإنترنت في جميع أنحاء منطقة الشرق الأوسط وشمال أفريقيا.",
+   "tagline": "تاب | وسائل الدفع لدينا"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "ar-sa",
+  "palette": {
+   "bg": "#F2F2F2",
+   "surface": "#FFFFFF",
+   "raised": "#F5F5F5",
+   "text": "#202223",
+   "muted": "#20232B",
+   "accent": "#1F88D0",
+   "accentFg": "#000000",
+   "border": "#F2F2F2",
+   "chart": [
+    "#1F88D0",
+    "#54A3D9",
+    "#89BDE1",
+    "#BDD8EA"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "H2",
+     "size": 120,
+     "weight": 515,
+     "use": "Paragraph",
+     "sample": "وسائل الدفع لدينا"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "مدى"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "وسيلة الدفع الأكثر شعبية في المملكة العربية السعودية للمدفوع"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 600,
+     "use": "Meta, labels",
+     "sample": "دولة المتجر"
+    },
+    {
+     "name": "Caption",
+     "size": 10,
+     "weight": 700,
+     "use": "Paragraph",
+     "sample": "© 2026 تاب للمدفوعات"
+    }
+   ],
+   "body": "16px / 1.3",
+   "fonts": {
+    "heading": "TapAr",
+    "body": "TapAr"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    2,
+    4,
+    5,
+    6,
+    8,
+    10,
+    16,
+    24,
+    32,
+    70
+   ],
+   "radius": "2 / 32 / 37px",
+   "container": "983px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0234,
+    "px": {
+     "y": 0,
+     "h": 65
+    },
+    "links": 3
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "مدى",
+    "y": 0.0234,
+    "h": 0.7927,
+    "px": {
+     "y": 65,
+     "h": 2206
+    },
+    "columns": 3,
+    "headingSize": 24,
+    "links": 7
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.816,
+    "h": 0.184,
+    "px": {
+     "y": 2271,
+     "h": 512
+    },
+    "columns": 5,
+    "links": 34
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0124
+    },
+    {
+     "type": "feature",
+     "y": 0.0124,
+     "h": 0.8423,
+     "heading": "مدى"
+    },
+    {
+     "type": "footer",
+     "y": 0.8547,
+     "h": 0.1453
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0131
+    },
+    {
+     "type": "feature",
+     "y": 0.0131,
+     "h": 0.8325,
+     "heading": "مدى"
+    },
+    {
+     "type": "footer",
+     "y": 0.8456,
+     "h": 0.1545
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "3 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Feature section: مدى",
+    "3 columns → 1 → 1; heading 24px → 24px → 18px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Page length",
+    "2783px → 5177px → 4869px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/tap-company-ar-sa-products-payment-methods/desktop.jpg",
+    "w": 1440,
+    "h": 2783,
+    "css": 1440,
+    "cssH": 2783,
+    "docH": 2783
+   },
+   "tablet": {
+    "src": "/captures/tap-company-ar-sa-products-payment-methods/tablet.jpg",
+    "w": 834,
+    "h": 5177,
+    "css": 834,
+    "cssH": 5177,
+    "docH": 5177
+   },
+   "mobile": {
+    "src": "/captures/tap-company-ar-sa-products-payment-methods/mobile.jpg",
+    "w": 780,
+    "h": 9738,
+    "css": 390,
+    "cssH": 4869,
+    "docH": 4869
    }
   }
  },
@@ -12099,6 +15113,1096 @@
     "css": 390,
     "cssH": 12977,
     "docH": 12977
+   }
+  }
+ },
+ {
+  "slug": "zid-sa-ar-pricing",
+  "url": "https://zid.sa/ar/pricing",
+  "capturedAt": "2026-10-18T08:06:50.439Z",
+  "title": "Pricing",
+  "source": {
+   "slug": "zid-sa",
+   "name": "Zid",
+   "domain": "zid.sa",
+   "about": "تعرّف على باقات وأسعار الاشتراك في منصة زد، واختر الخطة الأنسب لاحتياجات متجرك الإلكتروني، مع مزايا متنوعة لدعم نمو أعمالك في التجارة الإلكترونية.\t\t\t",
+   "tagline": "باقات زد أسعار الاشتراك في منصة زد للتجارة الإلكترونية | زد"
+  },
+  "category": "pricing",
+  "archetype": "pricing",
+  "industry": "ecommerce",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F8F8F8",
+   "raised": "#E8E4EB",
+   "text": "#000000",
+   "muted": "#75727B",
+   "accent": "#AF72FF",
+   "accentFg": "#000000",
+   "border": "#F4F3F5",
+   "chart": [
+    "#AF72FF",
+    "#AE72FF",
+    "#9EEC98",
+    "#EBDCFF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 64,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "باقات تناسب احتياجك"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "انضم لآلاف التجار في زد"
+    },
+    {
+     "name": "H2",
+     "size": 34,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "قارن بين الباقات"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "البداية"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "زد متاحة في"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "الحلول"
+    }
+   ],
+   "body": "14px / 1.6",
+   "fonts": {
+    "heading": "Suisse",
+    "body": "Suisse"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    64,
+    80
+   ],
+   "radius": "8 / 12 / 16px",
+   "container": "1276px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0.0092,
+    "h": 0.0112,
+    "px": {
+     "y": 62,
+     "h": 76
+    },
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 0.0068,
+    "px": {
+     "y": 0,
+     "h": 46
+    },
+    "links": 0
+   },
+   {
+    "type": "pricing",
+    "label": "Pricing tiers",
+    "y": 0.007,
+    "h": 0.2199,
+    "px": {
+     "y": 47,
+     "h": 1496
+    },
+    "columns": 4,
+    "links": 4
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "انضم لآلاف التجار في زد",
+    "y": 0.2269,
+    "h": 0.0353,
+    "px": {
+     "y": 1543,
+     "h": 240
+    },
+    "columns": 9,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "قارن بين الباقات",
+    "y": 0.2716,
+    "h": 0.1814,
+    "px": {
+     "y": 1847,
+     "h": 1234
+    },
+    "headingSize": 36,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "باقات تناسب احتياجك وتضمن نموّ تجارتك",
+    "y": 0.4624,
+    "h": 0.0911,
+    "px": {
+     "y": 3145,
+     "h": 620
+    },
+    "headingSize": 64,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "اختر باقة الاشتراك المناسبة لمتجرك واحصل على نظام نقاط البيع مجانًا",
+    "y": 0.5535,
+    "h": 0.0632,
+    "px": {
+     "y": 3765,
+     "h": 430
+    },
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "قالوا عن زد",
+    "y": 0.6167,
+    "h": 0.1004,
+    "px": {
+     "y": 4194,
+     "h": 683
+    },
+    "columns": 5,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "الاسئلة الشائعة",
+    "y": 0.7171,
+    "h": 0.1118,
+    "px": {
+     "y": 4877,
+     "h": 761
+    },
+    "columns": 1,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "افتح متجرك وابدأ قصة نجاحك",
+    "y": 0.8407,
+    "h": 0.1593,
+    "px": {
+     "y": 5718,
+     "h": 1083
+    },
+    "columns": 6,
+    "headingSize": 40,
+    "links": 48
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0.0073,
+     "h": 0.009
+    },
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0055
+    },
+    {
+     "type": "section",
+     "y": 0.0056,
+     "h": 0.2578
+    },
+    {
+     "type": "hero",
+     "y": 0.2634,
+     "h": 0.0287,
+     "heading": "انضم لآلاف التجار في زد"
+    },
+    {
+     "type": "feature",
+     "y": 0.2921,
+     "h": 0.1604,
+     "heading": "قارن بين الباقات"
+    },
+    {
+     "type": "feature",
+     "y": 0.4525,
+     "h": 0.1455,
+     "heading": "باقات تناسب احتياجكوتضمن نموّ تجارتك"
+    },
+    {
+     "type": "feature",
+     "y": 0.598,
+     "h": 0.0862,
+     "heading": "اختر باقة الاشتراك المناسبة لمتجرك واحصل على نظام نقاط البيع مجانًا"
+    },
+    {
+     "type": "feature",
+     "y": 0.6842,
+     "h": 0.0813,
+     "heading": "قالوا عن زد"
+    },
+    {
+     "type": "faq",
+     "y": 0.7655,
+     "h": 0.093,
+     "heading": "الاسئلة الشائعة"
+    },
+    {
+     "type": "footer",
+     "y": 0.8679,
+     "h": 0.1321,
+     "heading": "افتح متجرك وابدأ قصة نجاحك"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0.0066,
+     "h": 0.0081
+    },
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0049
+    },
+    {
+     "type": "section",
+     "y": 0.0051,
+     "h": 0.1671
+    },
+    {
+     "type": "hero",
+     "y": 0.1722,
+     "h": 0.026,
+     "heading": "انضم لآلاف التجار في زد"
+    },
+    {
+     "type": "pricing",
+     "y": 0.2024,
+     "h": 0.1937,
+     "heading": "قارن بين الباقات"
+    },
+    {
+     "type": "feature",
+     "y": 0.4004,
+     "h": 0.0873,
+     "heading": "باقات تناسب احتياجكوتضمن نموّ تجارتك"
+    },
+    {
+     "type": "feature",
+     "y": 0.4877,
+     "h": 0.0807,
+     "heading": "اختر باقة الاشتراك المناسبة لمتجرك واحصل على نظام نقاط البيع مجانًا"
+    },
+    {
+     "type": "feature",
+     "y": 0.5684,
+     "h": 0.0792,
+     "heading": "قالوا عن زد"
+    },
+    {
+     "type": "faq",
+     "y": 0.6476,
+     "h": 0.1012,
+     "heading": "الاسئلة الشائعة"
+    },
+    {
+     "type": "footer",
+     "y": 0.7573,
+     "h": 0.2426,
+     "heading": "افتح متجرك وابدأ قصة نجاحك"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "5 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Pricing tiers",
+    "4 columns → 1 → 1",
+    [
+     "pricing"
+    ]
+   ],
+   [
+    "Hero: انضم لآلاف التجار في زد",
+    "heading 40px → 30px → 30px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: قارن بين الباقات",
+    "heading 36px → 36px → 64px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: باقات تناسب احتياجك وتضمن نموّ ت",
+    "heading 64px → 64px → 30px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: اختر باقة الاشتراك المناسبة لمتج",
+    "heading 40px → 30px → —px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: قالوا عن زد",
+    "heading 40px → 40px → 40px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "FAQ: الاسئلة الشائعة",
+    "heading 40px → 40px → 40px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Footer",
+    "6 columns → 6 → 1; heading 40px → 40px → 40px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "6801px → 8491px → 9383px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/zid-sa-ar-pricing/desktop.jpg",
+    "w": 1440,
+    "h": 6801,
+    "css": 1440,
+    "cssH": 6801,
+    "docH": 6801
+   },
+   "tablet": {
+    "src": "/captures/zid-sa-ar-pricing/tablet.jpg",
+    "w": 834,
+    "h": 8491,
+    "css": 834,
+    "cssH": 8491,
+    "docH": 8491
+   },
+   "mobile": {
+    "src": "/captures/zid-sa-ar-pricing/mobile.jpg",
+    "w": 780,
+    "h": 18766,
+    "css": 390,
+    "cssH": 9383,
+    "docH": 9383
+   }
+  }
+ },
+ {
+  "slug": "zid-sa-ar-solutions-e-store",
+  "url": "https://zid.sa/ar/solutions/e-store",
+  "capturedAt": "2026-10-18T08:07:01.724Z",
+  "title": "Online store",
+  "source": {
+   "slug": "zid-sa",
+   "name": "Zid",
+   "domain": "zid.sa",
+   "about": "ابدأ متجرك الإلكتروني مع حل زد المتكامل، وتمتع بأدوات احترافية لإدارة المنتجات، الطلبات، الدفع، والتصميم، مع دعم فني مخصص للتجارة الالكترونية مع خدمات الشحن.\t\t\t",
+   "tagline": "بناء متجر إلكتروني حلول التجارة الإلكترونية المتكاملة | زد"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "ecommerce",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "rtl",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F5F4F6",
+   "raised": "#EBEAEC",
+   "text": "#000000",
+   "muted": "#6B6B6B",
+   "accent": "#3C1C54",
+   "accentFg": "#FFFFFF",
+   "border": "#E8E4EB",
+   "chart": [
+    "#3C1C54",
+    "#AF72FF",
+    "#9E8EAA",
+    "#CEC6D4"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 64,
+     "weight": 700,
+     "use": "Page headline",
+     "sample": "متجر إلكتروني ما يكلفك.. متجر إلكتروني يربّحك!"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "مهّدنا الطريق للطموحين"
+    },
+    {
+     "name": "H2",
+     "size": 24,
+     "weight": 600,
+     "use": "Paragraph",
+     "sample": "تطبيق رائع المزايا"
+    },
+    {
+     "name": "H3",
+     "size": 18,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "هل إدارة محتوى التطبيق تحتاج واجهة تحكم منفصلة عن زد؟"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "إنشاء حساب"
+    },
+    {
+     "name": "Small",
+     "size": 14,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "زد متاحة في"
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "الحلول"
+    }
+   ],
+   "body": "16px / 1.6",
+   "fonts": {
+    "heading": "Suisse",
+    "body": "Suisse"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    48,
+    64,
+    80
+   ],
+   "radius": "4 / 8 / 16px",
+   "container": "1276px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0.0071,
+    "h": 0.0087,
+    "px": {
+     "y": 62,
+     "h": 76
+    },
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 0.0053,
+    "px": {
+     "y": 0,
+     "h": 46
+    },
+    "links": 0
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "متجر إلكتروني ما يكلفك.. متجر إلكتروني يربّحك!",
+    "y": 0.0054,
+    "h": 0.0791,
+    "px": {
+     "y": 47,
+     "h": 694
+    },
+    "headingSize": 64,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "متجر إلكتروني سهل",
+    "y": 0.0845,
+    "h": 0.0898,
+    "px": {
+     "y": 742,
+     "h": 788
+    },
+    "headingSize": 40,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "لا تشيل هم البداية",
+    "y": 0.1743,
+    "h": 0.0606,
+    "px": {
+     "y": 1530,
+     "h": 532
+    },
+    "headingSize": 40,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "معك في كل خطوة",
+    "y": 0.2349,
+    "h": 0.0606,
+    "px": {
+     "y": 2062,
+     "h": 532
+    },
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "عندك سؤال؟",
+    "y": 0.3028,
+    "h": 0.067,
+    "px": {
+     "y": 2658,
+     "h": 588
+    },
+    "headingSize": 40,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "ليش افتح متجر إلكتروني؟",
+    "y": 0.3698,
+    "h": 0.0909,
+    "px": {
+     "y": 3246,
+     "h": 798
+    },
+    "columns": 8,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "إنشاء حساب",
+    "y": 0.468,
+    "h": 0.1265,
+    "px": {
+     "y": 4108,
+     "h": 1110
+    },
+    "columns": 1,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.5945,
+    "h": 0.0102,
+    "px": {
+     "y": 5219,
+     "h": 90
+    },
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "عميلك يستاهل الأفضل، حوّل متجرك إلى تطبيق",
+    "y": 0.612,
+    "h": 0.0364,
+    "px": {
+     "y": 5372,
+     "h": 319
+    },
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "stats",
+    "label": "Metrics band",
+    "heading": "ليش أحوّل لتطبيق؟",
+    "y": 0.6484,
+    "h": 0.0612,
+    "px": {
+     "y": 5691,
+     "h": 538
+    },
+    "columns": 5,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "جاوبنا على أسئلتك",
+    "y": 0.7096,
+    "h": 0.0475,
+    "px": {
+     "y": 6229,
+     "h": 417
+    },
+    "columns": 1,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "تطبيق رائع المزايا",
+    "y": 0.7572,
+    "h": 0.1022,
+    "px": {
+     "y": 6646,
+     "h": 897
+    },
+    "headingSize": 24,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "جاء وقت تحقق مشاريع ما قبل النوم!",
+    "y": 0.8685,
+    "h": 0.1315,
+    "px": {
+     "y": 7623,
+     "h": 1154
+    },
+    "columns": 6,
+    "headingSize": 40,
+    "links": 48
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0.0071,
+     "h": 0.0086
+    },
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0052
+    },
+    {
+     "type": "hero",
+     "y": 0.0054,
+     "h": 0.1019,
+     "heading": "متجر إلكتروني ما يكلفك.. متجر إلكتروني يربّحك!"
+    },
+    {
+     "type": "feature",
+     "y": 0.1073,
+     "h": 0.1804,
+     "heading": "مهّدنا الطريق للطموحين"
+    },
+    {
+     "type": "section",
+     "y": 0.2877,
+     "h": 0.0666,
+     "heading": "عندك سؤال؟"
+    },
+    {
+     "type": "cards",
+     "y": 0.3543,
+     "h": 0.0846,
+     "heading": "ليش افتح متجر إلكتروني؟"
+    },
+    {
+     "type": "feature",
+     "y": 0.4389,
+     "h": 0.1618,
+     "heading": "كيف أبدأ؟ بسيطة!"
+    },
+    {
+     "type": "section",
+     "y": 0.6007,
+     "h": 0.0361,
+     "heading": "عميلك يستاهل الأفضل، حوّل متجرك إلى تطبيق"
+    },
+    {
+     "type": "stats",
+     "y": 0.6368,
+     "h": 0.0608,
+     "heading": "ليش أحوّل لتطبيق؟"
+    },
+    {
+     "type": "faq",
+     "y": 0.6976,
+     "h": 0.057,
+     "heading": "جاوبنا على أسئلتك"
+    },
+    {
+     "type": "feature",
+     "y": 0.7546,
+     "h": 0.1015,
+     "heading": "تطبيق رائع المزايا"
+    },
+    {
+     "type": "footer",
+     "y": 0.8651,
+     "h": 0.1349,
+     "heading": "جاء وقت تحقق مشاريع ما قبل النوم!"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0.005,
+     "h": 0.0061
+    },
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0037
+    },
+    {
+     "type": "hero",
+     "y": 0.0038,
+     "h": 0.074,
+     "heading": "متجر إلكتروني ما يكلفك.. متجر إلكتروني يربّحك!"
+    },
+    {
+     "type": "feature",
+     "y": 0.0778,
+     "h": 0.0858,
+     "heading": "متجر إلكتروني سهل"
+    },
+    {
+     "type": "feature",
+     "y": 0.1636,
+     "h": 0.0601,
+     "heading": "لا تشيل هم البداية"
+    },
+    {
+     "type": "feature",
+     "y": 0.2236,
+     "h": 0.054,
+     "heading": "معك في كل خطوة"
+    },
+    {
+     "type": "feature",
+     "y": 0.2827,
+     "h": 0.0493,
+     "heading": "عندك سؤال؟"
+    },
+    {
+     "type": "cards",
+     "y": 0.332,
+     "h": 0.0672,
+     "heading": "ليش افتح متجر إلكتروني؟"
+    },
+    {
+     "type": "section",
+     "y": 0.4044,
+     "h": 0.0285,
+     "heading": "إنشاء حساب"
+    },
+    {
+     "type": "section",
+     "y": 0.4368,
+     "h": 0.0203,
+     "heading": "اختر باقتك"
+    },
+    {
+     "type": "section",
+     "y": 0.461,
+     "h": 0.0203,
+     "heading": "تصميم المتجر"
+    },
+    {
+     "type": "section",
+     "y": 0.4851,
+     "h": 0.0182,
+     "heading": "أضف منتجاتك"
+    },
+    {
+     "type": "section",
+     "y": 0.5072,
+     "h": 0.0182,
+     "heading": "فعّل الدفع"
+    },
+    {
+     "type": "section",
+     "y": 0.5293,
+     "h": 0.0182,
+     "heading": "تفعيل الشحن"
+    },
+    {
+     "type": "footer",
+     "y": 0.5476,
+     "h": 0.0093
+    },
+    {
+     "type": "section",
+     "y": 0.5619,
+     "h": 0.0308,
+     "heading": "عميلك يستاهل الأفضل، حوّل متجرك إلى تطبيق"
+    },
+    {
+     "type": "stats",
+     "y": 0.5927,
+     "h": 0.0477,
+     "heading": "ليش أحوّل لتطبيق؟"
+    },
+    {
+     "type": "faq",
+     "y": 0.6404,
+     "h": 0.0533,
+     "heading": "جاوبنا على أسئلتك"
+    },
+    {
+     "type": "feature",
+     "y": 0.7045,
+     "h": 0.0748,
+     "heading": "لوحة تحكّم واحدة للمتجر والتطبيق"
+    },
+    {
+     "type": "footer",
+     "y": 0.7793,
+     "h": 0.0129
+    },
+    {
+     "type": "footer",
+     "y": 0.8063,
+     "h": 0.1937,
+     "heading": "جاء وقت تحقق مشاريع ما قبل النوم!"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "5 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: متجر إلكتروني ما يكلفك.. متجر إل",
+    "heading 64px → 48px → 40px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: متجر إلكتروني سهل",
+    "heading 40px → 40px → 40px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: لا تشيل هم البداية",
+    "heading 40px → 40px → 40px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: معك في كل خطوة",
+    "heading 40px → —px → 40px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: عندك سؤال؟",
+    "heading 40px → —px → 40px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Card grid: ليش افتح متجر إلكتروني؟",
+    "heading 40px → 40px → 40px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: إنشاء حساب",
+    "heading 40px → 40px → 40px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: عميلك يستاهل الأفضل، حوّل متجرك ",
+    "heading 40px → 40px → 40px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Metrics band: ليش أحوّل لتطبيق؟",
+    "heading 40px → 40px → 40px",
+    [
+     "stats"
+    ]
+   ],
+   [
+    "FAQ: جاوبنا على أسئلتك",
+    "heading 40px → 40px → 40px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: تطبيق رائع المزايا",
+    "heading 24px → 24px → 18px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Footer 2",
+    "6 columns → 6 → 1; heading 40px → 40px → 40px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "8778px → 8841px → 12452px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/zid-sa-ar-solutions-e-store/desktop.jpg",
+    "w": 1440,
+    "h": 8778,
+    "css": 1440,
+    "cssH": 8778,
+    "docH": 8778
+   },
+   "tablet": {
+    "src": "/captures/zid-sa-ar-solutions-e-store/tablet.jpg",
+    "w": 834,
+    "h": 8841,
+    "css": 834,
+    "cssH": 8841,
+    "docH": 8841
+   },
+   "mobile": {
+    "src": "/captures/zid-sa-ar-solutions-e-store/mobile.jpg",
+    "w": 780,
+    "h": 24904,
+    "css": 390,
+    "cssH": 12452,
+    "docH": 12452
    }
   }
  }
