@@ -1,0 +1,16 @@
+[
+ { "url": "https://www.unifonic.com/ar", "name": "Unifonic", "industry": "saas", "locale": "ar-SA" },
+ { "url": "https://hala.com/ar", "name": "Hala", "industry": "fintech", "locale": "ar-SA" },
+ { "url": "https://www.wio.io/ar", "name": "Wio", "industry": "fintech", "locale": "ar-SA" },
+ { "url": "https://www.sary.com/ar", "name": "Sary", "industry": "ecommerce", "locale": "ar-SA" },
+ { "url": "https://www.almarai.com/ar", "name": "Almarai", "industry": "food", "locale": "ar-SA" },
+ { "url": "https://thmanyah.com/", "name": "Thmanyah", "industry": "productivity", "locale": "ar-SA" },
+ { "url": "https://www.cafu.com/ar", "name": "CAFU", "industry": "travel", "locale": "ar-SA" },
+ { "url": "https://www.leantech.me/ar", "name": "Lean", "industry": "fintech", "locale": "ar-SA" },
+ { "url": "https://www.nymcard.com/", "name": "NymCard", "industry": "fintech", "locale": "en-US" },
+ { "url": "https://www.sahl.sa/", "name": "Sahl", "industry": "fintech", "locale": "ar-SA" },
+ { "url": "https://www.zain.com/ar", "name": "Zain", "industry": "saas", "locale": "ar-SA" },
+ { "url": "https://www.emiratesnbd.com/ar", "name": "Emirates NBD", "industry": "fintech", "locale": "ar-SA" },
+ { "url": "https://www.classera.com/ar", "name": "Classera", "industry": "education", "locale": "ar-SA" },
+ { "url": "https://www.tamimimarkets.com/", "name": "Tamimi Markets", "industry": "ecommerce", "locale": "ar-SA" }
+]
