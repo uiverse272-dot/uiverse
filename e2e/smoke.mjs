@@ -62,6 +62,13 @@ await p.goto(`${base}/screen/${screen}`);
 const ogUrl = new URL((await p.locator('meta[property="og:image"]').getAttribute("content")) ?? "/", base);
 const og = await fetch(base + ogUrl.pathname);
 log(og.ok && (og.headers.get("content-type") ?? "").startsWith("image/"), "share image");
+/* the site card reaches the listing pages too, not only details */
+for (const path of ["/", "/web"]) {
+  await p.goto(base + path);
+  const src = await p.locator('meta[property="og:image"]').getAttribute("content").catch(() => null);
+  const img = src ? await fetch(base + new URL(src, base).pathname + new URL(src, base).search) : null;
+  log(!!img?.ok, `${path} has a share image`);
+}
 const rpc = await fetch(`${base}/api/mcp`, {
   method: "POST",
   headers: { "content-type": "application/json", accept: "application/json, text/event-stream" },
