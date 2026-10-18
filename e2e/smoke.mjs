@@ -50,7 +50,11 @@ await p.goto(`${base}/screen/s019-meridian-journal`);
 log(/Sample design, not captured/.test(await p.locator("main").innerText()), "a sample says it's a sample");
 await p.goto(`${base}/`);
 log(!/\d[\d.,k]*\s+saves?\b/i.test(await p.locator("main").innerText()), "no invented save counts");
-log((await p.evaluate(() => [...document.images].filter((i) => i.complete && i.naturalWidth > 0).length)) > 0, "screenshots load");
+/* an image resized for the first time can take a moment on a fresh deploy */
+const loaded = await p
+  .waitForFunction(() => [...document.images].some((i) => i.complete && i.naturalWidth > 0), null, { timeout: 15000 })
+  .then(() => true, () => false);
+log(loaded, "screenshots load");
 
 await p.goto(`${base}/web/fintech?sort=new`);
 await p.locator('a[hreflang="ar"]').first().click();
