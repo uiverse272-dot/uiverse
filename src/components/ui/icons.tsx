@@ -93,3 +93,9 @@ export const Users = ({ size, className }: P) => (
 export const Tag = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="M3 12V4h8l10 10-8 8z" /><circle cx="7.5" cy="8.5" r="1.3" /></svg>
 );
+export const Pen = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z" /><path d="M13.5 7l3 3" /></svg>
+);
+export const ImageIcon = ({ size, className }: P) => (
+  <svg {...base(size)} className={className}><rect x="3.5" y="5" width="17" height="14" rx="1" /><circle cx="9" cy="10" r="1.6" /><path d="m20.5 16-5-5-8.5 8" /></svg>
+);

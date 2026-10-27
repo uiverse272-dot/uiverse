@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LAYOUTS } from "@/lib/data";
+import { layoutItem, LAYOUT_DEFAULTS } from "@/lib/templates";
 import { MockScreen } from "@/components/mock/MockScreen";
+import { PromptButton } from "@/components/prompt/PromptButton";
 import { PageHeader, Shell } from "@/components/feed/Section";
 import { Link } from "@/i18n/client";
 import { blockLabel, layoutName } from "@/i18n/content";
@@ -46,7 +48,14 @@ export default async function LayoutsPage() {
                 </li>
               ))}
             </ol>
-            <div className="mt-3 flex gap-2">
+            <PromptButton
+              item={layoutItem(l)}
+              title={layoutName(l.example.archetype, l.name, lang)}
+              defaults={LAYOUT_DEFAULTS}
+              label={t.layouts.prompt}
+              className="mt-3 w-full"
+            />
+            <div className="mt-2 flex gap-2">
               <button className="flex-1 border border-border px-2 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle">
                 {t.layouts.duplicate}
               </button>

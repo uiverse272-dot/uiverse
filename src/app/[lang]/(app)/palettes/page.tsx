@@ -3,7 +3,9 @@ import { Link } from "@/i18n/client";
 import { fill } from "@/i18n/format";
 import { alternates, getI18n } from "@/i18n/server";
 import { PALETTE_ITEMS } from "@/lib/data";
+import { paletteItem, PALETTE_DEFAULTS } from "@/lib/templates";
 import { CopyValue } from "@/components/detail/CopyValue";
+import { PromptButton } from "@/components/prompt/PromptButton";
 import { PageHeader, Shell } from "@/components/feed/Section";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,6 +64,12 @@ export default async function PalettesPage() {
                     className="flex-1 justify-center border border-border"
                   />
                 </div>
+                <PromptButton
+                  item={paletteItem(p)}
+                  defaults={PALETTE_DEFAULTS}
+                  label={t.palettes.prompt}
+                  className="mt-1.5 w-full"
+                />
               </div>
             </div>
           );

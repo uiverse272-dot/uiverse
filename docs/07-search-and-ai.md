@@ -87,6 +87,8 @@ This works precisely because of the Breakdown data. A competitor without decompo
 ### 5.4 Visual Search (Phase 3)
 Upload a screenshot or moodboard → image embedding → kNN. Also "more like this" from any card, which is the same call with an existing embedding and costs nothing extra. Ship "more like this" in Phase 2 — it's free and it's the most-used discovery action in Pinterest.
 
+*Built so far (`/similar`, `lib/look.ts`):* the deterministic half. The browser reads the upload's background, text and accent colours and its device, and screens are ranked by OKLab distance to them. The image never leaves the device, and the result is a URL. Embeddings would add structure; colour alone ranks a palette's pages together whatever their layout. Its sibling `/sketch` (`lib/sketch.ts`) turns a box drawing into a prompt through the §5.3 generator.
+
 ### 5.5 Aesthetic Analysis (Phase 3)
 Upload a photo, interior, product shot or brand identity → extract palette, mood, contrast character, type direction → recommend matching UI. A strong acquisition/marketing surface (people share the output), but it is a leaf feature: it must not be built before the core breakdown pipeline works.
 

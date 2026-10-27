@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Shell, PageHeader } from "@/components/feed/Section";
 import { FIELD, OrDivider } from "@/components/ui/field";
 import { Sparkle } from "@/components/ui/icons";
+import { Link } from "@/i18n/client";
 import { getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -60,6 +61,12 @@ export default async function UploadPage() {
 
         <button className="h-11 w-full bg-accent text-[14px] font-medium text-accent-fg">{u.submit}</button>
         <p className="text-center text-[12px] text-text-3">{u.reviewed}</p>
+        <p className="border-t border-border pt-4 text-center text-[12.5px] text-text-2">
+          {u.similarHint}{" "}
+          <Link href="/similar" className="link-ink">
+            {u.similarLink}
+          </Link>
+        </p>
       </div>
     </Shell>
   );

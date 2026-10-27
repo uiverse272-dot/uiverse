@@ -2,7 +2,7 @@
 
 import { Link, useI18n, useLocalPath } from "@/i18n/client";
 import { ThemeToggle } from "./Theme";
-import { Bookmark, Compass, Grid, Home, Layout, Monitor, Palette, Phone, Upload, User } from "../ui/icons";
+import { Bookmark, Compass, Grid, Home, Layout, Monitor, Palette, Pen, Phone, Upload, User } from "../ui/icons";
 
 const NAV = [
   { href: "/", key: "home", Icon: Home },
@@ -16,6 +16,7 @@ const NAV = [
 ] as const;
 
 const FOOT = [
+  { href: "/sketch", key: "sketch", Icon: Pen },
   { href: "/upload", key: "upload", Icon: Upload },
   { href: "/u/me", key: "profile", Icon: User },
 ] as const;

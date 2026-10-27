@@ -121,3 +121,26 @@ describe("buildPrompt", () => {
     });
   });
 });
+
+describe("layouts and palettes", () => {
+  it("a layout prompt keeps the sections and drops a capture's headings", async () => {
+    const { LAYOUTS } = await import("./data");
+    const { layoutItem } = await import("./templates");
+    for (const l of LAYOUTS) {
+      const i = layoutItem(l);
+      expect(i.capture).toBeUndefined();
+      for (const b of i.blocks) expect(b.label).not.toContain(":");
+      expect(prompt(i)).toContain("## Structure");
+    }
+  });
+
+  it("a palette prompt names the palette and carries its tokens", async () => {
+    const { PALETTE_ITEMS } = await import("./data");
+    const { paletteItem, PALETTE_DEFAULTS } = await import("./templates");
+    const i = paletteItem(PALETTE_ITEMS[0]);
+    const p = prompt(i, PALETTE_DEFAULTS);
+    expect(p).toContain(`themed with the ${PALETTE_ITEMS[0].palette.name} palette`);
+    expect(p).toContain(`--color-accent: ${PALETTE_ITEMS[0].palette.accent};`);
+    expect(p).not.toContain("## Structure");
+  });
+});

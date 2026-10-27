@@ -16,6 +16,8 @@ import { Bookmark, Chevron, User } from "../ui/icons";
 const MORE = [
   { href: "/3d", key: "threeD" },
   { href: "/pricing", key: "pricing" },
+  { href: "/sketch", key: "sketch" },
+  { href: "/similar", key: "similar" },
   { href: "/upload", key: "upload" },
 ] as const;
 

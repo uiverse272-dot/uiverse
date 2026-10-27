@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useI18n, useLocalPath } from "@/i18n/client";
 import { LangSwitch } from "./LangSwitch";
 import {
-  Bookmark, Close, Compass, Dots, Grid, Home, Layout, Monitor, Palette, Phone, Search, Sparkle, Tag, Upload, User,
+  Bookmark, Close, Compass, Dots, Grid, Home, ImageIcon, Layout, Monitor, Palette, Pen, Phone, Search, Sparkle, Tag, Upload, User,
 } from "../ui/icons";
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { startGuide } from "../guide/events";
@@ -28,6 +28,8 @@ const MORE = [
   { href: "/layouts", key: "layouts", Icon: Layout },
   { href: "/palettes", key: "palettes", Icon: Palette },
   { href: "/3d", key: "threeD", Icon: Sparkle },
+  { href: "/sketch", key: "sketch", Icon: Pen },
+  { href: "/similar", key: "similar", Icon: ImageIcon },
   { href: "/u/me", key: "profile", Icon: User },
   { href: "/upload", key: "upload", Icon: Upload },
   { href: "/pricing", key: "pricing", Icon: Tag },

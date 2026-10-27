@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n, useLocalRouter } from "@/i18n/client";
+import { Link, useI18n, useLocalRouter } from "@/i18n/client";
 import { fill } from "@/i18n/format";
 import { parseTerms, type Present } from "@/lib/parse";
-import { Search } from "../ui/icons";
+import { ImageIcon, Search } from "../ui/icons";
 
 /** `initial` seeds the field — the results page passes its query so it can be refined in place. */
 export function SearchField({ big = false, initial = "", present }: { big?: boolean; initial?: string; present: Present }) {
@@ -73,6 +73,14 @@ export function SearchField({ big = false, initial = "", present }: { big?: bool
               big ? "text-[15px] placeholder:text-text-3" : "text-[13px] placeholder:text-on-signal/70"
             }`}
           />
+          <Link
+            href="/similar"
+            aria-label={t.search.byImage}
+            title={t.search.byImage}
+            className="shrink-0 opacity-75 transition-opacity hover:opacity-100"
+          >
+            <ImageIcon size={big ? 19 : 17} />
+          </Link>
           {!big ? (
             <kbd dir="ltr" className="hidden shrink-0 border border-current px-1.5 py-0.5 text-[10.5px] lg:block">
               ⌘K

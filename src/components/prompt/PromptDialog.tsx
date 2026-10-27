@@ -16,10 +16,27 @@ import { useFocusTrap } from "../ui/useFocusTrap";
 import { guideEvent } from "../guide/events";
 import { consume, FREE_LIMIT, isCharged, readUsed, reset } from "./quota";
 
-export function PromptDialog({ item, onClose }: { item: Item; onClose: () => void }) {
+/**
+ * `defaults` starts the options somewhere other than everything-on (a palette has no sections to
+ * list); `title` replaces the item's own in the header; `saveable` is false for things that aren't
+ * catalogue items — a sketch, a layout, a palette — which saves would only drop as unknown slugs.
+ */
+export function PromptDialog({
+  item,
+  onClose,
+  defaults,
+  title,
+  saveable = true,
+}: {
+  item: Item;
+  onClose: () => void;
+  defaults?: Partial<PromptOptions>;
+  title?: string;
+  saveable?: boolean;
+}) {
   const { lang, t } = useI18n();
   const pt = t.prompt;
-  const [opts, setOpts] = useState<PromptOptions>(DEFAULT_OPTIONS);
+  const [opts, setOpts] = useState<PromptOptions>(() => ({ ...DEFAULT_OPTIONS, ...defaults }));
   const [used, setUsed] = useState(() => readUsed());
   const [edited, setEdited] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -90,7 +107,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
               {pt.title}
             </h2>
             <p className="truncate text-[12px] text-text-3">
-              {itemTitle(item, lang)} · <bdi>{item.source.name}</bdi>
+              {title ?? itemTitle(item, lang)} · <bdi>{item.source.name}</bdi>
             </p>
           </div>
           <button
@@ -208,7 +225,7 @@ export function PromptDialog({ item, onClose }: { item: Item; onClose: () => voi
                 {pt.english ? <span className="block">{pt.english}</span> : null}
               </span>
               <span className="ms-auto flex items-center gap-2">
-                <SaveButton slug={item.slug} variant="inline" />
+                {saveable ? <SaveButton slug={item.slug} variant="inline" /> : null}
                 <button
                   onClick={copy}
                   data-guide="prompt-copy"

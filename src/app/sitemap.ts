@@ -5,7 +5,7 @@ import { captureSrc } from "@/lib/captureSrc";
 import { SITE_URL } from "@/lib/site";
 
 /* the sections, then every real capture and its source. Procedural items are noindex (detail/load.ts) */
-const SECTIONS = ["/", "/explore", "/web", "/apps", "/components", "/layouts", "/palettes", "/pricing"];
+const SECTIONS = ["/", "/explore", "/web", "/apps", "/components", "/layouts", "/palettes", "/sketch", "/similar", "/pricing"];
 /* the documents in dict legal.* */
 const LEGAL = ["/legal/attribution", "/legal/takedown", "/legal/privacy"];
 

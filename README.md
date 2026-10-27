@@ -62,7 +62,9 @@ capture pipeline and an MCP server over what it captured.
 | `/screen/[slug]`, `/component/[slug]` | Detail shell: Overview · **Breakdown** · Responsive · Code · Similar |
 | `/source/[slug]` | One product's whole system: screens, components, inferred palette |
 | `/search` | Dictionary-first NL parsing with the interpretation shown as removable chips |
-| Prompt generator | On any screen or component: 7 target tools x 5 stacks, built from the Breakdown data |
+| Prompt generator | On any screen, component, layout or palette: 7 target tools x 5 stacks, built from the Breakdown data |
+| `/sketch` | Draw a page as boxes; each becomes a section (type guessed from position, editable), then the same prompt generator (`lib/sketch.ts`) |
+| `/similar` | Visual search: drop or paste a screenshot, its colours and device are read in the browser and matched against every screen (`lib/look.ts`) |
 | `/saved` | One-click saves, collections, `Move to…` toast |
 | `/layouts`, `/palettes`, `/3d` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
@@ -73,7 +75,7 @@ capture pipeline and an MCP server over what it captured.
 | SEO | `sitemap.xml` and `robots.txt` over the real captures, share cards per screen and component (`lib/og.tsx`); procedural items are `noindex` |
 | `/dev-measure` | Dev tool, `next dev` only — re-derives archetype and section heights (see the file header) |
 
-Stubbed on purpose: auth, billing, teams, the layout builder and visual search. Those are Phase 2–3
+Stubbed on purpose: billing, teams and the layout builder. Visual search is colour-and-device only, no image embeddings. Those are Phase 2–3
 in [09-roadmap.md](docs/09-roadmap.md).
 
 ### Real captures

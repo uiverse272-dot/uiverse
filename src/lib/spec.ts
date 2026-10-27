@@ -170,7 +170,7 @@ const RULES: Record<Item["archetype"], Rule[]> = {
     WEB_NAV,
     ["Hero headline", "68px → 52px → 36px; CTAs side by side → side by side → stacked, full width", ["hero"]],
     ["Product shot", "sidebar and 3 stat tiles → narrower sidebar → no sidebar, 2 tiles", ["hero"]],
-    ["Logo cloud", "5 in a row → 5, tighter → 4, wrapping", []],
+    ["Logo cloud", "5 in a row → 5, tighter → 4, wrapping", ["logo-cloud"]],
     ["Feature grid", "3 columns → 2 (third card spans) → 1", ["cards"]],
     ["Metrics band", "4 across → 4 across, 34px figures → 2 × 2", ["stats"]],
     ["Testimonial", "30px quote with wide margins → 26px → 20px, full width", ["testimonials"]],
@@ -189,7 +189,7 @@ const RULES: Record<Item["archetype"], Rule[]> = {
     WEB_NAV,
     ["Header", "48px → 40px → 30px", ["hero"]],
     ["Tiers", "3 across → 3 across, tighter → stacked; phones list the first 4 features", ["pricing"]],
-    ["FAQ", "centred 840px → full width, 64px gutters → 20px gutters", []],
+    ["FAQ", "centred 840px → full width, 64px gutters → 20px gutters", ["faq"]],
     WEB_FOOTER,
   ],
   ecommerce: [
@@ -268,6 +268,14 @@ export function responsiveRulesPlain(item: Item): [string, string][] {
 
 export function responsiveRules(item: Item): [string, string][] {
   const rules: Rule[] = item.capture?.responsive ?? RULES[item.archetype];
-  const scoped = item.kind === "component" ? rules.filter(([, , b]) => b.includes(item.componentType ?? "")) : rules;
+  const own = new Set(item.blocks.map((b) => b.type));
+  /* a sketch borrows its archetype's rules, so drop the ones for sections it doesn't have —
+     for the catalogue's own screens every rule's sections are present and this keeps them all */
+  const scoped =
+    item.kind === "component"
+      ? rules.filter(([, , b]) => b.includes(item.componentType ?? ""))
+      : item.capture
+        ? rules
+        : rules.filter(([, , b]) => !b.length || b.some((t) => own.has(t)));
   return (scoped.length ? scoped : rules).map(([k, v]) => [k, v]);
 }

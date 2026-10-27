@@ -123,7 +123,9 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
   const noun = /\bpage$/.test(category) ? category : `${category} screen`;
   const subject = isComponent
     ? `${an(item.title.toLowerCase())} component for ${an(industry)} product`
-    : `${an(noun)} for ${an(industry)} product`;
+    : item.kind === "palette"
+      ? `${an(noun)} for ${an(industry)} product, themed with the ${item.palette.name} palette`
+      : `${an(noun)} for ${an(industry)} product`;
 
   const out: string[] = [];
 
