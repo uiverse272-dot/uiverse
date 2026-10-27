@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/client";
+import { BoardPicker } from "./BoardPicker";
 import { useSaved } from "./SavedProvider";
-import { Check, Plus } from "../ui/icons";
+import { Check } from "../ui/icons";
 
 /**
  * Saving never opens a dialog. It happens, then this offers the move.
- * Choosing a board is a separate, optional act — see docs/10 §4.1.
+ * Pinning to boards is a separate, optional act — see docs/10 §4.1.
  */
 export function SaveToast() {
   const { t } = useI18n();
-  const { toast, clearToast, collections, move, create } = useSaved();
+  const { toast, clearToast } = useSaved();
   const [picking, setPicking] = useState(false);
-  const [name, setName] = useState("");
   const [held, setHeld] = useState(false);
   const [shown, setShown] = useState(toast);
 
-  /* a new save replaces the toast — drop back from the picker so it can't move the wrong item */
+  /* a new save replaces the toast — drop back from the picker so it can't pin the wrong design */
   if (shown !== toast) {
     setShown(toast);
     setPicking(false);
@@ -60,52 +60,24 @@ export function SaveToast() {
                     onClick={() => setPicking(true)}
                     className="border border-border px-2.5 py-1.5 text-[12.5px] font-medium hover:bg-bg-subtle"
                   >
-                    {t.save.moveTo}
+                    {t.save.addToBoard}
                   </button>
                 ) : null}
                 <button onClick={clearToast} className="px-1 text-[12.5px] text-text-3 hover:text-text">
                   {t.common.dismiss}
                 </button>
               </div>
-            ) : (
+            ) : toast.slug ? (
               <div>
-                <div className="px-1 pb-2 text-[12px] font-medium text-text-3">{t.save.moveToCollection}</div>
-                <div className="max-h-52 overflow-auto">
-                  {collections.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => {
-                        if (toast.slug) move(toast.slug, c.id);
-                        setPicking(false);
-                      }}
-                      className="flex w-full items-center gap-2 px-2 py-2 text-start text-[13px] hover:bg-bg-subtle"
-                    >
-                      <bdi>{c.name}</bdi>
-                    </button>
-                  ))}
-                </div>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!name.trim() || !toast.slug) return;
-                    const id = create(name.trim());
-                    move(toast.slug, id);
-                    setName("");
-                    setPicking(false);
-                  }}
-                  className="mt-1 flex items-center gap-2 border-t border-border pt-2"
+                <BoardPicker slug={toast.slug} autoFocus />
+                <button
+                  onClick={clearToast}
+                  className="mt-2 h-8 w-full border border-border text-[12.5px] font-medium hover:bg-bg-subtle"
                 >
-                  <Plus size={14} />
-                  <input
-                    autoFocus
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t.save.newCollection}
-                    className="flex-1 bg-transparent py-1 text-[13px] outline-none placeholder:text-text-3"
-                  />
-                </form>
+                  {t.save.done}
+                </button>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       ) : null}

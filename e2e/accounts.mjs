@@ -47,20 +47,21 @@ async function signIn(page, email, path = "/sign-in") {
 
 const EMAIL = `sara+${Date.now()}@example.com`;
 
-// 1. a guest saves two things and makes an Arabic-named collection
+// 1. a guest saves two things and pins the second to a new, Arabic-named board
 const c1 = await ctx();
 const p1 = await c1.newPage();
 await p1.goto(base + "/web", { waitUntil: "networkidle" });
 const saveButtons = p1.locator('[data-guide="card"] button[aria-label="Save"]');
 await saveButtons.nth(0).click();
 await saveButtons.nth(1).click();
-await p1.getByRole("button", { name: "Move to…" }).click();
-await p1.getByPlaceholder("New collection…").fill("عملي");
+await p1.getByRole("button", { name: "Add to board" }).click();
+await p1.getByPlaceholder("New board…").fill("عملي");
 await p1.keyboard.press("Enter");
+log((await p1.getByRole("checkbox", { name: "عملي", checked: true }).count()) === 1, "the new board is ticked in the picker");
 const guest = await savedSlugs(p1);
 log(guest.length === 2, `guest saved 2 items in this browser (${guest.join(", ")})`);
 const guestCollections = await p1.evaluate(() => JSON.parse(localStorage.getItem("uiv.saves.v1")).collections.map((c) => c.id));
-log(guestCollections.some((id) => /^c\d+$/.test(id)), `an Arabic-named collection gets a usable id (${guestCollections.join(", ")})`);
+log(guestCollections.some((id) => /^c\d+$/.test(id)), `an Arabic-named board gets a usable id (${guestCollections.join(", ")})`);
 
 // 2. sign in with a magic link → lands on Saved, guest saves are now the account's
 await signIn(p1, EMAIL);
@@ -70,7 +71,7 @@ await wait(500);
 log(JSON.stringify((await savedSlugs(p1)).sort()) === JSON.stringify([...guest].sort()), "guest saves were merged into the account");
 log(await p1.evaluate(() => localStorage.getItem("uiv.saves.v1") === null), "the guest copy is cleared once merged");
 log((await p1.getByText("Your saves are in your account").count()) === 1, "Saved says they're synced");
-log((await p1.getByRole("button", { name: /عملي/ }).count()) === 1, "the Arabic collection came along");
+log((await p1.getByRole("link", { name: /عملي/ }).count()) === 1, "the Arabic board came along");
 await p1.screenshot({ path: `${shots}/saved-signed-in.png` });
 
 // 3. a second device signs in to the same account and sees the same saves
@@ -80,6 +81,31 @@ await signIn(p2, EMAIL);
 await p2.waitForFunction(() => Object.keys(localStorage).some((k) => k.startsWith("uiv.saves.u:")));
 await wait(500);
 log(JSON.stringify((await savedSlugs(p2)).sort()) === JSON.stringify([...guest].sort()), "a second device sees the same saves");
+
+// 3b. boards: on device 2, pin a design to two boards and write a note; device 1 sees both
+await p2.goto(base + "/saved", { waitUntil: "networkidle" });
+await p2.getByRole("button", { name: "New board" }).click();
+await p2.getByLabel("Board name").fill("Client B");
+await p2.getByRole("button", { name: "Create board" }).click();
+await p2.getByRole("link", { name: /عملي/ }).click();
+await p2.waitForURL(/\/saved\/c\d+/);
+const pinned = await p2.locator('[data-guide="card"] a').first().getAttribute("href");
+await p2.getByRole("button", { name: "Add a note" }).first().click();
+await p2.getByLabel("Edit note").fill("the client liked this spacing");
+await p2.getByRole("button", { name: "Save note" }).click();
+await p2.goto(base + pinned, { waitUntil: "networkidle" });
+await p2.getByRole("button", { name: "On 1 board" }).click();
+await p2.getByRole("checkbox", { name: "Client B" }).click();
+log((await p2.getByRole("button", { name: "On 2 boards" }).count()) === 1, "a design page pins to a second board");
+await wait(800);
+await p1.goto(base + "/saved", { waitUntil: "networkidle" });
+await wait(800);
+await p1.getByRole("link", { name: /Client B/ }).click();
+await p1.waitForURL(/\/saved\/client-b/);
+await p1.locator('[data-guide="card"]').first().waitFor({ timeout: 10000 }).catch(() => {});
+log((await p1.locator('[data-guide="card"]').count()) === 1, "the other device sees the new board with its design");
+log((await p1.getByText("the client liked this spacing").count()) === 1, "and the note on it");
+await p1.screenshot({ path: `${shots}/board.png` });
 
 // 4. unsave on device 2 → gone on device 1 after a reload
 await p2.goto(base + "/web", { waitUntil: "networkidle" });

@@ -44,12 +44,12 @@ await p.route("**/*", async (route) => {
 await p.goto(base + "/web", { waitUntil: "networkidle" });
 const card = p.locator('[data-guide="card"]').filter({ has: p.locator('button[aria-label="Save"]') }).first();
 await card.locator('button[aria-label="Save"]').click();
-await p.getByRole("button", { name: "Move to…" }).click();
-await p.getByPlaceholder("New collection…").fill("Cut off");
+await p.getByRole("button", { name: "Add to board" }).click();
+await p.getByPlaceholder("New board…").fill("Cut off");
 await p.keyboard.press("Enter");
 await wait(300);
 const queued = (await state(p)).outbox.map((o) => o.type);
-log(queued.includes("create") && queued.includes("move"), `changes wait in the outbox while unconfirmed (${queued.join(", ")})`);
+log(queued.includes("create") && queued.includes("pin"), `changes wait in the outbox while unconfirmed (${queued.join(", ")})`);
 
 // leave right away: a full page load cancels the held requests
 await p.goto(base + "/explore", { waitUntil: "commit" }).catch(() => {});
@@ -62,13 +62,13 @@ await wait(2500);
 const after = await state(p);
 log(after.outbox.length === 0, `the outbox empties on the next visit (${after.outbox.length} left)`);
 
-// the account itself has it: a fresh browser sees the design in the new collection
+// the account itself has it: a fresh browser sees the design on the new board
 const q = await signedIn(email);
 await q.goto(base + "/saved", { waitUntil: "networkidle" });
 await wait(1000);
 const s = (await state(q)).saves;
 const board = (s.collections ?? []).find((c) => c.name === "Cut off");
-log(!!board && s.saves.some((x) => x.collectionId === board.id), "another device sees the design in “Cut off”");
+log(!!board && (s.pins ?? []).some((x) => x.collectionId === board.id), "another device sees the design on “Cut off”");
 
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");
 await b.close();

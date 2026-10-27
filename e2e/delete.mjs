@@ -54,7 +54,7 @@ log(await confirm.isEnabled(), "unlocks for the right address (any case)");
 await p.screenshot({ path: `${shots}/delete-confirm.png` });
 await confirm.click();
 await p.waitForURL(/\/u\/me\?deleted=1/);
-log((await p.getByText("Your account, saves and collections have been deleted.").count()) === 1, "lands on a confirmation");
+log((await p.getByText("Your account, saves, boards and notes have been deleted.").count()) === 1, "lands on a confirmation");
 log((await p.getByRole("link", { name: "Sign in" }).count()) >= 1, "and is signed out");
 log((await accountSaves(p)) === null, "no account copy left in the browser");
 const session = await p.evaluate(() => fetch("/api/auth/get-session").then((r) => r.json()));

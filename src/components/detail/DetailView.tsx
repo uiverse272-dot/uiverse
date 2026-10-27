@@ -11,6 +11,7 @@ import { responsiveRules } from "@/lib/spec";
 import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
+import { BoardsButton } from "../save/BoardsButton";
 import { Card } from "../feed/Card";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
@@ -171,6 +172,7 @@ export function DetailView({
               <External size={15} /> {t.detail.openLive}
             </a>
             <SaveButton slug={item.slug} variant="solid" />
+            <BoardsButton slug={item.slug} />
           </div>
 
           <div className="mt-3 grid grid-cols-3 border border-border">

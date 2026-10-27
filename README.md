@@ -65,7 +65,8 @@ capture pipeline and an MCP server over what it captured.
 | Prompt generator | On any screen, component, layout or palette: 7 target tools x 5 stacks, built from the Breakdown data |
 | `/sketch` | Draw a page as boxes; each becomes a section (type guessed from position, editable), then the same prompt generator (`lib/sketch.ts`) |
 | `/similar` | Visual search: drop or paste a screenshot, its colours and device are read in the browser and matched against every screen (`lib/look.ts`) |
-| `/saved` | One-click saves, collections, `Move to…` toast |
+| `/saved` | One-click saves; boards, one per project, as cover tiles; an `Add to board` toast |
+| `/saved/[board]` | One board (or `all` / `unsorted`): rename, describe, delete; a note on each design; remove from board |
 | `/layouts`, `/palettes`, `/3d` | Derived-content sections |
 | `/upload`, `/pricing`, `/legal/attribution` | Flow and policy surfaces |
 | `/legal/takedown` | Opt-out form → webhook / email with a reference; `--opt-out` removes the domain everywhere and blocks recapture (`src/content/optout.json`) |
@@ -142,6 +143,9 @@ keeps users, sessions and saves in our own Postgres through Drizzle (`src/lib/db
   (`importSaves`), then the account is the source of truth: changes apply instantly and go to the
   server as idempotent "saved / not saved" writes (`components/save/actions.ts`), and a refused one
   re-syncs. A per-user copy paints the next visit; signing out removes every account copy.
+- **Boards.** A save is a design kept; a pin puts it on a board, and one design can be on many
+  boards (`pin` table). A design on no board is "unsorted". Deleting a board keeps its designs
+  saved; unsaving a design takes it off every board. Each saved design can carry one note.
 - **Production checklist:** `DATABASE_URL`, `BETTER_AUTH_SECRET`, `npm run db:migrate`, and Resend
   (`RESEND_API_KEY`, `AUTH_EMAIL_FROM`) for email sign-in. Missing the database or the secret turns
   accounts off rather than guessing. See `.env.example`.

@@ -5,23 +5,31 @@ import {
 } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/i18n/client";
-import { fill } from "@/i18n/format";
 import * as store from "./store";
 import { saveOp, syncSaves } from "./actions";
 import { guideEvent } from "../guide/events";
 
 type Toast = { text: string; slug?: string } | null;
 
+/** "all" and "unsorted" are views of the saves; anything else is a board id */
+export type View = "all" | "unsorted" | (string & {});
+
 type Ctx = {
   saves: store.Save[];
-  collections: store.Collection[];
+  boards: store.Collection[];
   ready: boolean;
   isSaved: (slug: string) => boolean;
-  toggle: (slug: string, collectionId?: string) => void;
-  move: (slug: string, collectionId: string) => void;
-  create: (name: string) => string;
-  countFor: (id: string) => number;
-  slugsFor: (id: string) => string[];
+  toggle: (slug: string) => void;
+  pin: (slug: string, boardId: string, pinned: boolean) => void;
+  /** the boards a design is on */
+  boardsOf: (slug: string) => string[];
+  create: (name: string, description?: string) => string;
+  update: (id: string, name: string, description: string) => void;
+  remove: (id: string) => void;
+  note: (slug: string, text: string) => void;
+  noteOf: (slug: string) => string;
+  /** a view's designs, newest first: saved order for all/unsorted, pinned order for a board */
+  slugsIn: (view: View) => string[];
   toast: Toast;
   clearToast: () => void;
 };
@@ -32,8 +40,6 @@ export function SavedProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   const [toast, setToast] = useState<Toast>(null);
-  /* the default collection's name is stored in English; show it in the page's language */
-  const label = useCallback((c: store.Collection) => (c.id === "recent" ? t.save.recent : c.name), [t]);
   /*
    * Signed in: the account is the source of truth. Merge what this browser saved as a guest,
    * then send each change as it happens; if the server refuses one, take its state back.
@@ -53,8 +59,7 @@ export function SavedProvider({ children }: { children: ReactNode }) {
     const resync = () => syncSaves(null).then((s) => live && s && store.adopt(s));
 
     /*
-     * Send the outbox one change at a time, oldest first — "new collection" before "move into
-     * it". A change leaves only when the server answers: one cut off by leaving the page is
+     * Send the outbox one change at a time, oldest first — "new board" before "pin to it". A change leaves only when the server answers: one cut off by leaving the page is
      * still there next visit. If the server refuses one, its state wins afterwards.
      */
     const send = async () => {
@@ -96,34 +101,37 @@ export function SavedProvider({ children }: { children: ReactNode }) {
     };
   }, [userId]);
 
-  const toggle = useCallback((slug: string, collectionId = "recent") => {
-    if (!store.toggle(slug, collectionId)) return setToast({ text: t.save.removed });
-    const where = store.getSnapshot().collections.find((c) => c.id === collectionId);
-    setToast({ text: fill(t.save.savedTo, { name: where ? label(where) : t.save.recent }), slug });
+  const toggle = useCallback((slug: string) => {
+    if (!store.toggle(slug)) return setToast({ text: t.save.removed });
+    setToast({ text: t.save.savedOne, slug });
     guideEvent("save");
-  }, [t, label]);
+  }, [t]);
 
-  const move = useCallback((slug: string, collectionId: string) => {
-    store.move(slug, collectionId);
-    setToast(null);
-  }, []);
-
-  const value = useMemo<Ctx>(
-    () => ({
+  const value = useMemo<Ctx>(() => {
+    const unsorted = (slug: string) => !state.pins.some((p) => p.slug === slug);
+    return {
       saves: state.saves,
-      collections: state.collections.map((c) => ({ ...c, name: label(c) })),
+      boards: state.collections,
       ready: state.hydrated,
       isSaved: (slug) => state.saves.some((s) => s.slug === slug),
       toggle,
-      move,
+      pin: store.pin,
+      boardsOf: (slug) => state.pins.filter((p) => p.slug === slug).map((p) => p.collectionId),
       create: store.create,
-      countFor: (id) => state.saves.filter((s) => s.collectionId === id).length,
-      slugsFor: (id) => state.saves.filter((s) => s.collectionId === id).map((s) => s.slug),
+      update: store.update,
+      remove: store.remove,
+      note: store.note,
+      noteOf: (slug) => state.saves.find((s) => s.slug === slug)?.note ?? "",
+      slugsIn: (view) =>
+        view === "all"
+          ? state.saves.map((s) => s.slug)
+          : view === "unsorted"
+            ? state.saves.map((s) => s.slug).filter(unsorted)
+            : state.pins.filter((p) => p.collectionId === view).map((p) => p.slug),
       toast,
       clearToast: () => setToast(null),
-    }),
-    [state, toast, toggle, move, label],
-  );
+    };
+  }, [state, toast, toggle]);
 
   return <SavedCtx.Provider value={value}>{children}</SavedCtx.Provider>;
 }

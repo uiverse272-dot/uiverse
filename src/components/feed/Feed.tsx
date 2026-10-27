@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/i18n/client";
 import { plural } from "@/i18n/format";
 import type { Item } from "@/lib/data";
@@ -12,7 +12,9 @@ const AUTO_PAGES = 5;
 /* enough to fill the first screen at any column count */
 const EAGER = 12;
 
-export function Feed({ items, maxCols, ssrCols }: { items: Item[]; maxCols?: number; ssrCols?: number }) {
+export function Feed({
+  items, maxCols, ssrCols, footer,
+}: { items: Item[]; maxCols?: number; ssrCols?: number; footer?: (item: Item) => ReactNode }) {
   const { lang, t } = useI18n();
   const [pages, setPages] = useState(1);
   const [seen, setSeen] = useState(items);
@@ -52,7 +54,7 @@ export function Feed({ items, maxCols, ssrCols }: { items: Item[]; maxCols?: num
 
   return (
     <>
-      <Masonry items={shown} maxCols={maxCols} ssrCols={ssrCols} render={(item, i) => <Card item={item} lazy={i >= EAGER} eager={i < 2} />} />
+      <Masonry items={shown} maxCols={maxCols} ssrCols={ssrCols} render={(item, i) => <Card item={item} lazy={i >= EAGER} eager={i < 2} footer={footer?.(item)} />} />
       <div ref={sentinel} className="h-px" />
       {more ? (
         <div className="flex justify-center py-10">

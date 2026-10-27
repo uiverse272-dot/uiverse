@@ -12,48 +12,54 @@ import { Code, Layers, Sparkle } from "../ui/icons";
  * catalogue entry (title, source) with the save toggle on the right.
  * `crop` (width / height) fixes the plate's aspect so cards line up in a row instead of a masonry.
  * `lazy` holds a sample design's preview back until the card nears the screen; `eager` fetches a
- * capture's image first, for the cards a page opens on.
+ * capture's image first, for the cards a page opens on. `footer` goes under the caption — a
+ * board's note and tools.
  */
-export function Card({ item, crop, lazy = false, eager = false }: { item: Item; crop?: number; lazy?: boolean; eager?: boolean }) {
+export function Card({
+  item, crop, lazy = false, eager = false, footer,
+}: { item: Item; crop?: number; lazy?: boolean; eager?: boolean; footer?: React.ReactNode }) {
   const { lang, t } = useI18n();
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
 
   return (
-    <div className="group relative" data-guide="card">
-      <Link href={href} className="block focus-visible:outline-none" prefetch={false}>
-        <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--focus)]">
-          <div className="relative overflow-hidden border border-border">
-            <LazyPreview item={crop ? { ...item, aspect: crop } : item} lazy={lazy} eager={eager} />
+    <div data-guide="card">
+      <div className="group relative">
+        <Link href={href} className="block focus-visible:outline-none" prefetch={false}>
+          <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--focus)]">
+            <div className="relative overflow-hidden border border-border">
+              <LazyPreview item={crop ? { ...item, aspect: crop } : item} lazy={lazy} eager={eager} />
 
-            <div className="absolute bottom-1.5 end-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">
-              {item.hasCode ? <Badge title={t.card.code}><Code size={12} /></Badge> : null}
-              {item.has3d ? <Badge title={t.card.threeD}><Sparkle size={12} /></Badge> : null}
-              {item.kind === "component" ? <Badge title={t.card.componentBadge}><Layers size={12} /></Badge> : null}
+              <div className="absolute bottom-1.5 end-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">
+                {item.hasCode ? <Badge title={t.card.code}><Code size={12} /></Badge> : null}
+                {item.has3d ? <Badge title={t.card.threeD}><Sparkle size={12} /></Badge> : null}
+                {item.kind === "component" ? <Badge title={t.card.componentBadge}><Layers size={12} /></Badge> : null}
+              </div>
+
+              {item.tier === "premium" ? (
+                <span className="absolute start-1.5 top-1.5 border border-on-signal bg-signal px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-signal">
+                  {t.card.pro}
+                </span>
+              ) : null}
             </div>
+          </div>
 
-            {item.tier === "premium" ? (
-              <span className="absolute start-1.5 top-1.5 border border-on-signal bg-signal px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-on-signal">
-                {t.card.pro}
+          <div className="mt-2.5 pe-8">
+            <div className="line-clamp-2 font-display text-[13.5px] leading-snug">{itemTitle(item, lang)}</div>
+            <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-2">
+              <span className="h-2.5 w-2.5 shrink-0 border border-border" style={{ background: item.palette.accent }} />
+              <span className="min-w-0 truncate">
+                <bdi>{item.source.name}</bdi>
+                {item.kind === "component" ? ` · ${t.card.component}` : null}
               </span>
-            ) : null}
+            </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="mt-2.5 pe-8">
-          <div className="line-clamp-2 font-display text-[13.5px] leading-snug">{itemTitle(item, lang)}</div>
-          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-text-2">
-            <span className="h-2.5 w-2.5 shrink-0 border border-border" style={{ background: item.palette.accent }} />
-            <span className="min-w-0 truncate">
-              <bdi>{item.source.name}</bdi>
-              {item.kind === "component" ? ` · ${t.card.component}` : null}
-            </span>
-          </div>
+        <div className="absolute bottom-0 end-0">
+          <SaveButton slug={item.slug} variant="icon" />
         </div>
-      </Link>
-
-      <div className="absolute bottom-0 end-0">
-        <SaveButton slug={item.slug} variant="icon" />
       </div>
+      {footer}
     </div>
   );
 }

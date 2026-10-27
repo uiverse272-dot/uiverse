@@ -12,14 +12,19 @@
  * the provider sends in order; a change leaves the outbox only once the server has it, so one
  * cut off by leaving the page is sent on the next visit. A per-user copy in this browser paints
  * the next visit before the server answers.
+ *
+ * A save is a design kept; a pin puts it on a board, and one design can be on many boards. A
+ * design on none is "unsorted". Storage written before boards had one collection per save, and
+ * is read into pins.
  */
 
-import type { SavesState } from "@/lib/saves/db";
+import type { GuestState, SavesState } from "@/lib/saves/db";
 import type { SaveOp } from "./actions";
 
-export type Collection = { id: string; name: string; sections: string[] };
-export type Save = { slug: string; collectionId: string; at: number; note?: string };
-export type State = { saves: Save[]; collections: Collection[]; hydrated: boolean };
+export type Collection = { id: string; name: string; description?: string };
+export type Save = { slug: string; at: number; note?: string };
+export type Pin = { slug: string; collectionId: string; at: number };
+export type State = { saves: Save[]; collections: Collection[]; pins: Pin[]; hydrated: boolean };
 /* the server's own types: one definition of the wire format, so the two sides can't drift */
 type Op = SaveOp;
 /* told when the outbox has something to send */
@@ -29,8 +34,9 @@ const KEY = "uiv.saves.v1";
 const accountKey = (userId: string) => `uiv.saves.u:${userId}`;
 const outboxKey = (userId: string) => `uiv.saves.outbox:${userId}`;
 const ACCOUNT_KEYS = /^uiv\.saves\.(u|outbox):/;
-const DEFAULT_COLLECTIONS: Collection[] = [{ id: "recent", name: "Recently saved", sections: [] }];
-const EMPTY: State = { saves: [], collections: DEFAULT_COLLECTIONS, hydrated: false };
+/* ids that are views of the saves (/saved/all, /saved/unsorted) or the old default bucket, never boards */
+const RESERVED = new Set(["all", "unsorted", "recent"]);
+const EMPTY: State = { saves: [], collections: [], pins: [], hydrated: false };
 
 let state: State = EMPTY;
 let loaded = false;
@@ -43,17 +49,30 @@ const key = () => (account ? accountKey(account.userId) : KEY);
  * Anything that isn't the expected shape is dropped rather than trusted: one bad entry used to
  * crash every page, because this provider wraps the whole app.
  */
-const isSave = (s: unknown): s is Save =>
-  !!s && typeof (s as Save).slug === "string" && typeof (s as Save).collectionId === "string";
+const isSave = (s: unknown): s is Save & { collectionId?: unknown } => !!s && typeof (s as Save).slug === "string";
 const isCollection = (c: unknown): c is Collection =>
-  !!c && typeof (c as Collection).id === "string" && typeof (c as Collection).name === "string";
+  !!c && typeof (c as Collection).id === "string" && typeof (c as Collection).name === "string" && !RESERVED.has((c as Collection).id);
+const isPin = (p: unknown): p is Pin =>
+  !!p && typeof (p as Pin).slug === "string" && typeof (p as Pin).collectionId === "string";
 
 function read(k = key()): State {
   try {
     const parsed = JSON.parse(localStorage.getItem(k) ?? "{}") as Record<string, unknown>;
-    const saves = Array.isArray(parsed.saves) ? parsed.saves.filter(isSave) : [];
-    const collections = Array.isArray(parsed.collections) ? parsed.collections.filter(isCollection) : [];
-    return { saves, collections: collections.length ? collections : DEFAULT_COLLECTIONS, hydrated: true };
+    const raw = Array.isArray(parsed.saves) ? parsed.saves.filter(isSave) : [];
+    const collections = (Array.isArray(parsed.collections) ? parsed.collections.filter(isCollection) : []).map(({ id, name, description }) => ({
+      id,
+      name,
+      ...(typeof description === "string" && description ? { description } : {}),
+    }));
+    const boards = new Set(collections.map((c) => c.id));
+    const saves = raw.map(({ slug, at, note }) => ({ slug, at: Number(at) || 0, ...(typeof note === "string" && note ? { note } : {}) }));
+    const saved = new Set(saves.map((s) => s.slug));
+    const pins = [
+      ...(Array.isArray(parsed.pins) ? parsed.pins.filter(isPin) : []),
+      /* the shape before boards: each save in one collection */
+      ...raw.flatMap((s) => (typeof s.collectionId === "string" ? [{ slug: s.slug, collectionId: s.collectionId, at: Number(s.at) || 0 }] : [])),
+    ].filter((p, i, all) => boards.has(p.collectionId) && saved.has(p.slug) && all.findIndex((q) => q.slug === p.slug && q.collectionId === p.collectionId) === i);
+    return { saves, collections, pins, hydrated: true };
   } catch {
     /* private mode, blocked storage or malformed JSON — the app works, it just won't persist */
     return { ...EMPTY, hydrated: true };
@@ -79,7 +98,7 @@ function load() {
 function write(next: State) {
   state = next;
   try {
-    localStorage.setItem(key(), JSON.stringify({ saves: state.saves, collections: state.collections }));
+    localStorage.setItem(key(), JSON.stringify({ saves: state.saves, collections: state.collections, pins: state.pins }));
   } catch {}
   emit();
 }
@@ -95,7 +114,7 @@ function commit(next: State, op: Op) {
 /* ------------------------------------------------------------- outbox */
 
 const isOp = (o: unknown): o is Op =>
-  !!o && typeof o === "object" && ["set", "move", "create"].includes((o as Op).type);
+  !!o && typeof o === "object" && ["set", "pin", "move", "create", "update", "delete", "note"].includes((o as Op).type);
 
 /** Changes not yet confirmed by the server, oldest first */
 export function pending(): Op[] {
@@ -132,37 +151,74 @@ export const getSnapshot = () => state;
 export const getServerSnapshot = () => EMPTY;
 
 export const isSaved = (slug: string) => state.saves.some((s) => s.slug === slug);
+const isPinned = (slug: string, collectionId: string) => state.pins.some((p) => p.slug === slug && p.collectionId === collectionId);
 
-/** Saves or unsaves; true when the item is now saved. */
-export function toggle(slug: string, collectionId = "recent"): boolean {
+/** Saves or unsaves; true when the design is now saved. Unsaving takes it off every board. */
+export function toggle(slug: string): boolean {
   if (isSaved(slug)) {
-    commit({ ...state, saves: state.saves.filter((s) => s.slug !== slug) }, { type: "set", slug, saved: false });
+    commit(
+      { ...state, saves: state.saves.filter((s) => s.slug !== slug), pins: state.pins.filter((p) => p.slug !== slug) },
+      { type: "set", slug, saved: false },
+    );
     return false;
   }
-  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...state.saves] }, { type: "set", slug, saved: true, collectionId });
+  commit({ ...state, saves: [{ slug, at: Date.now() }, ...state.saves] }, { type: "set", slug, saved: true });
   return true;
 }
 
-export function move(slug: string, collectionId: string) {
-  const rest = state.saves.filter((s) => s.slug !== slug);
-  commit({ ...state, saves: [{ slug, collectionId, at: Date.now() }, ...rest] }, { type: "move", slug, collectionId });
+/** Put a design on a board (saving it first if needed) or take it off one. It stays saved either way. */
+export function pin(slug: string, collectionId: string, pinned: boolean) {
+  if (!state.collections.some((c) => c.id === collectionId) || isPinned(slug, collectionId) === pinned) return;
+  const at = Date.now();
+  if (!pinned) {
+    commit({ ...state, pins: state.pins.filter((p) => !(p.slug === slug && p.collectionId === collectionId)) }, { type: "pin", slug, collectionId, pinned });
+    return;
+  }
+  const saves = isSaved(slug) ? state.saves : [{ slug, at }, ...state.saves];
+  commit({ ...state, saves, pins: [{ slug, collectionId, at }, ...state.pins] }, { type: "pin", slug, collectionId, pinned });
 }
 
-export function create(name: string) {
-  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || `c${Date.now()}`;
+/** A new board, or the existing one with the same id; returns its id. */
+export function create(name: string, description = "") {
+  let id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || `c${Date.now()}`;
+  if (RESERVED.has(id)) id = `${id}-board`;
   if (!state.collections.some((c) => c.id === id)) {
-    commit({ ...state, collections: [...state.collections, { id, name, sections: [] }] }, { type: "create", id, name });
+    commit({ ...state, collections: [...state.collections, { id, name, description }] }, { type: "create", id, name, description });
   }
   return id;
+}
+
+export function update(id: string, name: string, description: string) {
+  const at = state.collections.findIndex((c) => c.id === id);
+  if (at < 0 || !name.trim()) return;
+  const collections = state.collections.with(at, { id, name: name.trim(), description: description.trim() });
+  commit({ ...state, collections }, { type: "update", id, name: name.trim(), description: description.trim() });
+}
+
+/** Delete a board and its pins; the designs stay saved. */
+export function remove(id: string) {
+  commit(
+    { ...state, collections: state.collections.filter((c) => c.id !== id), pins: state.pins.filter((p) => p.collectionId !== id) },
+    { type: "delete", id },
+  );
+}
+
+/** The person's note on a saved design; empty clears it. */
+export function note(slug: string, text: string) {
+  const clean = text.trim();
+  if (!isSaved(slug)) return;
+  commit(
+    { ...state, saves: state.saves.map((s) => (s.slug === slug ? { slug: s.slug, at: s.at, ...(clean ? { note: clean } : {}) } : s)) },
+    { type: "note", slug, note: clean },
+  );
 }
 
 /* ------------------------------------------------------------- account */
 
 /** What this browser saved as a guest — sent once at sign-in to be merged into the account. */
-export function guestState(): SavesState | null {
+export function guestState(): GuestState | null {
   const g = read(KEY);
-  const collections = g.collections.filter((c) => c.id !== "recent").map(({ id, name }) => ({ id, name }));
-  return g.saves.length || collections.length ? { saves: g.saves.map(({ slug, collectionId, at }) => ({ slug, collectionId, at })), collections } : null;
+  return g.saves.length || g.collections.length ? { saves: g.saves, collections: g.collections, pins: g.pins } : null;
 }
 
 /** Signed in: paint from this user's cached copy, until `adopt` brings the server's. */
@@ -176,8 +232,9 @@ export function signIn(userId: string, remote: Remote) {
 /** The account's state from the server; the guest copy has been merged into it, so it's cleared. */
 export function adopt(server: SavesState) {
   write({
-    saves: server.saves,
-    collections: [...DEFAULT_COLLECTIONS, ...server.collections.map((c) => ({ ...c, sections: [] }))],
+    saves: server.saves.map(({ slug, at, note }) => ({ slug, at, ...(note ? { note } : {}) })),
+    collections: server.collections,
+    pins: server.pins,
     hydrated: true,
   });
   try {

@@ -3,7 +3,10 @@
 import { currentUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { rateLimiter } from "@/lib/rateLimit";
-import { createCollection, importSaves, loadSaves, moveSave, SavesError, setSaved, type SavesState } from "@/lib/saves/db";
+import {
+  createCollection, deleteCollection, importSaves, loadSaves, SavesError, setNote, setPinned, setSaved, updateCollection,
+  type GuestState, type SavesState,
+} from "@/lib/saves/db";
 
 /**
  * The browser store's server side for signed-in users (store.ts). Each call checks the session
@@ -12,8 +15,13 @@ import { createCollection, importSaves, loadSaves, moveSave, SavesError, setSave
 
 export type SaveOp =
   | { type: "set"; slug: string; saved: boolean; collectionId?: string }
+  | { type: "pin"; slug: string; collectionId: string; pinned: boolean }
+  /* the older "move into a collection", still in outboxes written before boards — now a pin */
   | { type: "move"; slug: string; collectionId: string }
-  | { type: "create"; id: string; name: string };
+  | { type: "create"; id: string; name: string; description?: string }
+  | { type: "update"; id: string; name: string; description: string }
+  | { type: "delete"; id: string }
+  | { type: "note"; slug: string; note: string };
 
 export type OpResult = { ok: true } | { ok: false; error: SavesError["code"] | "signed-out" | "rate" | "failed" };
 
@@ -26,7 +34,7 @@ async function context() {
 }
 
 /** The account's saves, after merging in what this browser saved as a guest (if anything). Null when signed out. */
-export async function syncSaves(guest: SavesState | null): Promise<SavesState | null> {
+export async function syncSaves(guest: GuestState | null): Promise<SavesState | null> {
   const ctx = await context();
   if (!ctx) return null;
   const valid =
@@ -38,10 +46,15 @@ export async function saveOp(op: SaveOp): Promise<OpResult> {
   const ctx = await context();
   if (!ctx) return { ok: false, error: "signed-out" };
   if (limit(ctx.userId) !== null) return { ok: false, error: "rate" };
+  const { db, userId } = ctx;
   try {
-    if (op.type === "set") await setSaved(ctx.db, ctx.userId, String(op.slug), !!op.saved, op.collectionId ? String(op.collectionId) : undefined);
-    else if (op.type === "move") await moveSave(ctx.db, ctx.userId, String(op.slug), String(op.collectionId));
-    else if (op.type === "create") await createCollection(ctx.db, ctx.userId, String(op.id), String(op.name));
+    if (op.type === "set") await setSaved(db, userId, String(op.slug), !!op.saved, op.collectionId ? String(op.collectionId) : undefined);
+    else if (op.type === "pin") await setPinned(db, userId, String(op.slug), String(op.collectionId), !!op.pinned);
+    else if (op.type === "move") await setPinned(db, userId, String(op.slug), String(op.collectionId), true);
+    else if (op.type === "create") await createCollection(db, userId, String(op.id), String(op.name), String(op.description ?? ""));
+    else if (op.type === "update") await updateCollection(db, userId, String(op.id), String(op.name), String(op.description ?? ""));
+    else if (op.type === "delete") await deleteCollection(db, userId, String(op.id));
+    else if (op.type === "note") await setNote(db, userId, String(op.slug), String(op.note ?? ""));
     else return { ok: false, error: "failed" };
     return { ok: true };
   } catch (e) {
