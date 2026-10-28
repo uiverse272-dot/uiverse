@@ -30,8 +30,18 @@ async function probe() {
     const applied = Number((Array.isArray(rows) ? rows[0] : (rows as { rows: { n: number }[] }).rows[0])?.n ?? 0);
     return { reachable: true, migrated: applied >= expected, migrations: { applied, expected } };
   } catch (e) {
-    /* reachable but never migrated: the table doesn't exist yet */
-    const reachable = /__drizzle_migrations|does not exist/i.test(String((e as Error).message));
-    return { reachable, migrated: false, migrations: { applied: 0, expected } };
+    /* Drizzle wraps every failure as "Failed query: <sql>", so the driver's error is the cause — read its code, not the message */
+    const code = String(((e as { cause?: { code?: unknown } }).cause ?? (e as { code?: unknown }))?.code ?? "");
+    /* reachable but never migrated: the schema or table doesn't exist yet */
+    const reachable = code === "42P01" || code === "3F000";
+    return { reachable, migrated: false, migrations: { applied: 0, expected }, ...(reachable ? {} : { problem: problem(code) }) };
   }
+}
+
+/** Why the database didn't answer, from the Postgres error code — never the URL or the driver's message */
+function problem(code: string) {
+  if (code === "28P01" || code === "28000") return "The database rejected the password in DATABASE_URL — check it has no [ ] left from the placeholder";
+  if (code === "XX000") return "The pooler doesn't know this project — check the user (postgres.<project ref>) and host in DATABASE_URL";
+  if (code === "3D000") return "The database named in DATABASE_URL doesn't exist — it should end in /postgres";
+  return "Couldn't connect with DATABASE_URL — check the host and port (Supabase's transaction pooler, 6543)";
 }
