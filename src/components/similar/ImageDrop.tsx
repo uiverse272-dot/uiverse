@@ -25,8 +25,8 @@ async function readLook(file: File) {
   return { ...look, device };
 }
 
-/** Drop, paste or pick a screenshot; the result page is /similar with its colours in the URL. */
-export function ImageDrop({ compact = false }: { compact?: boolean }) {
+/** Drop, paste or pick a screenshot; the result page (`to`) gets its colours in the URL. */
+export function ImageDrop({ compact = false, to = "/similar" }: { compact?: boolean; to?: string }) {
   const { t } = useI18n();
   const s = t.similar;
   const router = useLocalRouter();
@@ -49,7 +49,7 @@ export function ImageDrop({ compact = false }: { compact?: boolean }) {
         if (old) URL.revokeObjectURL(old);
         return URL.createObjectURL(file);
       });
-      router.push(`/similar?${lookQuery(look)}`, { scroll: false });
+      router.push(`${to}?${lookQuery(look)}`, { scroll: false });
     } catch {
       setFailed(true);
     } finally {
@@ -79,7 +79,7 @@ export function ImageDrop({ compact = false }: { compact?: boolean }) {
         setOver(false);
         take(e.dataTransfer.files[0]);
       }}
-      className={`flex items-center gap-4 border border-dashed p-4 transition-colors ${
+      className={`flex flex-wrap items-center gap-4 border border-dashed p-4 transition-colors ${
         over ? "border-border-strong bg-bg-subtle" : "border-border bg-surface"
       } ${compact ? "" : "min-h-36 justify-center"}`}
     >
@@ -90,7 +90,7 @@ export function ImageDrop({ compact = false }: { compact?: boolean }) {
       ) : (
         <Upload size={22} className="shrink-0 text-text-3" />
       )}
-      <div className="min-w-0">
+      <div className="min-w-40 flex-1">
         <p className="text-[13.5px] font-medium">{busy ? s.reading : s.drop}</p>
         <p className="text-[12px] text-text-3">{failed ? s.failed : s.formats}</p>
       </div>

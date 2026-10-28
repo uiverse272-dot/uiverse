@@ -17,7 +17,7 @@ async function page(guide = '{"status":"off","step":0}') {
 }
 
 /* every main page answers, and the ones that should 404 do */
-for (const [path, want] of [["/", 200], ["/ar", 200], ["/web/fintech", 200], ["/apps", 200], ["/components/hero", 200], ["/explore", 200], ["/palettes", 200], ["/layouts", 200], ["/sketch", 200], ["/saved", 200], ["/saved/all", 200], ["/ar/saved/unsorted", 200], ["/similar?bg=0b0d10&accent=5b8cff&text=f2f5f8", 200], ["/ar/sketch", 200], ["/pricing", 200], ["/legal/privacy", 200], ["/ar/legal/takedown", 200], ["/search?q=fintech", 200], ["/web/bogus", 404], ["/creators", 404]]) {
+for (const [path, want] of [["/", 200], ["/ar", 200], ["/web/fintech", 200], ["/apps", 200], ["/components/hero", 200], ["/explore", 200], ["/palettes", 200], ["/layouts", 200], ["/sketch", 200], ["/saved", 200], ["/saved/all", 200], ["/ar/saved/unsorted", 200], ["/similar?bg=0b0d10&accent=5b8cff&text=f2f5f8", 200], ["/upload?bg=fdf1d6&accent=f8dc3d&text=0254ca", 200], ["/ar/sketch", 200], ["/pricing", 200], ["/legal/privacy", 200], ["/ar/legal/takedown", 200], ["/search?q=fintech", 200], ["/web/bogus", 404], ["/creators", 404]]) {
   const r = await fetch(base + path);
   log(r.status === want, `${path} → ${r.status}`);
 }

@@ -2,6 +2,7 @@ import type { Lang } from "@/i18n/config";
 import { ITEMS, type Item } from "./data";
 import { paramFilter, SCOPES, type Filters, type Scope } from "./filters";
 import { arNorm, parseTerms, type Present } from "./parse";
+import { lookDistance } from "./look";
 
 export * from "./filters";
 export * from "./parse";
@@ -135,20 +136,27 @@ export function facetCounts(items: Item[], key: "industry" | "style" | "category
   return m;
 }
 
+/**
+ * "More like this" under a design: the same kind, ranked by what it is (industry, style, type,
+ * stack, source) and by how it looks — its colours, by the distance image search uses — on the
+ * same device. Real captures edge out samples on a tie.
+ */
 export function similarTo(item: Item, n = 8) {
-  return ITEMS.filter((i) => i.slug !== item.slug)
+  return ITEMS.filter((i) => i.slug !== item.slug && i.kind === item.kind)
     .map((i) => {
       let score = 0;
-      if (i.kind === item.kind) score += 2;
       if (i.industry === item.industry) score += 3;
       if (i.style === item.style) score += 3;
       if (i.category === item.category) score += 2;
-      if (i.palette.key === item.palette.key) score += 2;
+      if (i.componentType && i.componentType === item.componentType) score += 2;
+      if (i.device === item.device) score += 2;
       if (i.source.slug === item.source.slug) score += 1;
       score += i.tech.filter((t) => item.tech.includes(t)).length;
+      score -= 4 * lookDistance(item.palette, i);
+      if (i.capture) score += 0.5;
       return { i, score };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || b.i.weight - a.i.weight)
     .slice(0, n)
     .map((x) => x.i);
 }

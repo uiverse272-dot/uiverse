@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DICTS } from "@/i18n/dict";
 import { ITEMS } from "./data";
-import { applyFilters, arNorm, parseQuery, searchItems } from "./query";
+import { lookDistance } from "./look";
+import { applyFilters, arNorm, parseQuery, searchItems, similarTo } from "./query";
 
 /* the parse as [param, value] pairs — what becomes URL state */
 const parsed = (q: string, lang: "en" | "ar" = "en") => parseQuery(q, lang).terms.map((t) => [t.param, t.value]);
@@ -133,5 +134,29 @@ describe("searchItems", () => {
   it("agrees with the filters it parsed into", () => {
     const { results } = searchItems("لوحة تحكم داكنة");
     expect(results).toEqual(applyFilters(ITEMS, { category: "dashboard", style: "dark" }));
+  });
+});
+
+describe("similarTo — more like this", () => {
+  const screens = ITEMS.filter((i) => i.kind === "screen");
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+  it("stays in the design's kind and never repeats it", () => {
+    for (const item of [screens[0], ITEMS.find((i) => i.kind === "component")!]) {
+      const more = similarTo(item, 60);
+      expect(more.length).toBeGreaterThan(0);
+      expect(more.every((i) => i.kind === item.kind && i.slug !== item.slug)).toBe(true);
+      expect(new Set(more.map((i) => i.slug)).size).toBe(more.length);
+    }
+  });
+
+  it("leads with designs on the same device that look like it", () => {
+    for (const item of screens.filter((i) => i.capture).slice(0, 10)) {
+      const more = similarTo(item, screens.length);
+      const head = more.slice(0, 6);
+      const tail = more.slice(-6);
+      expect(head.filter((i) => i.device === item.device).length).toBeGreaterThanOrEqual(4);
+      expect(mean(head.map((i) => lookDistance(item.palette, i)))).toBeLessThan(mean(tail.map((i) => lookDistance(item.palette, i))));
+    }
   });
 });

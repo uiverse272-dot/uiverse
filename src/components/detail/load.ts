@@ -10,7 +10,7 @@ export function loadDetail(slug: string, kind: Kind) {
   if (!item || item.kind !== kind) return null;
   return {
     item,
-    similar: similarTo(item, 12),
+    similar: similarTo(item, 60),
     fromSource: ITEMS.filter((i) => i.source.slug === item.source.slug && i.kind === "screen"),
   };
 }

@@ -12,7 +12,7 @@ import { MockScreen } from "../mock/MockScreen";
 import { VIEWPORTS, type Viewport } from "../mock/primitives";
 import { SaveButton } from "../save/SaveButton";
 import { BoardsButton } from "../save/BoardsButton";
-import { Card } from "../feed/Card";
+import { Feed } from "../feed/Feed";
 import { Breakdown } from "./Breakdown";
 import { CopyValue } from "./CopyValue";
 import { Code, External, Layers, Sparkle } from "../ui/icons";
@@ -20,7 +20,7 @@ import { Flow } from "../ui/Flow";
 import { PromptDialog } from "../prompt/PromptDialog";
 import { guideEvent } from "../guide/events";
 
-type Tab = "overview" | "breakdown" | "responsive" | "code" | "similar";
+type Tab = "overview" | "breakdown" | "responsive" | "code";
 
 export function DetailView({
   item,
@@ -50,7 +50,7 @@ export function DetailView({
     frameRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const tabs: [Tab, string][] = (["overview", "breakdown", "responsive", "code", "similar"] as const).map((id) => [id, t.detail.tabs[id]]);
+  const tabs: [Tab, string][] = (["overview", "breakdown", "responsive", "code"] as const).map((id) => [id, t.detail.tabs[id]]);
 
   /* arrow keys move between tabs (and focus follows), as the ARIA tab pattern expects — "next" is leftward in Arabic */
   const tabIds = useId();
@@ -286,17 +286,15 @@ export function DetailView({
           {tab === "breakdown" ? <Breakdown item={item} /> : null}
           {tab === "responsive" ? <Responsive item={item} onPick={showDevice} /> : null}
           {tab === "code" ? <CodeTab item={item} onPrompt={() => setPromptOpen(true)} /> : null}
-          {tab === "similar" ? <Grid items={similar} /> : null}
         </div>
 
-        {tab !== "similar" ? (
-          <section className="border-t border-border pt-6">
-            <h2 className="pb-4 text-[15px] font-bold tracking-[-0.02em]">
-              {isComponent ? t.detail.related : t.detail.similar}
-            </h2>
-            <Grid items={similar.slice(0, 6)} />
-          </section>
-        ) : null}
+        {/* Pinterest-style: a design runs straight on into the ones most like it */}
+        <section className="border-t border-border pt-6">
+          <h2 className="pb-4 text-[15px] font-bold tracking-[-0.02em]">
+            {isComponent ? t.detail.related : t.detail.similar}
+          </h2>
+          <Feed items={similar} />
+        </section>
       </div>
 
       {promptOpen ? <PromptDialog item={item} onClose={() => setPromptOpen(false)} /> : null}
@@ -479,14 +477,4 @@ function CodeTab({ item, onPrompt }: { item: Item; onPrompt: () => void }) {
 
 function cap(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1).replace(/-(\w)/g, (_, c) => c.toUpperCase());
-}
-
-function Grid({ items }: { items: Item[] }) {
-  return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-      {items.map((i) => (
-        <Card key={i.slug} item={i} lazy />
-      ))}
-    </div>
-  );
 }
