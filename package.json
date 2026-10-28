@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "e2e": "node e2e/run.mjs",
     "db:generate": "drizzle-kit generate",
+    "check:env": "tsx scripts/check-env.mts",
     "db:migrate": "node --env-file-if-exists=.env.local node_modules/drizzle-kit/bin.cjs migrate"
   },
   "dependencies": {

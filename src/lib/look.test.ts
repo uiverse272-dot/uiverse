@@ -33,9 +33,11 @@ describe("lookFromPixels", () => {
 });
 
 describe("similarToLook", () => {
+  /* among the samples: a real capture in near-identical colours (Ramp's white and ink) may rank alongside */
   it("ranks a palette's own screens first for that palette's colours", () => {
+    const samples = ITEMS.filter((i) => !i.capture);
     for (const p of PALETTES.slice(0, 4)) {
-      const top = similarToLook({ bg: p.bg, text: p.text, accent: p.accent }, ITEMS, 3);
+      const top = similarToLook({ bg: p.bg, text: p.text, accent: p.accent }, samples, 3);
       expect(top.length).toBe(3);
       for (const i of top) expect(i.palette).toMatchObject({ bg: p.bg, accent: p.accent });
     }

@@ -20,6 +20,7 @@ The architecture lives in `docs/`; read it before building anything new.
 | [10 — Review of the brief](docs/10-ux-critique.md) | Duplications, gaps, flow improvements |
 | [11 — Tech architecture](docs/11-tech-architecture.md) | Stack, performance budget, build order |
 | [12 — MCP server](docs/12-mcp.md) | The agent-facing API over the real captures |
+| [13 — Launch](docs/13-launch.md) | Production setup: Supabase, Resend, Vercel, and how to check it |
 
 
 ## Running it
@@ -146,9 +147,10 @@ keeps users, sessions and saves in our own Postgres through Drizzle (`src/lib/db
 - **Boards.** A save is a design kept; a pin puts it on a board, and one design can be on many
   boards (`pin` table). A design on no board is "unsorted". Deleting a board keeps its designs
   saved; unsaving a design takes it off every board. Each saved design can carry one note.
-- **Production checklist:** `DATABASE_URL`, `BETTER_AUTH_SECRET`, `npm run db:migrate`, and Resend
-  (`RESEND_API_KEY`, `AUTH_EMAIL_FROM`) for email sign-in. Missing the database or the secret turns
-  accounts off rather than guessing. See `.env.example`.
+- **Production setup:** step by step in [docs/13](docs/13-launch.md). `npm run check:env` checks a
+  settings file, the server logs any missing setting on start (`src/instrumentation.ts`), and
+  `/api/health` reports configuration, database and migrations. Missing the database or the secret
+  turns accounts off rather than guessing. See `.env.example`.
 - **Deleting an account** (`/u/me`) takes a typed confirmation and a sign-in from the last hour
   (`session.freshAge`); older sessions are sent to sign in again. The user row goes, and with it
   sessions, linked logins, collections and saves (foreign keys cascade) plus any unused sign-in
