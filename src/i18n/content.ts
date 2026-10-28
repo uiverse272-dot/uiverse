@@ -15,7 +15,7 @@ import { plural, type Plural } from "./format";
 
 const TITLES: Record<string, string> = {
   /* real captures' other page types */
-  About: "من نحن", Features: "الميزات", Pro: "النسخة الاحترافية", Business: "للأعمال", Solutions: "الحلول", Partnership: "الشراكات", "Online store": "المتجر الإلكتروني",
+  About: "من نحن", Features: "الميزات", Pro: "النسخة الاحترافية", "AirPods Pro": "سماعات AirPods Pro", Copilot: "مساعد Copilot", Business: "للأعمال", Solutions: "الحلول", Partnership: "الشراكات", "Online store": "المتجر الإلكتروني",
   "Accept payments": "قبول المدفوعات", "Payment methods": "طرق الدفع", "Careem for Business": "كريم للأعمال",
   Homepage: "الصفحة الرئيسية", "Spend overview": "نظرة على الإنفاق", Pricing: "الأسعار", "Sign in": "تسجيل الدخول",
   Documentation: "التوثيق", Plans: "الخطط", "Care schedule": "جدول الرعاية", "Model evaluations": "تقييمات النماذج",

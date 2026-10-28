@@ -2227,6 +2227,1517 @@
   }
  },
  {
+  "slug": "apple-com-airpods-pro",
+  "url": "https://www.apple.com/airpods-pro/",
+  "capturedAt": "2026-10-28T19:50:51.763Z",
+  "title": "AirPods Pro",
+  "source": {
+   "slug": "apple-com",
+   "name": "Apple",
+   "domain": "apple.com",
+   "about": "AirPods Pro 3 — The world’s best in-ear Active Noise Cancellation, heart rate sensing during workouts, and an improved hearing health experience.",
+   "tagline": "AirPods Pro 3 - Apple"
+  },
+  "category": "pricing",
+  "archetype": "pricing",
+  "industry": "ecommerce",
+  "style": "light",
+  "tech": [],
+  "dir": "ltr",
+  "lang": "en-US",
+  "palette": {
+   "bg": "#FAFAFC",
+   "surface": "#E8E8ED",
+   "raised": "#DFDFE4",
+   "text": "#000000",
+   "muted": "#6E6E73",
+   "accent": "#0071E3",
+   "accentFg": "#FFFFFF",
+   "border": "#00C866",
+   "chart": [
+    "#0071E3",
+    "#0066CC",
+    "#ED6300",
+    "#8668FF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 96,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "The best thing"
+    },
+    {
+     "name": "H1",
+     "size": 80,
+     "weight": 600,
+     "use": "Heading",
+     "sample": "2x more"
+    },
+    {
+     "name": "H2",
+     "size": 72,
+     "weight": 600,
+     "use": "Heading",
+     "sample": "Siri, play the song Diana texted me yesterday"
+    },
+    {
+     "name": "H3",
+     "size": 64,
+     "weight": 600,
+     "use": "Section header",
+     "sample": "The world’s best"
+    },
+    {
+     "name": "Body",
+     "size": 17,
+     "weight": 600,
+     "use": "Paragraph",
+     "sample": "New ultra-low-noise microphones."
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "List items",
+     "sample": "New"
+    }
+   ],
+   "body": "17px / 2.12",
+   "fonts": {
+    "heading": "SF Pro Display",
+    "body": "SF Pro Text"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    8,
+    9,
+    10,
+    14,
+    15,
+    20,
+    28,
+    32,
+    40,
+    48
+   ],
+   "radius": "8 / 28 / 50px",
+   "container": "1260px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0.0039,
+    "h": 0.0018,
+    "px": {
+     "y": 114,
+     "h": 52
+    },
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 0.0024,
+    "px": {
+     "y": 0,
+     "h": 70
+    },
+    "links": 1
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Shop",
+    "y": 0,
+    "h": 0.0039,
+    "px": {
+     "y": 0,
+     "h": 114
+    },
+    "headingSize": 12,
+    "links": 14,
+    "menuButton": true
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "AirPods Pro 3",
+    "y": 0.0024,
+    "h": 0.0306,
+    "px": {
+     "y": 70,
+     "h": 900
+    },
+    "headingSize": 28,
+    "links": 2
+   },
+   {
+    "type": "stats",
+    "label": "Metrics band",
+    "heading": "Get the highlights.",
+    "y": 0.033,
+    "h": 0.0417,
+    "px": {
+     "y": 970,
+     "h": 1226
+    },
+    "columns": 6,
+    "headingSize": 56,
+    "links": 16
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Take a closer look.",
+    "y": 0.0747,
+    "h": 0.036,
+    "px": {
+     "y": 2196,
+     "h": 1060
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Intelligent noise control",
+    "y": 0.1107,
+    "h": 0.0663,
+    "px": {
+     "y": 3256,
+     "h": 1950
+    },
+    "headingSize": 28,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "New ultra-low-noise microphones.",
+    "y": 0.1823,
+    "h": 0.0307,
+    "px": {
+     "y": 5360,
+     "h": 902
+    },
+    "columns": 4,
+    "headingSize": 17,
+    "links": 3
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Audio performance",
+    "y": 0.2184,
+    "h": 0.0992,
+    "px": {
+     "y": 6422,
+     "h": 2918
+    },
+    "headingSize": 28,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Personalized listening",
+    "y": 0.3285,
+    "h": 0.0796,
+    "px": {
+     "y": 9660,
+     "h": 2340
+    },
+    "columns": 1,
+    "headingSize": 28,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Fitness",
+    "y": 0.4135,
+    "h": 0.0904,
+    "px": {
+     "y": 12160,
+     "h": 2658
+    },
+    "columns": 1,
+    "headingSize": 28,
+    "links": 3
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Hearing Health",
+    "y": 0.5093,
+    "h": 0.0511,
+    "px": {
+     "y": 14978,
+     "h": 1504
+    },
+    "headingSize": 28,
+    "links": 5
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Battery life.",
+    "y": 0.5604,
+    "h": 0.0342,
+    "px": {
+     "y": 16482,
+     "h": 1005
+    },
+    "columns": 4,
+    "headingSize": 17,
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Experience",
+    "y": 0.6,
+    "h": 0.0553,
+    "px": {
+     "y": 17647,
+     "h": 1626
+    },
+    "headingSize": 28,
+    "links": 2
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "All-day battery life",
+    "y": 0.6608,
+    "h": 0.0468,
+    "px": {
+     "y": 19433,
+     "h": 1376
+    },
+    "headingSize": 28,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Find My with Precision Finding.",
+    "y": 0.713,
+    "h": 0.0185,
+    "px": {
+     "y": 20969,
+     "h": 543
+    },
+    "headingSize": 32,
+    "links": 2
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Why Apple is the best place to buy AirPods.",
+    "y": 0.7314,
+    "h": 0.0283,
+    "px": {
+     "y": 21512,
+     "h": 831
+    },
+    "columns": 5,
+    "headingSize": 56,
+    "links": 2
+   },
+   {
+    "type": "pricing",
+    "label": "Pricing tiers",
+    "heading": "Keep exploring AirPods.",
+    "y": 0.7651,
+    "h": 0.0751,
+    "px": {
+     "y": 22503,
+     "h": 2208
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 28
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "AirPods Pro 3 and the environment.",
+    "y": 0.8476,
+    "h": 0.026,
+    "px": {
+     "y": 24927,
+     "h": 764
+    },
+    "columns": 3,
+    "headingSize": 56,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Our values lead the way.",
+    "y": 0.8735,
+    "h": 0.0217,
+    "px": {
+     "y": 25690,
+     "h": 637
+    },
+    "columns": 3,
+    "headingSize": 56,
+    "links": 6
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "AirPods",
+    "y": 0.8952,
+    "h": 0.0236,
+    "px": {
+     "y": 26328,
+     "h": 694
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 14
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Apple Footer",
+    "y": 0.9188,
+    "h": 0.0812,
+    "px": {
+     "y": 27022,
+     "h": 2388
+    },
+    "columns": 1,
+    "headingSize": 12,
+    "links": 89
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0.004,
+     "h": 0.0018
+    },
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0025
+    },
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.004,
+     "heading": "Shop"
+    },
+    {
+     "type": "hero",
+     "y": 0.0025,
+     "h": 0.0421,
+     "heading": "AirPods Pro 3"
+    },
+    {
+     "type": "feature",
+     "y": 0.0446,
+     "h": 0.0391,
+     "heading": "Get the highlights."
+    },
+    {
+     "type": "faq",
+     "y": 0.0836,
+     "h": 0.034,
+     "heading": "Take a closer look."
+    },
+    {
+     "type": "feature",
+     "y": 0.1176,
+     "h": 0.0604,
+     "heading": "Intelligent noise control"
+    },
+    {
+     "type": "cards",
+     "y": 0.1822,
+     "h": 0.031,
+     "heading": "New ultra-low-noise microphones."
+    },
+    {
+     "type": "section",
+     "y": 0.2178,
+     "h": 0.0754,
+     "heading": "Audio performance"
+    },
+    {
+     "type": "feature",
+     "y": 0.3022,
+     "h": 0.092,
+     "heading": "Personalized listening"
+    },
+    {
+     "type": "feature",
+     "y": 0.3987,
+     "h": 0.0813,
+     "heading": "Fitness"
+    },
+    {
+     "type": "feature",
+     "y": 0.4845,
+     "h": 0.0543,
+     "heading": "Hearing Health"
+    },
+    {
+     "type": "cards",
+     "y": 0.5387,
+     "h": 0.0343,
+     "heading": "Battery life."
+    },
+    {
+     "type": "feature",
+     "y": 0.5731,
+     "h": 0.0549,
+     "heading": "Experience"
+    },
+    {
+     "type": "section",
+     "y": 0.6325,
+     "h": 0.0443,
+     "heading": "All-day battery life"
+    },
+    {
+     "type": "feature",
+     "y": 0.6813,
+     "h": 0.0337,
+     "heading": "Find My with Precision Finding."
+    },
+    {
+     "type": "cards",
+     "y": 0.7149,
+     "h": 0.0293,
+     "heading": "Why Apple is the best place to buy AirPods."
+    },
+    {
+     "type": "pricing",
+     "y": 0.7487,
+     "h": 0.0686,
+     "heading": "Keep exploring AirPods."
+    },
+    {
+     "type": "cards",
+     "y": 0.8246,
+     "h": 0.028,
+     "heading": "AirPods Pro 3 and the environment."
+    },
+    {
+     "type": "cards",
+     "y": 0.8526,
+     "h": 0.023,
+     "heading": "Our values lead the way."
+    },
+    {
+     "type": "feature",
+     "y": 0.8756,
+     "h": 0.0293,
+     "heading": "AirPods"
+    },
+    {
+     "type": "footer",
+     "y": 0.9049,
+     "h": 0.0951,
+     "heading": "Apple Footer"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0051
+    },
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.0069,
+     "heading": "Shop"
+    },
+    {
+     "type": "hero",
+     "y": 0.0051,
+     "h": 0.0304,
+     "heading": "AirPods Pro 3"
+    },
+    {
+     "type": "navbar",
+     "y": 0.0069,
+     "h": 0.0018
+    },
+    {
+     "type": "cards",
+     "y": 0.0355,
+     "h": 0.0349,
+     "heading": "Get the highlights."
+    },
+    {
+     "type": "faq",
+     "y": 0.0704,
+     "h": 0.0316,
+     "heading": "Take a closer look."
+    },
+    {
+     "type": "feature",
+     "y": 0.102,
+     "h": 0.0531,
+     "heading": "Intelligent noise control"
+    },
+    {
+     "type": "cards",
+     "y": 0.1583,
+     "h": 0.0279,
+     "heading": "New ultra-low-noise microphones."
+    },
+    {
+     "type": "section",
+     "y": 0.1899,
+     "h": 0.0669,
+     "heading": "Audio performance"
+    },
+    {
+     "type": "feature",
+     "y": 0.2641,
+     "h": 0.0744,
+     "heading": "Personalized listening"
+    },
+    {
+     "type": "feature",
+     "y": 0.3421,
+     "h": 0.0731,
+     "heading": "Fitness"
+    },
+    {
+     "type": "feature",
+     "y": 0.4188,
+     "h": 0.0382,
+     "heading": "Hearing Health"
+    },
+    {
+     "type": "cards",
+     "y": 0.457,
+     "h": 0.0298,
+     "heading": "Battery life."
+    },
+    {
+     "type": "section",
+     "y": 0.4905,
+     "h": 0.0573,
+     "heading": "Experience"
+    },
+    {
+     "type": "section",
+     "y": 0.5522,
+     "h": 0.0442,
+     "heading": "All-day battery life"
+    },
+    {
+     "type": "feature",
+     "y": 0.6,
+     "h": 0.0315,
+     "heading": "Find My with Precision Finding."
+    },
+    {
+     "type": "cards",
+     "y": 0.6315,
+     "h": 0.027,
+     "heading": "Why Apple is the best place to buy AirPods."
+    },
+    {
+     "type": "pricing",
+     "y": 0.6621,
+     "h": 0.0715,
+     "heading": "Keep exploring AirPods."
+    },
+    {
+     "type": "cards",
+     "y": 0.741,
+     "h": 0.0261,
+     "heading": "AirPods Pro 3 and the environment."
+    },
+    {
+     "type": "cards",
+     "y": 0.7671,
+     "h": 0.021,
+     "heading": "Our values lead the way."
+    },
+    {
+     "type": "feature",
+     "y": 0.7881,
+     "h": 0.0315,
+     "heading": "AirPods"
+    },
+    {
+     "type": "footer",
+     "y": 0.8196,
+     "h": 0.1804,
+     "heading": "Apple Footer"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "5 links → 5 links → 3 links",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: AirPods Pro 3",
+    "heading 28px → 24px → 21px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Metrics band: Get the highlights.",
+    "heading 56px → 48px → 28px",
+    [
+     "stats"
+    ]
+   ],
+   [
+    "FAQ: Take a closer look.",
+    "heading 56px → 48px → 28px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: Intelligent noise control",
+    "heading 28px → 24px → 21px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: Audio performance",
+    "heading 28px → 24px → 21px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: Personalized listening",
+    "heading 28px → 24px → 21px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Fitness",
+    "heading 28px → 24px → 21px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: Hearing Health",
+    "heading 28px → 24px → 21px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: Experience",
+    "heading 28px → 24px → 21px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: All-day battery life",
+    "heading 28px → 24px → 21px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: Find My with Precision Finding.",
+    "heading 32px → 32px → 24px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Card grid: Why Apple is the best place to b",
+    "heading 56px → 48px → 28px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Pricing tiers: Keep exploring AirPods.",
+    "heading 56px → 48px → 28px",
+    [
+     "pricing"
+    ]
+   ],
+   [
+    "Card grid: AirPods Pro 3 and the environmen",
+    "heading 56px → 48px → 28px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: Our values lead the way.",
+    "heading 56px → 48px → 28px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: AirPods",
+    "heading 56px → 48px → 28px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Page length",
+    "29410px → 28357px → 26359px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/apple-com-airpods-pro/desktop.jpg",
+    "w": 1440,
+    "h": 14000,
+    "css": 1440,
+    "cssH": 14000,
+    "docH": 29410
+   },
+   "tablet": {
+    "src": "/captures/apple-com-airpods-pro/tablet.jpg",
+    "w": 834,
+    "h": 14000,
+    "css": 834,
+    "cssH": 14000,
+    "docH": 28357
+   },
+   "mobile": {
+    "src": "/captures/apple-com-airpods-pro/mobile.jpg",
+    "w": 780,
+    "h": 28000,
+    "css": 390,
+    "cssH": 14000,
+    "docH": 26359
+   }
+  }
+ },
+ {
+  "slug": "brex-com",
+  "url": "https://brex.com/",
+  "capturedAt": "2026-10-28T19:45:23.533Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "brex-com",
+   "name": "Brex",
+   "domain": "brex.com",
+   "about": "Simplify expense management with Brex's finance platform. From company cards to banking, Brex helps you drive growth, automate processes, & earn more.",
+   "tagline": "Brex: The Modern Finance Software Platform | Spend Smarter"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en-US",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F3F3F7",
+   "raised": "#E9E9ED",
+   "text": "#15191E",
+   "muted": "#60646C",
+   "accent": "#FF3D00",
+   "accentFg": "#FCFCFD",
+   "border": "#F3F3F7",
+   "chart": [
+    "#FF3D00",
+    "#FF6E40",
+    "#FF9E80",
+    "#FFCFBF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 72,
+     "weight": 600,
+     "use": "Page headline",
+     "sample": "Finance built for speed and control."
+    },
+    {
+     "name": "H1",
+     "size": 48,
+     "weight": 600,
+     "use": "Section header",
+     "sample": "Trusted by 35,000+ top companies."
+    },
+    {
+     "name": "H2",
+     "size": 36,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "Control spend before it happens."
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 600,
+     "use": "Card title",
+     "sample": "Corporate cards"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "See Brex in action"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 500,
+     "use": "Paragraph",
+     "sample": "October is our biggest drop of Early Access features yet."
+    },
+    {
+     "name": "Caption",
+     "size": 10,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "These metrics are based on internal metrics from March 2025."
+    }
+   ],
+   "body": "16px / normal",
+   "fonts": {
+    "heading": "inter",
+    "body": "inter"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    1,
+    4,
+    8,
+    16,
+    20,
+    24,
+    32,
+    48,
+    72,
+    80
+   ],
+   "radius": "6 / 10 / 12px",
+   "container": "1296px"
+  },
+  "blocks": [
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 0.0055,
+    "px": {
+     "y": 0,
+     "h": 50
+    },
+    "links": 1
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "y": 0.0055,
+    "h": 0.0066,
+    "px": {
+     "y": 50,
+     "h": 60
+    },
+    "links": 6
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Finance built for speed and control.",
+    "y": 0.0121,
+    "h": 0.0922,
+    "px": {
+     "y": 110,
+     "h": 840
+    },
+    "columns": 1,
+    "headingSize": 72,
+    "links": 0
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "heading": "Trusted by 35,000+ top companies.",
+    "y": 0.1043,
+    "h": 0.0369,
+    "px": {
+     "y": 950,
+     "h": 336
+    },
+    "headingSize": 48,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Corporate cards",
+    "y": 0.1411,
+    "h": 0.0689,
+    "px": {
+     "y": 1286,
+     "h": 628
+    },
+    "columns": 5,
+    "headingSize": 48,
+    "links": 5
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Startups",
+    "y": 0.2101,
+    "h": 0.0739,
+    "px": {
+     "y": 1914,
+     "h": 673
+    },
+    "columns": 3,
+    "headingSize": 48,
+    "links": 6
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Control spend before it happens.",
+    "y": 0.2839,
+    "h": 0.07,
+    "px": {
+     "y": 2587,
+     "h": 638
+    },
+    "headingSize": 48,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Make doing your expenses easy.",
+    "y": 0.3539,
+    "h": 0.0533,
+    "px": {
+     "y": 3225,
+     "h": 486
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Maximize your spending power.",
+    "y": 0.4072,
+    "h": 0.0472,
+    "px": {
+     "y": 3710,
+     "h": 430
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Pay vendors faster and easier.",
+    "y": 0.4544,
+    "h": 0.0515,
+    "px": {
+     "y": 4140,
+     "h": 470
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Accelerate accounting with AI.",
+    "y": 0.5059,
+    "h": 0.0463,
+    "px": {
+     "y": 4610,
+     "h": 422
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "AI-powered automation",
+    "y": 0.5522,
+    "h": 0.0427,
+    "px": {
+     "y": 5031,
+     "h": 389
+    },
+    "columns": 3,
+    "headingSize": 48,
+    "links": 0
+   },
+   {
+    "type": "testimonials",
+    "label": "Testimonials",
+    "y": 0.5949,
+    "h": 0.089,
+    "px": {
+     "y": 5420,
+     "h": 811
+    },
+    "links": 2
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "See what Brex can do for you.",
+    "y": 0.684,
+    "h": 0.0571,
+    "px": {
+     "y": 6231,
+     "h": 520
+    },
+    "headingSize": 48,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Trending insights on intelligent finance.",
+    "y": 0.741,
+    "h": 0.0877,
+    "px": {
+     "y": 6751,
+     "h": 799
+    },
+    "columns": 9,
+    "headingSize": 48,
+    "links": 9
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Product",
+    "y": 0.8287,
+    "h": 0.1713,
+    "px": {
+     "y": 7550,
+     "h": 1561
+    },
+    "columns": 5,
+    "headingSize": 14,
+    "links": 49
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0037
+    },
+    {
+     "type": "hero",
+     "y": 0.0037,
+     "h": 0.0342,
+     "heading": "Finance built for speed and control."
+    },
+    {
+     "type": "section",
+     "y": 0.0379,
+     "h": 0.0412
+    },
+    {
+     "type": "section",
+     "y": 0.0791,
+     "h": 0.0342,
+     "heading": "Trusted by 35,000+ top companies."
+    },
+    {
+     "type": "feature",
+     "y": 0.1133,
+     "h": 0.0563,
+     "heading": "Corporate cards"
+    },
+    {
+     "type": "cards",
+     "y": 0.1708,
+     "h": 0.0402,
+     "heading": "Expense management"
+    },
+    {
+     "type": "section",
+     "y": 0.2122,
+     "h": 0.0387,
+     "heading": "Travel"
+    },
+    {
+     "type": "cards",
+     "y": 0.252,
+     "h": 0.0402,
+     "heading": "Bill pay"
+    },
+    {
+     "type": "cards",
+     "y": 0.2935,
+     "h": 0.0402,
+     "heading": "Banking and treasury"
+    },
+    {
+     "type": "cards",
+     "y": 0.3397,
+     "h": 0.0424,
+     "heading": "Startups"
+    },
+    {
+     "type": "section",
+     "y": 0.3821,
+     "h": 0.0149,
+     "heading": "Supercharge your financial operations."
+    },
+    {
+     "type": "feature",
+     "y": 0.397,
+     "h": 0.0576,
+     "heading": "Control spend before it happens."
+    },
+    {
+     "type": "feature",
+     "y": 0.4546,
+     "h": 0.0576,
+     "heading": "Make doing your expenses easy."
+    },
+    {
+     "type": "feature",
+     "y": 0.5122,
+     "h": 0.0556,
+     "heading": "Maximize your spending power."
+    },
+    {
+     "type": "feature",
+     "y": 0.5678,
+     "h": 0.0558,
+     "heading": "Pay vendors faster and easier."
+    },
+    {
+     "type": "feature",
+     "y": 0.6236,
+     "h": 0.055,
+     "heading": "Accelerate accounting with AI."
+    },
+    {
+     "type": "cards",
+     "y": 0.6785,
+     "h": 0.0312,
+     "heading": "AI-powered automation"
+    },
+    {
+     "type": "faq",
+     "y": 0.7097,
+     "h": 0.0612,
+     "heading": "DoorDash"
+    },
+    {
+     "type": "cta",
+     "y": 0.7709,
+     "h": 0.0379,
+     "heading": "See what Brex can do for you."
+    },
+    {
+     "type": "cards",
+     "y": 0.8088,
+     "h": 0.0601,
+     "heading": "Trending insights on intelligent finance."
+    },
+    {
+     "type": "footer",
+     "y": 0.8689,
+     "h": 0.1311,
+     "heading": "Product"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 0.0052
+    },
+    {
+     "type": "hero",
+     "y": 0.0052,
+     "h": 0.0295,
+     "heading": "Finance built for speed and control."
+    },
+    {
+     "type": "section",
+     "y": 0.0347,
+     "h": 0.0198
+    },
+    {
+     "type": "feature",
+     "y": 0.0545,
+     "h": 0.0634,
+     "heading": "Corporate cards"
+    },
+    {
+     "type": "section",
+     "y": 0.1191,
+     "h": 0.0248,
+     "heading": "Expense management"
+    },
+    {
+     "type": "section",
+     "y": 0.1452,
+     "h": 0.0248,
+     "heading": "Travel"
+    },
+    {
+     "type": "section",
+     "y": 0.1712,
+     "h": 0.0248,
+     "heading": "Bill pay"
+    },
+    {
+     "type": "section",
+     "y": 0.1972,
+     "h": 0.0248,
+     "heading": "Banking and treasury"
+    },
+    {
+     "type": "feature",
+     "y": 0.2257,
+     "h": 0.1023,
+     "heading": "Startups"
+    },
+    {
+     "type": "feature",
+     "y": 0.3317,
+     "h": 0.0627,
+     "heading": "Control spend before it happens."
+    },
+    {
+     "type": "feature",
+     "y": 0.3944,
+     "h": 0.048,
+     "heading": "Make doing your expenses easy."
+    },
+    {
+     "type": "section",
+     "y": 0.4423,
+     "h": 0.0439,
+     "heading": "Maximize your spending power."
+    },
+    {
+     "type": "section",
+     "y": 0.4863,
+     "h": 0.0458,
+     "heading": "Pay vendors faster and easier."
+    },
+    {
+     "type": "section",
+     "y": 0.532,
+     "h": 0.0439,
+     "heading": "Accelerate accounting with AI."
+    },
+    {
+     "type": "feature",
+     "y": 0.5759,
+     "h": 0.0565,
+     "heading": "AI-powered automation"
+    },
+    {
+     "type": "faq",
+     "y": 0.6324,
+     "h": 0.074,
+     "heading": "DoorDash"
+    },
+    {
+     "type": "cta",
+     "y": 0.7065,
+     "h": 0.0312,
+     "heading": "See what Brex can do for you."
+    },
+    {
+     "type": "cards",
+     "y": 0.7377,
+     "h": 0.0576,
+     "heading": "Trending insights on intelligent finance."
+    },
+    {
+     "type": "footer",
+     "y": 0.7953,
+     "h": 0.2047,
+     "heading": "Product"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Hero: Finance built for speed and cont",
+    "heading 72px → 48px → 36px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Logo cloud: Trusted by 35,000+ top companies",
+    "heading 48px → 36px → 24px",
+    [
+     "logo-cloud"
+    ]
+   ],
+   [
+    "Card grid: Corporate cards",
+    "5 columns → 5 → 1; heading 48px → 36px → 30px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: Startups",
+    "3 columns → 3 → 1; heading 48px → 36px → 30px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: Control spend before it happens.",
+    "heading 48px → 30px → 30px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: Make doing your expenses easy.",
+    "heading 36px → 30px → 24px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: Maximize your spending power.",
+    "heading 36px → 30px → 24px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: Pay vendors faster and easier.",
+    "heading 36px → 30px → 24px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Content section: Accelerate accounting with AI.",
+    "heading 36px → 30px → 24px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Card grid: AI-powered automation",
+    "3 columns → 3 → 1; heading 48px → 36px → 30px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Content section: See what Brex can do for you.",
+    "heading 48px → 36px → 30px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Card grid: Trending insights on intelligent",
+    "heading 48px → 36px → 30px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Footer",
+    "5 columns → 5 → 1",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9111px → 13403px → 13081px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/brex-com/desktop.jpg",
+    "w": 1440,
+    "h": 9111,
+    "css": 1440,
+    "cssH": 9111,
+    "docH": 9111
+   },
+   "tablet": {
+    "src": "/captures/brex-com/tablet.jpg",
+    "w": 834,
+    "h": 13403,
+    "css": 834,
+    "cssH": 13403,
+    "docH": 13403
+   },
+   "mobile": {
+    "src": "/captures/brex-com/mobile.jpg",
+    "w": 780,
+    "h": 26162,
+    "css": 390,
+    "cssH": 13081,
+    "docH": 13081
+   }
+  }
+ },
+ {
   "slug": "brilliant-org",
   "url": "https://brilliant.org/",
   "capturedAt": "2026-10-28T11:11:40.920Z",
@@ -4599,6 +6110,614 @@
     "css": 390,
     "cssH": 13387,
     "docH": 13387
+   }
+  }
+ },
+ {
+  "slug": "cursor-com",
+  "url": "https://www.cursor.com/",
+  "capturedAt": "2026-10-28T19:48:50.677Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "cursor-com",
+   "name": "Cursor",
+   "domain": "cursor.com",
+   "about": "Built to make you extraordinarily productive, agents turn ideas into code. Accelerate development by handing off tasks to Cursor.",
+   "tagline": "AI Coding Agent for Building Ambitious Software | Cursor"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "ai",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en-US",
+  "palette": {
+   "bg": "#F7F7F4",
+   "surface": "#F2F1ED",
+   "raised": "#E6E5E0",
+   "text": "#26251E",
+   "muted": "#7E7D78",
+   "accent": "#C08532",
+   "accentFg": "#FFFFFF",
+   "border": "#F2F1ED",
+   "chart": [
+    "#C08532",
+    "#F54E00",
+    "#34785C",
+    "#4ADE80"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 72,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "Try Cursor now."
+    },
+    {
+     "name": "H1",
+     "size": 36,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "The new way to build software."
+    },
+    {
+     "name": "H2",
+     "size": 26,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Cursor is your coding agent for building ambitious software."
+    },
+    {
+     "name": "H3",
+     "size": 22,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "Agents turn ideas into code"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Trusted every day by teams that build world-class software"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "Cursor Desktop"
+    },
+    {
+     "name": "Caption",
+     "size": 11,
+     "weight": 400,
+     "use": "Buttons",
+     "sample": "Ready for Review"
+    }
+   ],
+   "body": "14px / 1",
+   "fonts": {
+    "heading": "CursorGothic",
+    "body": "Segoe UI"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    18
+   ],
+   "radius": "4 / 8 / 50px",
+   "container": "1300px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0063,
+    "px": {
+     "y": 0,
+     "h": 52
+    },
+    "links": 10
+   },
+   {
+    "type": "table",
+    "label": "Data table",
+    "heading": "Cursor is your coding agent for building ambitious software.",
+    "y": 0.0063,
+    "h": 0.1324,
+    "px": {
+     "y": 52,
+     "h": 1086
+    },
+    "headingSize": 26,
+    "links": 3
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "heading": "Trusted every day by teams that build world-class software",
+    "y": 0.1388,
+    "h": 0.0216,
+    "px": {
+     "y": 1138,
+     "h": 177
+    },
+    "columns": 8,
+    "headingSize": 14,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Agents turn ideas into code",
+    "y": 0.1686,
+    "h": 0.0872,
+    "px": {
+     "y": 1382,
+     "h": 715
+    },
+    "columns": 1,
+    "headingSize": 22,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Works autonomously, runs in parallel",
+    "y": 0.2667,
+    "h": 0.0872,
+    "px": {
+     "y": 2187,
+     "h": 715
+    },
+    "headingSize": 22,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "In every tool, at every step",
+    "y": 0.3648,
+    "h": 0.0835,
+    "px": {
+     "y": 2991,
+     "h": 685
+    },
+    "columns": 1,
+    "headingSize": 22,
+    "links": 3
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Hand work to AI teammates",
+    "y": 0.4593,
+    "h": 0.0835,
+    "px": {
+     "y": 3766,
+     "h": 685
+    },
+    "columns": 1,
+    "headingSize": 22,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "The new way to build software.",
+    "y": 0.551,
+    "h": 0.0854,
+    "px": {
+     "y": 4518,
+     "h": 700
+    },
+    "columns": 3,
+    "headingSize": 36,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Stay on the frontier",
+    "y": 0.6364,
+    "h": 0.0901,
+    "px": {
+     "y": 5218,
+     "h": 739
+    },
+    "columns": 3,
+    "headingSize": 22,
+    "links": 3
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Changelog",
+    "y": 0.7265,
+    "h": 0.0407,
+    "px": {
+     "y": 5957,
+     "h": 334
+    },
+    "columns": 4,
+    "headingSize": 22,
+    "links": 5
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Cursor is an applied research team focused on building the future of software development.",
+    "y": 0.7673,
+    "h": 0.0847,
+    "px": {
+     "y": 6291,
+     "h": 694
+    },
+    "headingSize": 22,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Recent highlights",
+    "y": 0.852,
+    "h": 0.0416,
+    "px": {
+     "y": 6985,
+     "h": 341
+    },
+    "columns": 4,
+    "headingSize": 22,
+    "links": 5
+   },
+   {
+    "type": "cta",
+    "label": "CTA band",
+    "heading": "Try Cursor now.",
+    "y": 0.8936,
+    "h": 0.0423,
+    "px": {
+     "y": 7327,
+     "h": 346
+    },
+    "headingSize": 72,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Product",
+    "y": 0.9359,
+    "h": 0.0641,
+    "px": {
+     "y": 7673,
+     "h": 526
+    },
+    "columns": 5,
+    "headingSize": 14,
+    "links": 37
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0055
+    },
+    {
+     "type": "table",
+     "y": 0.0055,
+     "h": 0.1098,
+     "heading": "Cursor is your coding agent for building ambitious software."
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.1153,
+     "h": 0.0262,
+     "heading": "Trusted every day by teams that build world-class software"
+    },
+    {
+     "type": "feature",
+     "y": 0.1477,
+     "h": 0.0829,
+     "heading": "Agents turn ideas into code"
+    },
+    {
+     "type": "feature",
+     "y": 0.2388,
+     "h": 0.0836,
+     "heading": "Works autonomously, runs in parallel"
+    },
+    {
+     "type": "feature",
+     "y": 0.3306,
+     "h": 0.0955,
+     "heading": "In every tool, at every step"
+    },
+    {
+     "type": "feature",
+     "y": 0.4343,
+     "h": 0.0807,
+     "heading": "Hand work to AI teammates"
+    },
+    {
+     "type": "cards",
+     "y": 0.5211,
+     "h": 0.0868,
+     "heading": "The new way to build software."
+    },
+    {
+     "type": "feature",
+     "y": 0.6188,
+     "h": 0.1606,
+     "heading": "Use the best model for every task"
+    },
+    {
+     "type": "cards",
+     "y": 0.7855,
+     "h": 0.0283,
+     "heading": "Changelog"
+    },
+    {
+     "type": "feature",
+     "y": 0.8138,
+     "h": 0.0729,
+     "heading": "Cursor is an applied research team focused on building the future of software development."
+    },
+    {
+     "type": "cards",
+     "y": 0.8867,
+     "h": 0.0312,
+     "heading": "Recent highlights"
+    },
+    {
+     "type": "cta",
+     "y": 0.9179,
+     "h": 0.032,
+     "heading": "Try Cursor now."
+    },
+    {
+     "type": "footer",
+     "y": 0.9499,
+     "h": 0.0501,
+     "heading": "Product"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0055
+    },
+    {
+     "type": "table",
+     "y": 0.0055,
+     "h": 0.1047,
+     "heading": "Cursor is your coding agent for building ambitious software."
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.1102,
+     "h": 0.0215,
+     "heading": "Trusted every day by teams that build world-class software"
+    },
+    {
+     "type": "feature",
+     "y": 0.1379,
+     "h": 0.0841,
+     "heading": "Agents turn ideas into code"
+    },
+    {
+     "type": "feature",
+     "y": 0.2302,
+     "h": 0.0848,
+     "heading": "Works autonomously, runs in parallel"
+    },
+    {
+     "type": "feature",
+     "y": 0.3232,
+     "h": 0.0817,
+     "heading": "In every tool, at every step"
+    },
+    {
+     "type": "feature",
+     "y": 0.4132,
+     "h": 0.0796,
+     "heading": "Hand work to AI teammates"
+    },
+    {
+     "type": "testimonials",
+     "y": 0.499,
+     "h": 0.087,
+     "heading": "The new way to build software."
+    },
+    {
+     "type": "section",
+     "y": 0.5969,
+     "h": 0.0406,
+     "heading": "Use the best model for every task"
+    },
+    {
+     "type": "section",
+     "y": 0.6384,
+     "h": 0.052,
+     "heading": "Build with autonomous agents"
+    },
+    {
+     "type": "section",
+     "y": 0.6914,
+     "h": 0.0485,
+     "heading": "Develop enduring software"
+    },
+    {
+     "type": "cards",
+     "y": 0.746,
+     "h": 0.0307,
+     "heading": "Changelog"
+    },
+    {
+     "type": "section",
+     "y": 0.7768,
+     "h": 0.0429,
+     "heading": "Cursor is an applied research team focused on building the future of software development."
+    },
+    {
+     "type": "cards",
+     "y": 0.8197,
+     "h": 0.0336,
+     "heading": "Recent highlights"
+    },
+    {
+     "type": "cta",
+     "y": 0.8534,
+     "h": 0.0304,
+     "heading": "Try Cursor now."
+    },
+    {
+     "type": "footer",
+     "y": 0.8838,
+     "h": 0.1162,
+     "heading": "Product"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "10 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Data table: Cursor is your coding agent for ",
+    "heading 26px → 24.375px → 24.375px",
+    [
+     "table"
+    ]
+   ],
+   [
+    "Feature section: Agents turn ideas into code",
+    "heading 22px → 20.625px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Works autonomously, runs in para",
+    "heading 22px → 20.625px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: In every tool, at every step",
+    "heading 22px → 20.625px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Hand work to AI teammates",
+    "heading 22px → 20.625px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: The new way to build software.",
+    "3 columns → 2 → 1; heading 36px → 33.75px → 33.75px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: Stay on the frontier",
+    "heading 22px → 20.625px → 20.625px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: Changelog",
+    "heading 22px → 20.625px → 20.625px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: Cursor is an applied research te",
+    "heading 22px → 20.625px → 15px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Recent highlights",
+    "heading 22px → 67.5px → 48.75px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "CTA band: Try Cursor now.",
+    "heading 72px → 13.125px → 15px",
+    [
+     "cta"
+    ]
+   ],
+   [
+    "Page length",
+    "8199px → 10257px → 10186px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/cursor-com/desktop.jpg",
+    "w": 1440,
+    "h": 8199,
+    "css": 1440,
+    "cssH": 8199,
+    "docH": 8199
+   },
+   "tablet": {
+    "src": "/captures/cursor-com/tablet.jpg",
+    "w": 834,
+    "h": 10257,
+    "css": 834,
+    "cssH": 10257,
+    "docH": 10257
+   },
+   "mobile": {
+    "src": "/captures/cursor-com/mobile.jpg",
+    "w": 780,
+    "h": 20372,
+    "css": 390,
+    "cssH": 10186,
+    "docH": 10186
    }
   }
  },
@@ -7519,6 +9638,477 @@
   }
  },
  {
+  "slug": "figma-com",
+  "url": "https://www.figma.com/",
+  "capturedAt": "2026-10-28T19:46:20.921Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "figma-com",
+   "name": "Figma",
+   "domain": "figma.com",
+   "about": "Figma is the canvas where design, code, and AI come together. From first idea to shipped product — go from concept to production with your whole team, in one place.",
+   "tagline": "Figma: The collaborative canvas for design, code, and AI"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "minimal",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F7F7F7",
+   "raised": "#EDEDED",
+   "text": "#000000",
+   "muted": "#6B6B6B",
+   "accent": "#000000",
+   "accentFg": "#FFFFFF",
+   "border": "#E0E0E0",
+   "chart": [
+    "#000000",
+    "#404040",
+    "#808080",
+    "#BFBFBF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 88,
+     "weight": 400,
+     "use": "Heading",
+     "sample": ""
+    },
+    {
+     "name": "H1",
+     "size": 56,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "The full-stack creative canvas"
+    },
+    {
+     "name": "H2",
+     "size": 44,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "The products you love are designed in Figma"
+    },
+    {
+     "name": "H3",
+     "size": 30,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "Move fast in the right direction on an AI-native canvas."
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 320,
+     "use": "Paragraph",
+     "sample": "Design anything you can imagine"
+    },
+    {
+     "name": "Small",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Based on data from March 2025."
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "New"
+    }
+   ],
+   "body": "16px / 1.45",
+   "fonts": {
+    "heading": "figmaSans",
+    "body": "figmaSans"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    2,
+    5,
+    6,
+    8,
+    12,
+    16,
+    20,
+    24,
+    40,
+    80
+   ],
+   "radius": "8 / 16 / 24px",
+   "container": "1360px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "heading": "What you can do in figma",
+    "y": 0,
+    "h": 0.0089,
+    "px": {
+     "y": 0,
+     "h": 78
+    },
+    "headingSize": 14,
+    "links": 5
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "The full-stack creative canvas",
+    "y": 0.0089,
+    "h": 0.0984,
+    "px": {
+     "y": 78,
+     "h": 860
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Move fast in the right direction on an AI-native canvas.",
+    "y": 0.1073,
+    "h": 0.0951,
+    "px": {
+     "y": 938,
+     "h": 831
+    },
+    "headingSize": 30,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "One workspace for your entire product development process.",
+    "y": 0.2024,
+    "h": 0.1219,
+    "px": {
+     "y": 1769,
+     "h": 1065
+    },
+    "headingSize": 30,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Powerfully expressive. Incredibly precise.",
+    "y": 0.3335,
+    "h": 0.1658,
+    "px": {
+     "y": 2914,
+     "h": 1449
+    },
+    "columns": 4,
+    "headingSize": 30,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Start with design context. Build with consistency.",
+    "y": 0.5084,
+    "h": 0.1274,
+    "px": {
+     "y": 4443,
+     "h": 1113
+    },
+    "headingSize": 30,
+    "links": 1
+   },
+   {
+    "type": "testimonials",
+    "label": "Testimonials",
+    "heading": "The products you love are designed in Figma",
+    "y": 0.6358,
+    "h": 0.0755,
+    "px": {
+     "y": 5557,
+     "h": 660
+    },
+    "headingSize": 44,
+    "links": 0
+   },
+   {
+    "type": "cta",
+    "label": "CTA band",
+    "heading": "Ideas no longer have to wait their turn",
+    "y": 0.7113,
+    "h": 0.0458,
+    "px": {
+     "y": 6216,
+     "h": 400
+    },
+    "headingSize": 44,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Explore what you can do in Figma.",
+    "y": 0.7572,
+    "h": 0.1027,
+    "px": {
+     "y": 6617,
+     "h": 898
+    },
+    "columns": 10,
+    "headingSize": 44,
+    "links": 11
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Figma Socials",
+    "y": 0.8599,
+    "h": 0.1401,
+    "px": {
+     "y": 7514,
+     "h": 1224
+    },
+    "columns": 1,
+    "headingSize": 18,
+    "links": 67
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0068
+    },
+    {
+     "type": "hero",
+     "y": 0.0068,
+     "h": 0.0874,
+     "heading": "The full-stack creative canvas"
+    },
+    {
+     "type": "feature",
+     "y": 0.0942,
+     "h": 0.0794,
+     "heading": "Move fast in the right direction on an AI-native canvas."
+    },
+    {
+     "type": "feature",
+     "y": 0.1736,
+     "h": 0.0883,
+     "heading": "One workspace for your entire product development process."
+    },
+    {
+     "type": "feature",
+     "y": 0.2675,
+     "h": 0.2872,
+     "heading": "Powerfully expressive. Incredibly precise."
+    },
+    {
+     "type": "feature",
+     "y": 0.5603,
+     "h": 0.0668,
+     "heading": "Start with design context. Build with consistency."
+    },
+    {
+     "type": "testimonials",
+     "y": 0.6271,
+     "h": 0.0634,
+     "heading": "The products you love are designed in Figma"
+    },
+    {
+     "type": "cta",
+     "y": 0.6905,
+     "h": 0.0294,
+     "heading": "Ideas no longer have to wait their turn"
+    },
+    {
+     "type": "cards",
+     "y": 0.7199,
+     "h": 0.0788,
+     "heading": "Explore what you can do in Figma."
+    },
+    {
+     "type": "footer",
+     "y": 0.7987,
+     "h": 0.2013,
+     "heading": "Figma Socials"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0079
+    },
+    {
+     "type": "hero",
+     "y": 0.0079,
+     "h": 0.0753,
+     "heading": "The full-stack creative canvas"
+    },
+    {
+     "type": "feature",
+     "y": 0.0832,
+     "h": 0.0748,
+     "heading": "Move fast in the right direction on an AI-native canvas."
+    },
+    {
+     "type": "feature",
+     "y": 0.158,
+     "h": 0.0803,
+     "heading": "One workspace for your entire product development process."
+    },
+    {
+     "type": "feature",
+     "y": 0.2424,
+     "h": 0.1705,
+     "heading": "Powerfully expressive. Incredibly precise."
+    },
+    {
+     "type": "cta",
+     "y": 0.417,
+     "h": 0.0524,
+     "heading": "Start with design context. Build with consistency."
+    },
+    {
+     "type": "feature",
+     "y": 0.4694,
+     "h": 0.0917,
+     "heading": "The products you love are designed in Figma"
+    },
+    {
+     "type": "cta",
+     "y": 0.5611,
+     "h": 0.0313,
+     "heading": "Ideas no longer have to wait their turn"
+    },
+    {
+     "type": "cards",
+     "y": 0.5924,
+     "h": 0.0804,
+     "heading": "Explore what you can do in Figma."
+    },
+    {
+     "type": "footer",
+     "y": 0.6727,
+     "h": 0.3273,
+     "heading": "Figma Socials"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "5 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: The full-stack creative canvas",
+    "heading 56px → 36px → 36px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: Move fast in the right direction",
+    "heading 30px → 24px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: One workspace for your entire pr",
+    "heading 30px → 24px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Powerfully expressive. Incredibl",
+    "4 columns → 2 → 2; heading 30px → 24px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Start with design context. Build",
+    "heading 30px → 24px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Testimonials: The products you love are design",
+    "heading 44px → 32px → 32px",
+    [
+     "testimonials"
+    ]
+   ],
+   [
+    "CTA band: Ideas no longer have to wait the",
+    "heading 44px → 32px → 32px",
+    [
+     "cta"
+    ]
+   ],
+   [
+    "Card grid: Explore what you can do in Figma",
+    "heading 44px → 32px → 32px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Page length",
+    "8739px → 11432px → 9835px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/figma-com/desktop.jpg",
+    "w": 1440,
+    "h": 8739,
+    "css": 1440,
+    "cssH": 8739,
+    "docH": 8739
+   },
+   "tablet": {
+    "src": "/captures/figma-com/tablet.jpg",
+    "w": 834,
+    "h": 11432,
+    "css": 834,
+    "cssH": 11432,
+    "docH": 11432
+   },
+   "mobile": {
+    "src": "/captures/figma-com/mobile.jpg",
+    "w": 780,
+    "h": 19670,
+    "css": 390,
+    "cssH": 9835,
+    "docH": 9835
+   }
+  }
+ },
+ {
   "slug": "foodics-com-ar",
   "url": "https://www.foodics.com/ar/",
   "capturedAt": "2026-10-13T11:30:53.198Z",
@@ -8422,6 +11012,522 @@
     "css": 390,
     "cssH": 11038,
     "docH": 11038
+   }
+  }
+ },
+ {
+  "slug": "github-com-features-copilot",
+  "url": "https://github.com/features/copilot",
+  "capturedAt": "2026-10-28T19:48:31.620Z",
+  "title": "Copilot",
+  "source": {
+   "slug": "github-com",
+   "name": "GitHub",
+   "domain": "github.com",
+   "about": "GitHub Copilot works every step of the way, from an open issue to reviewing and merging a pull request. Use it in your editor, the terminal, on your desktop, and on GitHub.",
+   "tagline": "GitHub Copilot · Your AI coding agent · GitHub · GitHub"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "ai",
+  "style": "dark",
+  "tech": [
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#000000",
+   "surface": "#0F1511",
+   "raised": "#262C28",
+   "text": "#FFFFFF",
+   "muted": "#A4AEA6",
+   "accent": "#08872B",
+   "accentFg": "#FFFFFF",
+   "border": "#191F1B",
+   "chart": [
+    "#08872B",
+    "#A2DAFF",
+    "#1F6FEB",
+    "#02220B"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 56,
+     "weight": 440,
+     "use": "Page headline",
+     "sample": "GitHub Copilot"
+    },
+    {
+     "name": "H1",
+     "size": 48,
+     "weight": 440,
+     "use": "Section header",
+     "sample": "GitHub Copilot"
+    },
+    {
+     "name": "H2",
+     "size": 34,
+     "weight": 460,
+     "use": "Section header",
+     "sample": "Work with Copilot from task to merge"
+    },
+    {
+     "name": "H3",
+     "size": 28,
+     "weight": 480,
+     "use": "Card title",
+     "sample": "Free"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Move from a single task to a project spanning repositories w"
+    },
+    {
+     "name": "Small",
+     "size": 14,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "More ways to get started with GitHub Copilot"
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 500,
+     "use": "Buttons",
+     "sample": "© 2026 GitHub, Inc."
+    }
+   ],
+   "body": "16px / 1.5",
+   "fonts": {
+    "heading": "Mona Sans",
+    "body": "Mona Sans"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    4,
+    6,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    64
+   ],
+   "radius": "6 / 8 / 12px",
+   "container": "1280px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "heading": "Navigation Menu",
+    "y": 0,
+    "h": 0.0115,
+    "px": {
+     "y": 0,
+     "h": 111
+    },
+    "headingSize": 24,
+    "links": 6
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "GitHub Copilot",
+    "y": 0.0115,
+    "h": 0.1617,
+    "px": {
+     "y": 111,
+     "h": 1557
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 29,
+    "menuButton": true
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Work with Copilot from task to merge",
+    "y": 0.1832,
+    "h": 0.1626,
+    "px": {
+     "y": 1764,
+     "h": 1566
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 6
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Use the right model for each task",
+    "y": 0.3458,
+    "h": 0.111,
+    "px": {
+     "y": 3330,
+     "h": 1069
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 3
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Extend Copilot",
+    "y": 0.4568,
+    "h": 0.0913,
+    "px": {
+     "y": 4399,
+     "h": 879
+    },
+    "columns": 2,
+    "headingSize": 34,
+    "links": 4
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Get the most out of GitHub Copilot",
+    "y": 0.5481,
+    "h": 0.081,
+    "px": {
+     "y": 5278,
+     "h": 780
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 3
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Take flight with GitHub Copilot",
+    "y": 0.639,
+    "h": 0.116,
+    "px": {
+     "y": 6154,
+     "h": 1117
+    },
+    "columns": 4,
+    "headingSize": 34,
+    "links": 12
+   },
+   {
+    "type": "cta",
+    "label": "CTA band",
+    "heading": "Build what’s next",
+    "y": 0.765,
+    "h": 0.04,
+    "px": {
+     "y": 7367,
+     "h": 386
+    },
+    "headingSize": 48,
+    "links": 1
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Frequently asked questions",
+    "y": 0.805,
+    "h": 0.0718,
+    "px": {
+     "y": 7752,
+     "h": 692
+    },
+    "columns": 1,
+    "headingSize": 48,
+    "links": 5
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Footnotes",
+    "y": 0.8768,
+    "h": 0.0256,
+    "px": {
+     "y": 8444,
+     "h": 247
+    },
+    "headingSize": 48,
+    "links": 3
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Site-wide Links",
+    "y": 0.9025,
+    "h": 0.0975,
+    "px": {
+     "y": 8691,
+     "h": 939
+    },
+    "columns": 4,
+    "headingSize": 24,
+    "links": 50
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0067,
+     "heading": "Navigation Menu"
+    },
+    {
+     "type": "faq",
+     "y": 0.0067,
+     "h": 0.1179,
+     "heading": "GitHub Copilot"
+    },
+    {
+     "type": "faq",
+     "y": 0.1292,
+     "h": 0.1889,
+     "heading": "Work with Copilot from task to merge"
+    },
+    {
+     "type": "feature",
+     "y": 0.3226,
+     "h": 0.1214,
+     "heading": "Use the right model for each task"
+    },
+    {
+     "type": "feature",
+     "y": 0.444,
+     "h": 0.1016,
+     "heading": "Extend Copilot"
+    },
+    {
+     "type": "feature",
+     "y": 0.5456,
+     "h": 0.0871,
+     "heading": "Get the most out of GitHub Copilot"
+    },
+    {
+     "type": "faq",
+     "y": 0.6372,
+     "h": 0.1845,
+     "heading": "Take flight with GitHub Copilot"
+    },
+    {
+     "type": "cta",
+     "y": 0.8262,
+     "h": 0.026,
+     "heading": "Build what’s next"
+    },
+    {
+     "type": "pricing",
+     "y": 0.8522,
+     "h": 0.0303,
+     "heading": "Frequently asked questions"
+    },
+    {
+     "type": "section",
+     "y": 0.8825,
+     "h": 0.0174,
+     "heading": "Footnotes"
+    },
+    {
+     "type": "footer",
+     "y": 0.8999,
+     "h": 0.1001,
+     "heading": "Site-wide Links"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0087,
+     "heading": "Navigation Menu"
+    },
+    {
+     "type": "faq",
+     "y": 0.0087,
+     "h": 0.1132,
+     "heading": "GitHub Copilot"
+    },
+    {
+     "type": "faq",
+     "y": 0.1256,
+     "h": 0.1693,
+     "heading": "Work with Copilot from task to merge"
+    },
+    {
+     "type": "feature",
+     "y": 0.2986,
+     "h": 0.0967,
+     "heading": "Use the right model for each task"
+    },
+    {
+     "type": "feature",
+     "y": 0.3989,
+     "h": 0.0984,
+     "heading": "Extend Copilot"
+    },
+    {
+     "type": "feature",
+     "y": 0.4973,
+     "h": 0.0856,
+     "heading": "Get the most out of GitHub Copilot"
+    },
+    {
+     "type": "faq",
+     "y": 0.5865,
+     "h": 0.2071,
+     "heading": "Take flight with GitHub Copilot"
+    },
+    {
+     "type": "cta",
+     "y": 0.7973,
+     "h": 0.027,
+     "heading": "Build what’s next"
+    },
+    {
+     "type": "pricing",
+     "y": 0.8243,
+     "h": 0.0345,
+     "heading": "Frequently asked questions"
+    },
+    {
+     "type": "section",
+     "y": 0.8588,
+     "h": 0.0222,
+     "heading": "Footnotes"
+    },
+    {
+     "type": "footer",
+     "y": 0.8809,
+     "h": 0.1191,
+     "heading": "Site-wide Links"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "6 links → menu button → menu button; heading 24px → 24px → 24px",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "FAQ: GitHub Copilot",
+    "heading 56px → 48px → 36px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "FAQ: Work with Copilot from task to m",
+    "heading 34px → 28px → 24px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: Use the right model for each tas",
+    "heading 34px → 28px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Extend Copilot",
+    "2 columns → 1 → 1; heading 34px → 28px → 24px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Feature section: Get the most out of GitHub Copil",
+    "heading 34px → 28px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "FAQ: Take flight with GitHub Copilot",
+    "4 columns → 1 → 1; heading 34px → 28px → 24px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "CTA band: Build what’s next",
+    "heading 48px → 40px → 32px",
+    [
+     "cta"
+    ]
+   ],
+   [
+    "FAQ: Frequently asked questions",
+    "heading 48px → 40px → 32px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Content section: Footnotes",
+    "heading 48px → 40px → 32px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Footer",
+    "4 columns → 2 → 2; heading 24px → 24px → 24px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9630px → 14169px → 13036px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/github-com-features-copilot/desktop.jpg",
+    "w": 1440,
+    "h": 9630,
+    "css": 1440,
+    "cssH": 9630,
+    "docH": 9630
+   },
+   "tablet": {
+    "src": "/captures/github-com-features-copilot/tablet.jpg",
+    "w": 834,
+    "h": 14000,
+    "css": 834,
+    "cssH": 14000,
+    "docH": 14169
+   },
+   "mobile": {
+    "src": "/captures/github-com-features-copilot/mobile.jpg",
+    "w": 780,
+    "h": 26072,
+    "css": 390,
+    "cssH": 13036,
+    "docH": 13036
    }
   }
  },
@@ -17599,6 +20705,362 @@
   }
  },
  {
+  "slug": "plaid-com",
+  "url": "https://plaid.com/",
+  "capturedAt": "2026-10-28T19:45:22.935Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "plaid-com",
+   "name": "Plaid",
+   "domain": "plaid.com",
+   "about": "Plaid helps all companies build fintech solutions by making it easy, safe and reliable for people to connect their financial data to apps and services.",
+   "tagline": "Plaid: Enabling all companies to build fintech solutions"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "dark",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#00172E",
+   "surface": "#0C1116",
+   "raised": "#161B1F",
+   "text": "#FFFFFF",
+   "muted": "#C5C5C5",
+   "accent": "#37B0F4",
+   "accentFg": "#000000",
+   "border": "#02294B",
+   "chart": [
+    "#37B0F4",
+    "#02294B",
+    "#05565C",
+    "#3F0849"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 76,
+     "weight": 500,
+     "use": "Page headline",
+     "sample": "Turn data into revolutionary financial products"
+    },
+    {
+     "name": "H1",
+     "size": 70,
+     "weight": 500,
+     "use": "Section header",
+     "sample": "The AI infrastructure behind smarter financial products"
+    },
+    {
+     "name": "H2",
+     "size": 58,
+     "weight": 500,
+     "use": "Section header",
+     "sample": "Powered by the largest financial network."
+    },
+    {
+     "name": "H3",
+     "size": 50,
+     "weight": 500,
+     "use": "Section header",
+     "sample": "See what's possible with Plaid"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Products"
+    },
+    {
+     "name": "Small",
+     "size": 13,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "Verified account & routing numbers"
+    }
+   ],
+   "body": "16px / 1.5",
+   "fonts": {
+    "heading": "Plaid Sans",
+    "body": "Cern"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    1,
+    2,
+    3,
+    6,
+    8,
+    12,
+    16,
+    24,
+    30,
+    32
+   ],
+   "radius": "8 / 16 / 50px",
+   "container": "1245px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "heading": "Turn data into revolutionary financial products",
+    "y": 0,
+    "h": 0.1019,
+    "px": {
+     "y": 0,
+     "h": 929
+    },
+    "columns": 1,
+    "headingSize": 76,
+    "links": 3
+   },
+   {
+    "type": "pricing",
+    "label": "Pricing tiers",
+    "heading": "Powered by the largest financial network. Built for every financial need.",
+    "y": 0.101,
+    "h": 0.768,
+    "px": {
+     "y": 921,
+     "h": 7001
+    },
+    "columns": 1,
+    "headingSize": 58,
+    "links": 51
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Products",
+    "y": 0.8646,
+    "h": 0.1354,
+    "px": {
+     "y": 7882,
+     "h": 1235
+    },
+    "columns": 5,
+    "headingSize": 16,
+    "links": 78
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0897,
+     "heading": "Turn data into revolutionary financial products"
+    },
+    {
+     "type": "feature",
+     "y": 0.0984,
+     "h": 0.0656,
+     "heading": "Bank payments designed for fast connection and high conversion"
+    },
+    {
+     "type": "section",
+     "y": 0.1641,
+     "h": 0.0454,
+     "heading": "Credit scoring & underwriting that reflects real-time financial behavior"
+    },
+    {
+     "type": "section",
+     "y": 0.2094,
+     "h": 0.0454,
+     "heading": "Fraud protection built on millions of data points"
+    },
+    {
+     "type": "section",
+     "y": 0.2548,
+     "h": 0.0454,
+     "heading": "Instant onboarding with the most trusted financial flow"
+    },
+    {
+     "type": "section",
+     "y": 0.3001,
+     "h": 0.0454,
+     "heading": "Personal financial management built on trusted, actionable data"
+    },
+    {
+     "type": "feature",
+     "y": 0.3443,
+     "h": 0.0648,
+     "heading": "The AI infrastructure behind smarter financial products"
+    },
+    {
+     "type": "stats",
+     "y": 0.4087,
+     "h": 0.1543,
+     "heading": "A network that makes your products better"
+    },
+    {
+     "type": "feature",
+     "y": 0.5625,
+     "h": 0.0782,
+     "heading": "Want access to 12K banks? We've got the API keys."
+    },
+    {
+     "type": "pricing",
+     "y": 0.6403,
+     "h": 0.0858,
+     "heading": "See what's possible with Plaid"
+    },
+    {
+     "type": "feature",
+     "y": 0.7269,
+     "h": 0.1006,
+     "heading": "Start building better financial products"
+    },
+    {
+     "type": "footer",
+     "y": 0.8234,
+     "h": 0.1766,
+     "heading": "Products"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0854,
+     "heading": "Turn data into revolutionary financial products"
+    },
+    {
+     "type": "feature",
+     "y": 0.0938,
+     "h": 0.0667,
+     "heading": "Bank payments designed for fast connection and high conversion"
+    },
+    {
+     "type": "section",
+     "y": 0.1605,
+     "h": 0.0436,
+     "heading": "Credit scoring & underwriting that reflects real-time financial behavior"
+    },
+    {
+     "type": "section",
+     "y": 0.2041,
+     "h": 0.0436,
+     "heading": "Fraud protection built on millions of data points"
+    },
+    {
+     "type": "section",
+     "y": 0.2477,
+     "h": 0.0436,
+     "heading": "Instant onboarding with the most trusted financial flow"
+    },
+    {
+     "type": "section",
+     "y": 0.2914,
+     "h": 0.0436,
+     "heading": "Personal financial management built on trusted, actionable data"
+    },
+    {
+     "type": "feature",
+     "y": 0.3338,
+     "h": 0.0619,
+     "heading": "The AI infrastructure behind smarter financial products"
+    },
+    {
+     "type": "stats",
+     "y": 0.3955,
+     "h": 0.1254,
+     "heading": "A network that makes your products better"
+    },
+    {
+     "type": "feature",
+     "y": 0.5206,
+     "h": 0.0702,
+     "heading": "Want access to 12K banks? We've got the API keys."
+    },
+    {
+     "type": "pricing",
+     "y": 0.5906,
+     "h": 0.0726,
+     "heading": "See what's possible with Plaid"
+    },
+    {
+     "type": "feature",
+     "y": 0.6641,
+     "h": 0.1176,
+     "heading": "Start building better financial products"
+    },
+    {
+     "type": "footer",
+     "y": 0.7777,
+     "h": 0.2223,
+     "heading": "Products"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "3 links → 3 links → 3 links; heading 76px → 70px → 32px",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Pricing tiers: Powered by the largest financial",
+    "heading 58px → 45px → 25px",
+    [
+     "pricing"
+    ]
+   ],
+   [
+    "Footer",
+    "5 columns → 4 → 1",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9117px → 9722px → 10113px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/plaid-com/desktop.jpg",
+    "w": 1440,
+    "h": 9117,
+    "css": 1440,
+    "cssH": 9117,
+    "docH": 9117
+   },
+   "tablet": {
+    "src": "/captures/plaid-com/tablet.jpg",
+    "w": 834,
+    "h": 9722,
+    "css": 834,
+    "cssH": 9722,
+    "docH": 9722
+   },
+   "mobile": {
+    "src": "/captures/plaid-com/mobile.jpg",
+    "w": 780,
+    "h": 20226,
+    "css": 390,
+    "cssH": 10113,
+    "docH": 10113
+   }
+  }
+ },
+ {
   "slug": "propertyfinder-ae-ar",
   "url": "https://www.propertyfinder.ae/ar/",
   "capturedAt": "2026-10-13T11:36:26.378Z",
@@ -18144,6 +21606,512 @@
     "css": 390,
     "cssH": 8077,
     "docH": 8077
+   }
+  }
+ },
+ {
+  "slug": "railway-com",
+  "url": "https://railway.com/",
+  "capturedAt": "2026-10-28T19:47:37.423Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "railway-com",
+   "name": "Railway",
+   "domain": "railway.com",
+   "about": "Railway is a full-stack cloud for deploying web apps, servers, databases, and more with automatic scaling, monitoring, and security.",
+   "tagline": "Railway | The all-in-one intelligent cloud provider"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "dark",
+  "tech": [
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#13111C",
+   "surface": "#1B2132",
+   "raised": "#1F2B2E",
+   "text": "#FFFFFF",
+   "muted": "#F7F7F8",
+   "accent": "#553F83",
+   "accentFg": "#FFFFFF",
+   "border": "#33323E",
+   "chart": [
+    "#553F83",
+    "#F9A8D4",
+    "#A78BFA",
+    "#42946E"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 54,
+     "weight": 500,
+     "use": "Page headline",
+     "sample": "Ship software peacefully"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "Trusted by the best in business"
+    },
+    {
+     "name": "H2",
+     "size": 36,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "Deploy anything"
+    },
+    {
+     "name": "H3",
+     "size": 32,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "...and loved by developers"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Product"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "General › Search Projects..."
+    },
+    {
+     "name": "Caption",
+     "size": 11,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "2.5 vCPU"
+    }
+   ],
+   "body": "14px / 1.43",
+   "fonts": {
+    "heading": "IBM Plex Serif",
+    "body": "Inter"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    4,
+    6,
+    8,
+    12,
+    16,
+    24,
+    32,
+    40,
+    48,
+    64
+   ],
+   "radius": "4 / 8 / 16px",
+   "container": "1165px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0059,
+    "px": {
+     "y": 0,
+     "h": 72
+    },
+    "links": 3
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Ship software peacefully",
+    "y": 0.0059,
+    "h": 0.1392,
+    "px": {
+     "y": 72,
+     "h": 1700
+    },
+    "columns": 1,
+    "headingSize": 54,
+    "links": 3
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Deploy anything without the complexity",
+    "y": 0.1464,
+    "h": 0.1402,
+    "px": {
+     "y": 1788,
+     "h": 1712
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Instant networking. Zero setup.",
+    "y": 0.2866,
+    "h": 0.0626,
+    "px": {
+     "y": 3500,
+     "h": 765
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Grow big without the growing pains",
+    "y": 0.3492,
+    "h": 0.0623,
+    "px": {
+     "y": 4265,
+     "h": 761
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Logs, metrics, and traces in one place. Clarity without the chaos.",
+    "y": 0.4115,
+    "h": 0.2277,
+    "px": {
+     "y": 5026,
+     "h": 2781
+    },
+    "headingSize": 36,
+    "links": 1
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.6393,
+    "h": 0.0233,
+    "px": {
+     "y": 7807,
+     "h": 285
+    },
+    "columns": 3,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Trusted by the best in business",
+    "y": 0.6704,
+    "h": 0.0871,
+    "px": {
+     "y": 8188,
+     "h": 1064
+    },
+    "columns": 3,
+    "headingSize": 40,
+    "links": 2
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "y": 0.7576,
+    "h": 0.0267,
+    "px": {
+     "y": 9252,
+     "h": 326
+    },
+    "columns": 12,
+    "links": 0
+   },
+   {
+    "type": "stats",
+    "label": "Metrics band",
+    "heading": "237.3M+ deploys per month (and counting)",
+    "y": 0.7921,
+    "h": 0.0521,
+    "px": {
+     "y": 9674,
+     "h": 636
+    },
+    "columns": 1,
+    "headingSize": 40,
+    "links": 0
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.8508,
+    "h": 0.0809,
+    "px": {
+     "y": 10390,
+     "h": 988
+    },
+    "columns": 1,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.9317,
+    "h": 0.0683,
+    "px": {
+     "y": 11378,
+     "h": 834
+    },
+    "columns": 3,
+    "links": 40
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0053
+    },
+    {
+     "type": "hero",
+     "y": 0.0053,
+     "h": 0.0879,
+     "heading": "Ship software peacefully"
+    },
+    {
+     "type": "feature",
+     "y": 0.0931,
+     "h": 0.1023,
+     "heading": "Deploy anything without the complexity"
+    },
+    {
+     "type": "feature",
+     "y": 0.1954,
+     "h": 0.1046,
+     "heading": "Instant networking. Zero setup."
+    },
+    {
+     "type": "feature",
+     "y": 0.3,
+     "h": 0.1042,
+     "heading": "Grow big without the growing pains"
+    },
+    {
+     "type": "feature",
+     "y": 0.4042,
+     "h": 0.1044,
+     "heading": "Logs, metrics, and traces in one place. Clarity without the chaos."
+    },
+    {
+     "type": "feature",
+     "y": 0.5085,
+     "h": 0.1024,
+     "heading": "Finally, a development workflow that actually flows."
+    },
+    {
+     "type": "feature",
+     "y": 0.6168,
+     "h": 0.107,
+     "heading": "Trusted by the best in business"
+    },
+    {
+     "type": "cards",
+     "y": 0.7296,
+     "h": 0.0354
+    },
+    {
+     "type": "stats",
+     "y": 0.7721,
+     "h": 0.0617,
+     "heading": "237.3M+ deploys per month (and counting)"
+    },
+    {
+     "type": "section",
+     "y": 0.8396,
+     "h": 0.072
+    },
+    {
+     "type": "footer",
+     "y": 0.9116,
+     "h": 0.0884
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0049
+    },
+    {
+     "type": "hero",
+     "y": 0.0049,
+     "h": 0.0423,
+     "heading": "Ship software peacefully"
+    },
+    {
+     "type": "feature",
+     "y": 0.0472,
+     "h": 0.1019,
+     "heading": "Deploy anything without the complexity"
+    },
+    {
+     "type": "feature",
+     "y": 0.1491,
+     "h": 0.0851,
+     "heading": "Instant networking. Zero setup."
+    },
+    {
+     "type": "feature",
+     "y": 0.2414,
+     "h": 0.0905,
+     "heading": "Grow big without the growing pains"
+    },
+    {
+     "type": "feature",
+     "y": 0.339,
+     "h": 0.1118,
+     "heading": "Logs, metrics, and traces in one place. Clarity without the chaos."
+    },
+    {
+     "type": "section",
+     "y": 0.4509,
+     "h": 0.1019,
+     "heading": "Finally, a development workflow that actually flows."
+    },
+    {
+     "type": "section",
+     "y": 0.5658,
+     "h": 0.139,
+     "heading": "Trusted by the best in business"
+    },
+    {
+     "type": "cards",
+     "y": 0.7107,
+     "h": 0.0412
+    },
+    {
+     "type": "navbar",
+     "y": 0.7589,
+     "h": 0.0177,
+     "heading": "237.3M+ deploys per month (and counting)"
+    },
+    {
+     "type": "stats",
+     "y": 0.7802,
+     "h": 0.0503
+    },
+    {
+     "type": "section",
+     "y": 0.8364,
+     "h": 0.0729
+    },
+    {
+     "type": "footer",
+     "y": 0.9094,
+     "h": 0.0907
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "3 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: Ship software peacefully",
+    "heading 54px → 54px → 40px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: Deploy anything without the comp",
+    "heading 36px → 36px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Instant networking. Zero setup.",
+    "heading 36px → 36px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Grow big without the growing pai",
+    "heading 36px → 36px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Logs, metrics, and traces in one",
+    "heading 36px → 36px → 36px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Trusted by the best in business",
+    "3 columns → 1 → 1; heading 40px → 40px → 40px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Footer",
+    "3 columns → 3 → 2",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "12212px → 13714px → 13555px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/railway-com/desktop.jpg",
+    "w": 1440,
+    "h": 12212,
+    "css": 1440,
+    "cssH": 12212,
+    "docH": 12212
+   },
+   "tablet": {
+    "src": "/captures/railway-com/tablet.jpg",
+    "w": 834,
+    "h": 13714,
+    "css": 834,
+    "cssH": 13714,
+    "docH": 13714
+   },
+   "mobile": {
+    "src": "/captures/railway-com/mobile.jpg",
+    "w": 780,
+    "h": 27110,
+    "css": 390,
+    "cssH": 13555,
+    "docH": 13555
    }
   }
  },
@@ -20323,6 +24291,1212 @@
     "css": 390,
     "cssH": 14000,
     "docH": 14146
+   }
+  }
+ },
+ {
+  "slug": "retool-com",
+  "url": "https://retool.com/",
+  "capturedAt": "2026-10-28T19:46:38.551Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "retool-com",
+   "name": "Retool",
+   "domain": "retool.com",
+   "about": "Build, deploy, and manage internal tools with Retool's unified engine. Connect to any database, API, or LLM. Leverage AI throughout your business.",
+   "tagline": "Build internal software better, with AI. | Retool"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "dark",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#151515",
+   "surface": "#1C1C1C",
+   "raised": "#252525",
+   "text": "#E9EBDF",
+   "muted": "#CBCCC4",
+   "accent": "#518DD2",
+   "accentFg": "#E9EBDF",
+   "border": "#433E38",
+   "chart": [
+    "#518DD2",
+    "#426FA3",
+    "#335174",
+    "#243344"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 72,
+     "weight": 300,
+     "use": "Page headline",
+     "sample": "Secure your vibe-coded apps"
+    },
+    {
+     "name": "H1",
+     "size": 60,
+     "weight": 300,
+     "use": "Section header",
+     "sample": "Start today"
+    },
+    {
+     "name": "H2",
+     "size": 48,
+     "weight": 300,
+     "use": "Card title",
+     "sample": "Apps that mean business"
+    },
+    {
+     "name": "H3",
+     "size": 32,
+     "weight": 300,
+     "use": "Section header",
+     "sample": "Get the latest from Retool"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 300,
+     "use": "Paragraph",
+     "sample": "Skip to main content"
+    },
+    {
+     "name": "Small",
+     "size": 14,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "Solution"
+    },
+    {
+     "name": "Caption",
+     "size": 12,
+     "weight": 400,
+     "use": "Links, buttons",
+     "sample": "A unified harness to run and govern AI agents"
+    }
+   ],
+   "body": "16px / 1.5",
+   "fonts": {
+    "heading": "saansFont",
+    "body": "saansFont"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    2,
+    4,
+    6,
+    8,
+    12,
+    14,
+    16,
+    20,
+    24,
+    40
+   ],
+   "radius": "4 / 12 / 36px",
+   "container": "full width"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0124,
+    "px": {
+     "y": 0,
+     "h": 120
+    },
+    "columns": 3,
+    "links": 46
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Secure your vibe-coded apps",
+    "y": 0,
+    "h": 0.1115,
+    "px": {
+     "y": 0,
+     "h": 1080
+    },
+    "columns": 4,
+    "headingSize": 72,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Apps that mean business",
+    "y": 0.1132,
+    "h": 0.4751,
+    "px": {
+     "y": 1096,
+     "h": 4600
+    },
+    "columns": 18,
+    "headingSize": 48,
+    "links": 35
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Why enterprises choose Retool",
+    "y": 0.5883,
+    "h": 0.0512,
+    "px": {
+     "y": 5696,
+     "h": 496
+    },
+    "columns": 3,
+    "headingSize": 48,
+    "links": 0
+   },
+   {
+    "type": "pricing",
+    "label": "Pricing tiers",
+    "heading": "Trusted by 10,000+ teams to generate production-ready AI applications",
+    "y": 0.6395,
+    "h": 0.1041,
+    "px": {
+     "y": 6192,
+     "h": 1008
+    },
+    "columns": 42,
+    "headingSize": 18,
+    "links": 7
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Start today",
+    "y": 0.7436,
+    "h": 0.0916,
+    "px": {
+     "y": 7200,
+     "h": 887
+    },
+    "columns": 1,
+    "headingSize": 60,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Get the latest from Retool",
+    "y": 0.8352,
+    "h": 0.0714,
+    "px": {
+     "y": 8087,
+     "h": 692
+    },
+    "headingSize": 32,
+    "links": 3
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.9067,
+    "h": 0.0934,
+    "px": {
+     "y": 8779,
+     "h": 904
+    },
+    "columns": 4,
+    "links": 50
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0091
+    },
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.0817,
+     "heading": "Secure your vibe-coded apps"
+    },
+    {
+     "type": "cards",
+     "y": 0.0829,
+     "h": 0.0408,
+     "heading": "Apps that mean business"
+    },
+    {
+     "type": "feature",
+     "y": 0.1267,
+     "h": 0.2271,
+     "heading": "Build powerful apps from anywhere"
+    },
+    {
+     "type": "feature",
+     "y": 0.3556,
+     "h": 0.079,
+     "heading": "Securely connect to your production data"
+    },
+    {
+     "type": "feature",
+     "y": 0.4364,
+     "h": 0.079,
+     "heading": "Ship safely, with governance built in"
+    },
+    {
+     "type": "cards",
+     "y": 0.5203,
+     "h": 0.05,
+     "heading": "Why enterprises choose Retool"
+    },
+    {
+     "type": "pricing",
+     "y": 0.5703,
+     "h": 0.1825,
+     "heading": "Trusted by 10,000+ teams to generate production-ready AI applications"
+    },
+    {
+     "type": "faq",
+     "y": 0.7528,
+     "h": 0.0665,
+     "heading": "Start today"
+    },
+    {
+     "type": "feature",
+     "y": 0.8193,
+     "h": 0.0857,
+     "heading": "Get the latest from Retool"
+    },
+    {
+     "type": "footer",
+     "y": 0.905,
+     "h": 0.0951
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0102
+    },
+    {
+     "type": "faq",
+     "y": 0,
+     "h": 0.0904,
+     "heading": "Secure your vibe-coded apps"
+    },
+    {
+     "type": "cards",
+     "y": 0.092,
+     "h": 0.0429,
+     "heading": "Apps that mean business"
+    },
+    {
+     "type": "feature",
+     "y": 0.1389,
+     "h": 0.1852,
+     "heading": "Build powerful apps from anywhere"
+    },
+    {
+     "type": "feature",
+     "y": 0.3264,
+     "h": 0.0737,
+     "heading": "Securely connect to your production data"
+    },
+    {
+     "type": "feature",
+     "y": 0.4025,
+     "h": 0.0672,
+     "heading": "Ship safely, with governance built in"
+    },
+    {
+     "type": "feature",
+     "y": 0.4761,
+     "h": 0.0912,
+     "heading": "Why enterprises choose Retool"
+    },
+    {
+     "type": "pricing",
+     "y": 0.5673,
+     "h": 0.1445,
+     "heading": "Trusted by 10,000+ teams to generate production-ready AI applications"
+    },
+    {
+     "type": "faq",
+     "y": 0.7118,
+     "h": 0.0499,
+     "heading": "Start today"
+    },
+    {
+     "type": "feature",
+     "y": 0.7617,
+     "h": 0.0835,
+     "heading": "Get the latest from Retool"
+    },
+    {
+     "type": "footer",
+     "y": 0.8451,
+     "h": 0.1549
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "46 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "FAQ: Secure your vibe-coded apps",
+    "heading 72px → 64px → 40px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Card grid: Apps that mean business",
+    "heading 48px → 28px → 28px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid: Why enterprises choose Retool",
+    "3 columns → 2 → 1; heading 48px → 40px → 40px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "FAQ: Start today",
+    "heading 60px → 52px → 40px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: Get the latest from Retool",
+    "heading 32px → 24px → 24px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Footer",
+    "4 columns → 3 → 2",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9683px → 13227px → 10172px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/retool-com/desktop.jpg",
+    "w": 1440,
+    "h": 9683,
+    "css": 1440,
+    "cssH": 9683,
+    "docH": 9683
+   },
+   "tablet": {
+    "src": "/captures/retool-com/tablet.jpg",
+    "w": 834,
+    "h": 13227,
+    "css": 834,
+    "cssH": 13227,
+    "docH": 13227
+   },
+   "mobile": {
+    "src": "/captures/retool-com/mobile.jpg",
+    "w": 780,
+    "h": 20344,
+    "css": 390,
+    "cssH": 10172,
+    "docH": 10172
+   }
+  }
+ },
+ {
+  "slug": "robinhood-com-us-en",
+  "url": "https://robinhood.com/us/en/",
+  "capturedAt": "2026-10-28T19:44:39.665Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "robinhood-com",
+   "name": "Robinhood",
+   "domain": "robinhood.com",
+   "about": "Trade stocks on Robinhood with commission-free investing & advanced trading tools. Access fractional shares, real-time market data, and more. Terms and fees may apply.",
+   "tagline": "Robinhood: 24/5 Commission-Free Stock Trading & Investing"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "fintech",
+  "style": "dark",
+  "tech": [
+   "nextjs",
+   "react"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#000000",
+   "surface": "#1C180D",
+   "raised": "#110E08",
+   "text": "#FFFFFF",
+   "muted": "#D9D9D9",
+   "accent": "#CCFF00",
+   "accentFg": "#110E08",
+   "border": "#35322D",
+   "chart": [
+    "#CCFF00",
+    "#99BF00",
+    "#668000",
+    "#334000"
+   ],
+   "dark": true
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 110,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Trade All in One Place"
+    },
+    {
+     "name": "H1",
+     "size": 72,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Join a new generation of investors"
+    },
+    {
+     "name": "H2",
+     "size": 52,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Robinhood Protection Guarantee"
+    },
+    {
+     "name": "H3",
+     "size": 40,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Intuitive trading tools"
+    },
+    {
+     "name": "Body",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Sweepstakes"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "Stocks & funds offered through Robinhood Financial. Crypto o"
+    }
+   ],
+   "body": "16px / 1.5",
+   "fonts": {
+    "heading": "Phonic",
+    "body": "Phonic"
+   }
+  },
+  "rhythm": {
+   "base": 8,
+   "spacing": [
+    2,
+    5,
+    6,
+    8,
+    10,
+    12,
+    16,
+    24,
+    30,
+    32
+   ],
+   "radius": "36px",
+   "container": "648px"
+  },
+  "blocks": [
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0.0079,
+    "h": 0.0056,
+    "px": {
+     "y": 64,
+     "h": 45
+    },
+    "links": 1
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Trade All in One Place",
+    "y": 0.0135,
+    "h": 0.1117,
+    "px": {
+     "y": 109,
+     "h": 900
+    },
+    "columns": 1,
+    "headingSize": 110,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Intuitive trading tools",
+    "y": 0.1252,
+    "h": 0.0993,
+    "px": {
+     "y": 1009,
+     "h": 800
+    },
+    "headingSize": 40,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Trade crypto 24/7",
+    "y": 0.2245,
+    "h": 0.0993,
+    "px": {
+     "y": 1809,
+     "h": 800
+    },
+    "headingSize": 40,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Your portfolio, handled by the pros",
+    "y": 0.3238,
+    "h": 0.0993,
+    "px": {
+     "y": 2609,
+     "h": 800
+    },
+    "headingSize": 40,
+    "links": 1
+   },
+   {
+    "type": "section",
+    "label": "Content section",
+    "heading": "Robinhood Protection Guarantee",
+    "y": 0.4293,
+    "h": 0.0298,
+    "px": {
+     "y": 3459,
+     "h": 240
+    },
+    "headingSize": 52,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.459,
+    "h": 0.1178,
+    "px": {
+     "y": 3699,
+     "h": 949
+    },
+    "columns": 2,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Become a better investor on the go, right in the app",
+    "y": 0.583,
+    "h": 0.0924,
+    "px": {
+     "y": 4698,
+     "h": 745
+    },
+    "columns": 3,
+    "headingSize": 52,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Join a new generation of investors",
+    "y": 0.6754,
+    "h": 0.0874,
+    "px": {
+     "y": 5443,
+     "h": 704
+    },
+    "headingSize": 72,
+    "links": 1
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.7628,
+    "h": 0.2372,
+    "px": {
+     "y": 6147,
+     "h": 1911
+    },
+    "columns": 1,
+    "links": 60
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "section",
+     "y": 0.0073,
+     "h": 0.008
+    },
+    {
+     "type": "hero",
+     "y": 0.0152,
+     "h": 0.1023,
+     "heading": "Trade All in One Place"
+    },
+    {
+     "type": "feature",
+     "y": 0.1176,
+     "h": 0.091,
+     "heading": "Intuitive trading tools"
+    },
+    {
+     "type": "feature",
+     "y": 0.2085,
+     "h": 0.091,
+     "heading": "Trade crypto 24/7"
+    },
+    {
+     "type": "feature",
+     "y": 0.2995,
+     "h": 0.091,
+     "heading": "Your portfolio, handled by the pros"
+    },
+    {
+     "type": "feature",
+     "y": 0.3904,
+     "h": 0.1394,
+     "heading": "Robinhood Protection Guarantee"
+    },
+    {
+     "type": "feature",
+     "y": 0.5298,
+     "h": 0.0847,
+     "heading": "Become a better investor on the go, right in the app"
+    },
+    {
+     "type": "feature",
+     "y": 0.6145,
+     "h": 0.08,
+     "heading": "Join a new generation of investors"
+    },
+    {
+     "type": "footer",
+     "y": 0.6945,
+     "h": 0.3055
+    }
+   ],
+   "mobile": [
+    {
+     "type": "section",
+     "y": 0.0061,
+     "h": 0.0114
+    },
+    {
+     "type": "hero",
+     "y": 0.0175,
+     "h": 0.0681,
+     "heading": "Trade All in One Place"
+    },
+    {
+     "type": "feature",
+     "y": 0.0856,
+     "h": 0.0933,
+     "heading": "Intuitive trading tools"
+    },
+    {
+     "type": "feature",
+     "y": 0.1789,
+     "h": 0.0728,
+     "heading": "Trade crypto 24/7"
+    },
+    {
+     "type": "feature",
+     "y": 0.2517,
+     "h": 0.0972,
+     "heading": "Your portfolio, handled by the pros"
+    },
+    {
+     "type": "cards",
+     "y": 0.3488,
+     "h": 0.0794,
+     "heading": "Robinhood Protection Guarantee"
+    },
+    {
+     "type": "feature",
+     "y": 0.4283,
+     "h": 0.0679,
+     "heading": "Become a better investor on the go, right in the app"
+    },
+    {
+     "type": "feature",
+     "y": 0.4962,
+     "h": 0.0701,
+     "heading": "Join a new generation of investors"
+    },
+    {
+     "type": "footer",
+     "y": 0.5663,
+     "h": 0.4337
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Hero: Trade All in One Place",
+    "heading 110px → 80px → 60px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "Feature section: Intuitive trading tools",
+    "heading 40px → 34px → 28px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Trade crypto 24/7",
+    "heading 40px → 25px → 25px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Your portfolio, handled by the p",
+    "heading 40px → 25px → 25px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Content section: Robinhood Protection Guarantee",
+    "heading 52px → 48px → 40px",
+    [
+     "section"
+    ]
+   ],
+   [
+    "Feature section: Become a better investor on the ",
+    "3 columns → 3 → 2; heading 52px → 58px → 40px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Page length",
+    "8058px → 8796px → 10498px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/robinhood-com-us-en/desktop.jpg",
+    "w": 1440,
+    "h": 8058,
+    "css": 1440,
+    "cssH": 8058,
+    "docH": 8058
+   },
+   "tablet": {
+    "src": "/captures/robinhood-com-us-en/tablet.jpg",
+    "w": 834,
+    "h": 8796,
+    "css": 834,
+    "cssH": 8796,
+    "docH": 8796
+   },
+   "mobile": {
+    "src": "/captures/robinhood-com-us-en/mobile.jpg",
+    "w": 780,
+    "h": 20996,
+    "css": 390,
+    "cssH": 10498,
+    "docH": 10498
+   }
+  }
+ },
+ {
+  "slug": "runwayml-com",
+  "url": "https://runwayml.com/",
+  "capturedAt": "2026-10-28T19:50:01.965Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "runwayml-com",
+   "name": "Runway",
+   "domain": "runwayml.com",
+   "about": "Runway is building foundational Real-World Intelligence that is changing how the world’s top brands, companies, agencies and studios are able to tell their stories.",
+   "tagline": "Runway | Intelligent tools for scaling content and teams."
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "ai",
+  "style": "minimal",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F7F7F7",
+   "raised": "#EDEDED",
+   "text": "#0C0C0C",
+   "muted": "#404040",
+   "accent": "#262626",
+   "accentFg": "#FFFFFF",
+   "border": "#FFFFFF",
+   "chart": [
+    "#262626",
+    "#2B22FA",
+    "#FCD34D",
+    "#C9C9C9"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 56,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "Intelligent tools for scaling"
+    },
+    {
+     "name": "H1",
+     "size": 40,
+     "weight": 400,
+     "use": "Heading",
+     "sample": "See the latest from Runway"
+    },
+    {
+     "name": "H2",
+     "size": 36,
+     "weight": 400,
+     "use": "Buttons",
+     "sample": "Workflows"
+    },
+    {
+     "name": "H3",
+     "size": 24,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Runway Creative"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Enterprise Sales"
+    },
+    {
+     "name": "Small",
+     "size": 13,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "Automate repetitive tasks at scale"
+    },
+    {
+     "name": "Caption",
+     "size": 11,
+     "weight": 450,
+     "use": "Links, buttons",
+     "sample": "© 2026 Runway AI, Inc."
+    }
+   ],
+   "body": "14px / 1.43",
+   "fonts": {
+    "heading": "abcNormal",
+    "body": "abcNormal"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    20,
+    24,
+    40
+   ],
+   "radius": "6 / 8 / 12px",
+   "container": "1225px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0089,
+    "px": {
+     "y": 0,
+     "h": 48
+    },
+    "links": 2
+   },
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0.0089,
+    "h": 0.0127,
+    "px": {
+     "y": 48,
+     "h": 68
+    },
+    "columns": 4,
+    "links": 11
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Intelligent tools for scaling content and teams.",
+    "y": 0.0089,
+    "h": 0.1237,
+    "px": {
+     "y": 48,
+     "h": 664
+    },
+    "columns": 1,
+    "headingSize": 56,
+    "links": 1
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "y": 0.1416,
+    "h": 0.0186,
+    "px": {
+     "y": 760,
+     "h": 100
+    },
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Three platforms built on-top of the same Real-World Intelligence models",
+    "y": 0.1676,
+    "h": 0.5219,
+    "px": {
+     "y": 900,
+     "h": 2802
+    },
+    "columns": 3,
+    "headingSize": 56,
+    "links": 8
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "y": 0.7134,
+    "h": 0.0909,
+    "px": {
+     "y": 3830,
+     "h": 488
+    },
+    "columns": 2,
+    "links": 16
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.8281,
+    "h": 0.1718,
+    "px": {
+     "y": 4446,
+     "h": 923
+    },
+    "columns": 4,
+    "links": 69
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0.0055,
+     "h": 0.0097
+    },
+    {
+     "type": "hero",
+     "y": 0.0055,
+     "h": 0.1002,
+     "heading": "Intelligent tools for scaling content and teams."
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.1129,
+     "h": 0.0167
+    },
+    {
+     "type": "feature",
+     "y": 0.1296,
+     "h": 0.4376,
+     "heading": "Three platforms built on-top of the same Real-World Intelligence models"
+    },
+    {
+     "type": "cards",
+     "y": 0.5818,
+     "h": 0.1327
+    },
+    {
+     "type": "footer",
+     "y": 0.729,
+     "h": 0.271
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0.0074,
+     "h": 0.0066
+    },
+    {
+     "type": "hero",
+     "y": 0,
+     "h": 0.0754,
+     "heading": "Intelligent tools for scaling content and teams."
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.0803,
+     "h": 0.013
+    },
+    {
+     "type": "feature",
+     "y": 0.1036,
+     "h": 0.0791,
+     "heading": "Runway Creative"
+    },
+    {
+     "type": "section",
+     "y": 0.1852,
+     "h": 0.055,
+     "heading": "Runway Dev"
+    },
+    {
+     "type": "section",
+     "y": 0.2426,
+     "h": 0.4399,
+     "heading": "Runway Robotics"
+    },
+    {
+     "type": "footer",
+     "y": 0.6925,
+     "h": 0.3076
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "menu button → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Navbar 2",
+    "11 links → menu button → menu button; 4 columns → 1 → 1",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Card grid: Three platforms built on-top of ",
+    "3 columns → 2 → 1; heading 56px → —px → 22px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Card grid 2",
+    "2 columns → 2 → 1",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "Page length",
+    "5369px → 6588px → 9710px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/runwayml-com/desktop.jpg",
+    "w": 1440,
+    "h": 5369,
+    "css": 1440,
+    "cssH": 5369,
+    "docH": 5369
+   },
+   "tablet": {
+    "src": "/captures/runwayml-com/tablet.jpg",
+    "w": 834,
+    "h": 6588,
+    "css": 834,
+    "cssH": 6588,
+    "docH": 6588
+   },
+   "mobile": {
+    "src": "/captures/runwayml-com/mobile.jpg",
+    "w": 780,
+    "h": 19420,
+    "css": 390,
+    "cssH": 9710,
+    "docH": 9710
    }
   }
  },
@@ -28060,6 +33234,594 @@
   }
  },
  {
+  "slug": "warp-dev",
+  "url": "https://www.warp.dev/",
+  "capturedAt": "2026-10-28T19:48:22.902Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "warp-dev",
+   "name": "Warp",
+   "domain": "warp.dev",
+   "about": "Build your software factory on Warp: factories as code, any model or harness, with evals, benchmarks, and self-improvement built in.",
+   "tagline": "Warp — Open Infrastructure for Cloud Software Factories"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F6F5FB",
+   "raised": "#ECEBF1",
+   "text": "#1A1522",
+   "muted": "#7A777F",
+   "accent": "#2A1EFF",
+   "accentFg": "#FFFFFF",
+   "border": "#FFFFFF",
+   "chart": [
+    "#2A1EFF",
+    "#EEF17C",
+    "#958FFF",
+    "#CAC7FF"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "Display",
+     "size": 54,
+     "weight": 400,
+     "use": "Page headline",
+     "sample": "Open infrastructure for cloud software factories"
+    },
+    {
+     "name": "H1",
+     "size": 34,
+     "weight": 400,
+     "use": "Section header",
+     "sample": "Your software factory, defined in code."
+    },
+    {
+     "name": "H2",
+     "size": 30,
+     "weight": 700,
+     "use": "Section header",
+     "sample": "Cutting our cost per PR from $80 to $30"
+    },
+    {
+     "name": "H3",
+     "size": 18,
+     "weight": 700,
+     "use": "Card title",
+     "sample": "opinionated, but flexible"
+    },
+    {
+     "name": "Body",
+     "size": 13,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Configuration"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "products"
+    },
+    {
+     "name": "Caption",
+     "size": 10.5,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "product"
+    }
+   ],
+   "body": "13px / 1.65",
+   "fonts": {
+    "heading": "theFuture",
+    "body": "azeretSemiMono"
+   }
+  },
+  "rhythm": {
+   "base": 2,
+   "spacing": [
+    3,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    20,
+    24
+   ],
+   "radius": "3 / 4 / 20px",
+   "container": "1132px"
+  },
+  "blocks": [
+   {
+    "type": "navbar",
+    "label": "Navbar",
+    "y": 0,
+    "h": 0.0068,
+    "px": {
+     "y": 0,
+     "h": 64
+    },
+    "links": 11
+   },
+   {
+    "type": "hero",
+    "label": "Hero",
+    "heading": "Open infrastructure for cloud software factories",
+    "y": 0.0068,
+    "h": 0.0971,
+    "px": {
+     "y": 64,
+     "h": 909
+    },
+    "columns": 1,
+    "headingSize": 54,
+    "links": 2
+   },
+   {
+    "type": "logo-cloud",
+    "label": "Logo cloud",
+    "y": 0.104,
+    "h": 0.0169,
+    "px": {
+     "y": 973,
+     "h": 158
+    },
+    "links": 10
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Your software factory, defined in code.",
+    "y": 0.1209,
+    "h": 0.1243,
+    "px": {
+     "y": 1132,
+     "h": 1164
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Beyond CI/CD to automating the whole SDLC",
+    "y": 0.2452,
+    "h": 0.1104,
+    "px": {
+     "y": 2295,
+     "h": 1034
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 0
+   },
+   {
+    "type": "stats",
+    "label": "Metrics band",
+    "heading": "Baked-in measurement and self-improvement",
+    "y": 0.3556,
+    "h": 0.0861,
+    "px": {
+     "y": 3329,
+     "h": 806
+    },
+    "columns": 3,
+    "headingSize": 34,
+    "links": 0
+   },
+   {
+    "type": "cta",
+    "label": "CTA band",
+    "heading": "Cutting our cost per PR from $80 to $30",
+    "y": 0.4417,
+    "h": 0.0503,
+    "px": {
+     "y": 4135,
+     "h": 471
+    },
+    "headingSize": 28,
+    "links": 1
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Warp is enterprise ready",
+    "y": 0.492,
+    "h": 0.1046,
+    "px": {
+     "y": 4606,
+     "h": 979
+    },
+    "headingSize": 34,
+    "links": 2
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Open at every layer",
+    "y": 0.5965,
+    "h": 0.0762,
+    "px": {
+     "y": 5585,
+     "h": 714
+    },
+    "columns": 1,
+    "headingSize": 34,
+    "links": 0
+   },
+   {
+    "type": "feature",
+    "label": "Feature section",
+    "heading": "Control your coding agent chaos",
+    "y": 0.6728,
+    "h": 0.1314,
+    "px": {
+     "y": 6299,
+     "h": 1230
+    },
+    "headingSize": 34,
+    "links": 0
+   },
+   {
+    "type": "cards",
+    "label": "Card grid",
+    "heading": "Use Warp everywhere",
+    "y": 0.8042,
+    "h": 0.0896,
+    "px": {
+     "y": 7530,
+     "h": 839
+    },
+    "columns": 3,
+    "headingSize": 34,
+    "links": 2
+   },
+   {
+    "type": "faq",
+    "label": "FAQ",
+    "heading": "Frequently asked questions",
+    "y": 0.8938,
+    "h": 0.0704,
+    "px": {
+     "y": 8369,
+     "h": 659
+    },
+    "headingSize": 28,
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "y": 0.9642,
+    "h": 0.0358,
+    "px": {
+     "y": 9028,
+     "h": 335
+    },
+    "columns": 6,
+    "links": 29
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0042
+    },
+    {
+     "type": "hero",
+     "y": 0.0042,
+     "h": 0.0501,
+     "heading": "Open infrastructure for cloud software factories"
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.0543,
+     "h": 0.0103
+    },
+    {
+     "type": "faq",
+     "y": 0.0647,
+     "h": 0.0985,
+     "heading": "Your software factory, defined in code."
+    },
+    {
+     "type": "faq",
+     "y": 0.1632,
+     "h": 0.0557,
+     "heading": "Beyond CI/CD to automating the whole SDLC"
+    },
+    {
+     "type": "stats",
+     "y": 0.2226,
+     "h": 0.1179,
+     "heading": "Baked-in measurement and self-improvement"
+    },
+    {
+     "type": "feature",
+     "y": 0.3462,
+     "h": 0.0547,
+     "heading": "Cutting our cost per PR from $80 to $30"
+    },
+    {
+     "type": "feature",
+     "y": 0.4045,
+     "h": 0.0715,
+     "heading": "Rectangle Health uses Warp to build a self-improving AI teammate"
+    },
+    {
+     "type": "feature",
+     "y": 0.4771,
+     "h": 0.06,
+     "heading": "Docker uses Warp to reduce onboarding time and give every engineer a shared source of trut"
+    },
+    {
+     "type": "feature",
+     "y": 0.5408,
+     "h": 0.0633,
+     "heading": "Open at every layer"
+    },
+    {
+     "type": "feature",
+     "y": 0.6041,
+     "h": 0.1031,
+     "heading": "Control your coding agent chaos"
+    },
+    {
+     "type": "feature",
+     "y": 0.7115,
+     "h": 0.1928,
+     "heading": "Use Warp everywhere"
+    },
+    {
+     "type": "faq",
+     "y": 0.9081,
+     "h": 0.0431,
+     "heading": "Frequently asked questions"
+    },
+    {
+     "type": "footer",
+     "y": 0.9512,
+     "h": 0.0488
+    }
+   ],
+   "mobile": [
+    {
+     "type": "navbar",
+     "y": 0,
+     "h": 0.0046
+    },
+    {
+     "type": "hero",
+     "y": 0.0046,
+     "h": 0.0607,
+     "heading": "Open infrastructure for cloud software factories"
+    },
+    {
+     "type": "logo-cloud",
+     "y": 0.0652,
+     "h": 0.0113
+    },
+    {
+     "type": "section",
+     "y": 0.0794,
+     "h": 0.023,
+     "heading": "Your software factory, defined in code."
+    },
+    {
+     "type": "navbar",
+     "y": 0.1043,
+     "h": 0.0252
+    },
+    {
+     "type": "faq",
+     "y": 0.1296,
+     "h": 0.0629
+    },
+    {
+     "type": "faq",
+     "y": 0.1994,
+     "h": 0.0762,
+     "heading": "Beyond CI/CD to automating the whole SDLC"
+    },
+    {
+     "type": "section",
+     "y": 0.2836,
+     "h": 0.0181,
+     "heading": "Baked-in measurement and self-improvement"
+    },
+    {
+     "type": "stats",
+     "y": 0.3041,
+     "h": 0.0818
+    },
+    {
+     "type": "feature",
+     "y": 0.3921,
+     "h": 0.0463,
+     "heading": "Cutting our cost per PR from $80 to $30"
+    },
+    {
+     "type": "section",
+     "y": 0.4425,
+     "h": 0.0157,
+     "heading": "Warp is enterprise ready"
+    },
+    {
+     "type": "feature",
+     "y": 0.4606,
+     "h": 0.0793,
+     "heading": "Rectangle Health uses Warp to build a self-improving AI teammate"
+    },
+    {
+     "type": "feature",
+     "y": 0.544,
+     "h": 0.0782,
+     "heading": "Open at every layer"
+    },
+    {
+     "type": "feature",
+     "y": 0.6262,
+     "h": 0.1178,
+     "heading": "Control your coding agent chaos"
+    },
+    {
+     "type": "feature",
+     "y": 0.756,
+     "h": 0.1269,
+     "heading": "Use Warp everywhere"
+    },
+    {
+     "type": "faq",
+     "y": 0.887,
+     "h": 0.0569,
+     "heading": "Frequently asked questions"
+    },
+    {
+     "type": "footer",
+     "y": 0.9439,
+     "h": 0.0561
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Navbar",
+    "11 links → menu button → menu button",
+    [
+     "navbar"
+    ]
+   ],
+   [
+    "Hero: Open infrastructure for cloud so",
+    "heading 54px → 32px → 32px",
+    [
+     "hero"
+    ]
+   ],
+   [
+    "FAQ: Your software factory, defined i",
+    "heading 34px → 34px → 34px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Feature section: Beyond CI/CD to automating the w",
+    "heading 34px → 34px → 34px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Metrics band: Baked-in measurement and self-im",
+    "3 columns → 1 → 1; heading 34px → 34px → 34px",
+    [
+     "stats"
+    ]
+   ],
+   [
+    "CTA band: Cutting our cost per PR from $80",
+    "heading 28px → 28px → 28px",
+    [
+     "cta"
+    ]
+   ],
+   [
+    "Feature section: Warp is enterprise ready",
+    "heading 34px → 34px → 34px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Open at every layer",
+    "heading 34px → 34px → 34px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Feature section: Control your coding agent chaos",
+    "heading 34px → 34px → 34px",
+    [
+     "feature"
+    ]
+   ],
+   [
+    "Card grid: Use Warp everywhere",
+    "heading 34px → 34px → 34px",
+    [
+     "cards"
+    ]
+   ],
+   [
+    "FAQ: Frequently asked questions",
+    "heading 28px → 28px → 28px",
+    [
+     "faq"
+    ]
+   ],
+   [
+    "Footer",
+    "6 columns → 2 → 2",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "9363px → 15303px → 14029px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/warp-dev/desktop.jpg",
+    "w": 1440,
+    "h": 9363,
+    "css": 1440,
+    "cssH": 9363,
+    "docH": 9363
+   },
+   "tablet": {
+    "src": "/captures/warp-dev/tablet.jpg",
+    "w": 834,
+    "h": 14000,
+    "css": 834,
+    "cssH": 14000,
+    "docH": 15303
+   },
+   "mobile": {
+    "src": "/captures/warp-dev/mobile.jpg",
+    "w": 780,
+    "h": 28000,
+    "css": 390,
+    "cssH": 14000,
+    "docH": 14029
+   }
+  }
+ },
+ {
   "slug": "wio-io-ar",
   "url": "https://www.wio.io/ar",
   "capturedAt": "2026-10-18T12:16:04.438Z",
@@ -29166,6 +34928,211 @@
     "css": 390,
     "cssH": 7756,
     "docH": 7756
+   }
+  }
+ },
+ {
+  "slug": "zed-dev",
+  "url": "https://zed.dev/",
+  "capturedAt": "2026-10-28T19:47:22.760Z",
+  "title": "Homepage",
+  "source": {
+   "slug": "zed-dev",
+   "name": "Zed",
+   "domain": "zed.dev",
+   "about": "Zed is a high-performance, multiplayer code editor from the creators of Atom and Tree-sitter.",
+   "tagline": "Zed — Your last next editor"
+  },
+  "category": "landing-page",
+  "archetype": "saas-landing",
+  "industry": "saas",
+  "style": "light",
+  "tech": [
+   "nextjs",
+   "react",
+   "tailwind"
+  ],
+  "dir": "ltr",
+  "lang": "en",
+  "palette": {
+   "bg": "#FFFFFF",
+   "surface": "#F7F7F7",
+   "raised": "#EDEDED",
+   "text": "#000000",
+   "muted": "#242529",
+   "accent": "#649F57",
+   "accentFg": "#000000",
+   "border": "#DADDE2",
+   "chart": [
+    "#649F57",
+    "#5B79E3",
+    "#D3604F",
+    "#3882B7"
+   ],
+   "dark": false
+  },
+  "type": {
+   "scale": [
+    {
+     "name": "H1",
+     "size": 48,
+     "weight": 340,
+     "use": "Page headline",
+     "sample": "Your last next editor"
+    },
+    {
+     "name": "H2",
+     "size": 25.5,
+     "weight": 390,
+     "use": "Section header",
+     "sample": "Trusted by world-class developers & industry leading teams"
+    },
+    {
+     "name": "H3",
+     "size": 16,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Zed is a minimal code editor crafted for speed and collabora"
+    },
+    {
+     "name": "Body",
+     "size": 14,
+     "weight": 400,
+     "use": "Paragraph",
+     "sample": "Product"
+    },
+    {
+     "name": "Small",
+     "size": 12,
+     "weight": 400,
+     "use": "Meta, labels",
+     "sample": "scheduler.tsx"
+    },
+    {
+     "name": "Caption",
+     "size": 11,
+     "weight": 400,
+     "use": "Eyebrow, badges",
+     "sample": "P"
+    }
+   ],
+   "body": "14px / 1.43",
+   "fonts": {
+    "heading": "plexSerif",
+    "body": "writer"
+   }
+  },
+  "rhythm": {
+   "base": 4,
+   "spacing": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    16,
+    24,
+    48
+   ],
+   "radius": "2 / 4 / 6px",
+   "container": "1120px"
+  },
+  "blocks": [
+   {
+    "type": "section",
+    "label": "Content section",
+    "y": 0,
+    "h": 1.0001,
+    "px": {
+     "y": 0,
+     "h": 8206
+    },
+    "links": 0
+   },
+   {
+    "type": "footer",
+    "label": "Footer",
+    "heading": "Your last next editor",
+    "y": 0,
+    "h": 1.0001,
+    "px": {
+     "y": 0,
+     "h": 8206
+    },
+    "columns": 1,
+    "headingSize": 48,
+    "links": 89,
+    "menuButton": true
+   }
+  ],
+  "crops": {
+   "tablet": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 1
+    },
+    {
+     "type": "footer",
+     "y": 0,
+     "h": 1,
+     "heading": "Your last next editor"
+    }
+   ],
+   "mobile": [
+    {
+     "type": "section",
+     "y": 0,
+     "h": 1
+    },
+    {
+     "type": "footer",
+     "y": 0,
+     "h": 1,
+     "heading": "Zed Industries"
+    }
+   ]
+  },
+  "responsive": [
+   [
+    "Footer",
+    "heading 48px → 48px → 25.6px",
+    [
+     "footer"
+    ]
+   ],
+   [
+    "Page length",
+    "8206px → 11071px → 844px",
+    []
+   ]
+  ],
+  "shots": {
+   "desktop": {
+    "src": "/captures/zed-dev/desktop.jpg",
+    "w": 1440,
+    "h": 8206,
+    "css": 1440,
+    "cssH": 8206,
+    "docH": 8206
+   },
+   "tablet": {
+    "src": "/captures/zed-dev/tablet.jpg",
+    "w": 834,
+    "h": 11071,
+    "css": 834,
+    "cssH": 11071,
+    "docH": 11071
+   },
+   "mobile": {
+    "src": "/captures/zed-dev/mobile.jpg",
+    "w": 780,
+    "h": 1688,
+    "css": 390,
+    "cssH": 844,
+    "docH": 844
    }
   }
  },
