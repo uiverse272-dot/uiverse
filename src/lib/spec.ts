@@ -150,7 +150,7 @@ export function sections(item: Item): Section[] {
 
 /*
  * How each archetype reflows, read as "laptop → tablet → mobile". This is a
- * description of what src/components/mock/sections.tsx actually draws — change
+ * description of what src/components/mock/sections/ actually draws — change
  * one and you must change the other. The third field lists the block types a
  * rule belongs to, so a single component shows only the rules that apply to it.
  */
@@ -267,6 +267,8 @@ export function responsiveRulesPlain(item: Item): [string, string][] {
 }
 
 export function responsiveRules(item: Item): [string, string][] {
+  /* an original reflows for real in its frame — there's no drawn page to describe */
+  if (item.live) return [];
   const rules: Rule[] = item.capture?.responsive ?? RULES[item.archetype];
   const own = new Set(item.blocks.map((b) => b.type));
   /* a sketch borrows its archetype's rules, so drop the ones for sections it doesn't have —

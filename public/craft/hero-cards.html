@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- Floating cards hero — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A fintech hero: copy on the left, a stack of tilted cards and a payment toast that float
+     and lean with the pointer. Responsive. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Floating cards hero</title>
+<style>
+  :root { --bg: #f3f1ff; --ink: #14112b; --soft: #6a6788; --acc: #5b3df5; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: radial-gradient(70% 80% at 80% 40%, #e2dcff, var(--bg) 60%); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100vh; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  nav { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 22px 24px; font-size: 14px; }
+  .logo { font-weight: 800; font-size: 18px; letter-spacing: -.03em; }
+  .logo span { color: var(--acc); }
+  .links { display: flex; gap: 26px; color: var(--soft); }
+  .cta { background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 99px; font-weight: 600; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 48px 24px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+  .eyebrow { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; color: var(--acc); background: #fff; padding: 6px 12px; border-radius: 99px; box-shadow: 0 4px 14px -6px rgba(91,61,245,.35); }
+  .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.2); }
+  h1 { margin-top: 22px; font-size: clamp(40px, 5.8vw, 72px); line-height: 1; letter-spacing: -.05em; font-weight: 800; }
+  .lede { margin-top: 20px; font-size: 18px; color: var(--soft); max-width: 460px; }
+  .form { margin-top: 30px; display: flex; gap: 8px; max-width: 440px; padding: 6px; background: #fff; border-radius: 99px; box-shadow: 0 16px 40px -20px rgba(20,17,43,.35); }
+  .form input { flex: 1; min-width: 0; border: 0; outline: none; padding: 0 16px; font: inherit; background: none; }
+  .form button { border: 0; background: var(--acc); color: #fff; font: 600 14px ui-sans-serif, system-ui, sans-serif; padding: 13px 20px; border-radius: 99px; cursor: pointer; white-space: nowrap; }
+  .form:focus-within { box-shadow: 0 0 0 3px rgba(91,61,245,.25), 0 16px 40px -20px rgba(20,17,43,.35); }
+  .trust { margin-top: 18px; display: flex; gap: 18px; font-size: 13px; color: var(--soft); flex-wrap: wrap; }
+  .trust b { color: var(--ink); }
+  .stage { position: relative; height: 480px; perspective: 1200px; }
+  .layer { position: absolute; transform-style: preserve-3d; transition: transform .25s ease-out; }
+  .cc { width: 330px; aspect-ratio: 1.586; border-radius: 20px; padding: 22px; color: #fff; display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 30px 60px -20px rgba(20,17,43,.45); animation: bob 6s ease-in-out infinite; }
+  .cc .top { display: flex; justify-content: space-between; font-weight: 700; }
+  .cc .num { font: 500 18px ui-monospace, Menlo, monospace; letter-spacing: .12em; }
+  .cc small { opacity: .7; font-size: 12px; }
+  .c1 { background: linear-gradient(135deg, #5b3df5, #9b6bff); transform: rotate(-10deg); }
+  .c2 { background: linear-gradient(135deg, #14112b, #3a3566); transform: rotate(6deg); animation-delay: -2s; }
+  .c3 { background: linear-gradient(135deg, #ff7a59, #ffb36b); transform: rotate(-2deg); animation-delay: -4s; }
+  @keyframes bob { 50% { translate: 0 -12px; } }
+  .toast { background: #fff; border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; box-shadow: 0 20px 40px -18px rgba(20,17,43,.4); font-size: 13px; width: 250px; animation: bob 5s ease-in-out -1s infinite; }
+  .toast .ic { width: 36px; height: 36px; border-radius: 10px; background: #dcfce7; color: #16a34a; display: grid; place-items: center; font-weight: 800; }
+  .toast b { display: block; font-size: 14px; } .toast span { color: var(--soft); }
+  .amt { margin-left: auto; font-weight: 700; color: #16a34a; }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; } .stage { height: 400px; } .links { display: none; } }
+  @media (max-width: 520px) { .stage { transform: scale(.78); transform-origin: top left; height: 330px; } }
+  @media (prefers-reduced-motion: reduce) { .cc, .toast { animation: none; } .layer { transition: none; } }
+</style>
+</head>
+<body>
+  <nav><a class="logo" href="#">plume<span>.</span></a><div class="links"><a href="#">Cards</a><a href="#">Accounts</a><a href="#">Business</a><a href="#">Help</a></div><a class="cta" href="#">Open an account</a></nav>
+  <main class="wrap">
+    <div>
+      <span class="eyebrow"><i></i>Now in Riyadh, Dubai and Doha</span>
+      <h1>One card for every currency you spend.</h1>
+      <p class="lede">Hold 24 currencies, pay like a local in 160 countries, and see every fee before you tap.</p>
+      <form class="form">
+        <input type="email" placeholder="you@company.com" aria-label="Email address" required>
+        <button type="button">Get early access</button>
+      </form>
+      <div class="trust"><span><b>4.9★</b> on the App Store</span><span><b>310k</b> on the waitlist</span></div>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <div class="layer" data-depth="10" style="left: 18%; top: 4%"><div class="cc c2"><div class="top">plume<small>Business</small></div><div class="num">•••• 2210</div><small>Omar Al Mansouri</small></div></div>
+      <div class="layer" data-depth="22" style="left: 2%; top: 30%"><div class="cc c1"><div class="top">plume<small>Multi-currency</small></div><div class="num">•••• 8841</div><small>Hessa Alqahtani</small></div></div>
+      <div class="layer" data-depth="16" style="left: 34%; top: 54%"><div class="cc c3"><div class="top">plume<small>Travel</small></div><div class="num">•••• 0457</div><small>Yusuf Rahman</small></div></div>
+      <div class="layer" data-depth="34" style="right: 0; top: 18%"><div class="toast"><span class="ic">↓</span><div><b>Received</b><span>from Bayt Studio</span></div><span class="amt">+€1,240</span></div></div>
+    </div>
+  </main>
+<script>
+  /* a sandboxed preview can't submit forms, so the button checks the field itself */
+  const email = document.querySelector(".form input"), join = document.querySelector(".form button");
+  join.addEventListener("click", () => (email.checkValidity() && email.value ? (join.textContent = "You're on the list ✓") : email.reportValidity()));
+  email.addEventListener("keydown", (e) => e.key === "Enter" && (e.preventDefault(), join.click()));
+  /* each layer leans with the pointer by its own depth, a cheap parallax */
+  const layers = document.querySelectorAll(".layer");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+    addEventListener("pointermove", (e) => {
+      const x = e.clientX / innerWidth - 0.5, y = e.clientY / innerHeight - 0.5;
+      layers.forEach((l) => { const d = +l.dataset.depth; l.style.transform = `translate(${x * d}px, ${y * d}px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`; });
+    });
+</script>
+</body>
+</html>

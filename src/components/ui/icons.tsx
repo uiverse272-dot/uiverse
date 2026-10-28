@@ -27,12 +27,6 @@ export const Close = ({ size, className }: P) => (
 export const Chevron = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="m6 9 6 6 6-6" /></svg>
 );
-export const ArrowLeft = ({ size, className }: P) => (
-  <svg {...base(size)} className={className}><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
-);
-export const ArrowRight = ({ size, className }: P) => (
-  <svg {...base(size)} className={className}><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-);
 export const Code = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="m9 8-4 4 4 4M15 8l4 4-4 4" /></svg>
 );
@@ -83,12 +77,6 @@ export const Palette = ({ size, className }: P) => (
 );
 export const Upload = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" /><path d="M4.5 14v5.5h15V14" /></svg>
-);
-export const Users = ({ size, className }: P) => (
-  <svg {...base(size)} className={className}>
-    <circle cx="9" cy="8" r="3.2" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-    <path d="M16 4.6a3.2 3.2 0 0 1 0 6.2M18 14.4c1.8.8 3 2.6 3 4.6" />
-  </svg>
 );
 export const Tag = ({ size, className }: P) => (
   <svg {...base(size)} className={className}><path d="M3 12V4h8l10 10-8 8z" /><circle cx="7.5" cy="8.5" r="1.3" /></svg>

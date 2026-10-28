@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Magnetic dot grid — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Dots lean toward the pointer and light up near it; a click sends a ripple across the grid. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magnetic dot grid</title>
+<style>
+  * { margin: 0; }
+  html, body { height: 100%; overflow: hidden; background: #f7f7f5; }
+  canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+  .copy { position: fixed; inset: auto 0 28px; text-align: center; pointer-events: none;
+    font: 500 13px ui-sans-serif, system-ui, -apple-system, sans-serif; color: #8a8a83; }
+</style>
+</head>
+<body>
+  <canvas aria-hidden="true"></canvas>
+  <p class="copy">Move to attract · click to ripple</p>
+<script>
+  const cv = document.querySelector("canvas"), ctx = cv.getContext("2d");
+  const GAP = 26;
+  let dots = [], dpr = 1, ripples = [];
+  const m = { x: innerWidth / 2, y: innerHeight / 2, on: false };
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    dots = [];
+    const ox = (innerWidth % GAP) / 2 + GAP / 2, oy = (innerHeight % GAP) / 2 + GAP / 2;
+    for (let y = oy; y < innerHeight; y += GAP) for (let x = ox; x < innerWidth; x += GAP) dots.push({ x, y, px: x, py: y });
+  }
+  function frame(now) {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    /* with no pointer, an idle point drifts in a slow figure-eight so the grid still breathes */
+    const t = now / 1000;
+    const tx = m.on ? m.x : innerWidth / 2 + Math.sin(t * 0.7) * innerWidth * 0.28;
+    const ty = m.on ? m.y : innerHeight / 2 + Math.sin(t * 1.4) * innerHeight * 0.18;
+    ripples = ripples.filter((r) => now - r.t < 1600);
+    for (const d of dots) {
+      let dx = tx - d.x, dy = ty - d.y;
+      const dist = Math.hypot(dx, dy), pull = Math.max(0, 1 - dist / 180);
+      let ox = dx * pull * 0.28, oy = dy * pull * 0.28, glow = pull;
+      for (const r of ripples) {
+        const age = (now - r.t) / 1000, front = age * 520, rd = Math.hypot(d.x - r.x, d.y - r.y);
+        const band = Math.max(0, 1 - Math.abs(rd - front) / 50) * (1 - age / 1.6);
+        if (band > 0) { ox += ((d.x - r.x) / (rd || 1)) * band * 14; oy += ((d.y - r.y) / (rd || 1)) * band * 14; glow = Math.max(glow, band); }
+      }
+      d.px += (d.x + ox - d.px) * (still ? 1 : 0.2); d.py += (d.y + oy - d.py) * (still ? 1 : 0.2);
+      const rad = 1.6 + glow * 3;
+      ctx.fillStyle = glow > 0.02 ? `hsl(${250 - glow * 80} ${60 + glow * 30}% ${62 - glow * 18}%)` : "#c9c9c2";
+      ctx.beginPath(); ctx.arc(d.px * dpr, d.py * dpr, rad * dpr, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  addEventListener("pointermove", (e) => { m.x = e.clientX; m.y = e.clientY; m.on = true; });
+  document.documentElement.addEventListener("pointerleave", () => (m.on = false));
+  addEventListener("pointerdown", (e) => ripples.push({ x: e.clientX, y: e.clientY, t: performance.now() }));
+  addEventListener("resize", size);
+  size(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

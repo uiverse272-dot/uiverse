@@ -1,0 +1,68 @@
+<!doctype html>
+<!-- Pixel text — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Words drawn from square pixels that scatter from the pointer and spring home. Type to change the word. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel text</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; overflow: hidden; background: #111; }
+  canvas { display: block; width: 100%; height: 100%; }
+  label { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; gap: 10px; align-items: center;
+    font: 500 12px ui-monospace, "SF Mono", Menlo, monospace; color: #777; letter-spacing: .1em; text-transform: uppercase; }
+  input { width: 160px; height: 34px; padding: 0 12px; border-radius: 0; border: 1px solid #333; background: #181818; color: #f5f5f5;
+    font: 600 14px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; outline: none; }
+  input:focus { border-color: #ffd23f; }
+</style>
+</head>
+<body>
+  <canvas aria-hidden="true"></canvas>
+  <label>Word <input value="PLAY" maxlength="8" spellcheck="false" aria-label="Word to draw"></label>
+<script>
+  const cv = document.querySelector("canvas"), ctx = cv.getContext("2d"), input = document.querySelector("input");
+  const COLOURS = ["#ffd23f", "#ff5d73", "#3bceac", "#5b8cff", "#f5f5f5"];
+  let px = [], dpr = 1, S = 10;
+  const m = { x: -1e3, y: -1e3 };
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* draw the word small, read which pixels are lit, make one particle per lit pixel */
+  function build(word) {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    const off = document.createElement("canvas"), o = off.getContext("2d");
+    const h = 22; o.font = `900 ${h}px ui-monospace, Menlo, monospace`;
+    const w = Math.ceil(o.measureText(word).width) + 2;
+    off.width = w; off.height = h + 4;
+    o.font = `900 ${h}px ui-monospace, Menlo, monospace`; o.textBaseline = "top"; o.fillStyle = "#fff"; o.fillText(word, 1, 2);
+    S = Math.max(5, Math.floor(Math.min(innerWidth * 0.82 / w, innerHeight * 0.45 / (h + 4))));
+    const data = o.getImageData(0, 0, w, h + 4).data, ox = (innerWidth - w * S) / 2, oy = (innerHeight - (h + 4) * S) / 2 - 20;
+    const old = px; px = [];
+    for (let y = 0; y < h + 4; y++) for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4 + 3] < 128) continue;
+      const from = old[px.length] ?? { x: Math.random() * innerWidth, y: innerHeight + 40 };
+      px.push({ hx: ox + x * S, hy: oy + y * S, x: from.x, y: from.y, vx: 0, vy: 0, c: COLOURS[(x + y * 3) % COLOURS.length] });
+    }
+    if (still) px.forEach((p) => { p.x = p.hx; p.y = p.hy; });
+  }
+  function frame() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#111"; ctx.fillRect(0, 0, innerWidth, innerHeight);
+    for (const p of px) {
+      const dx = p.x - m.x, dy = p.y - m.y, d2 = dx * dx + dy * dy;
+      if (d2 < 9000 && !still) { const f = (9000 - d2) / 9000 * 3.2, d = Math.sqrt(d2) || 1; p.vx += dx / d * f; p.vy += dy / d * f; }
+      p.vx += (p.hx - p.x) * 0.06; p.vy += (p.hy - p.y) * 0.06;
+      p.vx *= 0.8; p.vy *= 0.8; p.x += p.vx; p.y += p.vy;
+      ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, S - 1, S - 1);
+    }
+    requestAnimationFrame(frame);
+  }
+  addEventListener("pointermove", (e) => { m.x = e.clientX; m.y = e.clientY; });
+  addEventListener("pointerleave", () => { m.x = m.y = -1e3; });
+  input.addEventListener("input", () => build((input.value || " ").toUpperCase()));
+  addEventListener("resize", () => build(input.value.toUpperCase() || " "));
+  build("PLAY"); frame();
+</script>
+</body>
+</html>

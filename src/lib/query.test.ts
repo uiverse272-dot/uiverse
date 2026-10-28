@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DICTS } from "@/i18n/dict";
-import { ITEMS } from "./data";
+import { dirOf, ITEMS } from "./data";
 import { lookDistance } from "./look";
 import { applyFilters, arNorm, parseQuery, searchItems, similarTo } from "./query";
 
@@ -127,7 +127,7 @@ describe("searchItems", () => {
     for (const q of ["عربي", "عربية"]) {
       const { results } = searchItems(q);
       expect(results.length).toBe(rtl.length);
-      expect(results.every((i) => i.capture?.dir === "rtl")).toBe(true);
+      expect(results.every((i) => dirOf(i) === "rtl")).toBe(true);
     }
   });
 

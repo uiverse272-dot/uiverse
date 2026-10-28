@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- Agent inbox — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Work an AI agent hands back for review: live status, approve or dismiss, and the list closes the gap. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent inbox</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 13px/1.35 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0c0d10; color: #e8e9ee;
+  }
+  .inbox { width: 380px; border-radius: 16px; background: #14161b; border: 1px solid #23262e; box-shadow: 0 30px 80px -30px #000; overflow: hidden; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #1f2229; }
+  header b { font-size: 13.5px; }
+  .count { font-size: 11px; color: #9aa0ad; background: #1d2027; padding: 3px 8px; border-radius: 99px; }
+  ul { list-style: none; padding: 6px; margin: 0; }
+  li {
+    display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center;
+    padding: 10px; border-radius: 11px; position: relative;
+    transition: background .2s, opacity .3s, transform .35s cubic-bezier(.2,.8,.2,1), max-height .35s .1s, padding .35s .1s;
+    max-height: 80px;
+  }
+  li:hover { background: #1a1d23; }
+  li.gone { opacity: 0; transform: translateX(40px); max-height: 0; padding-block: 0; }
+  li.gone.no { transform: translateX(-40px); }
+  .av { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; position: relative; }
+  .st { position: absolute; right: -2px; bottom: -2px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid #14161b; }
+  .st.run { background: #5b8cff; }
+  .st.run::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #5b8cff; animation: ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
+  .st.wait { background: #f5b544; }
+  .st.done { background: #37d39a; }
+  @keyframes ping { 75%, 100% { transform: scale(1.9); opacity: 0; } }
+  .t { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .s { color: #8b91a0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .s em { font-style: normal; color: #c9cdd8; }
+  .bar { height: 3px; margin-top: 6px; border-radius: 3px; background: #23262e; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 30%; background: linear-gradient(90deg, #5b8cff, #a78bfa); border-radius: inherit; animation: work 2.4s ease-in-out infinite; }
+  @keyframes work { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+  .acts { display: flex; gap: 6px; opacity: 0; transform: translateX(6px); transition: opacity .2s, transform .2s; }
+  li:hover .acts, li:focus-within .acts { opacity: 1; transform: none; }
+  .time { font-size: 11px; color: #6b7180; transition: opacity .2s; }
+  li:hover .time, li:focus-within .time { opacity: 0; }
+  .right { position: relative; display: grid; justify-items: end; }
+  .right > * { grid-area: 1 / 1; }
+  button {
+    font: inherit; font-size: 12px; font-weight: 600; border: 0; cursor: pointer;
+    height: 28px; padding: 0 10px; border-radius: 8px; color: #e8e9ee; background: #23262e;
+    transition: background .15s, transform .1s;
+  }
+  button:hover { background: #2c3039; }
+  button:active { transform: scale(.96); }
+  button.ok { background: #e8e9ee; color: #111; }
+  button.ok:hover { background: #fff; }
+  button:focus-visible { outline: 2px solid #5b8cff; outline-offset: 2px; }
+  .empty { padding: 40px 16px; text-align: center; color: #6b7180; display: none; }
+  .empty.show { display: block; animation: in .4s ease both; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } }
+  @media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+  <section class="inbox" aria-label="Agent inbox">
+    <header><b>Needs your review</b><span class="count" aria-live="polite">4 open</span></header>
+    <ul>
+      <li>
+        <span class="av" style="background:#1f2a44">⌘<span class="st run"></span></span>
+        <div><div class="t">Refactor billing webhooks</div><div class="s">Coder · <em>editing 6 files</em></div><div class="bar"><i></i></div></div>
+        <div class="right"><span class="time">now</span><span class="acts"><button>Stop</button></span></div>
+      </li>
+      <li>
+        <span class="av" style="background:#3a2e17">✎<span class="st wait"></span></span>
+        <div><div class="t">Draft: Q3 investor update</div><div class="s">Writer · <em>ready for review</em></div></div>
+        <div class="right"><span class="time">4m</span><span class="acts"><button class="no">Dismiss</button><button class="ok">Approve</button></span></div>
+      </li>
+      <li>
+        <span class="av" style="background:#163327">✓<span class="st done"></span></span>
+        <div><div class="t">Reconciled 128 invoices</div><div class="s">Finance · <em>3 need a decision</em></div></div>
+        <div class="right"><span class="time">12m</span><span class="acts"><button class="no">Dismiss</button><button class="ok">Open</button></span></div>
+      </li>
+      <li>
+        <span class="av" style="background:#33183a">◎<span class="st wait"></span></span>
+        <div><div class="t">Shortlist for Senior Designer</div><div class="s">Recruiter · <em>9 candidates ranked</em></div></div>
+        <div class="right"><span class="time">1h</span><span class="acts"><button class="no">Dismiss</button><button class="ok">Approve</button></span></div>
+      </li>
+    </ul>
+    <p class="empty">Inbox zero. Your agents are on it.</p>
+  </section>
+<script>
+  const list = document.querySelector("ul"), count = document.querySelector(".count"), empty = document.querySelector(".empty");
+  list.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const li = b.closest("li");
+    li.classList.add("gone"); if (b.classList.contains("no") || b.textContent === "Stop") li.classList.add("no");
+    setTimeout(() => {
+      li.remove();
+      const n = list.children.length;
+      count.textContent = n ? `${n} open` : "All clear";
+      empty.classList.toggle("show", !n);
+    }, 450);
+  });
+</script>
+</body>
+</html>

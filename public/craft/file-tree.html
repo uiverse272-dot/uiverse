@@ -1,0 +1,112 @@
+<!doctype html>
+<!-- File tree — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Folders open with an animated height; arrow keys move, Right/Left open and close, as in an editor. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 13px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f4f4f1; color: #1c1c1a;
+  }
+  .panel {
+    width: 300px; padding: 10px; border-radius: 14px; background: #fff;
+    border: 1px solid #e5e4de; box-shadow: 0 1px 0 #fff inset, 0 20px 40px -24px rgba(30,30,20,.3);
+  }
+  .head { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 10px; color: #8b8a83; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  ul { list-style: none; }
+  li > ul { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s cubic-bezier(.2,.8,.2,1); }
+  li.open > ul { grid-template-rows: 1fr; }
+  li > ul > div { overflow: hidden; }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 8px; height: 30px;
+    padding-left: calc(8px + var(--d) * 16px); padding-right: 8px; border-radius: 8px;
+    cursor: pointer; outline: none; white-space: nowrap;
+  }
+  .row:hover { background: #f4f4ef; }
+  .row:focus-visible { box-shadow: inset 0 0 0 2px #6b8afd; }
+  .row[aria-selected="true"] { background: #eef1ff; color: #2b44c9; }
+  /* indent guides */
+  .row::before { content: ""; position: absolute; left: calc(14px + (var(--d) - 1) * 16px); top: 0; bottom: 0; border-left: 1px solid #ecebe5; display: var(--guide, block); }
+  .chev { width: 12px; height: 12px; flex: none; transition: transform .25s cubic-bezier(.2,.8,.2,1); color: #9b9a92; }
+  li.open > .row .chev { transform: rotate(90deg); }
+  .ico { width: 16px; height: 16px; flex: none; }
+  .file .chev { visibility: hidden; }
+  .badge { margin-left: auto; font-size: 10px; color: #b48a1d; font-weight: 600; }
+  .badge.add { color: #23915a; }
+  @media (prefers-reduced-motion: reduce) { li > ul, .chev { transition: none; } }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <div class="head"><span>Explorer</span><span>uiverse</span></div>
+    <ul role="tree" aria-label="Project files" id="tree"></ul>
+  </div>
+<script>
+  const files = ["src", [
+      ["app", [["layout.tsx", "M"], ["page.tsx"], ["globals.css"]]],
+      ["components", [["Button.tsx"], ["Card.tsx", "A"], ["Dialog.tsx"]]],
+      ["lib", [["utils.ts"]]],
+    ]];
+  const rest = [["public", [["favicon.svg"]]], ["package.json"], ["README.md", "M"]];
+
+  const chev = '<svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4.5 2.5 3.5 3.5-3.5 3.5"/></svg>';
+  const folder = '<svg class="ico" viewBox="0 0 16 16"><path d="M1.5 4.5c0-.8.7-1.5 1.5-1.5h3.2l1.5 1.5H13c.8 0 1.5.7 1.5 1.5v6c0 .8-.7 1.5-1.5 1.5H3c-.8 0-1.5-.7-1.5-1.5z" fill="#f2c94c"/><path d="M1.5 6.5h13v5.5c0 .8-.7 1.5-1.5 1.5H3c-.8 0-1.5-.7-1.5-1.5z" fill="#f7d96c"/></svg>';
+  const colours = { tsx: "#3b82f6", ts: "#2563eb", css: "#a855f7", json: "#eab308", md: "#64748b", svg: "#f97316" };
+  const file = (name) => {
+    const c = colours[name.split(".").pop()] ?? "#94a3b8";
+    return `<svg class="ico" viewBox="0 0 16 16"><path d="M3.5 1.5h6l3 3v10h-9z" fill="${c}22" stroke="${c}" stroke-width="1"/><path d="M9.5 1.5v3h3" fill="none" stroke="${c}"/></svg>`;
+  };
+
+  function node([name, kids], depth, open) {
+    const li = document.createElement("li");
+    const dir = Array.isArray(kids);
+    li.className = dir ? (open ? "open" : "") : "file";
+    li.setAttribute("role", "none");
+    const badge = !dir && kids ? `<span class="badge ${kids === "A" ? "add" : ""}">${kids}</span>` : "";
+    li.innerHTML = `<div class="row" role="treeitem" tabindex="-1" style="--d:${depth};${depth ? "" : "--guide:none"}" ${dir ? `aria-expanded="${!!open}"` : ""} aria-selected="false">${chev}${dir ? folder : file(name)}<span>${name}</span>${badge}</div>`;
+    if (dir) {
+      const ul = document.createElement("ul"), inner = document.createElement("div");
+      ul.setAttribute("role", "group");
+      kids.forEach((k, i) => inner.append(node(k, depth + 1, depth === 0 && i === 0)));
+      ul.append(inner); li.append(ul);
+    }
+    return li;
+  }
+  const tree = document.getElementById("tree");
+  tree.append(node(files, 0, true), ...rest.map((r) => node(r, 0, false)));
+
+  const rows = () => [...tree.querySelectorAll(".row")].filter((r) => !r.closest("li:not(.open) > ul"));
+  const select = (row) => {
+    tree.querySelectorAll(".row").forEach((r) => { r.setAttribute("aria-selected", r === row); r.tabIndex = -1; });
+    row.tabIndex = 0; row.focus();
+  };
+  const toggle = (row, force) => {
+    const li = row.parentElement;
+    if (li.classList.contains("file")) return;
+    const open = li.classList.toggle("open", force);
+    row.setAttribute("aria-expanded", open);
+  };
+  tree.addEventListener("click", (e) => { const row = e.target.closest(".row"); if (row) { select(row); toggle(row); } });
+  tree.addEventListener("keydown", (e) => {
+    const list = rows(), i = list.indexOf(document.activeElement), row = list[i];
+    if (!row) return;
+    const li = row.parentElement, isOpen = li.classList.contains("open");
+    if (e.key === "ArrowDown") select(list[Math.min(i + 1, list.length - 1)]);
+    else if (e.key === "ArrowUp") select(list[Math.max(i - 1, 0)]);
+    else if (e.key === "ArrowRight") isOpen ? select(list[i + 1]) : toggle(row, true);
+    else if (e.key === "ArrowLeft") isOpen ? toggle(row, false) : li.parentElement.closest("li") && select(li.parentElement.closest("li").firstElementChild);
+    else if (e.key === "Enter" || e.key === " ") toggle(row);
+    else return;
+    e.preventDefault();
+  });
+  select(tree.querySelectorAll(".row")[3]);
+  document.activeElement.blur();
+</script>
+</body>
+</html>

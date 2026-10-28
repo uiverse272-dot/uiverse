@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- Stacked toasts — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     New notifications push the old ones back into a deck; hover or focus fans the deck out. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stacked toasts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    font: 13px/1.35 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f3f4f6; color: #111827;
+    display: grid; place-items: center;
+  }
+  .trigger {
+    font: inherit; font-weight: 600; height: 40px; padding: 0 16px; border-radius: 10px; cursor: pointer;
+    border: 1px solid #d1d5db; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  }
+  .trigger:hover { background: #f9fafb; }
+  .trigger:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  ol { position: fixed; right: 24px; bottom: 24px; width: 340px; list-style: none; padding: 0; height: 0; }
+  li {
+    --gap: 12px; position: absolute; right: 0; bottom: 0; width: 100%;
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start;
+    padding: 14px; border-radius: 12px; background: #fff; border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px -12px rgba(0,0,0,.22);
+    transform-origin: 50% 0;
+    transform: translateY(calc(var(--i) * -14px)) scale(calc(1 - var(--i) * .05));
+    opacity: calc(1 - var(--i) * .25);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s;
+    animation: enter .45s cubic-bezier(.2,.8,.2,1);
+  }
+  li[data-i="3"], li[data-i="4"] { opacity: 0; pointer-events: none; }
+  ol:hover li, ol:focus-within li { transform: translateY(calc(var(--y) * -1)); opacity: 1; }
+  ol:hover li[data-i="3"], ol:hover li[data-i="4"] { opacity: 0; }
+  /* keeps the fanned-out stack hoverable across the gaps */
+  ol:hover::before { content: ""; position: absolute; right: 0; bottom: 0; width: 100%; height: 330px; }
+  li.out { animation: leave .3s ease-in forwards; }
+  @keyframes enter { from { transform: translateY(110%); opacity: 0; } }
+  @keyframes leave { to { transform: translateX(110%); opacity: 0; } }
+  .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700; }
+  .t { font-weight: 600; }
+  .d { color: #6b7280; margin-top: 2px; }
+  .x { border: 0; background: none; cursor: pointer; color: #9ca3af; width: 22px; height: 22px; border-radius: 6px; font-size: 16px; line-height: 1; }
+  .x:hover { background: #f3f4f6; color: #111827; }
+  @media (prefers-reduced-motion: reduce) { li { animation: none; transition: none; } }
+</style>
+</head>
+<body>
+  <button class="trigger" type="button">Show a notification</button>
+  <ol aria-live="polite" aria-label="Notifications"></ol>
+<script>
+  const ol = document.querySelector("ol");
+  const kinds = [
+    ["#16a34a", "✓", "Payment received", "SAR 4,200 from Najd Studio"],
+    ["#2563eb", "i", "Deploy finished", "uiverse-web is live in 48s"],
+    ["#f59e0b", "!", "Storage almost full", "You've used 92% of 50 GB"],
+    ["#7c3aed", "@", "Mention in Q3 plan", "Omar: can you review the pricing table?"],
+    ["#16a34a", "✓", "Invite accepted", "Sara joined the Design team"],
+  ];
+  let n = 0;
+  function layout() {
+    const items = [...ol.children].filter((l) => !l.classList.contains("out")).reverse();
+    let y = 0;
+    items.forEach((li, i) => {
+      li.dataset.i = i; li.style.setProperty("--i", Math.min(i, 3)); li.style.setProperty("--y", y + "px");
+      y += li.offsetHeight + 10; li.style.zIndex = 100 - i;
+    });
+  }
+  function toast() {
+    const [c, icon, t, d] = kinds[n++ % kinds.length];
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="ic" style="background:${c}">${icon}</span><div><div class="t">${t}</div><div class="d">${d}</div></div><button class="x" aria-label="Dismiss">×</button>`;
+    li.querySelector(".x").onclick = () => close(li);
+    ol.append(li); layout();
+    setTimeout(() => close(li), 9000);
+    if (ol.children.length > 5) ol.firstElementChild.remove();
+  }
+  function close(li) { if (!li.isConnected || li.classList.contains("out")) return; li.classList.add("out"); layout(); setTimeout(() => { li.remove(); layout(); }, 300); }
+  document.querySelector(".trigger").onclick = toast;
+  /* start with a deck to look at */
+  toast(); setTimeout(toast, 250); setTimeout(toast, 500);
+</script>
+</body>
+</html>

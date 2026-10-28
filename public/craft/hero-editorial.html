@@ -1,0 +1,66 @@
+<!doctype html>
+<!-- Editorial hero — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A studio homepage: oversized serif headline, an index of selected work, and a marquee of clients.
+     Hover a project to see its colour. Responsive. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editorial hero</title>
+<style>
+  :root { --bg: #ece6da; --ink: #1b1813; --soft: #6f675a; --line: #cfc6b5; --tint: #ece6da; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--tint); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; transition: background .5s; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; }
+  nav { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 28px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  nav .name { font-weight: 700; letter-spacing: .02em; }
+  nav .links { display: flex; gap: 28px; }
+  nav .links a { position: relative; }
+  nav .links a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 1px; background: currentColor; transition: right .3s; }
+  nav .links a:hover::after { right: 0; }
+  header { padding: 56px 28px 40px; display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: end; }
+  h1 { font-size: clamp(54px, 11vw, 168px); line-height: .86; letter-spacing: -.045em; font-weight: 400; }
+  h1 i { font-style: italic; }
+  .intro { font-size: 15px; color: var(--soft); padding-bottom: 14px; }
+  .intro b { color: var(--ink); font-weight: 600; }
+  .index { border-top: 1px solid var(--line); margin: 0 28px; }
+  .row { display: grid; grid-template-columns: 60px 1fr 1fr 80px; gap: 20px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 14px; cursor: pointer; position: relative; }
+  .row .t { font-size: clamp(22px, 2.6vw, 34px); letter-spacing: -.02em; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  .row:hover .t { transform: translateX(14px); }
+  .row .n, .row .y, .row .k { color: var(--soft); }
+  .row .y { text-align: right; }
+  .swatch { position: absolute; right: 120px; top: 50%; width: 120px; height: 80px; margin-top: -40px; background: var(--c); transform: scale(.6) rotate(-6deg); opacity: 0; transition: .35s cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+  .row:hover .swatch { opacity: 1; transform: none; }
+  .marquee { margin-top: 48px; border-block: 1px solid var(--line); overflow: hidden; white-space: nowrap; padding: 18px 0; }
+  .track { display: inline-flex; gap: 56px; animation: scroll 32s linear infinite; font-size: 26px; font-style: italic; color: var(--soft); }
+  .track span::after { content: "✳"; font-style: normal; margin-left: 56px; color: var(--ink); font-size: 18px; vertical-align: 3px; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  @media (max-width: 760px) { header { grid-template-columns: 1fr; } .row { grid-template-columns: 36px 1fr 60px; } .row .k { display: none; } nav .links { gap: 16px; } .swatch { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .track { animation: none; } }
+</style>
+</head>
+<body>
+  <nav><a class="name" href="#">Atelier Noor</a><div class="links"><a href="#">Work</a><a href="#">Studio</a><a href="#">Journal</a><a href="#">Contact</a></div></nav>
+  <header>
+    <h1 class="serif">Brands with<br>a sense of <i>place.</i></h1>
+    <p class="intro"><b>Atelier Noor</b> is an independent identity studio in Jeddah. We name, shape and voice companies that grew up here and are going everywhere.</p>
+  </header>
+  <section class="index" aria-label="Selected work">
+    <a class="row" style="--c:#c2532d" data-tint="#efd9cc"><span class="n">01</span><span class="t serif">Qahwa House</span><span class="k">Identity · Packaging</span><span class="y">2025</span><span class="swatch"></span></a>
+    <a class="row" style="--c:#2f5d50" data-tint="#d5e2da"><span class="n">02</span><span class="t serif">Wadi Hotels</span><span class="k">Naming · Identity</span><span class="y">2025</span><span class="swatch"></span></a>
+    <a class="row" style="--c:#2b3a8c" data-tint="#d9dcef"><span class="n">03</span><span class="t serif">Sadeem Pay</span><span class="k">Identity · Product</span><span class="y">2024</span><span class="swatch"></span></a>
+    <a class="row" style="--c:#b8902f" data-tint="#efe5c9"><span class="n">04</span><span class="t serif">Bait Al Oud</span><span class="k">Retail · Campaign</span><span class="y">2024</span><span class="swatch"></span></a>
+  </section>
+  <div class="marquee serif" aria-hidden="true"><div class="track"></div></div>
+<script>
+  const clients = ["Qahwa House", "Wadi Hotels", "Sadeem Pay", "Bait Al Oud", "Red Sea Films", "Nakheel Grove", "Diriyah Books"];
+  const track = document.querySelector(".track");
+  track.innerHTML = [...clients, ...clients].map((c) => `<span>${c}</span>`).join("");
+  document.querySelectorAll(".row").forEach((r) => {
+    r.addEventListener("mouseenter", () => document.body.style.setProperty("--tint", r.dataset.tint));
+    r.addEventListener("mouseleave", () => document.body.style.setProperty("--tint", "#ece6da"));
+  });
+</script>
+</body>
+</html>

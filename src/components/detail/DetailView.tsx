@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
-import { blockLabel, itemTitle, ruleText, sourceAbout } from "@/i18n/content";
+import { blockLabel, itemTitle, liveAbout, ruleText, sourceAbout } from "@/i18n/content";
 import { an, fill, fillNodes, lower, plural } from "@/i18n/format";
 import type { Item } from "@/lib/data";
 import { name, CATEGORIES, INDUSTRIES, STYLES, TECHNOLOGIES } from "@/lib/taxonomy";
@@ -34,7 +34,8 @@ export function DetailView({
   presentation?: "page" | "overlay";
 }) {
   const { lang, t } = useI18n();
-  const [tab, setTab] = useState<Tab>("overview");
+  /* an original's code is what it's for, so it opens there */
+  const [tab, setTab] = useState<Tab>(item.live ? "code" : "overview");
   const [promptOpen, setPromptOpen] = useState(false);
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";
   const [device, setDevice] = useState<Viewport>(native);
@@ -50,7 +51,10 @@ export function DetailView({
     frameRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const tabs: [Tab, string][] = (["overview", "breakdown", "responsive", "code"] as const).map((id) => [id, t.detail.tabs[id]]);
+  /* an original has no drawn page to break down, and reflows for real in the frame above */
+  const tabs: [Tab, string][] = (item.live ? (["code", "overview"] as const) : (["overview", "breakdown", "responsive", "code"] as const)).map(
+    (id) => [id, t.detail.tabs[id]],
+  );
 
   /* arrow keys move between tabs (and focus follows), as the ARIA tab pattern expects — "next" is leftward in Arabic */
   const tabIds = useId();
@@ -90,16 +94,18 @@ export function DetailView({
               ))}
             </div>
             <span className="text-[12px] text-text-3">
-              {item.capture
-                ? /* the date never breaks across lines, and reads left to right in Arabic too */
-                  fillNodes(t.detail.capturedLive, {
-                    date: (
-                      <bdi dir="ltr" className="whitespace-nowrap">
-                        {item.capture.capturedAt.slice(0, 10)}
-                      </bdi>
-                    ),
-                  })
-                : t.detail.sampleDesign}
+              {item.live
+                ? t.detail.liveDesign
+                : item.capture
+                  ? /* the date never breaks across lines, and reads left to right in Arabic too */
+                    fillNodes(t.detail.capturedLive, {
+                      date: (
+                        <bdi dir="ltr" className="whitespace-nowrap">
+                          {item.capture.capturedAt.slice(0, 10)}
+                        </bdi>
+                      ),
+                    })
+                  : t.detail.sampleDesign}
             </span>
           </div>
 
@@ -113,19 +119,21 @@ export function DetailView({
               style={{ width: frameWidth }}
             >
               {/* a sample's text is invented: the frame's label names it, screen readers skip the rest */}
-              <div aria-hidden={!item.capture || undefined}>
+              <div aria-hidden={(!item.capture && !item.live) || undefined}>
                 <MockScreen key={device} item={item} viewport={device} eager />
               </div>
             </div>
           </div>
           <p className="pt-2 text-center text-[11.5px] text-text-3">
             {t.detail.viewports[device]} · <bdi dir="ltr">{VIEWPORTS[device].w} × {VIEWPORTS[device].h}</bdi> ·{" "}
-            {item.capture
-              ? t.detail.realCapture
-              : device === native
-                ? t.detail.original
-                : fill(t.detail.adaptedFrom, { vp: lower(t.detail.viewports[native], lang) })}
-            {" "}· {t.detail.scrollInside}
+            {item.live
+              ? t.detail.liveNote
+              : item.capture
+                ? t.detail.realCapture
+                : device === native
+                  ? t.detail.original
+                  : fill(t.detail.adaptedFrom, { vp: lower(t.detail.viewports[native], lang) })}
+            {item.live ? null : <> · {t.detail.scrollInside}</>}
           </p>
 
           {!isComponent ? (
@@ -163,38 +171,40 @@ export function DetailView({
           
           <div className="mt-5 grid gap-3">
             <a
-              href={item.capture?.url ?? "#"}
-              {...(item.capture
+              href={item.live?.src ?? item.capture?.url ?? "#"}
+              {...(item.capture || item.live
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : { onClick: (e: React.MouseEvent) => e.preventDefault(), title: fill(t.detail.wouldOpen, { domain: item.source.domain }) })}
               className="inline-flex h-11 items-center justify-center gap-2 border border-border bg-surface text-[13.5px] hover:bg-bg-subtle"
             >
-              <External size={15} /> {t.detail.openLive}
+              <External size={15} /> {item.live ? t.detail.openFull : t.detail.openLive}
             </a>
             <SaveButton slug={item.slug} variant="solid" />
             <BoardsButton slug={item.slug} />
           </div>
 
-          <div className="mt-3 grid grid-cols-3 border border-border">
+          <div className={`mt-3 grid border border-border ${item.live ? "grid-cols-2" : "grid-cols-3"}`}>
             {(
               [
                 ["prompt", Sparkle, () => setPromptOpen(true)],
                 ["code", Code, () => setTab("code")],
                 ["breakdown", Layers, () => setTab("breakdown")],
               ] as const
-            ).map(([id, Icon, run], i) => (
-              <button
-                key={id}
-                onClick={run}
-                data-guide={id === "prompt" ? "prompt" : undefined}
-                className={`flex flex-col items-center gap-1.5 py-3.5 text-[11px] transition-colors hover:bg-bg-subtle ${
-                  i ? "border-s border-border" : ""
-                }`}
-              >
-                <Icon size={19} />
-                {t.detail.actions[id]}
-              </button>
-            ))}
+            )
+              .filter(([id]) => !(item.live && id === "breakdown"))
+              .map(([id, Icon, run], i) => (
+                <button
+                  key={id}
+                  onClick={run}
+                  data-guide={id === "prompt" ? "prompt" : undefined}
+                  className={`flex flex-col items-center gap-1.5 py-3.5 text-[11px] transition-colors hover:bg-bg-subtle ${
+                    i ? "border-s border-border" : ""
+                  }`}
+                >
+                  <Icon size={19} />
+                  {t.detail.actions[id]}
+                </button>
+              ))}
           </div>
 
           <dl className="mt-6 border-y border-border py-1.5">
@@ -207,12 +217,12 @@ export function DetailView({
               value={item.tech.map((t) => name(TECHNOLOGIES, t)).join(", ")}
               href={`${feed}?tech=${item.tech[0]}`}
             />
-            {item.capture ? (
-              <Meta label={t.detail.meta.direction} value={item.capture.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
+            {item.capture || item.live ? (
+              <Meta label={t.detail.meta.direction} value={(item.capture ?? item.live)!.dir === "rtl" ? t.detail.rtl : t.detail.ltr} />
             ) : null}
           </dl>
 
-          <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{sourceAbout(item.source, lang)}</p>
+          <p dir="auto" className="mt-4 text-[12.5px] leading-relaxed">{item.live ? liveAbout(item, lang) : sourceAbout(item.source, lang)}</p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
             {(
@@ -233,22 +243,26 @@ export function DetailView({
             ))}
           </div>
 
-          <p className="mt-5 border-t border-border pt-4 text-[11.5px] leading-relaxed text-text-3">
-            {t.detail.attribution}{" "}
-            <Link href="/legal/attribution" className="underline underline-offset-2">
-              {t.detail.attributionLink}
-            </Link>
-            .
-            {item.capture ? (
-              <>
-                {" "}{t.detail.yourSite}{" "}
-                <Link href={`/legal/takedown?domain=${encodeURIComponent(item.source.domain)}`} className="underline underline-offset-2">
-                  {t.detail.requestRemoval}
-                </Link>
-                .
-              </>
-            ) : null}
-          </p>
+          {item.live ? (
+            <p className="mt-5 border-t border-border pt-4 text-[11.5px] leading-relaxed text-text-3">{t.detail.originalNote}</p>
+          ) : (
+            <p className="mt-5 border-t border-border pt-4 text-[11.5px] leading-relaxed text-text-3">
+              {t.detail.attribution}{" "}
+              <Link href="/legal/attribution" className="underline underline-offset-2">
+                {t.detail.attributionLink}
+              </Link>
+              .
+              {item.capture ? (
+                <>
+                  {" "}{t.detail.yourSite}{" "}
+                  <Link href={`/legal/takedown?domain=${encodeURIComponent(item.source.domain)}`} className="underline underline-offset-2">
+                    {t.detail.requestRemoval}
+                  </Link>
+                  .
+                </>
+              ) : null}
+            </p>
+          )}
         </aside>
       </div>
 
@@ -282,10 +296,10 @@ export function DetailView({
         </div>
 
         <div role="tabpanel" id={`${tabIds}-panel`} aria-labelledby={`${tabIds}-${tab}`} className="py-6">
-          {tab === "overview" ? <Overview item={item} /> : null}
+          {tab === "overview" ? item.live ? <LiveOverview item={item} /> : <Overview item={item} /> : null}
           {tab === "breakdown" ? <Breakdown item={item} /> : null}
           {tab === "responsive" ? <Responsive item={item} onPick={showDevice} /> : null}
-          {tab === "code" ? <CodeTab item={item} onPrompt={() => setPromptOpen(true)} /> : null}
+          {tab === "code" ? item.live ? <LiveCode item={item} /> : <CodeTab item={item} onPrompt={() => setPromptOpen(true)} /> : null}
         </div>
 
         {/* Pinterest-style: a design runs straight on into the ones most like it */}
@@ -344,20 +358,83 @@ function Overview({ item }: { item: Item }) {
           <li>· {item.device === "mobile" ? o.designedMobile : o.designedDesktop}</li>
         </ul>
       </div>
-      <div className="border border-border bg-surface p-5">
-        <h2 className="pb-3 text-[14px] font-bold">{o.palette}</h2>
-        {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
-        <div className="flex overflow-hidden border border-border">
-          {item.colors.map((c, i) => (
-            <div key={i} className="h-16 flex-1" style={{ background: c }} />
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1">
-          {item.colors.map((c, i) => (
-            <CopyValue key={i} value={c} className="border border-border" />
-          ))}
-        </div>
+      <PaletteBox item={item} />
+    </div>
+  );
+}
+
+function PaletteBox({ item }: { item: Item }) {
+  const { t } = useI18n();
+  return (
+    <div className="border border-border bg-surface p-5">
+      <h2 className="pb-3 text-[14px] font-bold">{t.detail.overview.palette}</h2>
+      {/* keyed by index: a palette can legitimately repeat a value (accent === text) */}
+      <div className="flex overflow-hidden border border-border">
+        {item.colors.map((c, i) => (
+          <div key={i} className="h-16 flex-1" style={{ background: c }} />
+        ))}
       </div>
+      <div className="mt-3 flex flex-wrap gap-1">
+        {item.colors.map((c, i) => (
+          <CopyValue key={i} value={c} className="border border-border" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LiveOverview({ item }: { item: Item }) {
+  const { lang, t } = useI18n();
+  const o = t.detail.overview;
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="border border-border bg-surface p-5">
+        <h2 className="pb-3 text-[14px] font-bold">{o.liveTitle}</h2>
+        <p className="text-[14px] leading-relaxed text-text-2">{liveAbout(item, lang)}</p>
+        <ul className="mt-4 space-y-2 text-[13.5px] text-text-2">
+          {o.livePoints.map((x) => (
+            <li key={x}>· {x}</li>
+          ))}
+        </ul>
+      </div>
+      <PaletteBox item={item} />
+    </div>
+  );
+}
+
+/* the piece's own file is its code: fetched as it's served, so what you copy is what just ran */
+function LiveCode({ item }: { item: Item }) {
+  const { t } = useI18n();
+  const c = t.detail.code;
+  const src = item.live!.src;
+  const [code, setCode] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let on = true;
+    fetch(src)
+      .then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+      .then((text) => on && setCode(text))
+      .catch(() => on && setFailed(true));
+    return () => {
+      on = false;
+    };
+  }, [src]);
+  return (
+    <div className="border border-border bg-surface">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2.5">
+        <span className="text-[12px] font-medium text-text-2">{c.oneFile}</span>
+        <span className="flex items-center gap-3">
+          <span className="border border-border px-1.5 py-0.5 font-mono text-[10.5px] text-text-3">{c.original}</span>
+          <a href={src} download className="border border-border px-2 py-1 text-[12px] font-medium hover:bg-bg-subtle">
+            {c.download}
+          </a>
+          {code ? <CopyValue value={code} label={t.common.copy} mono={false} className="border border-border" /> : null}
+        </span>
+      </div>
+      {/* code reads left to right whatever the page language */}
+      <pre dir="ltr" className="max-h-[560px] overflow-auto p-4 text-left font-mono text-[12px] leading-relaxed text-text-2">
+        {code ?? (failed ? c.failed : c.loading)}
+      </pre>
     </div>
   );
 }

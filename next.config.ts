@@ -44,6 +44,28 @@ const security = [
   },
 ];
 
+/*
+ * Uiverse Originals (public/craft/, lib/craft.ts): self-contained pages that run in a frame on the
+ * detail page. Framed by this site only, sandboxed even when opened on their own, and allowed no
+ * requests at all — everything a piece needs is inline.
+ */
+const craft = [
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'none'",
+      "script-src 'unsafe-inline'",
+      "style-src 'unsafe-inline'",
+      "img-src data:",
+      "base-uri 'none'",
+      "form-action 'none'",
+      "frame-ancestors 'self'",
+      "sandbox allow-scripts",
+    ].join("; "),
+  },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+];
+
 const nextConfig: NextConfig = {
   /* the local embedded Postgres ships WebAssembly and data files that must load from node_modules as-is */
   serverExternalPackages: ["@electric-sql/pglite"],
@@ -52,6 +74,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: security },
+      /* after the site-wide headers: the same keys, set later, win */
+      { source: "/craft/:file", headers: craft },
       /* HSTS in production, never on localhost (a local `next start` would pin it to HTTPS).
          No includeSubDomains: other subdomains of a custom domain aren't ours to decide for */
       ...(dev

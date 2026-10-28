@@ -27,6 +27,7 @@ const MORE = [
   { href: "/components", key: "parts", Icon: Grid },
   { href: "/layouts", key: "layouts", Icon: Layout },
   { href: "/palettes", key: "palettes", Icon: Palette },
+  { href: "/finds", key: "finds", Icon: Sparkle },
   { href: "/3d", key: "threeD", Icon: Sparkle },
   { href: "/sketch", key: "sketch", Icon: Pen },
   { href: "/similar", key: "similar", Icon: ImageIcon },

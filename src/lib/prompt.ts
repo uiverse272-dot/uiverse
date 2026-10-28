@@ -1,5 +1,5 @@
 import { an } from "@/i18n/format";
-import type { Item } from "./data";
+import { dirOf, type Item } from "./data";
 import { colorRoles, fontsPlain, layoutSpec, responsiveRulesPlain, sections, spacingScale, typeScale } from "./spec";
 import { name, CATEGORIES, INDUSTRIES, STYLES } from "./taxonomy";
 
@@ -137,14 +137,14 @@ export function buildPrompt(item: Item, opts: PromptOptions): string {
     }.`,
   );
 
-  if (item.capture?.dir === "rtl") {
+  if (dirOf(item) === "rtl") {
     out.push(
       "",
       "## Direction",
       "",
-      `The reference is a right-to-left interface${item.capture.lang ? ` (\`${item.capture.lang}\`)` : ""}. Build it RTL-first, not mirrored afterwards:`,
+      `The reference is a right-to-left interface${item.capture?.lang ? ` (\`${item.capture.lang}\`)` : ""}. Build it RTL-first, not mirrored afterwards:`,
       "",
-      `- \`<html dir="rtl" lang="${item.capture.lang || "ar"}">\`; navigation, reading order and progress run right to left`,
+      `- \`<html dir="rtl" lang="${item.capture?.lang || "ar"}">\`; navigation, reading order and progress run right to left`,
       "- Logical properties only (`margin-inline-start`, `padding-inline-end`, `inset-inline-start`; Tailwind `ms-*`, `pe-*`, `start-*`) — never left/right",
       "- Flip directional icons (arrows, chevrons, back); never flip logos, media controls or numerals",
       "- Arabic needs more line height than Latin (about 1.6–1.8 for body) and no negative letter-spacing",

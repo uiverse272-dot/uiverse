@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- Terminal hero — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A developer-tool hero: split layout, an install command you can copy, and a terminal that
+     types out a deploy. Responsive; the terminal stacks under the copy on small screens. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terminal hero</title>
+<style>
+  :root { --bg: #fafaf7; --ink: #111110; --soft: #6b6a63; --line: #e4e3dc; --acc: #ff5b1f; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 48px 48px; background-position: -1px -1px; }
+  a { color: inherit; text-decoration: none; }
+  nav { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 20px 24px; }
+  .logo { font: 700 16px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: -.02em; display: flex; gap: 8px; align-items: center; }
+  .logo i { width: 12px; height: 12px; background: var(--acc); }
+  .links { display: flex; gap: 26px; font-size: 14px; color: var(--soft); }
+  .gh { font-size: 13px; font-weight: 600; border: 1px solid var(--ink); padding: 7px 12px; background: var(--bg); box-shadow: 3px 3px 0 var(--ink); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 64px 24px 80px; display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; }
+  .tag { display: inline-block; font: 600 12px ui-monospace, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); background: #fff1ea; padding: 5px 10px; border: 1px solid #ffd2bf; }
+  h1 { margin-top: 20px; font-size: clamp(38px, 5.6vw, 68px); line-height: 1; letter-spacing: -.045em; font-weight: 750; }
+  h1 em { font-style: normal; color: var(--acc); }
+  .lede { margin-top: 20px; font-size: 17px; color: var(--soft); max-width: 470px; }
+  .install { margin-top: 30px; display: flex; align-items: stretch; max-width: 440px; border: 1px solid var(--ink); background: #fff; box-shadow: 4px 4px 0 var(--ink); }
+  .install code { flex: 1; padding: 13px 16px; font: 14px ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .install code::before { content: "$ "; color: var(--soft); }
+  .install button { border: 0; border-left: 1px solid var(--ink); background: var(--ink); color: #fff; font: 600 13px ui-sans-serif, system-ui, sans-serif; padding: 0 16px; cursor: pointer; }
+  .install button:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+  .more { margin-top: 18px; font-size: 14px; color: var(--soft); }
+  .more a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .term { background: #121212; color: #e9e7df; border: 1px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); font: 13.5px/1.7 ui-monospace, "SF Mono", Menlo, monospace; }
+  .bar { display: flex; align-items: center; gap: 7px; padding: 10px 12px; border-bottom: 1px solid #2a2a2a; }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a3a; }
+  .bar span { margin-left: 8px; color: #7c7a72; font-size: 12px; }
+  .out { padding: 16px 18px 20px; height: 330px; overflow: hidden; white-space: pre-wrap; }
+  .p { color: #7c7a72; } .ok { color: #a3e635; } .acc { color: #ff8a5c; } .dim { color: #7c7a72; } .url { color: #7dd3fc; text-decoration: underline; }
+  .cursor { display: inline-block; width: 8px; height: 16px; background: #e9e7df; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (max-width: 900px) { .wrap { grid-template-columns: 1fr; padding-top: 40px; } .links { display: none; } }
+</style>
+</head>
+<body>
+  <nav><a class="logo" href="#"><i></i>shipyard</a><div class="links"><a href="#">Docs</a><a href="#">Changelog</a><a href="#">Pricing</a></div><a class="gh" href="#">★ GitHub 18.2k</a></nav>
+  <main class="wrap">
+    <div>
+      <span class="tag">v3.0 · now with preview URLs</span>
+      <h1>Deploy from your terminal in <em>one</em> command.</h1>
+      <p class="lede">Shipyard builds, tests and ships any repo to the edge. No YAML, no dashboard, no waiting on CI.</p>
+      <div class="install"><code>npx shipyard deploy</code><button type="button">Copy</button></div>
+      <p class="more">Works with Next.js, Astro, Remix and plain Docker. <a href="#">Read the docs</a></p>
+    </div>
+    <div class="term" aria-label="Terminal showing a deploy" role="img">
+      <div class="bar"><i></i><i></i><i></i><span>~/acme-web</span></div>
+      <div class="out" aria-hidden="true"></div>
+    </div>
+  </main>
+<script>
+  const out = document.querySelector(".out");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* [text, typed?, pause after] — typed lines appear letter by letter, output lines at once */
+  const script = [
+    ['<span class="p">$</span> ', false, 0], ["npx shipyard deploy", true, 350],
+    ['\n<span class="dim">› Detected</span> Next.js 15 <span class="dim">· pnpm · node 22</span>', false, 450],
+    ['\n<span class="dim">› Installing</span>        <span class="ok">✓</span> <span class="dim">2.1s</span>', false, 500],
+    ['\n<span class="dim">› Building</span>          <span class="ok">✓</span> <span class="dim">11.4s</span>', false, 600],
+    ['\n<span class="dim">› Running 214 tests</span> <span class="ok">✓</span> <span class="dim">6.8s</span>', false, 500],
+    ['\n<span class="dim">› Uploading</span> 38 files <span class="ok">✓</span>', false, 450],
+    ['\n\n<span class="ok">✓ Live</span> in 23s at <span class="url">acme-web.shipyard.app</span>', false, 300],
+    ['\n<span class="acc">◆ Preview</span> <span class="url">pr-482.acme-web.shipyard.app</span>\n\n<span class="p">$</span> ', false, 0],
+  ];
+  async function play() {
+    let html = "";
+    const wait = (ms) => new Promise((r) => setTimeout(r, still ? 0 : ms));
+    for (const [text, typed, pause] of script) {
+      if (typed) for (const c of text) { html += c; out.innerHTML = html + '<span class="cursor"></span>'; await wait(38 + Math.random() * 40); }
+      else { html += text; out.innerHTML = html + '<span class="cursor"></span>'; }
+      await wait(pause);
+    }
+    await wait(5000); play();
+  }
+  play();
+  document.querySelector(".install button").addEventListener("click", async (e) => {
+    try { await navigator.clipboard.writeText("npx shipyard deploy"); } catch {}
+    e.target.textContent = "Copied"; setTimeout(() => (e.target.textContent = "Copy"), 1500);
+  });
+</script>
+</body>
+</html>

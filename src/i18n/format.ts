@@ -51,13 +51,6 @@ export function compactNum(n: number, lang: Lang) {
   return String(n);
 }
 
-/**
- * A count shown compacted. Past a thousand the noun follows «ألف», so it takes the general form
- * («1.3 ألف مرة», never «مرات») whatever the raw number's own plural would be.
- */
-export const pluralCount = (p: Plural, n: number, lang: Lang) =>
-  n >= 1000 ? fill(p.other, { n: compactNum(n, lang) }) : plural(p, n, lang);
-
 const AGO: Record<"d" | "w" | "mo" | "y", Plural> = {
   d: { one: "منذ يوم", two: "منذ يومين", few: "منذ {n} أيام", other: "منذ {n} يومًا" },
   w: { one: "منذ أسبوع", two: "منذ أسبوعين", few: "منذ {n} أسابيع", other: "منذ {n} أسبوعًا" },

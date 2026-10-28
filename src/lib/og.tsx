@@ -1,13 +1,16 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
+import sharp from "sharp";
 import type { Lang } from "@/i18n/config";
 import { itemTitle } from "@/i18n/content";
 import { DICTS } from "@/i18n/dict";
 import { fill } from "@/i18n/format";
 import { arabicForms } from "./arabicForms";
-import type { Item } from "./data";
+import { dirOf, type Item } from "./data";
 import { cropShot } from "./shots";
+import { SITE_URL } from "./site";
 import { name, CATEGORIES, COMPONENT_TYPES, INDUSTRIES } from "./taxonomy";
 
 /**
@@ -87,6 +90,7 @@ function Wordmark({ lang }: { lang: Lang }) {
 
 /* the top of the capture (or the component's block), at the panel's width */
 async function screenshot(item: Item): Promise<{ src: string; h: number } | null> {
+  if (item.live) return poster(item);
   const shot = item.capture?.shots.desktop;
   if (!shot) return null;
   const crop = item.kind === "component" ? (item.capture!.crops?.desktop ?? item.crop) : undefined;
@@ -95,6 +99,19 @@ async function screenshot(item: Item): Promise<{ src: string; h: number } | null
     return { src: `data:image/jpeg;base64,${jpeg.toString("base64")}`, h: Math.round((h / shot.css) * PANEL.w) };
   } catch {
     /* a missing screenshot shouldn't cost the link its card — fall back to the wireframe */
+    return null;
+  }
+}
+
+/* an original's feed still, from the site itself (it isn't in the captures bucket) */
+async function poster(item: Item) {
+  const live = item.live!;
+  try {
+    const file = path.join(process.cwd(), "public", live.poster);
+    const bytes = existsSync(file) ? await readFile(file) : Buffer.from(await (await fetch(new URL(live.poster, SITE_URL))).arrayBuffer());
+    const jpeg = await sharp(bytes).resize({ width: PANEL.w * 2 }).jpeg({ quality: 80 }).toBuffer();
+    return { src: `data:image/jpeg;base64,${jpeg.toString("base64")}`, h: Math.round((PANEL.w * live.h) / live.w) };
+  } catch {
     return null;
   }
 }
@@ -140,7 +157,7 @@ export async function itemCard(item: Item, lang: Lang = "en") {
   const shot = await screenshot(item);
   const kind = item.kind === "component" ? name(COMPONENT_TYPES, item.componentType, lang) : name(CATEGORIES, item.category, lang);
   const tags = [item.kind === "component" ? t.component : t.screen, kind, name(INDUSTRIES, item.industry, lang)];
-  if (item.capture?.dir === "rtl") tags.push(t.rtl);
+  if (dirOf(item) === "rtl") tags.push(t.rtl);
 
   return new ImageResponse(
     (

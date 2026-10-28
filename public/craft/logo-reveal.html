@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- Logo reveal — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A six-petal mark draws itself stroke by stroke, fills, and the wordmark rises in. Click to replay. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Logo reveal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center; cursor: pointer;
+    font: 14px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0e0f0c; color: #f1f0e8;
+  }
+  .lockup { display: flex; align-items: center; gap: 22px; }
+  svg { width: 120px; height: 120px; overflow: visible; }
+  .petal {
+    fill: transparent; stroke: #d7ff3a; stroke-width: 1.6;
+    stroke-dasharray: var(--len); stroke-dashoffset: var(--len);
+    animation: draw 1s cubic-bezier(.6,0,.2,1) forwards, fill .6s ease forwards;
+    animation-delay: calc(var(--i) * 90ms), calc(1s + var(--i) * 60ms);
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fill { to { fill: rgba(215, 255, 58, var(--o)); stroke: rgba(215,255,58,.0); } }
+  .mark { transform-origin: 60px 60px; animation: turn 1.6s cubic-bezier(.6,0,.2,1) .2s both; }
+  @keyframes turn { from { transform: rotate(-60deg) scale(.85); } }
+  .word { overflow: hidden; }
+  .word span {
+    display: inline-block; font-size: 64px; font-weight: 700; letter-spacing: -.05em; line-height: 1;
+    transform: translateY(110%); animation: rise .8s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay: calc(1.3s + var(--i) * 45ms);
+  }
+  @keyframes rise { to { transform: none; } }
+  .tag { margin-top: 8px; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: #8b8a7f; opacity: 0; animation: fade .8s 1.9s forwards; }
+  @keyframes fade { to { opacity: 1; } }
+  .replay { position: fixed; bottom: 22px; left: 0; right: 0; text-align: center; font-size: 12px; color: #5d5c54; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 1ms !important; animation-delay: 0s !important; } }
+</style>
+</head>
+<body>
+  <div class="lockup" role="img" aria-label="Sixfold">
+    <svg viewBox="0 0 120 120" aria-hidden="true"><g class="mark"></g></svg>
+    <div>
+      <div class="word" aria-hidden="true"></div>
+      <div class="tag">Studio</div>
+    </div>
+  </div>
+  <p class="replay">Click anywhere to replay</p>
+<script>
+  const g = document.querySelector(".mark"), word = document.querySelector(".word");
+  /* one petal: a lens from the centre outward, rotated six times */
+  const d = "M60 60 C 48 44, 50 18, 60 6 C 70 18, 72 44, 60 60 Z";
+  for (let i = 0; i < 6; i++) {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d); p.setAttribute("class", "petal");
+    p.setAttribute("transform", `rotate(${i * 60} 60 60)`);
+    p.style.setProperty("--i", i); p.style.setProperty("--o", (0.55 + (i % 2) * 0.45).toFixed(2));
+    g.append(p);
+  }
+  g.querySelectorAll(".petal").forEach((p) => p.style.setProperty("--len", Math.ceil(p.getTotalLength())));
+  word.innerHTML = [..."Sixfold"].map((c, i) => `<span style="--i:${i}">${c}</span>`).join("");
+  document.body.addEventListener("click", () => {
+    const l = document.querySelector(".lockup"), copy = l.cloneNode(true);
+    l.replaceWith(copy);
+  });
+</script>
+</body>
+</html>

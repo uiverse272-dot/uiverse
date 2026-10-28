@@ -56,6 +56,7 @@ export const TECHNOLOGIES = [
   { slug: "shopify", name: "Shopify" },
   { slug: "swiftui", name: "SwiftUI" },
   { slug: "flutter", name: "Flutter" },
+  { slug: "html", name: "HTML & CSS" },
 ] as const;
 
 export const COMPONENT_TYPES = [
@@ -86,6 +87,10 @@ export const COMPONENT_TYPES = [
   { slug: "notification", name: "Notification", ar: "الإشعارات", group: "Interaction" },
   { slug: "accordion", name: "Accordion", ar: "الأقسام القابلة للطي", group: "Interaction" },
   { slug: "empty-state", name: "Empty state", ar: "الحالة الفارغة", group: "Interaction" },
+  { slug: "button", name: "Button", ar: "الأزرار", group: "Interaction" },
+  { slug: "loader", name: "Loader", ar: "مؤشرات التحميل", group: "Motion" },
+  { slug: "animation", name: "Animation", ar: "الحركة", group: "Motion" },
+  { slug: "background", name: "Background", ar: "الخلفيات التوليدية", group: "Motion" },
 ] as const;
 
 export const PLATFORMS = [
@@ -93,17 +98,6 @@ export const PLATFORMS = [
   { slug: "ios", name: "iOS" },
   { slug: "android", name: "Android" },
   { slug: "ipad", name: "iPad" },
-] as const;
-
-export const APP_CATEGORIES = [
-  "Finance",
-  "Productivity",
-  "Social",
-  "Health",
-  "Shopping",
-  "Travel",
-  "Education",
-  "Media",
 ] as const;
 
 export const SORTS = [

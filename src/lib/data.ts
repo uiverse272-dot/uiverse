@@ -1,5 +1,6 @@
 import { paletteByKey, type Palette } from "./palettes";
 import { capturedItems, type Capture } from "./captures";
+import { craftItems, ORIGINALS, type Live } from "./craft";
 import { ARCHETYPES, type Archetype, type Block } from "./archetypes";
 
 export { ARCHETYPES, type Archetype, type Block };
@@ -47,6 +48,8 @@ export type Item = {
   colors: string[];
   /** present when the item is a real capture rather than a procedural preview */
   capture?: Capture;
+  /** present for Uiverse Originals: a piece that runs, with its code (lib/craft.ts) */
+  live?: Live;
 };
 
 /* ------------------------------------------------------------------ */
@@ -260,15 +263,16 @@ function buildItems(): Item[] {
 
 const CAPTURED = capturedItems();
 
-/* real captures lead; the procedural catalogue fills in behind them */
-export const ITEMS: Item[] = [...CAPTURED.items, ...buildItems()];
-SOURCES.push(...CAPTURED.sources.filter((s) => !SOURCES.some((x) => x.slug === s.slug)));
+/* real captures and Uiverse's own pieces lead; the procedural catalogue fills in behind them */
+export const ITEMS: Item[] = [...CAPTURED.items, ...craftItems(), ...buildItems()];
+SOURCES.push(...CAPTURED.sources.filter((s) => !SOURCES.some((x) => x.slug === s.slug)), ORIGINALS);
 
 /* a map, not a find: saves validate every slug they touch, imports by the thousand */
 const BY_SLUG = new Map(ITEMS.map((i) => [i.slug, i]));
 export const bySlug = (slug: string) => BY_SLUG.get(slug);
+/** reading direction: a capture's, as measured, or an original's, as written; everything else is left to right */
+export const dirOf = (i: Item) => i.capture?.dir ?? i.live?.dir ?? "ltr";
 export const screens = () => ITEMS.filter((i) => i.kind === "screen");
-export const components = () => ITEMS.filter((i) => i.kind === "component");
 
 export const LAYOUTS = Array.from(
   new Map(

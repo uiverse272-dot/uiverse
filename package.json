@@ -9,6 +9,8 @@
     "lint": "eslint",
     "capture": "node scripts/capture/capture.mjs",
     "capture:cards": "tsx scripts/capture/cards.mts",
+    "craft:posters": "tsx scripts/craft-posters.mts",
+    "finds:add": "tsx scripts/finds-add.mts",
     "capture:upload": "node --env-file-if-exists=.env.local scripts/capture/upload.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -47,8 +47,9 @@ next-env.d.ts
 # raw capture measurements (re-derivable, large)
 /.captures-raw
 
-# takedown requests saved in development — they hold requesters' contact details
+# takedown requests and Finds submissions saved in development — they hold people's contact details
 /.takedowns
+/.finds
 
 # the local embedded database (lib/db) — accounts and saves in development
 /.data

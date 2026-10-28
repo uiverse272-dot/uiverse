@@ -1,17 +1,11 @@
-import { appendFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import { onDomain } from "./domain";
-import { sendEmail } from "./email";
+import { sendToInbox } from "./inbox";
 
 /**
- * Delivery for takedown requests (docs/08 §4). A request isn't stored — it's sent where someone
- * will see it — a chat webhook, an email, or both — and the operator honours it with
- * `npm run capture -- --opt-out <domain> --ref <ref>`. In development with neither configured
- * it lands in .takedowns/requests.jsonl; in production that would lose it, so it fails instead
- * and the form says so.
- *
- *   TAKEDOWN_WEBHOOK_URL   Slack or Discord incoming webhook
- *   RESEND_API_KEY, TAKEDOWN_EMAIL_TO, TAKEDOWN_EMAIL_FROM   email through Resend
+ * Delivery for takedown requests (docs/08 §4). A request isn't stored — it goes to the operator's
+ * inbox (lib/inbox.ts: a chat webhook, an email, or both) — and the operator honours it with
+ * `npm run capture -- --opt-out <domain> --ref <ref>`. In development with neither configured it
+ * lands in .takedowns/requests.jsonl.
  */
 
 export type TakedownRequest = {
@@ -41,40 +35,14 @@ function summary(r: TakedownRequest) {
     .join("\n");
 }
 
-async function toWebhook(url: string, r: TakedownRequest) {
-  const text = summary(r);
-  /* Slack reads `text`, Discord reads `content` (and caps it at 2000 characters) */
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, content: text.slice(0, 2000) }),
-  });
-  if (!res.ok) throw new Error(`webhook ${res.status}`);
-}
-
-const toEmail = (to: string, from: string, r: TakedownRequest) =>
-  sendEmail({ from, to: to.split(",").map((s) => s.trim()), replyTo: r.email, subject: `Takedown ${r.ref}: ${r.domain}`, text: summary(r) });
-
 /** true when at least one channel took it */
-export async function deliver(r: TakedownRequest): Promise<boolean> {
-  const { TAKEDOWN_WEBHOOK_URL: hook, RESEND_API_KEY: key, TAKEDOWN_EMAIL_TO: to, TAKEDOWN_EMAIL_FROM: from } = process.env;
-  const sends: Promise<void>[] = [];
-  if (hook) sends.push(toWebhook(hook, r));
-  if (key && to && from) sends.push(toEmail(to, from, r));
-
-  if (!sends.length) {
-    if (process.env.NODE_ENV === "production") {
-      console.error(`takedown ${r.ref} for ${r.domain} not delivered: no TAKEDOWN_WEBHOOK_URL or Resend email configured`);
-      return false;
-    }
-    const dir = path.join(process.cwd(), ".takedowns");
-    await mkdir(dir, { recursive: true });
-    await appendFile(path.join(dir, "requests.jsonl"), JSON.stringify(r) + "\n");
-    console.log(`\n${summary(r)}\n(saved to .takedowns/requests.jsonl — set TAKEDOWN_WEBHOOK_URL to deliver it)\n`);
-    return true;
-  }
-
-  const results = await Promise.allSettled(sends);
-  for (const x of results) if (x.status === "rejected") console.error(`takedown ${r.ref}: ${(x.reason as Error).message}`);
-  return results.some((x) => x.status === "fulfilled");
-}
+export const deliver = (r: TakedownRequest) =>
+  sendToInbox({
+    kind: "takedown",
+    ref: r.ref,
+    subject: `Takedown ${r.ref}: ${r.domain}`,
+    text: summary(r),
+    replyTo: r.email,
+    record: r,
+    devFile: ".takedowns/requests.jsonl",
+  });

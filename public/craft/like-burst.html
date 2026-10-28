@@ -1,0 +1,83 @@
+<!doctype html>
+<!-- Like button — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     The heart squashes, a ring and confetti burst out, and the count rolls to its new number. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Like button</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 600 16px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #fff5f6; color: #3b0d17;
+  }
+  .like {
+    display: inline-flex; align-items: center; gap: 10px; height: 58px; padding: 0 22px 0 16px;
+    border-radius: 99px; border: 1.5px solid #ffd2da; background: #fff; cursor: pointer; font: inherit; color: inherit;
+    box-shadow: 0 14px 30px -16px rgba(225, 29, 72, .45); transition: border-color .3s, transform .1s;
+  }
+  .like:active { transform: scale(.97); }
+  .like:focus-visible { outline: 3px solid #fb7185; outline-offset: 3px; }
+  .like[aria-pressed="true"] { border-color: #fb7185; }
+  .heart { position: relative; width: 28px; height: 28px; }
+  .heart svg { position: absolute; inset: 0; overflow: visible; }
+  .heart path { fill: transparent; stroke: #e11d48; stroke-width: 2; transition: fill .2s; transform-origin: center; }
+  [aria-pressed="true"] .heart path { fill: #e11d48; animation: beat .45s cubic-bezier(.2,.8,.2,1.4); }
+  @keyframes beat { 0% { transform: scale(.2); } 50% { transform: scale(1.25, .9); } 75% { transform: scale(.95, 1.1); } }
+  .ring { position: absolute; inset: -6px; border-radius: 50%; border: 0 solid #fb7185; opacity: 0; }
+  [aria-pressed="true"] .ring { animation: ring .5s ease-out; }
+  @keyframes ring { 0% { border-width: 18px; opacity: .9; transform: scale(.2); } 100% { border-width: 0; opacity: 0; transform: scale(1.4); } }
+  .bit { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border-radius: 50%; opacity: 0; }
+  [aria-pressed="true"] .bit { animation: fly .6s cubic-bezier(.2,.8,.2,1) .08s; }
+  @keyframes fly {
+    0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-30px) scale(.3); }
+  }
+  .count { height: 22px; overflow: hidden; font-variant-numeric: tabular-nums; display: flex; }
+  .digit { display: flex; flex-direction: column; transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .digit span { height: 22px; line-height: 22px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+  <button class="like" aria-pressed="false" aria-label="Like, 1,289 likes">
+    <span class="heart" aria-hidden="true">
+      <span class="ring"></span>
+      <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.5C1.4 7.4 3.7 4 7.2 4c2 0 3.6 1.1 4.8 2.8C13.2 5.1 14.8 4 16.8 4c3.5 0 5.8 3.4 4.5 7-1.8 4.9-9.3 9.5-9.3 9.5z"/></svg>
+    </span>
+    <span class="count" aria-hidden="true"></span>
+  </button>
+<script>
+  const btn = document.querySelector(".like"), count = document.querySelector(".count"), heart = document.querySelector(".heart");
+  const colours = ["#e11d48", "#f59e0b", "#8b5cf6", "#10b981", "#fb7185", "#3b82f6"];
+  for (let i = 0; i < 12; i++) {
+    const b = document.createElement("i"); b.className = "bit";
+    b.style.setProperty("--a", `${i * 30}deg`); b.style.background = colours[i % colours.length];
+    heart.append(b);
+  }
+  let n = 1289;
+  /* one column per digit, each a strip of 0–9 that slides to its value */
+  function render() {
+    const s = n.toLocaleString("en-US");
+    /* rebuild only when the shape changes (999 → 1,000); otherwise each strip just slides */
+    const shape = s.replace(/\d/g, "0");
+    if (count.dataset.shape !== shape) {
+      count.dataset.shape = shape;
+      count.innerHTML = [...s].map((c) => (c === "," ? "<span>,</span>" : `<span class="digit">${[..."0123456789"].map((d) => `<span>${d}</span>`).join("")}</span>`)).join("");
+    }
+    [...s].forEach((c, i) => { if (c !== ",") count.children[i].style.transform = `translateY(-${+c * 22}px)`; });
+    btn.setAttribute("aria-label", `Like, ${s} likes`);
+  }
+  btn.addEventListener("click", () => {
+    const on = btn.getAttribute("aria-pressed") !== "true";
+    btn.setAttribute("aria-pressed", on);
+    n += on ? 1 : -1;
+    render();
+  });
+  render();
+</script>
+</body>
+</html>

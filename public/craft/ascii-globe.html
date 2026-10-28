@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- ASCII globe — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A lit sphere ray-marched into a text grid, with drifting continents. Drag to spin it. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII globe</title>
+<style>
+  * { margin: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body { display: grid; place-items: center; background: #02040a; color: #7dd3fc; cursor: grab; user-select: none; }
+  body:active { cursor: grabbing; }
+  pre { font: 10px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .12em; text-shadow: 0 0 8px rgba(125, 211, 252, .45); }
+  .land { color: #a7f3d0; text-shadow: 0 0 8px rgba(167, 243, 208, .6); }
+  .cap { position: fixed; bottom: 22px; left: 0; right: 0; text-align: center; font: 500 11px ui-monospace, Menlo, monospace; letter-spacing: .3em; color: #334155; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <pre aria-hidden="true"></pre>
+  <div class="cap">Drag to spin</div>
+<script>
+  const pre = document.querySelector("pre");
+  const SHADE = ".,-~:;=!*#$@";
+  /* a character is about 1.4× taller than wide (with the letter spacing), so the grid is too */
+  const W = 64, H = 46;
+  let rot = 0, vel = 0.012, drag = null;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* continents: a cheap lat/long "noise" that reads as land masses */
+  const land = (lat, lon) => Math.sin(lon * 3 + Math.sin(lat * 2.4) * 1.6) * Math.cos(lat * 2.2 - 0.4) + Math.sin(lon * 5.2 - lat * 1.7) * 0.45 > 0.42;
+  function render() {
+    const L = [-0.55, 0.45, 0.7], ln = Math.hypot(...L);
+    let out = "";
+    for (let j = 0; j < H; j++) {
+      let row = "", inLand = false;
+      for (let i = 0; i < W; i++) {
+        const x = (i / W) * 2 - 1, y = (j / H) * 2 - 1, r2 = x * x + y * y;
+        if (r2 > 1) { if (inLand) { row += "</span>"; inLand = false; } row += " "; continue; }
+        const z = Math.sqrt(1 - r2);
+        const b = Math.max(0, (x * L[0] - y * L[1] + z * L[2]) / ln);
+        const lat = Math.asin(-y), lon = Math.atan2(x, z) + rot;
+        const isLand = land(lat, lon);
+        const ch = SHADE[Math.min(SHADE.length - 1, Math.floor((isLand ? 0.35 + b * 0.65 : b * 0.7) * SHADE.length))];
+        if (isLand !== inLand) { row += isLand ? '<span class="land">' : "</span>"; inLand = isLand; }
+        row += ch;
+      }
+      out += row + (inLand ? "</span>" : "") + "\n";
+    }
+    pre.innerHTML = out;
+  }
+  function loop() {
+    if (!drag) { rot += vel; vel += (0.012 - vel) * 0.02; }
+    render();
+    if (!still) requestAnimationFrame(loop);
+  }
+  addEventListener("pointerdown", (e) => (drag = { x: e.clientX, r: rot, t: performance.now() }));
+  addEventListener("pointermove", (e) => { if (!drag) return; const nr = drag.r + (e.clientX - drag.x) * 0.012; vel = nr - rot; rot = nr; if (still) render(); });
+  addEventListener("pointerup", () => (drag = null));
+  loop();
+</script>
+</body>
+</html>

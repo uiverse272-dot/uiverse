@@ -1,0 +1,218 @@
+[
+ {
+  "slug": "weather-widget", "kind": "component", "componentType": "cards", "category": "dashboard", "industry": "travel", "style": "glassmorphism",
+  "title": "Weather widget", "titleAr": "أداة الطقس",
+  "about": "A glassy weather card with a drifting cloud; hover or tap and the hourly forecast slides up.",
+  "aboutAr": "بطاقة طقس زجاجية تتحرك فيها سحابة؛ مرّر المؤشر أو المس البطاقة لتظهر توقعات الساعات القادمة.",
+  "palette": { "bg": "#e9e4ff", "surface": "#ffffff", "text": "#0f172a", "muted": "#64748b", "accent": "#ffc93c", "dark": false },
+  "poster": { "hover": ".card" }, "days": 1, "weight": 4200
+ },
+ {
+  "slug": "credit-card", "kind": "component", "componentType": "cards", "category": "checkout", "industry": "fintech", "style": "dark",
+  "title": "Tilting credit card", "titleAr": "بطاقة ائتمان مائلة",
+  "about": "A payment card that tilts toward the pointer with a moving sheen, and flips to its back on click.",
+  "aboutAr": "بطاقة دفع تميل نحو المؤشر مع لمعة تتبعه، وتنقلب إلى وجهها الخلفي عند النقر.",
+  "palette": { "bg": "#0a0b10", "surface": "#20163f", "text": "#ffffff", "muted": "#8b86a8", "accent": "#6d5dfc", "dark": true },
+  "poster": {}, "days": 2, "weight": 4100
+ },
+ {
+  "slug": "file-tree", "kind": "component", "componentType": "list", "category": "docs", "industry": "saas", "style": "minimal",
+  "title": "File tree", "titleAr": "شجرة الملفات",
+  "about": "An editor-style file explorer: folders open with an animated height, and the arrow keys move and fold.",
+  "aboutAr": "مستعرض ملفات بأسلوب المحررات: تنفتح المجلدات بحركة سلسة، وتتنقل الأسهم بينها وتطويها.",
+  "palette": { "bg": "#f4f4f1", "surface": "#ffffff", "text": "#1c1c1a", "muted": "#8b8a83", "accent": "#2b44c9", "dark": false },
+  "poster": {}, "days": 3, "weight": 3300
+ },
+ {
+  "slug": "agent-inbox", "kind": "component", "componentType": "list", "category": "dashboard", "industry": "ai", "style": "dark",
+  "title": "Agent inbox", "titleAr": "صندوق مهام الوكلاء",
+  "about": "Work handed back by AI agents: live status dots, approve or dismiss on hover, and the list closes the gap.",
+  "aboutAr": "مهام يسلّمها وكلاء الذكاء الاصطناعي للمراجعة: مؤشرات حالة حية، وموافقة أو تجاهل عند التمرير، وتلتئم القائمة بعدها.",
+  "palette": { "bg": "#0c0d10", "surface": "#14161b", "text": "#e8e9ee", "muted": "#8b91a0", "accent": "#5b8cff", "dark": true },
+  "poster": { "hover": "li:nth-child(2)" }, "days": 0, "weight": 4300
+ },
+ {
+  "slug": "day-night-toggle", "kind": "component", "componentType": "inputs", "category": "dashboard", "industry": "productivity", "style": "playful",
+  "title": "Day and night toggle", "titleAr": "مفتاح الليل والنهار",
+  "about": "A real switch for dark mode: the sun sets into a cratered moon while the clouds clear for stars.",
+  "aboutAr": "مفتاح حقيقي للوضع الداكن: تغرب الشمس لتصبح قمرًا، وتنقشع السحب لتظهر النجوم.",
+  "palette": { "bg": "#0d1326", "surface": "#1b2547", "text": "#f4f6fb", "muted": "#8fa0c4", "accent": "#ffd23f", "dark": true },
+  "poster": { "click": ".switch", "wait": 1200 }, "days": 4, "weight": 3600
+ },
+ {
+  "slug": "copy-button", "kind": "component", "componentType": "button", "category": "docs", "industry": "saas", "style": "minimal",
+  "title": "Copy button", "titleAr": "زر النسخ",
+  "about": "An install command with a copy button whose icon morphs into a check while the label slides to Copied.",
+  "aboutAr": "أمر تثبيت مع زر نسخ تتحول أيقونته إلى علامة صح وينزلق نصه إلى «تم النسخ».",
+  "palette": { "bg": "#f6f5f2", "surface": "#ffffff", "text": "#18181b", "muted": "#52525b", "accent": "#16a34a", "dark": false },
+  "poster": { "click": ".copy", "wait": 500 }, "days": 5, "weight": 2600
+ },
+ {
+  "slug": "otp-input", "kind": "component", "componentType": "inputs", "category": "auth", "industry": "fintech", "style": "light",
+  "title": "One-time code input", "titleAr": "حقل رمز التحقق",
+  "about": "Six boxes over one real input, so paste and SMS autofill just work; the right code waves green, a wrong one shakes.",
+  "aboutAr": "ست خانات فوق حقل واحد حقيقي، فيعمل اللصق والتعبئة التلقائية من الرسائل؛ الرمز الصحيح يتموج بالأخضر والخاطئ يهتز.",
+  "palette": { "bg": "#fbfaf8", "surface": "#ffffff", "text": "#1d1b16", "muted": "#78736a", "accent": "#16a34a", "dark": false },
+  "poster": { "type": "4821" }, "days": 2, "weight": 3500
+ },
+ {
+  "slug": "stacked-toasts", "kind": "component", "componentType": "notification", "category": "dashboard", "industry": "saas", "style": "light",
+  "title": "Stacked toasts", "titleAr": "إشعارات متراكمة",
+  "about": "New notifications push older ones back into a deck; hover or focus fans the deck out to read them all.",
+  "aboutAr": "تدفع الإشعارات الجديدة القديمةَ إلى الخلف في رزمة، ويفردها التمرير أو التركيز لقراءتها كلها.",
+  "palette": { "bg": "#f3f4f6", "surface": "#ffffff", "text": "#111827", "muted": "#6b7280", "accent": "#2563eb", "dark": false },
+  "poster": { "hover": "li:last-child", "viewport": [640, 480] }, "days": 6, "weight": 3000
+ },
+ {
+  "slug": "like-burst", "kind": "component", "componentType": "button", "category": "feed", "industry": "productivity", "style": "playful",
+  "title": "Like button", "titleAr": "زر الإعجاب",
+  "about": "The heart squashes and bursts into confetti while each digit of the count rolls to its new number.",
+  "aboutAr": "ينضغط القلب وينفجر قصاصاتٍ ملونة، بينما تتدحرج كل خانة من العدّاد إلى رقمها الجديد.",
+  "palette": { "bg": "#fff5f6", "surface": "#ffffff", "text": "#3b0d17", "muted": "#9f5866", "accent": "#e11d48", "dark": false },
+  "poster": { "click": ".like", "wait": 160, "viewport": [560, 420] }, "days": 1, "weight": 3700
+ },
+ {
+  "slug": "pricing-toggle", "kind": "component", "componentType": "pricing", "category": "pricing", "industry": "saas", "style": "dark",
+  "title": "Pricing toggle", "titleAr": "مبدّل الأسعار",
+  "about": "A sliding monthly / yearly control; the prices count to their new values instead of jumping.",
+  "aboutAr": "مبدّل منزلق بين الشهري والسنوي، تعدّ فيه الأسعار حتى قيمها الجديدة بدل أن تقفز إليها.",
+  "palette": { "bg": "#0b0b0f", "surface": "#111114", "text": "#f4f4f5", "muted": "#71717a", "accent": "#a78bfa", "dark": true },
+  "poster": { "click": "[data-period=yearly]", "wait": 1000 }, "days": 3, "weight": 3400
+ },
+ {
+  "slug": "orbit-loader", "kind": "component", "componentType": "loader", "category": "dashboard", "industry": "ai", "style": "futuristic",
+  "title": "Orbit loader", "titleAr": "مؤشر تحميل مداري",
+  "about": "Three planets circle a glowing core at different speeds, each with a comet tail. Pure CSS.",
+  "aboutAr": "ثلاثة كواكب تدور حول نواة مضيئة بسرعات مختلفة، لكلٍّ منها ذيل مذنّب. مكتوب بـ CSS فقط.",
+  "palette": { "bg": "#07060d", "surface": "#1a1438", "text": "#f5f3ff", "muted": "#8f88b8", "accent": "#8b6cff", "dark": true },
+  "poster": { "wait": 700, "viewport": [560, 420] }, "days": 0, "weight": 3900
+ },
+ {
+  "slug": "voice-waveform", "kind": "component", "componentType": "animation", "category": "feed", "industry": "ai", "style": "minimal",
+  "title": "Voice recorder waveform", "titleAr": "موجة تسجيل الصوت",
+  "about": "A recorder bar: press to record and speech-like bars scroll in while the timer runs. Wire it to a microphone with one function.",
+  "aboutAr": "شريط تسجيل: اضغط للتسجيل فتتدفق أعمدة تشبه الكلام ويعمل المؤقت. اربطه بالميكروفون عبر دالة واحدة.",
+  "palette": { "bg": "#f2efe9", "surface": "#1a1814", "text": "#1a1814", "muted": "#8a847a", "accent": "#ff4d3d", "dark": false },
+  "poster": { "wait": 2600 }, "days": 1, "weight": 4000
+ },
+ {
+  "slug": "upload-ring", "kind": "component", "componentType": "loader", "category": "dashboard", "industry": "productivity", "style": "light",
+  "title": "Upload progress ring", "titleAr": "حلقة تقدّم الرفع",
+  "about": "A circular progress that counts up at a network's uneven pace, then closes into a check.",
+  "aboutAr": "مؤشر دائري يتقدّم بإيقاع الشبكة غير المنتظم، ثم يكتمل ليصبح علامة صح.",
+  "palette": { "bg": "#eef2ff", "surface": "#ffffff", "text": "#1e1b4b", "muted": "#6b7280", "accent": "#6366f1", "dark": false },
+  "poster": { "wait": 900, "viewport": [640, 480] }, "days": 5, "weight": 2700
+ },
+ {
+  "slug": "logo-reveal", "kind": "component", "componentType": "animation", "category": "agency", "industry": "fashion", "style": "dark",
+  "title": "Logo reveal", "titleAr": "ظهور الشعار",
+  "about": "A six-petal mark draws itself stroke by stroke, fills, and the wordmark rises in letter by letter.",
+  "aboutAr": "علامة من ست بتلات تُرسم خطًّا خطًّا ثم تمتلئ، ويرتفع اسم العلامة حرفًا حرفًا.",
+  "palette": { "bg": "#0e0f0c", "surface": "#1b1c18", "text": "#f1f0e8", "muted": "#8b8a7f", "accent": "#d7ff3a", "dark": true },
+  "poster": { "wait": 3200 }, "days": 2, "weight": 3800
+ },
+ {
+  "slug": "text-scramble", "kind": "component", "componentType": "animation", "category": "landing-page", "industry": "ai", "style": "futuristic",
+  "title": "Text scramble", "titleAr": "نص يتشكّل من الضجيج",
+  "about": "Headlines decode from noise, left to right, and scramble again on hover.",
+  "aboutAr": "عناوين تتشكّل من رموز عشوائية من اليسار إلى اليمين، وتتبعثر من جديد عند التمرير.",
+  "palette": { "bg": "#050505", "surface": "#18181b", "text": "#ededed", "muted": "#71717a", "accent": "#4ade80", "dark": true },
+  "poster": { "wait": 1100 }, "days": 4, "weight": 3200
+ },
+ {
+  "slug": "skeleton-to-content", "kind": "component", "componentType": "loader", "category": "feed", "industry": "travel", "style": "light",
+  "title": "Skeleton to content", "titleAr": "من الهيكل إلى المحتوى",
+  "about": "A shimmering placeholder in the card's exact shape; each piece of content fades in where its bone was.",
+  "aboutAr": "هيكل لامع بشكل البطاقة نفسه، ثم يظهر كل جزء من المحتوى في مكان هيكله تمامًا.",
+  "palette": { "bg": "#f5f5f4", "surface": "#ffffff", "text": "#1c1917", "muted": "#78716c", "accent": "#f97316", "dark": false },
+  "poster": { "wait": 3200 }, "days": 6, "weight": 2800
+ },
+ {
+  "slug": "ascii-field", "kind": "component", "componentType": "background", "category": "landing-page", "industry": "ai", "style": "retro",
+  "title": "ASCII field", "titleAr": "حقل الرموز النصية",
+  "about": "Layered waves drawn in characters, warm as sodium light; the pointer pushes a bright wake through them.",
+  "aboutAr": "موجات متراكبة مرسومة بالحروف بلون دافئ، ويشقّ المؤشر فيها أثرًا مضيئًا.",
+  "palette": { "bg": "#0a0907", "surface": "#1a160f", "text": "#f5e9d4", "muted": "#8a7a5c", "accent": "#e8a13a", "dark": true },
+  "poster": { "hover": "canvas", "wait": 900 }, "days": 0, "weight": 4100
+ },
+ {
+  "slug": "dot-grid", "kind": "component", "componentType": "background", "category": "landing-page", "industry": "saas", "style": "minimal",
+  "title": "Magnetic dot grid", "titleAr": "شبكة نقاط مغناطيسية",
+  "about": "A dot grid that leans toward the pointer and lights up near it; a click sends a ripple across.",
+  "aboutAr": "شبكة نقاط تميل نحو المؤشر وتضيء حوله، والنقر يرسل تموجًا عبرها.",
+  "palette": { "bg": "#f7f7f5", "surface": "#ffffff", "text": "#1c1c1a", "muted": "#8a8a83", "accent": "#6d5dfc", "dark": false },
+  "poster": { "wait": 1500 }, "days": 3, "weight": 3100
+ },
+ {
+  "slug": "flow-field", "kind": "component", "componentType": "background", "category": "portfolio", "industry": "fashion", "style": "dark",
+  "title": "Flow field", "titleAr": "حقل التدفّق",
+  "about": "Thousands of particles follow an angle field and leave fading trails, like ink in a current. Click for a new palette.",
+  "aboutAr": "آلاف الجزيئات تتبع حقلًا من الاتجاهات وتترك آثارًا تتلاشى كالحبر في تيار. انقر للوحة ألوان جديدة.",
+  "palette": { "bg": "#0d0b14", "surface": "#1a1424", "text": "#ffd166", "muted": "#9a7f8f", "accent": "#ff6b6b", "dark": true },
+  "poster": { "wait": 4000 }, "days": 1, "weight": 4000
+ },
+ {
+  "slug": "grain-gradient", "kind": "component", "componentType": "background", "category": "landing-page", "industry": "fashion", "style": "editorial",
+  "title": "Grain gradient", "titleAr": "تدرّج لوني محبّب",
+  "about": "Soft colour blobs drift under a film-grain layer: a background for heroes and cards, in CSS and one inline SVG.",
+  "aboutAr": "بقع لونية ناعمة تنجرف تحت طبقة حبيبات كالأفلام: خلفية للأقسام الافتتاحية والبطاقات، بـ CSS وملف SVG مضمّن.",
+  "palette": { "bg": "#f1e6d8", "surface": "#fbf4ea", "text": "#2b1a12", "muted": "#5b3d2c", "accent": "#ff8a5b", "dark": false },
+  "poster": { "wait": 800 }, "days": 2, "weight": 3600
+ },
+ {
+  "slug": "pixel-text", "kind": "component", "componentType": "background", "category": "portfolio", "industry": "productivity", "style": "playful",
+  "title": "Pixel text", "titleAr": "نص من البكسلات",
+  "about": "A word built from square pixels that scatter from the pointer and spring home. Type to change the word.",
+  "aboutAr": "كلمة مبنية من بكسلات مربعة تتناثر بعيدًا عن المؤشر ثم ترتد إلى مكانها. اكتب لتغيير الكلمة.",
+  "palette": { "bg": "#111111", "surface": "#181818", "text": "#f5f5f5", "muted": "#777777", "accent": "#ffd23f", "dark": true },
+  "poster": { "wait": 2200 }, "days": 4, "weight": 3300
+ },
+ {
+  "slug": "ascii-globe", "kind": "component", "componentType": "background", "category": "landing-page", "industry": "travel", "style": "futuristic",
+  "title": "ASCII globe", "titleAr": "كرة أرضية من الحروف",
+  "about": "A lit sphere ray-marched into a text grid, with drifting continents. Drag to spin it.",
+  "aboutAr": "كرة مضاءة مرسومة في شبكة من الحروف تنجرف عليها القارات. اسحبها لتدور.",
+  "palette": { "bg": "#02040a", "surface": "#0b1220", "text": "#7dd3fc", "muted": "#334155", "accent": "#a7f3d0", "dark": true },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4200
+ },
+ {
+  "slug": "hero-aurora", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "saas", "style": "dark",
+  "title": "Aurora hero", "titleAr": "واجهة الشفق",
+  "about": "A SaaS landing hero: announcement pill, gradient headline, two calls to action and a product frame lit by a slow aurora.",
+  "aboutAr": "واجهة هبوط لمنتج برمجي: شارة إعلان، وعنوان متدرّج، ودعوتان لاتخاذ إجراء، وإطار للمنتج يضيئه شفق بطيء.",
+  "palette": { "bg": "#05060a", "surface": "#0b0d14", "text": "#f5f6fa", "muted": "#9aa1b5", "accent": "#3b5bfd", "dark": true },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4400
+ },
+ {
+  "slug": "hero-terminal", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "saas", "style": "brutalist",
+  "title": "Terminal hero", "titleAr": "واجهة الطرفية",
+  "about": "A developer-tool hero on a grid: a copyable install command and a terminal that types out a deploy.",
+  "aboutAr": "واجهة لأداة مطوّرين على شبكة: أمر تثبيت قابل للنسخ، وطرفية تكتب عملية نشر أمامك.",
+  "palette": { "bg": "#fafaf7", "surface": "#121212", "text": "#111110", "muted": "#6b6a63", "accent": "#ff5b1f", "dark": false },
+  "poster": { "wait": 4200 }, "days": 1, "weight": 4100
+ },
+ {
+  "slug": "hero-editorial", "kind": "screen", "archetype": "agency", "category": "agency", "industry": "fashion", "style": "editorial",
+  "title": "Editorial studio hero", "titleAr": "واجهة استوديو تحريرية",
+  "about": "A studio homepage: an oversized serif headline, an index of work that tints the page on hover, and a marquee of clients.",
+  "aboutAr": "صفحة رئيسية لاستوديو: عنوان كبير بخط مذيّل، وفهرس أعمال يلوّن الصفحة عند التمرير، وشريط متحرك بأسماء العملاء.",
+  "palette": { "bg": "#ece6da", "surface": "#f5f0e6", "text": "#1b1813", "muted": "#6f675a", "accent": "#c2532d", "dark": false },
+  "poster": { "wait": 900 }, "days": 2, "weight": 3900
+ },
+ {
+  "slug": "hero-cards", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "fintech", "style": "light",
+  "title": "Floating cards hero", "titleAr": "واجهة البطاقات العائمة",
+  "about": "A fintech hero: a waitlist form beside a stack of tilted cards and a payment toast that float and lean with the pointer.",
+  "aboutAr": "واجهة لتطبيق مالي: نموذج قائمة انتظار بجانب بطاقات مائلة وإشعار دفع تطفو وتميل مع المؤشر.",
+  "palette": { "bg": "#f3f1ff", "surface": "#ffffff", "text": "#14112b", "muted": "#6a6788", "accent": "#5b3df5", "dark": false },
+  "poster": { "wait": 900 }, "days": 3, "weight": 4000
+ },
+ {
+  "slug": "hero-arabic", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "fintech", "style": "luxury", "dir": "rtl",
+  "title": "Arabic banking hero", "titleAr": "واجهة مصرفية عربية",
+  "about": "A right-to-left hero for a Saudi banking app, built with logical properties so it mirrors correctly, with a phone mockup.",
+  "aboutAr": "واجهة من اليمين إلى اليسار لتطبيق مصرفي سعودي، مبنية بالخصائص المنطقية لتنعكس بشكل صحيح، مع نموذج لشاشة جوال.",
+  "palette": { "bg": "#0f2a24", "surface": "#0a1a16", "text": "#f6f1e7", "muted": "#a9bdb4", "accent": "#e9c46a", "dark": true },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4300
+ }
+]

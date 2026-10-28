@@ -11,6 +11,7 @@ import type { Item } from "@/lib/data";
 import { mkU, pick, Col, Row, B, VIEWPORTS, type U, type Viewport } from "./primitives";
 import * as S from "./sections";
 import { CaptureScreen } from "./CaptureScreen";
+import { LiveScreen } from "./LiveScreen";
 
 /**
  * Procedurally rendered interface previews.
@@ -291,6 +292,7 @@ export function MockScreen({
   viewport?: Viewport;
 }) {
   if (item.capture) return <CaptureScreen item={item} viewport={viewport} eager={eager} />;
+  if (item.live) return <LiveScreen item={item} viewport={viewport} eager={eager} />;
   const arch = ARCHETYPES[item.archetype];
   const isComponent = item.kind === "component";
   const native: Viewport = item.device === "mobile" ? "mobile" : "desktop";

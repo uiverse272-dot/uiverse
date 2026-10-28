@@ -1,0 +1,98 @@
+<!doctype html>
+<!-- Voice waveform — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A recorder bar: press to record, bars scroll in from the right as "speech", the timer runs.
+     The level here is simulated; feed it an AnalyserNode's volume to drive it from a real microphone. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voice waveform</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 500 14px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f2efe9; color: #1a1814;
+  }
+  .rec {
+    display: flex; align-items: center; gap: 14px; width: 400px; height: 72px; padding: 0 12px 0 12px;
+    border-radius: 99px; background: #1a1814; color: #f2efe9; box-shadow: 0 24px 40px -22px rgba(26,24,20,.6);
+  }
+  .btn {
+    position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+    background: #ff4d3d; display: grid; place-items: center; transition: transform .15s;
+  }
+  .btn:active { transform: scale(.94); }
+  .btn:focus-visible { outline: 2px solid #ffb4ab; outline-offset: 3px; }
+  .btn i { width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: border-radius .25s, width .25s, height .25s; }
+  .on .btn i { width: 15px; height: 15px; border-radius: 3px; }
+  .on .btn::before { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid #ff4d3d; animation: pulse 1.4s ease-out infinite; }
+  @keyframes pulse { from { opacity: .8; transform: scale(.9); } to { opacity: 0; transform: scale(1.35); } }
+  canvas { flex: 1; height: 44px; width: 100%; min-width: 0; }
+  .time { flex: none; width: 54px; text-align: right; padding-right: 10px; font: 500 14px ui-monospace, "SF Mono", Menlo, monospace; color: #a8a29a; font-variant-numeric: tabular-nums; }
+  .on .time { color: #f2efe9; }
+  .hint { position: fixed; bottom: 24px; left: 0; right: 0; text-align: center; font-size: 12px; color: #8a847a; }
+</style>
+</head>
+<body>
+  <div class="rec">
+    <button class="btn" aria-pressed="false" aria-label="Record"><i></i></button>
+    <canvas aria-hidden="true"></canvas>
+    <span class="time" role="timer" aria-live="off">0:00</span>
+  </div>
+  <p class="hint">Press the red button to record</p>
+<script>
+  const rec = document.querySelector(".rec"), btn = rec.querySelector(".btn"), cv = rec.querySelector("canvas"), time = rec.querySelector(".time");
+  const ctx = cv.getContext("2d"), dpr = Math.min(devicePixelRatio || 1, 2);
+  const BAR = 3, GAP = 3;
+  let bars = [], on = false, started = 0, last = 0, phase = 0;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function size() {
+    const r = cv.getBoundingClientRect();
+    cv.width = r.width * dpr; cv.height = r.height * dpr;
+    const n = Math.floor(r.width / (BAR + GAP));
+    /* idle: a quiet, already-recorded-looking line */
+    if (bars.length !== n) bars = Array.from({ length: n }, (_, i) => 0.12 + 0.5 * Math.abs(Math.sin(i * 0.37) * Math.sin(i * 0.11)));
+  }
+  /* syllables: bursts of energy with pauses between words */
+  function level(t) {
+    phase += 0.09 + Math.random() * 0.05;
+    const word = Math.max(0, Math.sin(t / 380) + Math.sin(t / 170) * 0.5);
+    return Math.min(1, 0.06 + word * (0.45 + 0.4 * Math.abs(Math.sin(phase * 3.1))) * (0.7 + Math.random() * 0.5));
+  }
+  function draw() {
+    const w = cv.width, h = cv.height, mid = h / 2;
+    ctx.clearRect(0, 0, w, h);
+    bars.forEach((v, i) => {
+      const x = i * (BAR + GAP) * dpr, bh = Math.max(3 * dpr, v * h * 0.95);
+      /* bars fade in from the left edge */
+      const fade = Math.min(1, i / 8);
+      ctx.fillStyle = on ? `rgba(255, 120, 100, ${0.25 + 0.75 * fade})` : `rgba(242, 239, 233, ${0.18 + 0.32 * fade})`;
+      ctx.beginPath(); ctx.roundRect(x, mid - bh / 2, BAR * dpr, bh, BAR * dpr / 2); ctx.fill();
+    });
+  }
+  function loop(t) {
+    if (on && t - last > 55) {
+      last = t; bars.shift(); bars.push(level(t));
+      const s = Math.floor((t - started) / 1000);
+      time.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    }
+    draw();
+    if (on) requestAnimationFrame(loop);
+  }
+  btn.addEventListener("click", () => {
+    on = !on;
+    rec.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on);
+    btn.setAttribute("aria-label", on ? "Stop recording" : "Record");
+    if (on) { started = performance.now(); requestAnimationFrame(loop); }
+  });
+  addEventListener("resize", () => { size(); draw(); });
+  size(); draw();
+  /* the preview starts recording on its own so the motion is visible */
+  if (!still) setTimeout(() => btn.click(), 300);
+</script>
+</body>
+</html>

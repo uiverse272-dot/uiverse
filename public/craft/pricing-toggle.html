@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- Pricing toggle — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A sliding segmented control; prices count to their new value instead of jumping. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing toggle</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { min-height: 100%; }
+  body {
+    display: grid; place-items: center; padding: 28px 16px;
+    font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0b0b0f; color: #f4f4f5;
+  }
+  .wrap { display: grid; justify-items: center; gap: 26px; width: min(100%, 640px); }
+  .seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 99px; background: #18181b; border: 1px solid #27272a; }
+  .seg button {
+    position: relative; z-index: 1; border: 0; background: none; color: #a1a1aa; font: inherit; font-weight: 600;
+    height: 36px; padding: 0 18px; border-radius: 99px; cursor: pointer; transition: color .3s; white-space: nowrap;
+  }
+  .seg button[aria-checked="true"] { color: #0b0b0f; }
+  .seg button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
+  .seg .pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 99px; background: #f4f4f5; transition: transform .45s cubic-bezier(.2,.8,.2,1.15); }
+  .yearly .seg .pill { transform: translateX(100%); }
+  .save { font-size: 11px; color: #22c55e; margin-left: 6px; }
+  .yearly .save { color: #15803d; }
+  .plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; }
+  .plan { padding: 22px; border-radius: 18px; border: 1px solid #27272a; background: #111114; }
+  .plan.pro { background: linear-gradient(180deg, #1c1430, #111114 70%); border-color: #3b2a6b; position: relative; }
+  .plan.pro::before { content: "Popular"; position: absolute; top: 18px; right: 18px; font-size: 11px; font-weight: 600; color: #c4b5fd; background: #2a1f4a; padding: 3px 9px; border-radius: 99px; }
+  .name { font-weight: 650; }
+  .price { display: flex; align-items: baseline; gap: 4px; margin-top: 14px; }
+  .price b { font-size: 44px; font-weight: 700; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .price span { color: #71717a; }
+  .note { color: #71717a; font-size: 12.5px; height: 18px; transition: opacity .3s; }
+  ul { list-style: none; padding: 0; margin-top: 16px; display: grid; gap: 8px; color: #d4d4d8; }
+  li::before { content: "✓"; color: #a78bfa; margin-right: 8px; }
+  @media (max-width: 520px) { .plans { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .pill { transition: none; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="seg" role="radiogroup" aria-label="Billing period">
+      <span class="pill" aria-hidden="true"></span>
+      <button role="radio" aria-checked="true" data-period="monthly">Monthly</button>
+      <button role="radio" aria-checked="false" data-period="yearly">Yearly<span class="save">−20%</span></button>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="name">Starter</div><div class="price"><b data-m="12" data-y="9.6">$12</b><span>/ month</span></div><div class="note"></div>
+        <ul><li>3 projects</li><li>Basic analytics</li><li>Email support</li></ul></div>
+      <div class="plan pro"><div class="name">Pro</div><div class="price"><b data-m="29" data-y="23.2">$29</b><span>/ month</span></div><div class="note"></div>
+        <ul><li>Unlimited projects</li><li>Advanced analytics</li><li>Priority support</li></ul></div>
+    </div>
+  </div>
+<script>
+  const seg = document.querySelector(".seg"), wrap = document.querySelector(".wrap");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fmt = (v) => "$" + (Number.isInteger(v) ? v : v.toFixed(2));
+  function tween(el, from, to) {
+    if (still) return void (el.textContent = fmt(to));
+    const t0 = performance.now(), dur = 600;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      const v = from + (to - from) * e;
+      el.textContent = k < 1 ? "$" + v.toFixed(Number.isInteger(to) ? 0 : 2) : fmt(to);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  seg.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b || b.getAttribute("aria-checked") === "true") return;
+    seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-checked", x === b));
+    const yearly = b.dataset.period === "yearly";
+    wrap.classList.toggle("yearly", yearly);
+    document.querySelectorAll(".price b").forEach((el) => {
+      const m = +el.dataset.m, y = +el.dataset.y;
+      tween(el, yearly ? m : y, yearly ? y : m);
+      el.closest(".plan").querySelector(".note").textContent = yearly ? `${fmt(+(y * 12).toFixed(2))} billed yearly` : "";
+    });
+  });
+  seg.addEventListener("keydown", (e) => {
+    if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+    const next = seg.querySelector('[aria-checked="false"]'); next.click(); next.focus();
+  });
+</script>
+</body>
+</html>

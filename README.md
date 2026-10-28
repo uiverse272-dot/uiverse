@@ -21,6 +21,7 @@ The architecture lives in `docs/`; read it before building anything new.
 | [11 — Tech architecture](docs/11-tech-architecture.md) | Stack, performance budget, build order |
 | [12 — MCP server](docs/12-mcp.md) | The agent-facing API over the real captures |
 | [13 — Launch](docs/13-launch.md) | Production setup: Supabase, Resend, Vercel, and how to check it |
+| [14 — Originals and Finds](docs/14-originals-and-finds.md) | Uiverse's own live pieces with code, and designers' work shown with permission |
 
 
 ## Running it
@@ -43,6 +44,8 @@ npm run capture -- --rederive     # re-derive every record from stored measureme
 npm run capture:cards             # feed-card stills (runs after each capture; --all rewrites them)
 npm run capture:upload            # sync public/captures to the bucket (--dry-run, --prune)
 npm run capture -- --opt-out example.com --ref TD-…   # honour a takedown request
+npm run craft:posters             # feed stills for Uiverse Originals (docs/14)
+npm run finds:add -- …            # publish an approved Finds submission (docs/14)
 ```
 
 Screenshots are served from `public/captures` until `NEXT_PUBLIC_CAPTURES_URL` points at an

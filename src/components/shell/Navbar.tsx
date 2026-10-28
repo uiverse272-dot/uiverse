@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { Bookmark, Chevron, User } from "../ui/icons";
 
 const MORE = [
+  { href: "/finds", key: "finds" },
   { href: "/3d", key: "threeD" },
   { href: "/pricing", key: "pricing" },
   { href: "/sketch", key: "sketch" },

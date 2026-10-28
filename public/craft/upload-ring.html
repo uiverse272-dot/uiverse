@@ -1,0 +1,82 @@
+<!doctype html>
+<!-- Upload ring — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A circular progress that counts up, then the ring closes into a check. Click to run it again. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upload ring</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #eef2ff; color: #1e1b4b;
+  }
+  .card {
+    display: flex; align-items: center; gap: 18px; width: 360px; padding: 18px 20px; border-radius: 20px;
+    background: #fff; box-shadow: 0 20px 50px -24px rgba(49, 46, 129, .35); border: 1px solid #e0e7ff;
+    cursor: pointer; text-align: left; font: inherit; color: inherit;
+  }
+  .card:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+  .ring { position: relative; width: 72px; height: 72px; flex: none; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .track { stroke: #eef2ff; }
+  .bar { stroke: url(#g); stroke-linecap: round; transition: stroke-dashoffset .15s linear; }
+  .pct { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; transition: opacity .25s, transform .25s; }
+  .tick { position: absolute; inset: 0; display: grid; place-items: center; }
+  .tick svg { width: 30px; height: 30px; transform: none; }
+  .tick path { stroke: #fff; stroke-dasharray: 26; stroke-dashoffset: 26; }
+  .fill { position: absolute; inset: 6px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #22c55e); transform: scale(0); transition: transform .45s cubic-bezier(.2,.8,.2,1.4); }
+  .done .fill { transform: scale(1); }
+  .done .pct { opacity: 0; transform: scale(.6); }
+  .done .tick path { stroke-dashoffset: 0; transition: stroke-dashoffset .35s .25s ease-out; }
+  .name { display: block; font-weight: 650; }
+  .sub { display: block; color: #6b7280; font-size: 12.5px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .done .sub { color: #16a34a; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <button class="card" aria-label="Upload brand-guidelines.pdf. Click to upload again.">
+    <span class="ring">
+      <svg viewBox="0 0 72 72" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs>
+        <circle class="track" cx="36" cy="36" r="31" fill="none" stroke-width="6"/>
+        <circle class="bar" cx="36" cy="36" r="31" fill="none" stroke-width="6"/>
+      </svg>
+      <span class="fill"></span>
+      <span class="pct" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">0%</span>
+      <span class="tick"><svg viewBox="0 0 30 30" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 15.5 5 5 9-10"/></svg></span>
+    </span>
+    <span>
+      <span class="name">brand-guidelines.pdf</span>
+      <span class="sub" aria-live="polite">Uploading · 0 of 24.6 MB</span>
+    </span>
+  </button>
+<script>
+  const card = document.querySelector(".card"), bar = card.querySelector(".bar"), pct = card.querySelector(".pct"), sub = card.querySelector(".sub");
+  const C = 2 * Math.PI * 31, TOTAL = 24.6;
+  bar.style.strokeDasharray = C;
+  let p = 0, timer;
+  const set = (v) => {
+    p = v;
+    bar.style.strokeDashoffset = C * (1 - v / 100);
+    pct.textContent = `${Math.floor(v)}%`; pct.setAttribute("aria-valuenow", Math.floor(v));
+    sub.textContent = `Uploading · ${(TOTAL * v / 100).toFixed(1)} of ${TOTAL} MB`;
+  };
+  function run() {
+    clearInterval(timer); card.classList.remove("done"); set(0);
+    /* uneven steps, like a real network: quick, a stall, then a rush */
+    timer = setInterval(() => {
+      const step = p < 30 ? 2.2 : p < 60 ? (Math.random() < .3 ? 0 : 1.4) : 3;
+      set(Math.min(100, p + step * (0.6 + Math.random())));
+      if (p >= 100) { clearInterval(timer); card.classList.add("done"); sub.textContent = "Uploaded · 24.6 MB"; }
+    }, 60);
+  }
+  card.addEventListener("click", run);
+  run();
+</script>
+</body>
+</html>

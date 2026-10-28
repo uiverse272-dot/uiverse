@@ -89,6 +89,8 @@ const ABOUT: Record<string, string> = {
   "signal-post": "صحافة تقنية مستقلة.",
   nimbus: "بنية تحتية دون خوادم بأسعار واضحة.",
   terrace: "مجموعة من ستة فنادق صغيرة.",
+  /* Uiverse's own pieces (lib/craft.ts) */
+  "uiverse-originals": "قطع تفاعلية صنعتها Uiverse: كل منها ملف HTML واحد بلا اعتماديات، مجانية للاستخدام والتعديل بترخيص MIT.",
 };
 
 /** A source's one-line description in `lang` — the captured sites' own words stay as they are */
@@ -207,7 +209,16 @@ function captureClause(c: string): string {
 /* --------------------------------------------------------------- API */
 
 export const itemTitle = (item: Item, lang: Lang) =>
-  lang === "ar" ? (item.kind === "component" ? blockLabel(item.title, item.componentType, lang) : TITLES[item.title] ?? item.title) : item.title;
+  lang !== "ar"
+    ? item.title
+    : item.live
+      ? item.live.titleAr
+      : item.kind === "component"
+        ? blockLabel(item.title, item.componentType, lang)
+        : TITLES[item.title] ?? item.title;
+
+/** What a Uiverse Original is and does, in `lang` */
+export const liveAbout = (item: Item, lang: Lang) => (item.live ? (lang === "ar" ? item.live.aboutAr : item.live.about) : "");
 
 /* the capture script keeps 32 characters of a section's heading in its label — mark the cut */
 const HEADING_CUT = 32;

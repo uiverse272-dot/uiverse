@@ -1,5 +1,5 @@
 import type { Lang } from "@/i18n/config";
-import { ITEMS, type Item } from "./data";
+import { dirOf, ITEMS, type Item } from "./data";
 import { paramFilter, SCOPES, type Filters, type Scope } from "./filters";
 import { arNorm, parseTerms, type Present } from "./parse";
 import { lookDistance } from "./look";
@@ -30,6 +30,10 @@ const textOf = (i: Item) =>
     ...(i.capture
       ? [i.capture.dir, i.capture.dir === "rtl" ? "right-to-left arabic عربي عربيه" : "", i.capture.lang, "real captured live", ...i.blocks.map((b) => b.heading ?? "")]
       : []),
+    /* originals: findable by what they do, and as the live, copyable kind */
+    ...(i.live
+      ? [i.live.about, i.live.titleAr, "original live interactive animated code copy uiverse", i.live.dir === "rtl" ? "rtl right-to-left arabic عربي عربيه" : ""]
+      : []),
   ]
     .join(" ")
     .toLowerCase()
@@ -54,7 +58,7 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   if (f.tier) out = out.filter((i) => i.tier === f.tier);
   if (f.responsive === "true") out = out.filter((i) => i.responsive);
   if (f.threed === "true") out = out.filter((i) => i.has3d);
-  if (f.dir) out = out.filter((i) => (i.capture?.dir ?? "ltr") === f.dir);
+  if (f.dir) out = out.filter((i) => dirOf(i) === f.dir);
   if (f.q) {
     const terms = f.q.toLowerCase().split(/\s+/).filter(Boolean).map(arNorm);
     out = out.filter((i) => {
@@ -128,12 +132,6 @@ export function searchItems(q: string, extra: Filters = {}, lang: Lang = "en") {
   }
   /* already sorted by applyFilters (extra.sort rides along in f); narrowing keeps the order */
   return { results, terms, residual };
-}
-
-export function facetCounts(items: Item[], key: "industry" | "style" | "category") {
-  const m = new Map<string, number>();
-  for (const i of items) m.set(i[key], (m.get(i[key]) ?? 0) + 1);
-  return m;
 }
 
 /**

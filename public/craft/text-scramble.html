@@ -1,0 +1,66 @@
+<!doctype html>
+<!-- Text scramble — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Each headline decodes from noise, left to right. Hover a line to scramble it again. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Text scramble</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    background: #050505; color: #ededed;
+    font: 500 15px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .stack { display: grid; gap: 6px; padding: 0 24px; }
+  .eyebrow { color: #4ade80; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; margin-bottom: 14px; }
+  .line { font-size: clamp(28px, 6vw, 52px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; cursor: default; white-space: nowrap; }
+  .line .n { color: #3f3f46; }
+  .line .h { color: #4ade80; }
+  .meta { margin-top: 22px; color: #71717a; font-size: 13px; }
+  .meta::after { content: "_"; animation: blink 1s steps(1) infinite; color: #4ade80; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+  <div class="stack">
+    <div class="eyebrow">// System online</div>
+    <div class="line" aria-label="Design at the">Design at the</div>
+    <div class="line" aria-label="speed of thought.">speed of thought.</div>
+    <div class="meta">Hover a line to decode it again</div>
+  </div>
+<script>
+  const GLYPHS = "!<>-_\\/[]{}—=+*^?#ABCDEFX0123456789";
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function scramble(el) {
+    const text = el.getAttribute("aria-label");
+    if (still) return void (el.textContent = text);
+    cancelAnimationFrame(el._raf);
+    /* each letter gets a start and end frame; before its end it shows noise */
+    const q = [...text].map((c, i) => ({ c, start: Math.floor(i * 1.2 + Math.random() * 6), end: Math.floor(i * 1.6 + 12 + Math.random() * 14) }));
+    let frame = 0;
+    const tick = () => {
+      let out = "", done = 0;
+      for (const l of q) {
+        if (frame >= l.end) { out += l.c; done++; }
+        else if (frame >= l.start && l.c !== " ") {
+          if (!l.g || Math.random() < 0.28) l.g = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+          out += `<span class="${frame > l.end - 4 ? "h" : "n"}">${l.g.replace("<", "&lt;").replace(">", "&gt;")}</span>`;
+        } else out += l.c === " " ? " " : '<span class="n">·</span>';
+      }
+      el.innerHTML = out;
+      frame++;
+      if (done < q.length) el._raf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+  document.querySelectorAll(".line").forEach((el, i) => {
+    el.setAttribute("aria-hidden", "false");
+    setTimeout(() => scramble(el), 200 + i * 350);
+    el.addEventListener("mouseenter", () => scramble(el));
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<!-- Day / night toggle — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A real switch (role="switch"): the sun sets into a moon, clouds clear for stars. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Day and night toggle</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center; gap: 18px; align-content: center;
+    font: 500 13px ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background: #eaf3fb; color: #3d5470; transition: background .7s, color .7s;
+  }
+  body.night { background: #0d1326; color: #8fa0c4; }
+  .switch {
+    --w: 180px; --h: 76px; --p: 7px; --k: calc(var(--h) - var(--p) * 2);
+    position: relative; width: var(--w); height: var(--h); border-radius: 99px; border: 0; padding: 0; cursor: pointer;
+    background: linear-gradient(#5aa9f2, #8fc9ff); overflow: hidden;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,.25), 0 1px 0 rgba(255,255,255,.7);
+    transition: background .7s;
+  }
+  .switch:focus-visible { outline: 3px solid #f7c948; outline-offset: 4px; }
+  .night .switch { background: linear-gradient(#1b2547, #2c3866); }
+  .knob {
+    position: absolute; top: var(--p); left: var(--p); width: var(--k); height: var(--k); border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff6c4, #ffd23f 55%, #f6a823);
+    box-shadow: 0 0 0 10px rgba(255,255,255,.14), 0 0 0 22px rgba(255,255,255,.08), 0 4px 10px rgba(0,0,0,.25);
+    transition: transform .7s cubic-bezier(.6,-0.25,.3,1.3), background .7s;
+    overflow: hidden;
+  }
+  .night .knob { transform: translateX(calc(var(--w) - var(--k) - var(--p) * 2)); background: radial-gradient(circle at 35% 30%, #f4f6fb, #cfd6e6 60%, #aab4cb); }
+  /* craters appear as the sun becomes the moon */
+  .knob i { position: absolute; border-radius: 50%; background: #a3adc3; box-shadow: inset 1px 1px 2px rgba(0,0,0,.25); opacity: 0; transform: scale(.4); transition: .5s .25s; }
+  .night .knob i { opacity: 1; transform: none; }
+  .knob i:nth-child(1) { width: 16px; height: 16px; left: 14px; top: 12px; }
+  .knob i:nth-child(2) { width: 9px; height: 9px; left: 36px; top: 30px; }
+  .knob i:nth-child(3) { width: 7px; height: 7px; left: 20px; top: 40px; }
+  .clouds { position: absolute; right: -10px; bottom: -14px; transition: transform .7s cubic-bezier(.6,-0.25,.3,1.3); }
+  .clouds b { position: absolute; bottom: 0; border-radius: 50%; background: #fff; box-shadow: 0 -2px 0 rgba(0,0,0,.04) inset; }
+  .clouds b:nth-child(1) { width: 56px; height: 56px; right: 10px; }
+  .clouds b:nth-child(2) { width: 44px; height: 44px; right: 52px; bottom: -6px; }
+  .clouds b:nth-child(3) { width: 40px; height: 40px; right: 86px; bottom: -14px; opacity: .85; }
+  .night .clouds { transform: translateY(80px); }
+  .stars { position: absolute; inset: 0; transform: translateY(-80px); transition: transform .7s cubic-bezier(.6,-0.25,.3,1.3); }
+  .night .stars { transform: none; }
+  .stars s { position: absolute; width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 6px #fff; animation: tw 2.4s ease-in-out infinite; }
+  @keyframes tw { 50% { opacity: .3; transform: scale(.6); } }
+  .label { letter-spacing: .02em; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <button class="switch" role="switch" aria-checked="false" aria-label="Dark mode">
+    <span class="stars" aria-hidden="true">
+      <s style="left:26px;top:16px"></s><s style="left:52px;top:42px;animation-delay:.6s"></s><s style="left:40px;top:58px;width:3px;height:3px;animation-delay:1.2s"></s><s style="left:78px;top:20px;width:3px;height:3px;animation-delay:.3s"></s><s style="left:94px;top:50px;animation-delay:1.8s"></s>
+    </span>
+    <span class="clouds" aria-hidden="true"><b></b><b></b><b></b></span>
+    <span class="knob" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+  <span class="label" aria-hidden="true">Day</span>
+<script>
+  const sw = document.querySelector(".switch"), label = document.querySelector(".label");
+  sw.addEventListener("click", () => {
+    const night = document.body.classList.toggle("night");
+    sw.setAttribute("aria-checked", night);
+    label.textContent = night ? "Night" : "Day";
+  });
+</script>
+</body>
+</html>

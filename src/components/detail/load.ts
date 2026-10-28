@@ -24,6 +24,6 @@ export async function detailMetadata(slug: string, kind: Kind): Promise<Metadata
     description: `${item.source.name}: ${sourceAbout(item.source, lang)} ${t.detail.metaDescription}`,
     alternates: alternates(lang, `/${kind}/${slug}`),
     /* procedural items are invented brands — fine to browse, not something to put in search results */
-    robots: item.capture ? undefined : { index: false, follow: true },
+    robots: item.capture || item.live ? undefined : { index: false, follow: true },
   };
 }

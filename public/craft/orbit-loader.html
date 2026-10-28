@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- Orbit loader — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Three planets circle a glowing core at different speeds, each with a fading comet tail. Pure CSS. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbit loader</title>
+<style>
+  :root { --a: #8b6cff; --b: #22d3ee; --c: #f472b6; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center; align-content: center; gap: 34px;
+    font: 500 12px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .25em; text-transform: uppercase;
+    background: radial-gradient(60% 60% at 50% 45%, #1a1438, #07060d); color: #8f88b8;
+  }
+  .loader { position: relative; width: 168px; height: 168px; }
+  .core {
+    position: absolute; inset: 66px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, #d4c8ff 35%, var(--a) 85%);
+    box-shadow: 0 0 24px var(--a), 0 0 70px rgba(139, 108, 255, .55);
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  /* each orbit: a faint ring, a tail arc and a planet, all spinning together */
+  .orbit { position: absolute; inset: var(--in); border-radius: 50%; border: 1px solid rgba(255,255,255,.07); animation: spin var(--t) linear infinite; }
+  .orbit::before {
+    content: ""; position: absolute; inset: -1.5px; border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 62%, var(--p) 100%);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+    opacity: .9;
+  }
+  .orbit::after {
+    content: ""; position: absolute; top: -6px; left: calc(50% - 6px); width: 12px; height: 12px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 0 3px var(--p), 0 0 18px 4px var(--p);
+  }
+  .o1 { --in: 42px; --t: 1.4s; --p: var(--a); }
+  .o2 { --in: 20px; --t: 2.1s; --p: var(--b); animation-direction: reverse; }
+  .o2::before { background: conic-gradient(from 0deg, var(--p) 0%, transparent 38% 100%); }
+  .o3 { --in: 0px; --t: 3.2s; --p: var(--c); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes breathe { 50% { transform: scale(.86); } }
+  .dots::after { content: ""; display: inline-block; width: 3ch; text-align: left; animation: dots 1.6s steps(4) infinite; }
+  @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+  @media (prefers-reduced-motion: reduce) { .orbit { animation-duration: 14s; } .core { animation: none; } }
+</style>
+</head>
+<body>
+  <div class="loader" role="progressbar" aria-label="Loading" aria-busy="true">
+    <span class="orbit o3"></span>
+    <span class="orbit o2"></span>
+    <span class="orbit o1"></span>
+    <span class="core"></span>
+  </div>
+  <span class="dots" aria-hidden="true">Loading</span>
+</body>
+</html>

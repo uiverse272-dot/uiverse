@@ -1,0 +1,76 @@
+<!doctype html>
+<!-- Copy button — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     The icon morphs from copy to check, the label slides, and screen readers hear "Copied". -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copy button</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: grid; place-items: center;
+    font: 500 16px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f6f5f2; color: #18181b;
+  }
+  .field {
+    display: flex; align-items: center; gap: 10px; padding: 7px 7px 7px 20px; border-radius: 16px;
+    background: #fff; border: 1px solid #e7e5e0; box-shadow: 0 12px 30px -18px rgba(0,0,0,.25);
+  }
+  code { font: 15px ui-monospace, "SF Mono", Menlo, monospace; color: #52525b; }
+  code b { color: #18181b; font-weight: 500; }
+  .copy {
+    position: relative; display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 16px;
+    border: 0; border-radius: 10px; cursor: pointer; font: inherit; color: #fff; background: #18181b;
+    overflow: hidden; transition: background .3s, transform .12s, width .3s;
+  }
+  .copy:hover { background: #27272a; }
+  .copy:active { transform: scale(.96); }
+  .copy:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+  .copy.done { background: #16a34a; }
+  .icon { width: 16px; height: 16px; position: relative; }
+  .icon svg { position: absolute; inset: 0; transition: transform .35s cubic-bezier(.2,.8,.2,1.4), opacity .2s; }
+  .icon .check { transform: scale(.3) rotate(-30deg); opacity: 0; }
+  .check path { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .35s .1s; }
+  .done .icon .stack { transform: scale(.3) rotate(30deg); opacity: 0; }
+  .done .icon .check { transform: none; opacity: 1; }
+  .done .check path { stroke-dashoffset: 0; }
+  .label { position: relative; height: 18px; overflow: hidden; display: grid; }
+  .label span { grid-area: 1 / 1; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s; }
+  .label span + span { transform: translateY(100%); opacity: 0; }
+  .done .label span:first-child { transform: translateY(-100%); opacity: 0; }
+  .done .label span + span { transform: none; opacity: 1; }
+  /* a ring goes out on success */
+  .copy::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 0 rgba(22,163,74,.5); }
+  .done::after { animation: ring .6s ease-out; }
+  @keyframes ring { to { box-shadow: 0 0 0 14px rgba(22,163,74,0); } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="field">
+    <code>npm i <b>@uiverse/ui</b></code>
+    <button class="copy" type="button">
+      <span class="icon" aria-hidden="true">
+        <svg class="stack" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 2.5H4A1.5 1.5 0 0 0 2.5 4v7"/></svg>
+        <svg class="check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8.5 3.2 3.2L13 4.5"/></svg>
+      </span>
+      <span class="label"><span>Copy</span><span>Copied</span></span>
+    </button>
+    <span class="sr" role="status" aria-live="polite"></span>
+  </div>
+<script>
+  const btn = document.querySelector(".copy"), status = document.querySelector("[role=status]");
+  let t;
+  btn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText("npm i @uiverse/ui"); } catch { /* sandboxed previews can't reach the clipboard; the feedback still shows */ }
+    btn.classList.remove("done"); void btn.offsetWidth; btn.classList.add("done");
+    status.textContent = "Copied to clipboard";
+    clearTimeout(t);
+    t = setTimeout(() => { btn.classList.remove("done"); status.textContent = ""; }, 1800);
+  });
+</script>
+</body>
+</html>
