@@ -68,6 +68,8 @@ function Poster({ item, eager }: { item: Item; eager: boolean }) {
         width={live.w * live.scale}
         height={live.h * live.scale}
         sizes="(max-width: 768px) 50vw, 340px"
+        /* already a small JPEG at card size (npm run craft:posters) — served as is, not re-encoded */
+        unoptimized
         alt={item.title}
         draggable={false}
         {...(eager ? { loading: "eager" as const, fetchPriority: "high" as const } : {})}
