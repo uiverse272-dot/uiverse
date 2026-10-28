@@ -69,7 +69,16 @@ const craft = [
 const nextConfig: NextConfig = {
   /* the local embedded Postgres ships WebAssembly and data files that must load from node_modules as-is */
   serverExternalPackages: ["@electric-sql/pglite"],
-  images: captures ? { remotePatterns: [new URL(`${captures}/captures/**`)] } : undefined,
+  images: {
+    /*
+     * Every image is already sized by the script that wrote it (capture cards and first screens,
+     * originals' posters, finds), so nothing is re-encoded on request. That also keeps images up
+     * on Vercel's Hobby plan, whose optimizer answers 402 for new images once its monthly
+     * allowance is used.
+     */
+    unoptimized: true,
+    ...(captures ? { remotePatterns: [new URL(`${captures}/captures/**`)] } : {}),
+  },
   poweredByHeader: false,
   async headers() {
     return [

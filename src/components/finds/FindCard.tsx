@@ -28,8 +28,6 @@ export function FindCard({ find, eager = false }: { find: Find; eager?: boolean 
             width={find.image.w}
             height={find.image.h}
             sizes="(max-width: 768px) 50vw, 340px"
-            /* already at most 1200px wide (npm run finds:add) — served as is, not re-encoded */
-            unoptimized
             alt=""
             {...(eager ? { loading: "eager" as const, fetchPriority: "high" as const } : {})}
             style={{ display: "block", width: "100%", height: "auto" }}
