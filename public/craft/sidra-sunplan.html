@@ -1,0 +1,289 @@
+<!doctype html>
+<!-- Apartment listing with a sun plan — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A flat sold on its light: the floor plan is drawn large, and moving the sun through the day (and
+     the year) casts light through each real window onto the floor. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sidra — Flat 9B</title>
+<style>
+  :root {
+    --ground: #dfdedb; --paper: #ebeae6; --surface: #d3d2ce; --ink: #26251e; --soft: #5f5d55; --blue: #2456d6; --sun: #ffc93e;
+    --sans: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+    --m: clamp(20px, 3vw, 44px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ground); color: var(--ink); font: 17px/1.55 var(--sans); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  nav { display: flex; align-items: center; gap: 32px; padding: 26px var(--m); font-size: 15px; }
+  .word { font-weight: 700; font-size: 22px; letter-spacing: .14em; margin-right: auto; }
+  nav a:not(.word):not(.book) { color: var(--soft); transition: color .2s; }
+  nav a:not(.word):not(.book):hover { color: var(--ink); }
+  .book { padding: 12px 20px; background: var(--ink); color: var(--paper); font-weight: 500; transition: background .2s; }
+  .book:hover { background: var(--blue); }
+
+  .hero { display: grid; grid-template-columns: 5.2fr 6.8fr; gap: clamp(28px, 3vw, 56px); padding: 8px var(--m) 0; align-items: stretch; min-height: calc(100svh - 88px); }
+  .info { display: flex; flex-direction: column; padding-bottom: 40px; }
+  .where { color: var(--soft); font-size: 16px; }
+  h1 { margin-top: 18px; font-size: clamp(44px, 4.4vw, 70px); line-height: .98; letter-spacing: -.045em; font-weight: 600; text-wrap: balance; }
+  .lede { margin-top: 26px; max-width: 30em; }
+  .specs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: auto; padding-top: 36px; }
+  .specs div { padding: 14px 16px; background: var(--surface); }
+  .specs dt { font-size: 14px; color: var(--soft); }
+  .specs dd { font-size: 22px; letter-spacing: -.02em; }
+  .price { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 6px; padding: 18px 16px 18px 18px; background: var(--ink); color: var(--paper); }
+  .price b { font-size: 28px; font-weight: 500; letter-spacing: -.03em; }
+  .price span { display: block; font-size: 14px; color: #b9b7af; }
+  .price a { padding: 13px 20px; background: var(--paper); color: var(--ink); font-weight: 500; font-size: 15px; white-space: nowrap; transition: background .2s, color .2s; }
+  .price a:hover { background: var(--sun); }
+
+  /* the plan */
+  .plan { background: var(--paper); display: flex; flex-direction: column; padding: 18px 22px 20px; }
+  .plan svg { display: block; width: 100%; height: auto; flex: 1; min-height: 0; }
+  .walls { fill: none; stroke: var(--ink); stroke-linecap: square; }
+  .room-name { font: 600 21px var(--sans); fill: var(--ink); text-anchor: middle; }
+  .room-area { font: 400 18px var(--sans); fill: var(--soft); text-anchor: middle; }
+  .furn { fill: none; stroke: #9d9a90; stroke-width: 3; }
+  .glass { stroke: var(--blue); stroke-width: 4; }
+  .patch { fill: var(--sun); mix-blend-mode: multiply; transition: opacity .3s; }
+  .room-lit .room-name { fill: #7a5200; }
+  .ctrl { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding-top: 10px; }
+  .time { font-size: 34px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; min-width: 4.6em; }
+  .time small { display: block; font-size: 14px; letter-spacing: 0; color: var(--soft); }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--ink); }
+  input[type=range]::-moz-range-track { height: 4px; background: var(--ink); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -12px; border-radius: 50%; background: var(--sun); border: 3px solid var(--ink); transition: transform .15s; }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--sun); border: 3px solid var(--ink); }
+  input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
+  .season { display: flex; background: var(--surface); padding: 3px; }
+  .season button { padding: 8px 12px; font-size: 14px; color: var(--soft); transition: background .2s, color .2s; }
+  .season button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .lit { margin-top: 8px; font-size: 15px; color: var(--soft); min-height: 1.5em; }
+  .lit b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- units */
+  .units { padding: 170px var(--m) 0; display: grid; grid-template-columns: 5.2fr 6.8fr; gap: clamp(28px, 3vw, 56px); }
+  .units h2 { font-size: clamp(36px, 3.6vw, 56px); line-height: 1; letter-spacing: -.04em; font-weight: 600; text-wrap: balance; }
+  .units p { margin-top: 20px; max-width: 28em; }
+  table { width: 100%; border-collapse: collapse; font-size: 17px; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 400; color: var(--soft); font-size: 14px; padding: 0 12px 12px; }
+  td { padding: 18px 12px; border-top: 1px solid #c4c2bb; }
+  tr.here td { background: var(--paper); }
+  td.st { text-align: right; }
+  td.st span { display: inline-block; padding: 4px 10px; font-size: 14px; background: var(--surface); }
+  td.st span.ok { background: var(--ink); color: var(--paper); }
+  footer { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding: 170px var(--m) 32px; }
+  footer .big { font-size: clamp(90px, 16vw, 250px); font-weight: 700; letter-spacing: .02em; line-height: .76; }
+  footer p { font-size: 15px; color: var(--soft); text-align: right; }
+
+  @media (max-width: 1100px) {
+    .hero, .units { grid-template-columns: 1fr; }
+    .hero { min-height: 0; }
+    .info { padding-bottom: 0; }
+  }
+  @media (max-width: 640px) {
+    nav a:not(.word):not(.book) { display: none; }
+    .specs { grid-template-columns: 1fr 1fr; }
+    .plan { margin: 0 calc(var(--m) * -1); padding: 14px 12px 18px; }
+    .ctrl { grid-template-columns: 1fr; gap: 8px; }
+    .price { flex-direction: column; align-items: flex-start; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+    footer { flex-direction: column; align-items: flex-start; }
+    footer p { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { .patch, .book, .price a { transition: none; } }
+</style>
+</head>
+<body>
+<nav aria-label="Main"><a class="word" href="#">SIDRA</a><a href="#">Homes</a><a href="#">The building</a><a href="#">Al Nakheel</a><a class="book" href="#">Book a viewing</a></nav>
+
+<header class="hero">
+  <div class="info">
+    <p class="where">Flat 9B · Sidra, Al Nakheel, Riyadh</p>
+    <h1>Three bedrooms, morning side</h1>
+    <p class="lede">The main bedroom faces east and the living room runs the whole south front, so the flat has sun from breakfast until mid-afternoon. Move the sun across the plan to see it.</p>
+    <dl class="specs">
+      <div><dt>Bedrooms</dt><dd>3</dd></div>
+      <div><dt>Bathrooms</dt><dd>2</dd></div>
+      <div><dt>Floor area</dt><dd>142 m²</dd></div>
+      <div><dt>Floor</dt><dd>9 of 12</dd></div>
+      <div><dt>Balcony</dt><dd>18 m²</dd></div>
+      <div><dt>Keys</dt><dd>June 2027</dd></div>
+    </dl>
+    <div class="price"><div><span>Price</span><b>SAR 2,480,000</b></div><a href="#">Book a viewing</a></div>
+  </div>
+
+  <figure class="plan">
+    <svg viewBox="-170 -110 1340 1050" role="img" aria-labelledby="plan-cap">
+      <title id="plan-cap">Floor plan of flat 9B with sunlight falling through the windows</title>
+      <defs>
+        <clipPath id="c-b3"><rect x="0" y="0" width="300" height="260"/></clipPath>
+        <clipPath id="c-bath"><rect x="300" y="0" width="160" height="200"/></clipPath>
+        <clipPath id="c-kit"><rect x="460" y="0" width="240" height="300"/></clipPath>
+        <clipPath id="c-main"><rect x="700" y="0" width="300" height="330"/></clipPath>
+        <clipPath id="c-liv"><path d="M420 300 H700 V330 H1000 V700 H420 Z"/></clipPath>
+        <clipPath id="c-b2"><rect x="0" y="440" width="420" height="260"/></clipPath>
+        <clipPath id="c-bal"><rect x="560" y="700" width="440" height="100"/></clipPath>
+      </defs>
+      <!-- the sun's path and the sun -->
+      <path id="arc" fill="none" stroke="#c4c2bb" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+      <circle id="sun" r="34" fill="var(--sun)" stroke="var(--ink)" stroke-width="4"/>
+      <g transform="translate(-90 -60)" aria-hidden="true"><path d="M0 -36 L14 10 L0 2 L-14 10 Z" fill="var(--ink)"/><text y="40" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)" font-family="Helvetica Neue, Arial">N</text></g>
+      <!-- floors and light -->
+      <rect x="0" y="0" width="1000" height="700" fill="#f4f3ef"/>
+      <rect x="560" y="700" width="440" height="100" fill="#f4f3ef" opacity=".6"/>
+      <g id="patches"></g>
+      <!-- furniture -->
+      <g class="furn">
+        <rect x="40" y="90" width="150" height="130"/><rect x="40" y="90" width="150" height="34"/>
+        <rect x="770" y="110" width="190" height="180"/><rect x="770" y="110" width="190" height="40"/>
+        <rect x="60" y="560" width="160" height="120"/><rect x="60" y="560" width="160" height="30"/>
+        <path d="M470 30 V240 M470 30 H690"/><rect x="480" y="40" width="50" height="50"/>
+        <rect x="770" y="420" width="190" height="80"/><rect x="900" y="420" width="60" height="200"/>
+        <circle cx="560" cy="470" r="70"/><circle cx="560" cy="470" r="100" stroke-dasharray="8 10"/>
+        <rect x="318" y="18" width="62" height="104"/><circle cx="428" cy="44" r="18"/>
+      </g>
+      <!-- walls -->
+      <path class="walls" stroke-width="16" d="M0 0 H1000 V700 H0 Z"/>
+      <path class="walls" stroke-width="9" d="M300 0 V260 M0 260 H300 M460 0 V200 M300 200 H460 M700 0 V330 M700 330 H780 M880 330 H1000 M0 440 H330 M420 440 V700 M420 300 V360 M460 200 V300 H420"/>
+      <path class="walls" stroke-width="3" stroke-dasharray="10 10" d="M560 700 V800 H1000 V700"/>
+      <!-- windows (gaps in the wall with glass) and doors -->
+      <g id="windows"></g>
+      <g class="furn"><path d="M0 300 A 80 80 0 0 1 80 380 M0 300 V380"/><path d="M780 330 A 100 100 0 0 0 880 330"/></g>
+      <!-- rooms -->
+      <g id="labels"></g>
+    </svg>
+    <div class="ctrl">
+      <p class="time" aria-live="polite"><span id="clock">8:00 am</span><small id="alt">Sun 32° up, east-south-east</small></p>
+      <div><label for="t" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Time of day</label><input id="t" type="range" min="300" max="1170" step="5" value="480"></div>
+      <div class="season" role="group" aria-label="Time of year">
+        <button data-s="dec" aria-pressed="false">Dec</button><button data-s="mar" aria-pressed="true">Mar</button><button data-s="jun" aria-pressed="false">Jun</button>
+      </div>
+    </div>
+    <p class="lit" id="lit"></p>
+  </figure>
+</header>
+
+<main>
+<section class="units" aria-labelledby="units-title">
+  <div><h2 id="units-title">Every B flat faces the morning</h2><p>The B line runs up the east side of the building. Two are left, and both come with a parking space and storage in the basement.</p></div>
+  <table>
+    <thead><tr><th>Flat</th><th>Floor</th><th>Area</th><th>Price</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>3B</td><td>3</td><td>142 m²</td><td>SAR 2,290,000</td><td class="st"><span>Sold</span></td></tr>
+      <tr><td>5B</td><td>5</td><td>142 m²</td><td>SAR 2,350,000</td><td class="st"><span>Sold</span></td></tr>
+      <tr><td>7B</td><td>7</td><td>142 m²</td><td>SAR 2,410,000</td><td class="st"><span>Reserved</span></td></tr>
+      <tr class="here"><td>9B</td><td>9</td><td>142 m²</td><td>SAR 2,480,000</td><td class="st"><span class="ok">Available</span></td></tr>
+      <tr><td>11B</td><td>11</td><td>148 m²</td><td>SAR 2,620,000</td><td class="st"><span class="ok">Available</span></td></tr>
+    </tbody>
+  </table>
+</section>
+</main>
+<footer><p class="big" aria-hidden="true">SIDRA</p><p>Sales office, Al Nakheel, Riyadh<br>Saturday to Thursday, 10 am to 8 pm<br>sales@sidra.example</p></footer>
+
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const ROOMS = [
+    { id: "b3", name: "Bedroom", area: "13.2", at: [150, 225] },
+    { id: "bath", name: "Bath", area: "5.8", at: [380, 156] },
+    { id: "kit", name: "Kitchen", area: "11.5", at: [580, 275] },
+    { id: "main", name: "Main bedroom", area: "18.6", at: [850, 70] },
+    { id: "liv", name: "Living and dining", area: "38.4", at: [700, 640] },
+    { id: "b2", name: "Bedroom", area: "14.1", at: [300, 520] },
+    { id: "hall", name: "Entrance", area: "9.0", at: [200, 355] },
+    { id: "bal", name: "Balcony", area: "18", at: [780, 765] },
+  ];
+  /* each window: its two ends on the wall, the way into the room, the room */
+  const WIN = [
+    { a: [60, 0], b: [240, 0], n: [0, 1], r: "b3" },
+    { a: [340, 0], b: [420, 0], n: [0, 1], r: "bath" },
+    { a: [520, 0], b: [660, 0], n: [0, 1], r: "kit" },
+    { a: [770, 0], b: [940, 0], n: [0, 1], r: "main" },
+    { a: [1000, 60], b: [1000, 280], n: [-1, 0], r: "main" },
+    { a: [1000, 380], b: [1000, 660], n: [-1, 0], r: "liv" },
+    { a: [460, 700], b: [540, 700], n: [0, -1], r: "liv" },
+    { a: [600, 700], b: [960, 700], n: [0, -1], r: "liv" },
+    { a: [80, 700], b: [340, 700], n: [0, -1], r: "b2" },
+    { a: [0, 500], b: [0, 650], n: [1, 0], r: "b2" },
+  ];
+  /* Riyadh, roughly: sunrise, sunset (minutes), their bearings and the noon height */
+  const SEASONS = {
+    dec: { rise: 400, set: 1030, az0: 116, az1: 244, peak: 42 },
+    mar: { rise: 360, set: 1085, az0: 90, az1: 270, peak: 65 },
+    jun: { rise: 305, set: 1135, az0: 64, az1: 296, peak: 88 },
+  };
+  const NAMES = { b3: "the north bedroom", bath: "the bathroom", kit: "the kitchen", main: "the main bedroom", liv: "the living room", b2: "the south bedroom" };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.append(e); return e; };
+
+  for (const w of WIN) {
+    const g = $("windows");
+    const vert = w.a[0] === w.b[0];
+    el("line", { x1: w.a[0], y1: w.a[1], x2: w.b[0], y2: w.b[1], stroke: "#f4f3ef", "stroke-width": 18 }, g);
+    for (const o of [-5, 5]) el("line", { class: "glass", x1: w.a[0] + (vert ? o : 0), y1: w.a[1] + (vert ? 0 : o), x2: w.b[0] + (vert ? o : 0), y2: w.b[1] + (vert ? 0 : o) }, g);
+  }
+  for (const r of ROOMS) {
+    const g = el("g", { id: "lab-" + r.id }, $("labels"));
+    el("text", { class: "room-name", x: r.at[0], y: r.at[1] }, g).textContent = r.name;
+    el("text", { class: "room-area", x: r.at[0], y: r.at[1] + 26 }, g).textContent = `${r.area} m²`;
+  }
+
+  const C = [500, 350], R = [680, 560];
+  let season = "mar";
+  const arc = () => {
+    const s = SEASONS[season], pts = [];
+    for (let az = s.az0; az <= s.az1; az += 4) { const A = az * Math.PI / 180; pts.push(`${(C[0] + Math.sin(A) * R[0]).toFixed(1)} ${(C[1] - Math.cos(A) * R[1]).toFixed(1)}`); }
+    $("arc").setAttribute("d", "M" + pts.join(" L"));
+  };
+  const fmt = (m) => { const h = Math.floor(m / 60), mm = String(m % 60).padStart(2, "0"); return `${((h + 11) % 12) + 1}:${mm} ${h < 12 ? "am" : "pm"}`; };
+  const dirName = (az) => ["north", "north-north-east", "north-east", "east-north-east", "east", "east-south-east", "south-east", "south-south-east", "south", "south-south-west", "south-west", "west-south-west", "west", "west-north-west", "north-west", "north-north-west"][Math.round(az / 22.5) % 16];
+
+  function draw() {
+    const t = +$("t").value, s = SEASONS[season];
+    $("clock").textContent = fmt(t);
+    const g = $("patches"); g.innerHTML = "";
+    document.querySelectorAll("#labels g").forEach((l) => l.classList.remove("room-lit"));
+    if (t <= s.rise || t >= s.set) {
+      $("sun").setAttribute("opacity", 0);
+      $("alt").textContent = "The sun is down";
+      $("lit").innerHTML = "Night. Sunrise is at <b>" + fmt(s.rise) + "</b>.";
+      return;
+    }
+    const f = (t - s.rise) / (s.set - s.rise);
+    const az = s.az0 + (s.az1 - s.az0) * f, alt = s.peak * Math.sin(Math.PI * f);
+    const A = az * Math.PI / 180;
+    $("sun").setAttribute("opacity", 1);
+    $("sun").setAttribute("cx", C[0] + Math.sin(A) * R[0]);
+    $("sun").setAttribute("cy", C[1] - Math.cos(A) * R[1]);
+    $("alt").textContent = `Sun ${Math.round(alt)}° up, ${dirName(az)}`;
+    /* light travels away from the sun; a low sun throws a long patch */
+    const L = [-Math.sin(A), Math.cos(A)];
+    const D = Math.min(1100, 170 / Math.tan(Math.max(alt, 3) * Math.PI / 180));
+    const lit = new Set();
+    for (const w of WIN) {
+      const k = L[0] * w.n[0] + L[1] * w.n[1];
+      if (k < 0.06 || alt < 1) continue;
+      const d = [L[0] * D, L[1] * D];
+      const pts = [w.a, w.b, [w.b[0] + d[0], w.b[1] + d[1]], [w.a[0] + d[0], w.a[1] + d[1]]].map((p) => p.join(",")).join(" ");
+      el("polygon", { class: "patch", points: pts, "clip-path": `url(#c-${w.r})`, opacity: (0.32 + 0.5 * k).toFixed(2) }, g);
+      lit.add(w.r);
+    }
+    lit.forEach((r) => $("lab-" + r)?.classList.add("room-lit"));
+    const names = [...lit].map((r) => NAMES[r]);
+    $("lit").innerHTML = names.length ? "Sun now in <b>" + names.join(", ").replace(/, ([^,]*)$/, " and $1") + "</b>." : "The sun is overhead: no direct light inside.";
+  }
+  $("t").addEventListener("input", draw);
+  document.querySelectorAll(".season button").forEach((b) => b.addEventListener("click", () => {
+    season = b.dataset.s;
+    document.querySelectorAll(".season button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    arc(); draw();
+  }));
+  arc(); draw();
+</script>
+</body>
+</html>

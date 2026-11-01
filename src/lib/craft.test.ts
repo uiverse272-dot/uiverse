@@ -23,6 +23,7 @@ describe("Uiverse Originals", () => {
     for (const i of originals) {
       expect(existsSync(pub(i.live!.src)), i.live!.src).toBe(true);
       expect(existsSync(pub(i.live!.poster)), `${i.live!.poster} — run npm run craft:posters`).toBe(true);
+      if (i.live!.tall) expect(existsSync(pub(i.live!.tall.src)), `${i.live!.tall.src} — run npm run craft:posters`).toBe(true);
     }
   });
 
@@ -33,6 +34,14 @@ describe("Uiverse Originals", () => {
       expect(has(INDUSTRIES, r.industry), `${r.slug}: ${r.industry}`).toBe(true);
       expect(has(STYLES, r.style), `${r.slug}: ${r.style}`).toBe(true);
       if (r.kind === "component") expect(has(COMPONENT_TYPES, r.componentType), `${r.slug}: ${r.componentType}`).toBe(true);
+    }
+  });
+
+  it("file phone apps under Apps, drawn at a phone's size", () => {
+    for (const i of originals.filter((i) => i.device === "mobile")) {
+      expect(i.kind, i.slug).toBe("screen");
+      expect(i.platform, i.slug).not.toBe("web");
+      expect([i.live!.w, i.live!.h], i.slug).toEqual([390, 844]);
     }
   });
 

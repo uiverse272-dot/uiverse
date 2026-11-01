@@ -1,0 +1,264 @@
+<!doctype html>
+<!-- AI meeting notes — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     The product carries the first screen: a meeting is under way, the transcript writes itself and
+     decisions, to-dos and open questions are pulled out beside it, each linked to the line it came from. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gist — every meeting, written down</title>
+<style>
+  :root {
+    --bg: #eef0f3; --surface: #ffffff; --raise: #e2e5ea; --ink: #0b0c0e; --soft: #5d6470; --cobalt: #1f2de6; --cobalt-2: #1a27c9; --wash: #e6e8fd;
+    --s1: #1f2de6; --s2: #e5612b; --s3: #15936a; --s4: #c1307f;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --m: clamp(20px, 3vw, 44px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font: 17px/1.55 var(--sans); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
+
+  .hero { display: grid; grid-template-columns: 5fr 7fr; min-height: 900px; height: 100svh; max-height: 1040px; }
+  .left { display: flex; flex-direction: column; padding: 28px var(--m) 52px; }
+  nav { display: flex; align-items: center; gap: 30px; font-size: 15px; }
+  .word { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 22px; letter-spacing: -.03em; margin-right: auto; }
+  .word i { width: 20px; height: 20px; border-radius: 50%; background: var(--cobalt); box-shadow: inset -6px 0 0 #fff; }
+  nav a:not(.word) { color: var(--soft); transition: color .2s; }
+  nav a:not(.word):hover { color: var(--ink); }
+  .copy { margin-top: auto; }
+  h1 { font-size: clamp(48px, 5.4vw, 86px); line-height: .98; letter-spacing: -.05em; font-weight: 650; text-wrap: balance; }
+  .lede { margin-top: 30px; max-width: 30em; font-size: 19px; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 38px; }
+  .btn { display: inline-flex; align-items: center; white-space: nowrap; height: 52px; padding: 0 26px; background: var(--cobalt); color: #fff; font-weight: 600; font-size: 16px; border-radius: 99px; transition: background .2s, transform .15s; }
+  .btn:hover { background: var(--cobalt-2); }
+  .btn:active { transform: scale(.97); }
+  .cta small { color: var(--soft); font-size: 15px; }
+
+  /* the cobalt half and the app in it */
+  .stage { position: relative; background: var(--cobalt); overflow: hidden; padding: 84px 0 0 56px; }
+  .stage .tag { position: absolute; top: 30px; left: 56px; right: 40px; display: flex; justify-content: space-between; color: #c9cdfb; font-size: 15px; }
+  .stage .tag b { color: #fff; font-weight: 500; }
+  .app { display: grid; grid-template-columns: 1.08fr 1fr; height: 100%; background: var(--surface); border-radius: 14px 0 0 0; overflow: hidden; }
+  .pane { padding: 22px 24px; overflow: hidden; display: flex; flex-direction: column; }
+  .pane + .pane { background: #f6f7f9; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 14px; }
+  .bar h2 { font-size: 15px; font-weight: 600; }
+  .rec { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--soft); font-variant-numeric: tabular-nums; }
+  .rec i { width: 9px; height: 9px; border-radius: 50%; background: #e5312b; animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .who { display: flex; gap: 6px; margin-bottom: 14px; }
+  .who span { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 6px; background: var(--raise); border-radius: 99px; font-size: 13px; }
+  .who span b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 600; }
+  .who span.talking { background: var(--wash); }
+
+  .lines { list-style: none; display: grid; gap: 4px; align-content: start; }
+  .lines li { display: grid; grid-template-columns: 50px 1fr; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 15px; line-height: 1.45; transition: background .4s; }
+  .lines li time { color: var(--soft); font-size: 13px; padding-top: 2px; font-variant-numeric: tabular-nums; }
+  .lines li b { font-weight: 600; margin-right: 6px; }
+  .lines li.hit { background: var(--wash); }
+  .lines li.new { animation: rise .4s ease-out; }
+  .caret::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--cobalt); animation: blink .8s steps(2) infinite; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+  .group { margin-top: 6px; }
+  .group h3 { font-size: 13px; font-weight: 600; color: var(--soft); margin: 12px 0 8px; }
+  .notes { list-style: none; display: grid; gap: 6px; }
+  .notes li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; padding: 11px 12px; background: var(--surface); border-radius: 8px; font-size: 15px; line-height: 1.4; cursor: pointer; transition: background .2s; }
+  .notes li:hover, .notes li:focus-visible { background: var(--wash); }
+  .notes li.new { animation: rise .45s ease-out; }
+  .notes .box { width: 18px; height: 18px; margin-top: 1px; border-radius: 5px; background: var(--raise); }
+  .notes .dec { background: var(--cobalt); }
+  .notes .q { border-radius: 50%; background: #f1c84b; }
+  .notes .due { font-size: 13px; color: var(--soft); white-space: nowrap; }
+  .notes .owner { color: var(--soft); }
+  .empty { color: var(--soft); font-size: 14px; padding: 4px 2px; }
+
+  /* ---------- after the call: the follow-up it writes */
+  .after { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 5vw, 96px); padding: 170px var(--m) 0; align-items: start; }
+  .after h2 { font-size: clamp(38px, 4vw, 64px); line-height: 1; letter-spacing: -.045em; font-weight: 650; text-wrap: balance; }
+  .after p { margin-top: 24px; max-width: 30em; }
+  .mail { background: var(--surface); border-radius: 14px; padding: 30px 34px 34px; font-size: 16px; }
+  .mail .hd { display: grid; gap: 4px; padding-bottom: 18px; color: var(--soft); font-size: 15px; }
+  .mail .hd b { color: var(--ink); font-weight: 500; }
+  .mail h4 { margin-top: 20px; font-size: 15px; font-weight: 600; }
+  .mail ul { margin-top: 8px; padding-left: 20px; display: grid; gap: 6px; }
+  .mail .send { margin-top: 26px; display: flex; gap: 10px; }
+  .mail .send button { height: 44px; padding: 0 20px; border-radius: 99px; background: var(--ink); color: #fff; font-weight: 600; font-size: 15px; transition: transform .15s; }
+  .mail .send button + button { background: var(--raise); color: var(--ink); }
+  .mail .send button:active { transform: scale(.97); }
+  .price { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; margin: 170px var(--m) 0; padding: 48px; background: var(--cobalt); color: #fff; }
+  .price h2 { font-size: clamp(36px, 3.6vw, 56px); letter-spacing: -.045em; line-height: 1; font-weight: 650; max-width: 14em; }
+  .price p { margin-top: 14px; color: #d4d7fd; }
+  .price .btn { background: #fff; color: var(--cobalt); }
+  footer { display: flex; justify-content: space-between; padding: 40px var(--m); color: var(--soft); font-size: 15px; }
+
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; height: auto; max-height: none; }
+    .left { min-height: 620px; }
+    .stage { height: 760px; padding-left: var(--m); }
+    .stage .tag { left: var(--m); }
+    .after { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    nav a:not(.word):not(.in) { display: none; }
+    .left { min-height: 0; }
+    .copy { margin-top: 72px; }
+    .stage { height: 820px; padding: 72px 0 0 16px; }
+    .stage .tag { left: 16px; right: 16px; }
+    .app { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    .pane + .pane { order: -1; }
+    .mail { padding: 24px 22px; }
+    .price { padding: 32px 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rec i, .caret::after, .lines li.new, .notes li.new { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="left">
+    <nav aria-label="Main"><a class="word" href="#"><i></i>Gist</a><a href="#">How it works</a><a href="#">Pricing</a><a class="in" href="#">Sign in</a></nav>
+    <div class="copy">
+      <h1>Every meeting, written down</h1>
+      <p class="lede">Gist joins your calls, writes the transcript and pulls out what was decided and who does what by when, before anyone hangs up.</p>
+      <div class="cta"><a class="btn" href="#">Add Gist to a call</a><small>Free for 10 meetings a month</small></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <p class="tag"><b>Launch sync</b><span id="replay-hint">Live now, Thursday 30 October</span></p>
+    <div class="app" data-ui>
+      <div class="pane">
+        <div class="bar"><h2>Transcript</h2><span class="rec"><i></i><span id="timer">02:41</span></span></div>
+        <div class="who" id="who">
+          <span data-s="0"><b style="background:var(--s1)">H</b>Huda</span>
+          <span data-s="1"><b style="background:var(--s2)">M</b>Marco</span>
+          <span data-s="2"><b style="background:var(--s3)">A</b>Aiko</span>
+          <span data-s="3"><b style="background:var(--s4)">S</b>Sam</span>
+        </div>
+        <ol class="lines" id="lines" aria-live="polite"></ol>
+      </div>
+      <div class="pane">
+        <div class="bar"><h2>Notes, by Gist</h2><button class="rec" id="replay">Replay ↺</button></div>
+        <div class="group"><h3>Decided</h3><ul class="notes" id="g-dec"><li class="empty">Nothing yet</li></ul></div>
+        <div class="group"><h3>To do</h3><ul class="notes" id="g-todo"><li class="empty">Nothing yet</li></ul></div>
+        <div class="group"><h3>Still open</h3><ul class="notes" id="g-open"><li class="empty">Nothing yet</li></ul></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="after" aria-labelledby="after-title">
+  <div>
+    <h2 id="after-title">The follow-up is written before the call ends</h2>
+    <p>When the meeting stops, Gist drafts the email: what changed, who owns each task and the dates they agreed to, with every point linked back to the moment it was said.</p>
+  </div>
+  <article class="mail" aria-label="Draft follow-up email">
+    <div class="hd"><span>To <b>Launch team</b></span><span>Subject <b>Launch moves to Friday 14 November</b></span></div>
+    <p>Hi all, here's where we landed in today's launch sync.</p>
+    <h4>Decided</h4>
+    <ul><li>Launch moves from 7 to 14 November, so the Windows export fix ships with it.</li></ul>
+    <h4>To do</h4>
+    <ul><li>Marco: export fix on staging by Wednesday 5 November.</li><li>Sam: move the press embargo and tell the three outlets today.</li><li>Aiko: finish the empty states before the 14th.</li></ul>
+    <h4>Still open</h4>
+    <ul><li>Does the pricing page change for launch? Huda and finance, Monday.</li></ul>
+    <div class="send"><button>Send to the team</button><button>Edit</button></div>
+  </article>
+</section>
+
+<section class="price" aria-labelledby="price-title">
+  <div><h2 id="price-title">Free for ten meetings a month</h2><p>Then $14 a person, a month. Works with Zoom, Meet and Teams, in 31 languages.</p></div>
+  <a class="btn" href="#">Add Gist to a call</a>
+</section>
+</main>
+<footer><span>Gist</span><span>hello@gist.example</span></footer>
+
+<script>
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const NAMES = ["Huda", "Marco", "Aiko", "Sam"];
+  const COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"];
+  /* the meeting: who speaks, what they say, and what Gist takes from it */
+  const SCRIPT = [
+    { s: 0, at: 161, t: "Okay, last thing. Are we still good for the 7th?" },
+    { s: 1, at: 166, t: "Honestly, no. The export bug is worse on Windows than we thought. I'd want another week." },
+    { s: 2, at: 174, t: "If it moves, I can finish the empty states properly. They're rough right now.",
+      note: { g: "todo", text: "Finish the empty states", owner: "Aiko", due: "Before 14 Nov" } },
+    { s: 3, at: 181, t: "A week works for us, but the press embargo is the 12th. I'd need to tell them by Friday." },
+    { s: 0, at: 189, t: "Then let's say the 14th. Marco, can you own the export fix?",
+      note: { g: "dec", text: "Launch moves from 7 to 14 November" } },
+    { s: 1, at: 195, t: "Yes. I'll have a build on staging by Wednesday.",
+      note: { g: "todo", text: "Windows export fix on staging", owner: "Marco", due: "Wed 5 Nov" } },
+    { s: 3, at: 199, t: "I'll move the embargo and send the new date to the three outlets today.",
+      note: { g: "todo", text: "Move the embargo, tell the 3 outlets", owner: "Sam", due: "Today" } },
+    { s: 2, at: 206, t: "Do we still need the pricing page update for launch?" },
+    { s: 0, at: 210, t: "Good question. Let's decide that on Monday with finance.",
+      note: { g: "open", text: "Pricing page update for launch?", owner: "Huda + finance", due: "Mon 3 Nov" } },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  let timers = [], clock = 161;
+
+  function line(row, i, typing) {
+    const li = document.createElement("li");
+    li.id = "l" + i;
+    li.className = still ? "" : "new";
+    li.innerHTML = `<time>${mmss(row.at)}</time><span><b style="color:${COLORS[row.s]}">${NAMES[row.s]}</b><span class="said"></span></span>`;
+    $("lines").append(li);
+    while ($("lines").children.length > 7) $("lines").firstElementChild.remove();
+    const said = li.querySelector(".said");
+    document.querySelectorAll("#who span").forEach((w) => w.classList.toggle("talking", +w.dataset.s === row.s));
+    if (!typing || still) { said.textContent = row.t; return Promise.resolve(); }
+    said.classList.add("caret");
+    return new Promise((done) => {
+      let k = 0;
+      const step = () => {
+        k += 2; said.textContent = row.t.slice(0, k);
+        if (k < row.t.length) timers.push(setTimeout(step, 28));
+        else { said.classList.remove("caret"); done(); }
+      };
+      step();
+    });
+  }
+  function note(row, i) {
+    const n = row.note, ul = $("g-" + n.g);
+    ul.querySelector(".empty")?.remove();
+    const li = document.createElement("li");
+    li.tabIndex = 0;
+    li.className = still ? "" : "new";
+    li.dataset.line = "l" + i;
+    li.innerHTML = `<span class="box ${n.g === "dec" ? "dec" : n.g === "open" ? "q" : ""}"></span><span>${n.text}${n.owner ? ` <span class="owner">· ${n.owner}</span>` : ""}</span><span class="due">${n.due ?? mmss(row.at)}</span>`;
+    const show = (on) => document.getElementById(li.dataset.line)?.classList.toggle("hit", on);
+    li.addEventListener("mouseenter", () => show(true));
+    li.addEventListener("mouseleave", () => show(false));
+    li.addEventListener("focus", () => show(true));
+    li.addEventListener("blur", () => show(false));
+    ul.append(li);
+    const src = document.getElementById("l" + i);
+    if (src && !still) { src.classList.add("hit"); timers.push(setTimeout(() => src.classList.remove("hit"), 1400)); }
+  }
+
+  async function play() {
+    timers.forEach(clearTimeout); timers = [];
+    $("lines").innerHTML = "";
+    for (const g of ["dec", "todo", "open"]) $("g-" + g).innerHTML = '<li class="empty">Nothing yet</li>';
+    clock = 161;
+    /* the first three lines are already said when the page opens */
+    for (let i = 0; i < 3; i++) { await line(SCRIPT[i], i, false); if (SCRIPT[i].note) note(SCRIPT[i], i); }
+    for (let i = 3; i < SCRIPT.length; i++) {
+      await new Promise((r) => timers.push(setTimeout(r, still ? 0 : 1100)));
+      clock = SCRIPT[i].at; $("timer").textContent = mmss(clock);
+      await line(SCRIPT[i], i, true);
+      if (SCRIPT[i].note) { await new Promise((r) => timers.push(setTimeout(r, still ? 0 : 350))); note(SCRIPT[i], i); }
+    }
+    document.querySelectorAll("#who span").forEach((w) => w.classList.remove("talking"));
+  }
+  setInterval(() => { if (clock < 214) $("timer").textContent = mmss(++clock); }, 1000);
+  $("replay").addEventListener("click", play);
+  play();
+</script>
+</body>
+</html>

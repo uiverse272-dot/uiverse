@@ -1,0 +1,281 @@
+<!doctype html>
+<!-- Blond-roast coffee shop — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     An Arabic, right-to-left shop for a Riyadh roastery named for the light roast of Saudi qahwa.
+     Drag the roast and the bean, its field and the tasting notes darken with it. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محمصة أشقر</title>
+<style>
+  :root {
+    --ground: #f6f2ea; --surface: #ece6da; --ink: #1d1712; --soft: #65594d; --accent: #a8322a;
+    --field: #ecd39a; --field-ink: #1d1712; --bean: #c08a52;
+    --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif;
+    --m: clamp(20px, 3vw, 44px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ground); color: var(--ink); font: 18px/1.75 var(--ar); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- first screen: words on the paper half, the bean on its field */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 860px; height: 100svh; max-height: 1060px; }
+  .words { display: flex; flex-direction: column; padding: 30px var(--m) 48px; }
+  nav { display: flex; align-items: center; gap: 36px; font-size: 17px; }
+  .mark { font-weight: 800; font-size: 30px; letter-spacing: 0; margin-inline-end: auto; line-height: 1; }
+  .mark small { font-weight: 500; font-size: 17px; color: var(--soft); margin-inline-start: 8px; }
+  nav a:not(.mark) { color: var(--soft); white-space: nowrap; transition: color .2s; }
+  @media (max-width: 1200px) { nav { gap: 22px; } }
+  nav a:not(.mark):hover { color: var(--ink); }
+  .copy { margin-top: auto; }
+  h1 { font-weight: 800; font-size: clamp(44px, 5vw, 76px); line-height: 1.12; letter-spacing: -.01em; max-width: 9em; text-wrap: balance; }
+  .lede { margin-top: 34px; max-width: 34em; font-size: 19px; }
+  .act { display: flex; align-items: center; gap: 28px; margin-top: 40px; }
+  .btn { display: inline-block; white-space: nowrap; padding: 16px 34px; background: var(--ink); color: var(--ground); font-weight: 700; font-size: 17px; transition: background .2s, transform .15s; }
+  .btn:hover { background: var(--accent); }
+  .btn:active { transform: scale(.97); }
+  .act p { color: var(--soft); font-size: 16px; }
+
+  .field { position: relative; background: var(--field); color: var(--field-ink); display: grid; place-items: center; overflow: hidden; transition: background .25s, color .25s; }
+  .bean { width: min(64%, 470px); height: auto; translate: 0 -40px; transition: transform .6s cubic-bezier(.3,.7,.2,1); }
+  .bean:hover { transform: rotate(-8deg) scale(1.03); }
+  .dial { position: absolute; inset-inline: var(--m); bottom: 44px; }
+  .read { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .read b { font-weight: 800; font-size: 44px; line-height: 1; }
+  .read span { font-size: 17px; opacity: .8; }
+  .say { min-height: 3.6em; margin-top: 10px; max-width: 30em; font-size: 17px; line-height: 1.7; }
+  .back { margin-top: 4px; font-size: 16px; font-weight: 700; text-decoration: underline; text-underline-offset: 5px; visibility: hidden; }
+  .back.on { visibility: visible; }
+  input[type=range] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 44px; margin-top: 14px; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 14px; background: linear-gradient(to left, #d9b47a, #c08a52 22%, #8a5530 50%, #4a2a16 78%, #24140a); }
+  input[type=range]::-moz-range-track { height: 14px; background: linear-gradient(to left, #d9b47a, #c08a52 22%, #8a5530 50%, #4a2a16 78%, #24140a); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 34px; margin-top: -10px; border-radius: 50%; background: var(--bean); border: 4px solid var(--field-ink); transition: transform .15s; }
+  input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--bean); border: 4px solid var(--field-ink); }
+  input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
+  .ends { display: flex; justify-content: space-between; font-size: 15px; opacity: .75; margin-top: 2px; }
+
+  /* ---------- the catalogue */
+  section { padding: 180px var(--m) 0; }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
+  h2 { font-weight: 800; font-size: clamp(36px, 3.6vw, 56px); line-height: 1.15; }
+  .head p { color: var(--soft); font-size: 17px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 56px 12px; margin-top: 48px; }
+  .item .tile { display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--c); transition: background .3s; }
+  .item .tile svg { width: 46%; height: auto; transition: transform .5s cubic-bezier(.3,.7,.2,1); }
+  .item:hover .tile svg { transform: rotate(-10deg) scale(1.06); }
+  .item h3 { margin-top: 18px; font-weight: 800; font-size: 24px; line-height: 1.3; }
+  .item .from { color: var(--soft); font-size: 16px; }
+  .item .notes { margin-top: 8px; font-size: 17px; }
+  .item .buy { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 17px; }
+  .add { padding: 9px 20px; background: var(--surface); font-weight: 700; font-size: 16px; transition: background .2s, color .2s; }
+  .add:hover { background: var(--ink); color: var(--ground); }
+  .add[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+  /* ---------- brewing */
+  .brew { display: grid; grid-template-columns: 1.1fr .9fr; gap: 64px; align-items: start; }
+  .brew .lede { margin-top: 22px; }
+  .ingredients { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; margin-top: 40px; font-size: 18px; }
+  .ingredients div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; }
+  .ingredients dd { font-weight: 700; }
+  .steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 64px; }
+  .steps li { padding: 26px 24px 30px; background: var(--surface); }
+  .steps strong { display: block; font-weight: 800; font-size: 40px; line-height: 1.1; }
+  .steps li:last-child { background: var(--ink); color: var(--ground); }
+  .dallah { width: 100%; max-width: 440px; height: auto; justify-self: center; }
+
+  footer { margin-top: 200px; background: var(--ink); color: var(--ground); padding: 64px var(--m) 0; overflow: hidden; }
+  .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; font-size: 17px; }
+  .cols b { display: block; font-size: 18px; margin-bottom: 6px; }
+  .cols p { opacity: .82; }
+  .huge { font-weight: 900; font-size: clamp(120px, 30vw, 460px); line-height: 1.05; text-align: center; color: #3a2e24; margin-top: 30px; translate: 0 22%; user-select: none; }
+
+  @media (max-width: 900px) {
+    /* the field comes first on a phone, with the name on its top row */
+    .hero { display: flex; flex-direction: column; height: auto; max-height: none; min-height: 0; }
+    .words { display: contents; }
+    nav { order: -2; padding: 22px var(--m) 0; background: var(--field); color: var(--field-ink); transition: background .25s, color .25s; }
+    nav a:not(.mark) { display: none; }
+    nav a.cart { display: inline; color: inherit; }
+    .mark small { color: inherit; opacity: .7; }
+    .field { order: -1; display: flex; flex-direction: column; align-items: stretch; padding: 36px var(--m) 30px; }
+    .bean { align-self: center; translate: none; width: min(46%, 300px); }
+    .dial { position: static; margin-top: 34px; }
+    .copy { margin-top: 0; padding: 48px var(--m) 0; }
+    .grid { grid-template-columns: 1fr 1fr; }
+    .brew { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .bean { width: 48%; }
+    .read b { font-size: 34px; }
+    .grid { grid-template-columns: 1fr; }
+    .head { flex-direction: column; gap: 4px; }
+    .ingredients { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    section { padding-top: 120px; }
+    .act { flex-direction: column; align-items: flex-start; gap: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .field, nav, .bean, .item .tile svg { transition: none; }
+    .bean:hover, .item:hover .tile svg { transform: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="shade" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+    <symbol id="bean" viewBox="0 0 200 260">
+      <ellipse cx="100" cy="130" rx="84" ry="116" transform="rotate(-14 100 130)" style="fill: var(--b, var(--bean))"/>
+      <ellipse cx="100" cy="130" rx="84" ry="116" transform="rotate(-14 100 130)" fill="url(#shade)"/>
+      <path d="M118 22 C 72 70, 132 118, 96 162 S 70 226, 84 244" fill="none" stroke="#000" stroke-opacity=".42" stroke-width="10" stroke-linecap="round"/>
+      <path d="M124 26 C 80 72, 140 120, 104 164 S 78 226, 92 242" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="4" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="hero">
+  <div class="words">
+    <nav aria-label="الرئيسية">
+      <a class="mark" href="#">أشقر<small>محمصة</small></a>
+      <a href="#coffee">القهوة</a><a href="#brew">التحضير</a><a href="#visit">زورونا</a><a class="cart" href="#">السلة (<span id="count">0</span>)</a>
+    </nav>
+    <div class="copy">
+      <h1>قهوة شقراء، كما تُشرب هنا</h1>
+      <p class="lede">نحمّص البن الخولاني واليمني والإثيوبي تحميصاً خفيفاً يناسب القهوة السعودية بالهيل والزعفران. نحمّص يومي الأحد والأربعاء، ونشحن في اليوم نفسه.</p>
+      <div class="act"><a class="btn" href="#coffee">تصفّح القهوة</a><p>شحن مجاني داخل الرياض فوق 200 ر.س</p></div>
+    </div>
+  </div>
+  <div class="field" id="field">
+    <svg class="bean" viewBox="0 0 200 260" role="img" aria-label="حبة بن بدرجة التحميص المختارة"><use href="#bean"/></svg>
+    <div class="dial">
+      <div class="read" aria-live="polite"><b id="stage">أشقر</b><span id="facts">196° · 9 دقائق</span></div>
+      <p class="say" id="say">هنا نتوقف. هذه درجة القهوة السعودية، وفيها يظهر الهيل.</p>
+      <label for="roast" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">درجة التحميص</label>
+      <input id="roast" type="range" min="0" max="100" value="8">
+      <div class="ends"><span>أشقر</span><span>غامق</span></div>
+      <button class="back" id="back">عُد إلى الأشقر</button>
+    </div>
+  </div>
+</header>
+
+<section id="coffee" aria-labelledby="coffee-title">
+  <div class="head"><h2 id="coffee-title">القهوة</h2><p>ستة أنواع، كلها بتحميص أشقر، في أكياس 250 غ</p></div>
+  <div class="grid">
+    <article class="item"><div class="tile" style="--c:#d7e2c4"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#c79458"><use href="#bean"/></svg></div>
+      <h3>خولاني، جازان</h3><p class="from">السعودية · 1,600 م · مجففة طبيعياً</p><p class="notes">تمر، مشمش مجفف، هيل</p>
+      <div class="buy"><b>95 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+    <article class="item"><div class="tile" style="--c:#efd59c"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#bf8750; transform: scaleX(.86)"><use href="#bean"/></svg></div>
+      <h3>حرازي</h3><p class="from">اليمن · 2,200 م · مجففة طبيعياً</p><p class="notes">زبيب، كاكاو، قرفة</p>
+      <div class="buy"><b>120 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+    <article class="item"><div class="tile" style="--c:#f1c3a6"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#b97e48; transform: scale(.9)"><use href="#bean"/></svg></div>
+      <h3>بني مطر</h3><p class="from">اليمن · 2,300 م · مجففة طبيعياً</p><p class="notes">عنب أحمر، عسل السدر</p>
+      <div class="buy"><b>135 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+    <article class="item"><div class="tile" style="--c:#cad7e8"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#c99a62; transform: scaleX(.78)"><use href="#bean"/></svg></div>
+      <h3>جوجي</h3><p class="from">إثيوبيا · 2,100 م · مغسولة</p><p class="notes">ياسمين، ليمون، شاي أسود</p>
+      <div class="buy"><b>78 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+    <article class="item"><div class="tile" style="--c:#efd59c"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#c48d55"><use href="#bean"/></svg></div>
+      <h3>سيدامو</h3><p class="from">إثيوبيا · 1,900 م · مجففة طبيعياً</p><p class="notes">توت، شوكولاتة بالحليب</p>
+      <div class="buy"><b>72 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+    <article class="item"><div class="tile" style="--c:#d7e2c4"><svg viewBox="0 0 200 260" aria-hidden="true" style="--b:#bc8550; transform: scaleX(.8) rotate(6deg)"><use href="#bean"/></svg></div>
+      <h3>هرر</h3><p class="from">إثيوبيا · 1,800 م · مجففة طبيعياً</p><p class="notes">مشمش، بهارات، عنب</p>
+      <div class="buy"><b>82 ر.س</b><button class="add" aria-pressed="false">أضف</button></div></article>
+  </div>
+</section>
+
+<section id="brew" aria-labelledby="brew-title">
+  <div class="brew">
+    <div>
+      <h2 id="brew-title">قهوة لعشرة فناجين</h2>
+      <p class="lede">الطريقة التي نشربها بها في المحمصة كل صباح. اطحن البن خشناً، واترك الهيل للنهاية حتى لا يحترق.</p>
+      <dl class="ingredients">
+        <div><dt>ماء</dt><dd>1 لتر</dd></div>
+        <div><dt>قهوة أشقر</dt><dd>30 غ</dd></div>
+        <div><dt>هيل مطحون</dt><dd>12 غ</dd></div>
+        <div><dt>زعفران</dt><dd>6 شعيرات</dd></div>
+        <div><dt>قرنفل، إن أحببت</dt><dd>3 حبات</dd></div>
+        <div><dt>الحرارة</dt><dd>نار هادئة</dd></div>
+      </dl>
+    </div>
+    <svg class="dallah" viewBox="0 0 300 330" role="img" aria-label="دلة قهوة">
+      <path d="M150 8 L156 40 H144 Z" fill="#8a6a2a"/>
+      <circle cx="150" cy="46" r="9" fill="#b98f3c"/>
+      <path d="M112 100 C 116 66, 184 66, 188 100 Z" fill="#c9a24a"/>
+      <rect x="104" y="98" width="92" height="12" fill="#8a6a2a"/>
+      <path d="M110 110 H190 L180 138 C 172 158, 176 172, 196 186 C 246 220, 240 292, 200 312 H100 C 60 292, 54 220, 104 186 C 124 172, 128 158, 120 138 Z" fill="#c9a24a"/>
+      <path d="M100 312 H200 C 214 304, 222 296, 228 286 H72 C 78 296, 86 304, 100 312 Z" fill="#8a6a2a"/>
+      <path d="M118 120 C 126 140, 122 160, 108 178" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="6" stroke-linecap="round"/>
+      <path d="M86 214 C 92 250, 96 270, 108 292" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="8" stroke-linecap="round"/>
+      <path d="M98 220 C 60 206, 44 150, 20 112 L 8 96 L 30 104 C 52 136, 70 180, 108 196 Z" fill="#b38b3a"/>
+      <path d="M190 120 C 250 118, 262 196, 214 226" fill="none" stroke="#8a6a2a" stroke-width="12" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <ol class="steps">
+    <li><strong>10 دقائق</strong>اغلِ الماء مع القهوة على نار هادئة.</li>
+    <li><strong>دقيقتان</strong>ارفعها عن النار، وأضف الهيل والزعفران.</li>
+    <li><strong>5 دقائق</strong>اتركها حتى يركد البن، ثم صبّها في الدلة.</li>
+    <li><strong>الآن</strong>صبّ نصف فنجان، وقدّمه باليد اليمنى.</li>
+  </ol>
+</section>
+
+<footer id="visit">
+  <div class="cols">
+    <div><b>المحمصة</b><p>حي السفارات، الرياض</p></div>
+    <div><b>أيام التحميص</b><p>الأحد والأربعاء، من السادسة صباحاً</p></div>
+    <div><b>المتجر</b><p>كل يوم، من 7 صباحاً حتى 11 مساءً</p></div>
+    <div><b>راسلنا</b><p>hello@ashgar.example</p></div>
+  </div>
+  <p class="huge" aria-hidden="true">أشقر</p>
+</footer>
+
+<script>
+  /* roast colours, light to dark: the bean, its field, and the ink that reads on it */
+  const STOPS = [
+    { at: 0, bean: [217, 180, 122], field: [236, 211, 154], ink: [29, 23, 18] },
+    { at: 22, bean: [192, 138, 82], field: [222, 182, 120], ink: [29, 23, 18] },
+    { at: 50, bean: [138, 85, 48], field: [176, 120, 72], ink: [29, 23, 18] },
+    { at: 78, bean: [74, 42, 22], field: [92, 58, 34], ink: [246, 242, 234] },
+    { at: 100, bean: [36, 20, 10], field: [44, 28, 18], ink: [246, 242, 234] },
+  ];
+  const STAGES = [
+    { to: 20, name: "أشقر", facts: "196° · 9 دقائق", say: "هنا نتوقف. هذه درجة القهوة السعودية، وفيها يظهر الهيل." },
+    { to: 45, name: "فاتح", facts: "205° · 10 دقائق ونصف", say: "أغمق بقليل: يظهر التمر أوضح، وما زالت تصلح للدلة." },
+    { to: 70, name: "متوسط", facts: "214° · 12 دقيقة", say: "هذه درجة القهوة المقطّرة. لا نحمّص إلى هنا." },
+    { to: 101, name: "غامق", facts: "226° · 14 دقيقة", say: "هنا يختفي الهيل. هذه للإسبريسو، لا للدلة." },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const root = document.documentElement;
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const rgb = (c) => `rgb(${c.join(",")})`;
+
+  function paint(v) {
+    let i = 0;
+    while (i < STOPS.length - 2 && v > STOPS[i + 1].at) i++;
+    const a = STOPS[i], b = STOPS[i + 1], t = (v - a.at) / (b.at - a.at);
+    root.style.setProperty("--bean", rgb(mix(a.bean, b.bean, t)));
+    root.style.setProperty("--field", rgb(mix(a.field, b.field, t)));
+    root.style.setProperty("--field-ink", rgb(v > 64 ? STOPS[4].ink : STOPS[0].ink));
+    const s = STAGES.find((s) => v < s.to);
+    $("stage").textContent = s.name;
+    $("facts").textContent = s.facts;
+    $("say").textContent = s.say;
+    $("back").classList.toggle("on", v >= 20);
+    $("roast").setAttribute("aria-valuetext", s.name);
+  }
+  $("roast").addEventListener("input", (e) => paint(+e.target.value));
+  $("back").addEventListener("click", () => { $("roast").value = 8; paint(8); $("roast").focus(); });
+  paint(8);
+
+  let n = 0;
+  document.querySelectorAll(".add").forEach((b) => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "في السلة" : "أضف";
+    $("count").textContent = n += on ? 1 : -1;
+  }));
+</script>
+</body>
+</html>

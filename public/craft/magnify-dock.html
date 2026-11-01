@@ -1,0 +1,123 @@
+<!doctype html>
+<!-- Magnifying dock — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     An app dock over a drawn desert dusk. Icons swell as the pointer passes, name themselves, and
+     bounce when opened. The arrow keys move along it too. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magnifying dock</title>
+<style>
+  :root { --base: 46px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { overflow: hidden; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #241a3d; }
+  .scene { position: fixed; inset: 0; }
+  .scene svg { width: 100%; height: 100%; display: block; }
+  .clock { position: absolute; top: 34px; left: 40px; color: #fff3e3; }
+  .clock b { display: block; font-size: 64px; font-weight: 300; letter-spacing: -.03em; line-height: 1; }
+  .clock span { font-size: 16px; opacity: .8; }
+
+  .dock-wrap { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; pointer-events: none; }
+  .dock { pointer-events: auto; display: flex; align-items: flex-end; gap: 6px; padding: 8px 9px; border-radius: 20px; background: rgba(255, 246, 235, .78); }
+  .dock .sep { width: 2px; align-self: stretch; margin: 6px 4px; background: rgba(0,0,0,.15); border-radius: 1px; }
+  .app { position: relative; width: var(--base); height: var(--base); flex: none; display: block; padding: 0; border: 0; background: none; cursor: pointer; }
+  .app svg { width: 100%; height: 100%; display: block; }
+  .app::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #2a2135; opacity: 0; }
+  .app.running::after { opacity: 1; }
+  .app .tip { position: absolute; left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%); padding: 5px 10px; border-radius: 8px; background: rgba(30, 22, 40, .9); color: #fff; font-size: 13px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .app:hover .tip, .app:focus-visible .tip { opacity: 1; }
+  .app:focus-visible { outline: none; }
+  .app:focus-visible svg { outline: 3px solid #fff; outline-offset: 3px; border-radius: 22%; }
+  .app.bounce { animation: bounce .9s cubic-bezier(.3,.6,.4,1); }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 20% { transform: translateY(-34px); } 45% { transform: translateY(0); } 62% { transform: translateY(-16px); } 80% { transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .app.bounce { animation: none; } }
+</style>
+</head>
+<body>
+<div class="scene" aria-hidden="true">
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+    <rect width="800" height="600" fill="#241a3d"/>
+    <rect y="150" width="800" height="120" fill="#4a2a5c"/>
+    <rect y="250" width="800" height="90" fill="#8c3d62"/>
+    <rect y="320" width="800" height="80" fill="#d9665a"/>
+    <circle cx="540" cy="372" r="64" fill="#ffc46b"/>
+    <g fill="#fff3e3" opacity=".8"><circle cx="90" cy="60" r="1.6"/><circle cx="210" cy="110" r="1.2"/><circle cx="330" cy="40" r="1.4"/><circle cx="460" cy="90" r="1"/><circle cx="640" cy="50" r="1.6"/><circle cx="720" cy="130" r="1.2"/><circle cx="160" cy="180" r="1"/></g>
+    <path d="M0 380 C 120 330, 230 400, 360 370 S 600 330, 800 372 V600 H0Z" fill="#b8524a"/>
+    <path d="M0 440 C 140 400, 300 470, 470 430 S 700 410, 800 440 V600 H0Z" fill="#8a3a3f"/>
+    <path d="M0 500 C 180 470, 360 520, 560 490 S 740 480, 800 500 V600 H0Z" fill="#5c2834"/>
+    <path d="M620 430 l6 -40 l6 40 Z M600 438 l5 -26 l5 26 Z" fill="#3b1d2b"/>
+  </svg>
+</div>
+<div class="clock" aria-hidden="true"><b id="time">9:41</b><span id="date">Friday 14 November</span></div>
+
+<div class="dock-wrap">
+  <nav class="dock" id="dock" aria-label="Dock"></nav>
+</div>
+
+<script>
+  /* every icon is a flat drawing on a rounded square */
+  const sq = (fill, body) => `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="${fill}"/>${body}</svg>`;
+  const APPS = [
+    ["Files", sq("#4c8dff", '<path d="M12 22h14l4 5h22v21H12z" fill="#fff"/><path d="M12 27h40" stroke="#4c8dff" stroke-width="3"/>'), true],
+    ["Mail", sq("#fff", '<rect x="12" y="19" width="40" height="27" rx="4" fill="#e8442e"/><path d="M13 21l19 14 19-14" fill="none" stroke="#fff" stroke-width="3"/>'), true],
+    ["Messages", sq("#2fd17d", '<path d="M14 30c0-9 8-15 18-15s18 6 18 15-8 15-18 15c-3 0-5 0-8-1l-8 4 2-7c-3-3-4-7-4-11z" fill="#fff"/>'), false],
+    ["Calendar", sq("#fff", '<rect width="64" height="20" rx="15" fill="#ff3b5c"/><rect y="10" width="64" height="10" fill="#ff3b5c"/><text class="cal-day" x="32" y="15" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" font-family="system-ui">FRI</text><text class="cal-num" x="32" y="50" font-size="27" font-weight="600" fill="#1d1d1f" text-anchor="middle" font-family="system-ui">14</text>'), false],
+    ["Photos", sq("#1aa6a6", '<circle cx="42" cy="22" r="6" fill="#ffe08a"/><path d="M8 52l16-20 10 12 8-8 14 16z" fill="#fff"/>'), false],
+    ["Music", sq("#ff3b5c", '<path d="M26 44V20l20-5v24" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><circle cx="21" cy="44" r="6" fill="#fff"/><circle cx="41" cy="40" r="6" fill="#fff"/>'), true],
+    ["Notes", sq("#ffd23f", '<rect x="14" y="12" width="36" height="40" rx="4" fill="#fffbe8"/><path d="M20 24h24M20 32h24M20 40h16" stroke="#d9b440" stroke-width="3" stroke-linecap="round"/>'), false],
+    ["Maps", sq("#3ac17e", '<path d="M0 40l64-18v10L0 50z" fill="#ffe08a"/><path d="M32 12c-7 0-12 5-12 12 0 9 12 22 12 22s12-13 12-22c0-7-5-12-12-12z" fill="#ff5a4e"/><circle cx="32" cy="24" r="4.5" fill="#fff"/>'), false],
+    ["Terminal", sq("#16161c", '<path d="M16 22l10 9-10 9" fill="none" stroke="#2fd17d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 42h16" stroke="#e5e5e5" stroke-width="4" stroke-linecap="round"/>'), true],
+    ["Settings", sq("#8e8e98", '<circle cx="32" cy="32" r="13" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="6.6 3.6"/><circle cx="32" cy="32" r="6" fill="#fff"/>'), false],
+    null,
+    ["Downloads", sq("#5f6b8a", '<path d="M32 14v24M22 29l10 10 10-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 46h32" stroke="#fff" stroke-width="4" stroke-linecap="round"/>'), false],
+    ["Bin", sq("#d8d3cc", '<path d="M20 22h24l-2 28H22z" fill="#fff" stroke="#9a948c" stroke-width="2.5"/><path d="M17 22h30M27 22v-4h10v4M28 28v16M36 28v16" stroke="#9a948c" stroke-width="2.5" stroke-linecap="round"/>'), false],
+  ];
+  const dock = document.getElementById("dock");
+  for (const a of APPS) {
+    if (!a) { const s = document.createElement("span"); s.className = "sep"; dock.append(s); continue; }
+    const [name, svg, running] = a;
+    const b = document.createElement("button");
+    b.className = "app" + (running ? " running" : "");
+    b.setAttribute("aria-label", name);
+    b.innerHTML = `${svg}<span class="tip">${name}</span>`;
+    b.addEventListener("click", () => { b.classList.remove("bounce"); void b.offsetWidth; b.classList.add("bounce"); setTimeout(() => b.classList.add("running"), 600); });
+    dock.append(b);
+  }
+
+  /* magnify: each icon grows with closeness to the pointer, falling off over 170px */
+  const apps = [...dock.querySelectorAll(".app")];
+  const BASE = 46, MAX = 92, REACH = 150;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let centres = [];
+  const measure = () => { apps.forEach((a) => a.style.width = a.style.height = BASE + "px"); centres = apps.map((a) => { const r = a.getBoundingClientRect(); return r.left + r.width / 2; }); };
+  measure(); addEventListener("resize", measure);
+  function size(x) {
+    apps.forEach((a, i) => {
+      const d = Math.abs(x - centres[i]);
+      const k = d > REACH ? 0 : Math.cos((d / REACH) * Math.PI / 2) ** 2;
+      const s = BASE + (MAX - BASE) * k;
+      a.style.width = a.style.height = s.toFixed(1) + "px";
+    });
+  }
+  if (!still) {
+    dock.addEventListener("mousemove", (e) => size(e.clientX));
+    dock.addEventListener("mouseleave", () => size(-9999));
+  }
+  dock.addEventListener("keydown", (e) => {
+    const i = apps.indexOf(document.activeElement);
+    if (i < 0) return;
+    const n = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : i;
+    if (n !== i && apps[n]) { e.preventDefault(); apps[n].focus(); if (!still) size(centres[n]); }
+  });
+  dock.addEventListener("focusout", () => { if (!dock.contains(document.activeElement)) size(-9999); });
+
+  const d = new Date();
+  document.getElementById("time").textContent = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  document.getElementById("date").textContent = d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  /* the calendar icon shows today, as a real one would */
+  document.querySelector(".cal-day").textContent = d.toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase();
+  document.querySelector(".cal-num").textContent = d.getDate();
+</script>
+</body>
+</html>

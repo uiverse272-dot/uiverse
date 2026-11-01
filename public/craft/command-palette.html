@@ -1,0 +1,166 @@
+<!doctype html>
+<!-- Command palette — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A ⌘K palette over a dimmed app: fuzzy matching with the matched letters marked, results in
+     groups, arrow keys and Enter, and an empty state that offers a way out. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Command palette</title>
+<style>
+  :root { --ink: #16161a; --soft: #6b6b76; --line: #ececf0; --hi: #f1f1f5; --accent: #2b59ff; --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font: 14px/1.4 var(--sans); color: var(--ink); background: #f6f6f8; overflow: hidden; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+
+  /* the app behind */
+  .app { position: fixed; inset: 0; display: grid; grid-template-columns: 190px 1fr; }
+  .side { background: #ececf0; padding: 18px 12px; display: grid; align-content: start; gap: 6px; }
+  .side b { font-size: 15px; padding: 0 8px 12px; }
+  .side i { display: block; height: 28px; border-radius: 7px; background: #e0e0e6; }
+  .side i:nth-child(2) { background: #d6d6de; }
+  .main { padding: 26px 30px; display: grid; grid-template-rows: auto auto 1fr; gap: 16px; }
+  .main h1 { font-size: 22px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .kpis div { height: 86px; border-radius: 12px; background: #fff; }
+  .main .big { border-radius: 12px; background: #fff; }
+  .dim { position: fixed; inset: 0; background: rgba(18, 18, 26, .42); transition: opacity .2s; }
+
+  /* the palette */
+  .pal { position: fixed; left: 50%; top: 64px; width: min(620px, calc(100% - 28px)); transform: translateX(-50%); background: #fff; border-radius: 16px;
+    box-shadow: 0 24px 70px -12px rgba(10, 10, 30, .45), 0 0 0 1px rgba(0,0,0,.06); overflow: hidden; transition: opacity .18s, transform .18s; }
+  .closed .pal { opacity: 0; transform: translateX(-50%) scale(.97); pointer-events: none; }
+  .closed .dim { opacity: 0; }
+  .field { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 58px; border-bottom: 1px solid var(--line); }
+  .field svg { width: 20px; height: 20px; fill: none; stroke: var(--soft); stroke-width: 2; flex: none; }
+  .field input { flex: 1; border: 0; outline: none; font-size: 17px; background: none; }
+  .field input::placeholder { color: #a3a3ad; }
+  kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 6px; background: var(--hi); border: 1px solid var(--line); font: 500 12px var(--sans); color: var(--soft); }
+  .list { max-height: 372px; overflow-y: auto; padding: 6px 8px 8px; }
+  .group { padding: 10px 10px 6px; font-size: 12px; color: var(--soft); font-weight: 500; }
+  .item { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 10px; width: 100%; height: 44px; padding: 0 10px; border-radius: 9px; text-align: left; font-size: 14.5px; }
+  .item .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--hi); }
+  .item .ic svg { width: 16px; height: 16px; fill: none; stroke: var(--ink); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .item .face { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; }
+  .item mark { background: none; color: var(--accent); font-weight: 650; }
+  .item small { color: var(--soft); font-size: 13px; margin-left: 6px; }
+  .item .meta { display: flex; gap: 4px; color: var(--soft); font-size: 12.5px; align-items: center; }
+  .item[aria-selected="true"] { background: var(--hi); }
+  .item[aria-selected="true"] .ic { background: var(--accent); }
+  .item[aria-selected="true"] .ic svg { stroke: #fff; }
+  .empty { padding: 34px 20px 30px; text-align: center; color: var(--soft); }
+  .empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .empty button { margin-top: 14px; padding: 9px 14px; border-radius: 9px; background: var(--hi); color: var(--ink); font-weight: 500; }
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--line); color: var(--soft); font-size: 12.5px; }
+  .foot span { display: flex; align-items: center; gap: 6px; }
+  .toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 12px); padding: 10px 16px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .reopen { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 12px; background: #fff; box-shadow: 0 10px 30px -10px rgba(0,0,0,.3); font-weight: 500; }
+  .closed .reopen { display: flex; }
+  @media (max-width: 560px) { .app { grid-template-columns: 1fr; } .side { display: none; } .foot span:nth-child(2) { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .pal, .dim, .toast { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app" aria-hidden="true">
+  <div class="side"><b>Ledger</b><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="main"><h1>Overview</h1><div class="kpis"><div></div><div></div><div></div></div><div class="big"></div></div>
+</div>
+<div id="shell">
+  <div class="dim" id="dim"></div>
+  <div class="pal" role="dialog" aria-modal="true" aria-label="Command palette">
+    <div class="field">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+      <input id="q" autofocus autocomplete="off" spellcheck="false" placeholder="Search or jump to…" role="combobox" aria-expanded="true" aria-controls="list" aria-autocomplete="list">
+      <kbd>esc</kbd>
+    </div>
+    <div class="list" id="list" role="listbox" aria-label="Results"></div>
+    <div class="foot"><span><kbd>↑</kbd><kbd>↓</kbd> to move</span><span><kbd>↵</kbd> to open</span><span><kbd>⌘</kbd><kbd>K</kbd> anywhere</span></div>
+  </div>
+  <button class="reopen" id="reopen"><kbd>⌘</kbd><kbd>K</kbd> Open the palette</button>
+</div>
+<p class="toast" id="toast" role="status"></p>
+
+<script>
+  const I = {
+    plus: '<path d="M12 5v14M5 12h14"/>', link: '<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
+    spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+    home: '<path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/>', doc: '<path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5"/>', users: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 11a3 3 0 1 0 0-6M21 20c0-3-2-5-4.5-5.6"/>',
+    chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+    mail: '<path d="M3 6h18v12H3z"/><path d="m3 7 9 6 9-6"/>', down: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>', moon: '<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>', coin: '<circle cx="12" cy="12" r="8"/><path d="M9.5 14.5c.5 1 1.5 1.5 2.5 1.5 1.4 0 2.5-.8 2.5-2s-1-1.6-2.5-2-2.5-.8-2.5-2 1.1-2 2.5-2c1 0 2 .5 2.5 1.5M12 6v2M12 16v2"/>',
+  };
+  const DATA = [
+    ["Suggestions", [["Create invoice", "plus", ["⌘", "I"]], ["Send a payment link", "link", ["⌘", "L"]], ["Ask about this month's numbers", "spark", []]]],
+    ["Go to", [["Dashboard", "home", ["G", "D"]], ["Invoices", "doc", ["G", "I"]], ["Customers", "users", ["G", "C"]], ["Reports", "chart", ["G", "R"]], ["Settings", "gear", ["G", "S"]]]],
+    ["Actions", [["Invite a teammate", "mail", []], ["Export this view as CSV", "down", ["⌘", "E"]], ["Switch to the dark theme", "moon", []], ["Change the base currency", "coin", []]]],
+    ["People", [["Leila Haddad", "#c1307f", "Finance"], ["Omar Saleh", "#15936a", "Engineering"], ["Ines Duarte", "#e5612b", "Design"]]],
+  ];
+  const $ = (id) => document.getElementById(id);
+  let rows = [], sel = 0;
+
+  /* subsequence match: every letter of the query, in order; tighter and earlier matches score higher */
+  function match(text, q) {
+    if (!q) return { score: 0, hits: [] };
+    const t = text.toLowerCase(); let i = 0, score = 0, last = -1; const hits = [];
+    for (const ch of q.toLowerCase()) {
+      if (ch === " ") continue;
+      const at = t.indexOf(ch, i);
+      if (at < 0) return null;
+      score += at === last + 1 ? 6 : 1; if (at === 0 || t[at - 1] === " ") score += 4;
+      hits.push(at); last = at; i = at + 1;
+    }
+    return { score: score - hits[0] * .2, hits };
+  }
+  const mark = (text, hits) => [...text].map((c, i) => hits.includes(i) ? `<mark>${c}</mark>` : c).join("");
+
+  function render() {
+    const q = $("q").value.trim();
+    rows = []; let html = "";
+    for (const [group, items] of DATA) {
+      const found = items.map((it) => ({ it, m: match(it[0], q) })).filter((x) => x.m).sort((a, b) => b.m.score - a.m.score);
+      if (!found.length) continue;
+      html += `<p class="group" role="presentation">${group}</p>`;
+      for (const { it, m } of found) {
+        const id = "r" + rows.length; rows.push(it);
+        const person = group === "People";
+        const lead = person ? `<span class="face" style="background:${it[1]}">${it[0].split(" ").map((w) => w[0]).join("")}</span>` : `<span class="ic"><svg viewBox="0 0 24 24">${I[it[1]]}</svg></span>`;
+        const meta = person ? `<span class="meta">Profile</span>` : `<span class="meta">${it[2].map((k) => `<kbd>${k}</kbd>`).join("")}</span>`;
+        html += `<button class="item" role="option" id="${id}" data-i="${rows.length - 1}">${lead}<span>${mark(it[0], m.hits)}${person ? `<small>${it[2]}</small>` : ""}</span>${meta}</button>`;
+      }
+    }
+    $("list").innerHTML = html || `<div class="empty"><b>Nothing called “${q.replace(/[<&]/g, "")}”</b>Try fewer letters, or look it up in the help centre.<br><button id="docs">Search the docs for “${q.replace(/[<&]/g, "")}”</button></div>`;
+    sel = Math.min(sel, Math.max(0, rows.length - 1));
+    paint();
+    $("list").querySelectorAll(".item").forEach((b) => {
+      b.addEventListener("mousemove", () => { if (sel !== +b.dataset.i) { sel = +b.dataset.i; paint(false); } });
+      b.addEventListener("click", () => { sel = +b.dataset.i; open(); });
+    });
+    $("docs")?.addEventListener("click", () => toast(`Searching the docs for “${q}”`));
+  }
+  function paint(scroll = true) {
+    $("list").querySelectorAll(".item").forEach((b) => b.setAttribute("aria-selected", String(+b.dataset.i === sel)));
+    const cur = $("r" + sel);
+    $("q").setAttribute("aria-activedescendant", cur ? cur.id : "");
+    if (cur && scroll) cur.scrollIntoView({ block: "nearest" });
+  }
+  function toast(t) { $("toast").textContent = t; $("toast").classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => $("toast").classList.remove("on"), 1800); }
+  function open() { const r = rows[sel]; if (!r) return; toast(`Opened ${r[0]}`); close(); }
+  function close() { $("shell").classList.add("closed"); $("q").blur(); }
+  function show() { $("shell").classList.remove("closed"); $("q").value = ""; sel = 0; render(); $("q").focus(); }
+
+  $("q").addEventListener("input", () => { sel = 0; render(); });
+  $("q").addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); sel = (sel + 1) % Math.max(1, rows.length); paint(); }
+    if (e.key === "ArrowUp") { e.preventDefault(); sel = (sel - 1 + rows.length) % Math.max(1, rows.length); paint(); }
+    if (e.key === "Enter") { e.preventDefault(); open(); }
+    if (e.key === "Escape") close();
+  });
+  addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); $("shell").classList.contains("closed") ? show() : close(); } });
+  $("dim").addEventListener("click", close);
+  $("reopen").addEventListener("click", show);
+  render(); $("q").focus();
+</script>
+</body>
+</html>

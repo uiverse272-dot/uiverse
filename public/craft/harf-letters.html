@@ -1,0 +1,214 @@
+<!doctype html>
+<!-- Learn-to-read-Arabic poster — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A loud, flat landing page for an Arabic reading course. Its working part is the lesson itself:
+     pick a name or type with the letters, and see each letter in the shape it takes in that word. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harf — read Arabic in 30 days</title>
+<style>
+  :root {
+    --pink: #ff87ab; --pink-2: #ff739d; --ink: #0a0a0a; --lime: #def915; --white: #fff9f5; --soft: #6b1f3a;
+    --sky: #7cc6ff; --orange: #ff8a3d;
+    --latin: "Futura", "Century Gothic", "Avenir Next", "Segoe UI", sans-serif;
+    --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, sans-serif;
+    --m: clamp(20px, 3vw, 44px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--pink); color: var(--ink); font: 18px/1.5 var(--latin); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+  [lang="ar"] { font-family: var(--ar); }
+
+  nav { display: flex; align-items: center; gap: 30px; padding: 24px var(--m); font-size: 16px; font-weight: 500; }
+  .word { display: flex; align-items: baseline; gap: 10px; font-weight: 700; font-size: 26px; margin-right: auto; }
+  .word span { font: 700 28px/1 var(--ar); }
+  nav a:not(.word):not(.go) { transition: opacity .2s; }
+  nav a:not(.word):not(.go):hover { opacity: .55; }
+  .go { padding: 12px 22px; background: var(--ink); color: var(--pink); border-radius: 99px; transition: transform .15s; }
+  .go:active { transform: scale(.96); }
+
+  .hero { display: grid; grid-template-columns: 5.4fr 6.6fr; gap: 12px; padding: 0 var(--m) var(--m); min-height: calc(100svh - 84px); }
+  .say { display: flex; flex-direction: column; justify-content: flex-end; padding: 0 12px 20px 0; }
+  h1 { font-size: clamp(56px, 6.2vw, 100px); line-height: .9; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
+  .lede { margin-top: 30px; max-width: 26em; font-size: 20px; }
+  .acts { display: flex; align-items: center; gap: 20px; margin-top: 36px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; height: 58px; padding: 0 30px; background: var(--ink); color: var(--lime); border-radius: 99px; font-weight: 600; font-size: 18px; transition: transform .15s; }
+  .btn:hover { transform: rotate(-2deg) scale(1.03); }
+  .btn:active { transform: scale(.97); }
+  .acts small { font-size: 16px; }
+
+  /* the lesson */
+  .lesson { background: var(--ink); color: var(--white); display: flex; flex-direction: column; padding: 26px 28px 24px; border-radius: 28px; }
+  .names { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 15px; }
+  .names span { margin-right: 6px; color: #b9b2ae; }
+  .names button { padding: 8px 14px; border-radius: 99px; background: #222; font-size: 15px; transition: background .2s, color .2s; }
+  .names button:hover { background: #333; }
+  .names button[aria-pressed="true"] { background: var(--lime); color: var(--ink); }
+  .big { flex: 1; display: grid; place-items: center; min-height: 0; }
+  .big p { font: 700 clamp(110px, 13vw, 210px)/1.25 var(--ar); color: var(--pink); direction: rtl; text-align: center; white-space: nowrap; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  .big p.pop { transform: scale(1.06); }
+  .big p:empty::before { content: "اكتب"; color: #333; }
+  .forms { display: flex; flex-direction: row-reverse; justify-content: center; gap: 8px; min-height: 124px; }
+  .form { width: 92px; padding: 10px 6px 10px; background: #1b1b1b; border-radius: 16px; text-align: center; animation: drop .4s cubic-bezier(.3,1.5,.5,1) both; }
+  .form b { display: block; font: 700 46px/1.3 var(--ar); color: var(--white); }
+  .form span { display: block; font-size: 13px; color: #b9b2ae; }
+  .form em { font-style: normal; font-size: 13px; color: var(--lime); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-14px) rotate(-6deg); } }
+  .keys { display: grid; grid-template-columns: repeat(15, 1fr); gap: 5px; margin-top: 16px; direction: rtl; }
+  .key { aspect-ratio: 1 / 1.08; display: grid; place-items: center; background: #1f1f1f; border-radius: 10px; font: 600 24px/1 var(--ar); color: var(--white); transition: background .15s, transform .1s; }
+  .key:hover { background: #2e2e2e; }
+  .key:active { transform: scale(.92); background: var(--pink); color: var(--ink); }
+  .key.fn { font: 500 13px/1 var(--latin); color: var(--lime); }
+  .hint { margin-top: 12px; font-size: 15px; color: #b9b2ae; text-align: center; min-height: 1.5em; }
+
+  /* ---------- the month */
+  .month { padding: 150px var(--m) 0; }
+  .month h2, .price h2 { font-size: clamp(44px, 5vw, 84px); line-height: .95; letter-spacing: -.03em; font-weight: 700; max-width: 12em; text-wrap: balance; }
+  .weeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 56px; }
+  .week { padding: 28px 26px 30px; border-radius: 28px; min-height: 380px; display: flex; flex-direction: column; }
+  .week:nth-child(1) { background: var(--lime); }
+  .week:nth-child(2) { background: var(--white); }
+  .week:nth-child(3) { background: var(--sky); }
+  .week:nth-child(4) { background: var(--ink); color: var(--white); }
+  .week .glyph { font: 700 clamp(56px, 5.6vw, 88px)/1.2 var(--ar); white-space: nowrap; }
+  .week h3 { margin-top: auto; font-size: 30px; line-height: 1.05; letter-spacing: -.02em; }
+  .week p { margin-top: 10px; font-size: 17px; }
+  .price { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; margin: 150px var(--m) 0; padding: 48px; background: var(--lime); border-radius: 28px; }
+  .price p { margin-top: 18px; max-width: 30em; }
+  footer { display: flex; justify-content: space-between; align-items: flex-end; padding: 120px var(--m) 30px; gap: 20px; }
+  footer .ar { font: 700 clamp(140px, 24vw, 380px)/.9 var(--ar); }
+  footer p { font-size: 16px; text-align: right; }
+
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; }
+    .say { padding: 40px 0 20px; }
+    .lesson { min-height: 640px; }
+    .weeks { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    nav a:not(.word):not(.go) { display: none; }
+    h1 { font-size: 64px; }
+    .lesson { padding: 20px 14px; border-radius: 22px; min-height: 600px; }
+    .big p { font-size: 110px; }
+    .keys { grid-template-columns: repeat(8, 1fr); }
+    .form { width: 70px; }
+    .form b { font-size: 36px; }
+    .weeks { grid-template-columns: 1fr; }
+    .week { min-height: 280px; }
+    .price { grid-template-columns: 1fr; padding: 30px 24px; }
+    footer { flex-direction: column; align-items: flex-start; }
+    footer p { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .form { animation: none; }
+    .big p, .btn, .key { transition: none; }
+  }
+</style>
+</head>
+<body>
+<nav aria-label="Main">
+  <a class="word" href="#">Harf <span lang="ar">حرف</span></a>
+  <a href="#">The course</a><a href="#">For schools</a><a href="#">Pricing</a>
+  <a class="go" href="#">Start free</a>
+</nav>
+
+<header class="hero">
+  <div class="say">
+    <h1>Read Arabic in 30 days</h1>
+    <p class="lede">Arabic has 28 letters, and most of them change shape depending on their neighbours. Harf teaches the shapes first, ten minutes a day, so you're reading real words in your first week.</p>
+    <div class="acts"><a class="btn" href="#">Start the first lesson</a><small>Free for the first week</small></div>
+  </div>
+
+  <section class="lesson" aria-label="Try it: see how letters join">
+    <div class="names" role="group" aria-label="Try a name">
+      <span>Try a name</span>
+      <button data-w="سارة" aria-pressed="true">Sara</button><button data-w="عمر" aria-pressed="false">Omar</button>
+      <button data-w="ليلى" aria-pressed="false">Layla</button><button data-w="يوسف" aria-pressed="false">Yusuf</button>
+      <button data-w="محمد" aria-pressed="false">Muhammad</button><button data-w="نور" aria-pressed="false">Noor</button>
+    </div>
+    <div class="big"><p id="word" lang="ar" aria-live="polite"></p></div>
+    <div class="forms" id="forms" lang="ar" aria-label="Each letter, in the shape it takes"></div>
+    <div class="keys" id="keys" aria-label="Arabic letters"></div>
+    <p class="hint" id="hint">Or type with the letters. Arabic is written from right to left.</p>
+  </section>
+</header>
+
+<main>
+<section class="month" aria-labelledby="month-title">
+  <h2 id="month-title">Four weeks, from shapes to a whole page</h2>
+  <div class="weeks">
+    <article class="week"><p class="glyph" lang="ar">ب ـبـ</p><h3>The shapes</h3><p>All 28 letters, how each one joins, and the six that never join on the left.</p></article>
+    <article class="week"><p class="glyph" lang="ar">بَ بِ بُ</p><h3>The sounds</h3><p>Short vowels, long vowels and the marks you'll see in children's books.</p></article>
+    <article class="week"><p class="glyph" lang="ar">مخرج</p><h3>Words around you</h3><p>Street signs, menus, shop fronts and the names of the people you work with.</p></article>
+    <article class="week"><p class="glyph" lang="ar">قرأ</p><h3>A whole page</h3><p>A short story read aloud with you, then one you read on your own.</p></article>
+  </div>
+</section>
+
+<section class="price" aria-labelledby="price-title">
+  <div><h2 id="price-title">First week free, then $9 a month</h2><p>Ten minutes a day on your phone. Cancel in two taps, and keep the alphabet cards either way.</p></div>
+  <a class="btn" href="#">Start the first lesson</a>
+</section>
+</main>
+<footer><p class="ar" lang="ar" aria-hidden="true">حرف</p><p>Harf, Dubai and London<br>hello@harf.example</p></footer>
+
+<script>
+  const LETTERS = [
+    ["ا", "alif"], ["ب", "bā"], ["ت", "tā"], ["ث", "thā"], ["ج", "jīm"], ["ح", "ḥā"], ["خ", "khā"], ["د", "dāl"], ["ذ", "dhāl"], ["ر", "rā"],
+    ["ز", "zāy"], ["س", "sīn"], ["ش", "shīn"], ["ص", "ṣād"], ["ض", "ḍād"], ["ط", "ṭā"], ["ظ", "ẓā"], ["ع", "ʿayn"], ["غ", "ghayn"], ["ف", "fā"],
+    ["ق", "qāf"], ["ك", "kāf"], ["ل", "lām"], ["م", "mīm"], ["ن", "nūn"], ["ه", "hā"], ["و", "wāw"], ["ي", "yā"], ["ة", "tā marbūṭa"], ["ى", "alif maqṣūra"],
+  ];
+  const NAME = Object.fromEntries(LETTERS);
+  /* these join only to the letter before them, never to the one after */
+  const RIGHT_ONLY = new Set(["ا", "د", "ذ", "ر", "ز", "و", "ة", "أ", "إ", "آ"]);
+  const ZWJ = "‍";
+  const FORM = { alone: "alone", start: "start", middle: "middle", end: "end" };
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = (id) => document.getElementById(id);
+  let word = "";
+
+  function shapes(w) {
+    const ch = [...w];
+    return ch.map((c, i) => {
+      const prev = ch[i - 1], next = ch[i + 1];
+      const joinsPrev = prev !== undefined && !RIGHT_ONLY.has(prev);
+      const joinsNext = next !== undefined && !RIGHT_ONLY.has(c);
+      const form = joinsPrev && joinsNext ? "middle" : joinsPrev ? "end" : joinsNext ? "start" : "alone";
+      const glyph = form === "middle" ? ZWJ + c + ZWJ : form === "end" ? ZWJ + c : form === "start" ? c + ZWJ : c;
+      return { c, form, glyph };
+    });
+  }
+  function render(pop) {
+    $("word").textContent = word;
+    if (pop && !still) { $("word").classList.remove("pop"); void $("word").offsetWidth; $("word").classList.add("pop"); setTimeout(() => $("word").classList.remove("pop"), 300); }
+    $("forms").innerHTML = shapes(word).slice(-7).map((s, i) =>
+      `<div class="form" style="animation-delay:${i * 50}ms"><b>${s.glyph}</b><span>${NAME[s.c] ?? ""}</span><em>${FORM[s.form]}</em></div>`).join("");
+    const changed = shapes(word).filter((s) => s.form !== "alone").length;
+    $("hint").textContent = word ? `${[...word].length} letters, ${changed} of them joined to a neighbour.` : "Type with the letters. Arabic is written from right to left.";
+  }
+  function setName(btn) {
+    document.querySelectorAll(".names button").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+    word = btn ? btn.dataset.w : word;
+    render(true);
+  }
+  document.querySelectorAll(".names button").forEach((b) => b.addEventListener("click", () => setName(b)));
+
+  const keys = $("keys");
+  for (const [c, n] of LETTERS) {
+    const k = document.createElement("button");
+    k.className = "key"; k.textContent = c; k.setAttribute("aria-label", n);
+    k.addEventListener("click", () => { if ([...word].length < 9) { word += c; setName(null); } });
+    keys.append(k);
+  }
+  for (const [label, fn] of [["delete", () => { word = [...word].slice(0, -1).join(""); }], ["clear", () => { word = ""; }]]) {
+    const k = document.createElement("button");
+    k.className = "key fn"; k.textContent = label;
+    k.addEventListener("click", () => { fn(); setName(null); });
+    keys.append(k);
+  }
+  word = "سارة"; render(false);
+</script>
+</body>
+</html>

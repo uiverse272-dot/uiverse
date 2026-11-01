@@ -1,0 +1,152 @@
+<!doctype html>
+<!-- Turntable player — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A record player beside its album: press play and the arm swings onto the record, the record
+     spins at 33 or 45, and the needle creeps inward as the track plays. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Turntable player</title>
+<style>
+  :root { --bg: #472913; --panel: #55321a; --ink: #f1ead6; --soft: #c2ad8a; --ochre: #e0a53c; --rpm: 1.8s; --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); display: grid; place-items: center; overflow: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--ochre); outline-offset: 3px; }
+  .wrap { display: grid; grid-template-columns: auto 1fr; gap: 34px; align-items: center; width: min(760px, 94vw); }
+
+  /* the deck */
+  .deck { position: relative; width: min(380px, 46vw); aspect-ratio: 1; background: #7a4f2a; border-radius: 14px; box-shadow: inset 0 -10px 0 #5e3b1f, 0 26px 40px -18px rgba(0,0,0,.6); }
+  .platter { position: absolute; left: 7%; top: 7%; width: 76%; aspect-ratio: 1; border-radius: 50%; background: #2b2b2b; display: grid; place-items: center; }
+  .record { width: 96%; aspect-ratio: 1; border-radius: 50%; position: relative;
+    background: repeating-radial-gradient(circle, #121212 0 1.5px, #1d1d1d 1.5px 3px); animation: spin var(--rpm) linear infinite; animation-play-state: paused; }
+  .playing .record { animation-play-state: running; }
+  .label { position: absolute; inset: 33%; border-radius: 50%; overflow: hidden; }
+  .label svg { width: 100%; height: 100%; display: block; }
+  .sheen { position: absolute; inset: 2%; border-radius: 50%; pointer-events: none;
+    background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.09) 12%, transparent 18% 52%, rgba(255,255,255,.07) 60%, transparent 66%); }
+  .spindle { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #d8d2c4; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .arm { position: absolute; right: 6%; top: 6%; width: 34%; height: 72%; transform-origin: 72% 9%; transform: rotate(-26deg); transition: transform 1.2s cubic-bezier(.4,.1,.2,1); pointer-events: none; }
+  .arm svg { width: 100%; height: 100%; overflow: visible; }
+  .speeds { position: absolute; left: 7%; bottom: 6%; display: flex; gap: 6px; }
+  .speeds button { padding: 4px 9px; border-radius: 6px; background: #5e3b1f; color: var(--soft); font-size: 12px; font-weight: 600; }
+  .speeds button[aria-pressed="true"] { background: var(--ochre); color: #2a1709; }
+  .light { position: absolute; right: 8%; bottom: 8%; width: 10px; height: 10px; border-radius: 50%; background: #3b2412; transition: background .3s; }
+  .playing .light { background: #ff6b3d; }
+
+  /* the album */
+  .album { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: end; }
+  .cover { width: 120px; aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
+  .cover svg { width: 100%; height: 100%; display: block; }
+  .album h1 { font-size: 26px; line-height: 1.05; letter-spacing: -.02em; }
+  .album p { color: var(--soft); margin-top: 4px; }
+  .tracks { list-style: none; margin-top: 18px; display: grid; gap: 2px; }
+  .tracks button { width: 100%; display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; text-align: left; transition: background .2s; }
+  .tracks button:hover { background: var(--panel); }
+  .tracks button[aria-current="true"] { background: var(--panel); color: var(--ochre); }
+  .tracks .n { color: var(--soft); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .tracks .d { color: var(--soft); font-variant-numeric: tabular-nums; }
+  .eq { display: none; gap: 2px; align-items: flex-end; height: 12px; }
+  .eq i { width: 3px; background: var(--ochre); animation: eq .8s ease-in-out infinite alternate; }
+  .eq i:nth-child(2) { animation-delay: -.3s; } .eq i:nth-child(3) { animation-delay: -.6s; }
+  @keyframes eq { from { height: 3px; } to { height: 12px; } }
+  .playing .tracks [aria-current="true"] .eq { display: flex; }
+  .playing .tracks [aria-current="true"] .num { display: none; }
+  .bar { margin-top: 16px; }
+  .prog { position: relative; height: 6px; border-radius: 3px; background: var(--panel); cursor: pointer; }
+  .prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--ochre); }
+  .times { display: flex; justify-content: space-between; margin-top: 6px; color: var(--soft); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .ctrl { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+  .ctrl button svg { width: 22px; height: 22px; fill: var(--ink); }
+  .ctrl .play { width: 56px; height: 56px; border-radius: 50%; background: var(--ochre); display: grid; place-items: center; transition: transform .15s; }
+  .ctrl .play svg { fill: #2a1709; }
+  .ctrl .play:active { transform: scale(.94); }
+  .ctrl .vol { margin-left: auto; color: var(--soft); font-size: 12px; }
+  @media (max-width: 640px) { .wrap { grid-template-columns: 1fr; justify-items: center; gap: 22px; } .deck { width: min(300px, 80vw); } .side { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .record, .eq i { animation: none; } .arm { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <div class="deck" aria-hidden="true">
+    <div class="platter">
+      <div class="record">
+        <div class="label"><svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#e0a53c"/><circle cx="50" cy="50" r="34" fill="#b4432b"/><g fill="#f1ead6"><circle cx="50" cy="22" r="5"/><circle cx="74" cy="40" r="5"/><circle cx="66" cy="70" r="5"/><circle cx="34" cy="70" r="5"/><circle cx="26" cy="40" r="5"/></g><text x="50" y="54" text-anchor="middle" font-size="8" font-weight="700" fill="#f1ead6" font-family="Avenir Next, Arial">SIDE A</text></svg></div>
+      </div>
+      <div class="sheen"></div><div class="spindle"></div>
+    </div>
+    <div class="arm" id="arm">
+      <svg viewBox="0 0 120 280">
+        <circle cx="86" cy="26" r="22" fill="#2b2b2b"/><circle cx="86" cy="26" r="11" fill="#d8d2c4"/>
+        <path d="M86 26 L 82 200 L 60 236" fill="none" stroke="#d8d2c4" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="44" y="230" width="26" height="34" rx="4" fill="#2b2b2b" transform="rotate(32 57 247)"/>
+        <rect x="74" y="0" width="24" height="18" rx="4" fill="#5e3b1f"/>
+      </svg>
+    </div>
+    <div class="speeds" role="group" aria-label="Speed"><button data-rpm="33" aria-pressed="true">33</button><button data-rpm="45" aria-pressed="false">45</button></div>
+    <span class="light"></span>
+  </div>
+
+  <section class="side" aria-label="Now playing">
+    <div class="album">
+      <div class="cover" aria-hidden="true"><svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#1f3d4a"/><rect y="78" width="120" height="42" fill="#b4432b"/>
+        <g fill="#e0a53c"><circle cx="20" cy="30" r="8"/><circle cx="48" cy="22" r="8"/><circle cx="76" cy="30" r="8"/><circle cx="104" cy="22" r="8"/><circle cx="34" cy="56" r="6"/><circle cx="62" cy="50" r="6"/><circle cx="90" cy="56" r="6"/></g>
+        <path d="M0 22 Q 30 34 60 22 T 120 22" fill="none" stroke="#f1ead6" stroke-width="1.5"/><text x="10" y="106" font-size="13" font-weight="700" fill="#f1ead6" font-family="Avenir Next, Arial">NIGHT MARKET</text></svg></div>
+      <div><h1>Night Market</h1><p>Sahra and the Lamps · 2026</p></div>
+    </div>
+    <ol class="tracks" id="tracks"></ol>
+    <div class="bar">
+      <div class="prog" id="prog" role="slider" tabindex="0" aria-label="Position in the track" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="fill"></i></div>
+      <div class="times"><span id="t-now">0:00</span><span id="t-end">3:42</span></div>
+    </div>
+    <div class="ctrl">
+      <button id="prev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="play-ic"><path d="M8 5v14l11-7z"/></svg></button>
+      <button id="next" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <span class="vol">Side A · 5 tracks · 19 min</span>
+    </div>
+  </section>
+</div>
+
+<script>
+  const TRACKS = [["Lanterns", 222], ["Corniche", 250], ["Fifty Fils", 178], ["Last Ferry", 321], ["Saffron", 215]];
+  const $ = (id) => document.getElementById(id);
+  const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  let cur = 0, pos = 0, playing = false, timer = null;
+  $("tracks").innerHTML = TRACKS.map(([t, d], i) => `<li><button data-i="${i}"><span class="n"><span class="num">${i + 1}</span><span class="eq"><i></i><i></i><i></i></span></span><span>${t}</span><span class="d">${mmss(d)}</span></button></li>`).join("");
+
+  function paint() {
+    const d = TRACKS[cur][1], f = pos / d;
+    $("fill").style.width = (f * 100).toFixed(2) + "%";
+    $("prog").setAttribute("aria-valuenow", Math.round(f * 100));
+    $("t-now").textContent = mmss(pos); $("t-end").textContent = mmss(d);
+    document.querySelectorAll("#tracks button").forEach((b) => b.setAttribute("aria-current", String(+b.dataset.i === cur)));
+    /* the needle travels inward across the side as it plays */
+    const before = TRACKS.slice(0, cur).reduce((a, t) => a + t[1], 0), side = TRACKS.reduce((a, t) => a + t[1], 0);
+    $("arm").style.transform = playing ? `rotate(${(2 + ((before + pos) / side) * 15).toFixed(2)}deg)` : "rotate(-26deg)";
+  }
+  function play(on) {
+    playing = on; $("wrap").classList.toggle("playing", on);
+    $("play").setAttribute("aria-label", on ? "Pause" : "Play");
+    $("play-ic").innerHTML = on ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+    clearInterval(timer);
+    if (on) timer = setInterval(() => { pos += 1; if (pos >= TRACKS[cur][1]) { cur = (cur + 1) % TRACKS.length; pos = 0; } paint(); }, 1000);
+    paint();
+  }
+  const go = (i) => { cur = (i + TRACKS.length) % TRACKS.length; pos = 0; paint(); };
+  $("play").addEventListener("click", () => play(!playing));
+  $("prev").addEventListener("click", () => go(pos > 3 ? cur : cur - 1));
+  $("next").addEventListener("click", () => go(cur + 1));
+  $("tracks").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) { go(+b.dataset.i); if (!playing) play(true); } });
+  $("prog").addEventListener("click", (e) => { const r = $("prog").getBoundingClientRect(); pos = Math.floor(((e.clientX - r.left) / r.width) * TRACKS[cur][1]); paint(); });
+  $("prog").addEventListener("keydown", (e) => { if (e.key === "ArrowRight") pos = Math.min(TRACKS[cur][1] - 1, pos + 5); if (e.key === "ArrowLeft") pos = Math.max(0, pos - 5); paint(); });
+  document.querySelectorAll("[data-rpm]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-rpm]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    document.documentElement.style.setProperty("--rpm", b.dataset.rpm === "45" ? "1.33s" : "1.8s");
+  }));
+  paint();
+</script>
+</body>
+</html>

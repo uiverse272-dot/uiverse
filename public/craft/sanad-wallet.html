@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- Arabic wallet app — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A right-to-left banking home screen for a phone: swipe the card stack and the balance counts to
+     that account, with this month's spending and the latest payments beneath. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>سند — المحفظة</title>
+<style>
+  :root {
+    --bg: #133621; --deep: #0d2817; --surface: #1a4429; --raise: #215233; --ink: #f2efe4; --soft: #a9bfae; --gold: #f4d96c; --gold-2: #d9b94a;
+    --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--deep); color: var(--ink); font: 15px/1.5 var(--ar); font-variant-numeric: tabular-nums; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .phone { position: relative; max-width: 430px; min-height: 100svh; margin: 0 auto; background: var(--bg); padding: 0 20px 96px; overflow: hidden; }
+
+  .status { display: flex; justify-content: space-between; align-items: center; height: 46px; font: 600 15px/1 system-ui, sans-serif; direction: ltr; }
+  .status .icons { display: flex; gap: 6px; align-items: center; }
+  .status .icons i { display: block; background: var(--ink); }
+  .bars { display: flex; align-items: flex-end; gap: 2px; }
+  .bars i { width: 3px; } .bars i:nth-child(1) { height: 4px; } .bars i:nth-child(2) { height: 6px; } .bars i:nth-child(3) { height: 8px; } .bars i:nth-child(4) { height: 10px; }
+  .batt { width: 24px; height: 11px; border: 1.5px solid var(--ink); border-radius: 3px; padding: 1px; background: none !important; }
+  .batt b { display: block; width: 70%; height: 100%; background: var(--ink); border-radius: 1px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 14px; }
+  .me { display: flex; align-items: center; gap: 10px; }
+  .face { width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: var(--bg); display: grid; place-items: center; font-weight: 700; font-size: 15px; }
+  h1 { font-size: 22px; font-weight: 800; }
+  .me small { display: block; color: var(--soft); font-size: 13px; margin-top: -2px; }
+  .bell { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; position: relative; }
+  .bell svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 1.8; }
+  .bell i { position: absolute; top: 9px; left: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+
+  /* the card stack */
+  .stack { position: relative; height: 212px; margin-top: 6px; touch-action: pan-y; user-select: none; }
+  .card { position: absolute; inset: 0 0 auto 0; height: 200px; border-radius: 22px; padding: 20px 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform .45s cubic-bezier(.3,.8,.2,1), opacity .45s; overflow: hidden; }
+  .card .row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .card .kind { font-size: 15px; font-weight: 600; }
+  .card .num { direction: ltr; font: 500 17px/1 system-ui, sans-serif; letter-spacing: .14em; }
+  .card .chip { width: 38px; height: 28px; border-radius: 6px; background: rgba(255,255,255,.35); }
+  .card .logo { font-weight: 800; font-size: 22px; }
+  .card svg.pat { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .18; pointer-events: none; }
+  .c0 { background: var(--gold); color: var(--bg); }
+  .c1 { background: #e9dcc0; color: #3b2a12; }
+  .c2 { background: #0b0f0c; color: var(--ink); }
+  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 2px; }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--raise); transition: width .3s, background .3s; }
+  .dots i.on { width: 20px; background: var(--gold); }
+
+  .bal { margin-top: 18px; }
+  .bal small { color: var(--soft); font-size: 14px; }
+  .bal p { font-size: 38px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; }
+  .bal p span { font-size: 18px; font-weight: 600; color: var(--soft); margin-inline-start: 6px; }
+  .bal em { font-style: normal; font-size: 13px; color: var(--gold); }
+
+  .acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; }
+  .act { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .act span { width: 58px; height: 58px; border-radius: 20px; background: var(--surface); display: grid; place-items: center; transition: transform .15s, background .2s; }
+  .act:hover span { background: var(--raise); }
+  .act:active span { transform: scale(.9); }
+  .act svg { width: 24px; height: 24px; fill: none; stroke: var(--gold); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+  .spend { margin-top: 22px; padding: 16px; background: var(--surface); border-radius: 20px; }
+  .spend .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .spend b { font-size: 16px; }
+  .spend .top span { color: var(--soft); font-size: 13px; }
+  .seg { display: flex; gap: 3px; height: 12px; margin-top: 12px; border-radius: 6px; overflow: hidden; background: var(--raise); }
+  .seg i { display: block; height: 100%; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: 12px; font-size: 13px; color: var(--soft); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 8px; height: 8px; border-radius: 2px; }
+  .legend b { margin-inline-start: auto; font-weight: 600; font-size: 13px; color: var(--ink); }
+
+  .list { margin-top: 22px; }
+  .list .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .list h2 { font-size: 17px; font-weight: 800; }
+  .list .head a { color: var(--gold); font-size: 13px; text-decoration: none; }
+  .tx { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; }
+  .tx + .tx { border-top: 1px solid var(--surface); }
+  .tx .ic { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 16px; color: var(--gold); }
+  .tx b { display: block; font-size: 15px; font-weight: 600; }
+  .tx small { color: var(--soft); font-size: 12.5px; }
+  .tx .amt { font-weight: 700; font-size: 15px; direction: ltr; }
+  .tx .amt.in { color: var(--gold); }
+
+  .tabbar { position: fixed; bottom: 0; left: 50%; translate: -50% 0; width: min(100%, 430px); display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 10px 10px 24px; background: var(--deep); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11.5px; color: var(--soft); font-weight: 600; }
+  .tab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .tab[aria-current] { color: var(--gold); }
+  .tab.fab span { width: 54px; height: 54px; margin-top: -26px; border-radius: 50%; background: var(--gold); display: grid; place-items: center; }
+  .tab.fab svg { stroke: var(--bg); stroke-width: 2.4; }
+  @media (prefers-reduced-motion: reduce) { .card, .dots i, .act span { transition: none; } }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status" aria-hidden="true"><span>9:41</span><span class="icons"><span class="bars"><i></i><i></i><i></i><i></i></span><i class="batt"><b></b></i></span></div>
+
+  <header>
+    <div class="me"><span class="face" aria-hidden="true">ر</span><div><h1>المحفظة</h1><small>ريم الدوسري</small></div></div>
+    <button class="bell" aria-label="الإشعارات، اثنان جديدان"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><i></i></button>
+  </header>
+
+  <div class="stack" id="stack" role="region" aria-roledescription="carousel" aria-label="الحسابات"></div>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+
+  <div class="bal" aria-live="polite"><small id="b-label">الرصيد المتاح، الحساب الجاري</small><p><bdi id="b-num">0.00</bdi><span>ر.س</span></p><em id="b-note">+14,500.00 راتب أكتوبر، 27 أكتوبر</em></div>
+
+  <div class="acts">
+    <button class="act"><span><svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg></span>تحويل</button>
+    <button class="act"><span><svg viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>طلب مبلغ</button>
+    <button class="act"><span><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span>سداد</button>
+    <button class="act"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>إيداع</button>
+  </div>
+
+  <section class="spend" aria-labelledby="sp">
+    <div class="top"><b id="sp">صرفت 4,280 من 6,000 ر.س</b><span>أكتوبر</span></div>
+    <div class="seg" aria-hidden="true"><i style="width:31%;background:var(--gold)"></i><i style="width:19%;background:#e9dcc0"></i><i style="width:11%;background:#7fc79b"></i><i style="width:10%;background:#5b8a6c"></i></div>
+    <div class="legend">
+      <span><i style="background:var(--gold)"></i>بقالة<b>1,860</b></span>
+      <span><i style="background:#e9dcc0"></i>مطاعم<b>1,140</b></span>
+      <span><i style="background:#7fc79b"></i>مواصلات<b>660</b></span>
+      <span><i style="background:#5b8a6c"></i>فواتير<b>620</b></span>
+    </div>
+  </section>
+
+  <section class="list" aria-labelledby="tx-title">
+    <div class="head"><h2 id="tx-title">آخر العمليات</h2><a href="#">عرض الكل</a></div>
+    <div class="tx"><span class="ic">م</span><div><b>مخبز الحارة</b><small>مطاعم · 8:12 ص</small></div><span class="amt">-18.50</span></div>
+    <div class="tx"><span class="ic">و</span><div><b>محطة وقود الربوة</b><small>مواصلات · أمس</small></div><span class="amt">-95.00</span></div>
+    <div class="tx"><span class="ic">ر</span><div><b>راتب أكتوبر</b><small>دخل · 27 أكتوبر</small></div><span class="amt in">+14,500.00</span></div>
+    <div class="tx"><span class="ic">ك</span><div><b>فاتورة الكهرباء</b><small>فواتير · 25 أكتوبر</small></div><span class="amt">-312.40</span></div>
+    <div class="tx"><span class="ic">ت</span><div><b>تموينات النخلة</b><small>بقالة · 24 أكتوبر</small></div><span class="amt">-246.75</span></div>
+  </section>
+
+  <nav class="tabbar" aria-label="الأقسام">
+    <a class="tab" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/></svg>الرئيسية</a>
+    <a class="tab"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>البطاقات</a>
+    <a class="tab fab" aria-label="دفع سريع"><span><svg viewBox="0 0 24 24"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4M8 12h8"/></svg></span></a>
+    <a class="tab"><svg viewBox="0 0 24 24"><path d="M4 19 10 12l4 4 6-8"/></svg>الاستثمار</a>
+    <a class="tab"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>المزيد</a>
+  </nav>
+</div>
+
+<script>
+  const ACCOUNTS = [
+    { kind: "الحساب الجاري", num: "•••• 4821", bal: 23614.35, label: "الرصيد المتاح، الحساب الجاري", note: "+14,500.00 راتب أكتوبر، 27 أكتوبر" },
+    { kind: "بطاقة السفر", num: "•••• 0937", bal: 3250.0, label: "رصيد بطاقة السفر، 4 عملات", note: "يعادل 812 يورو و 640 دولاراً" },
+    { kind: "حساب التوفير", num: "•••• 7705", bal: 61980.6, label: "رصيد التوفير، عائد 4.25% سنوياً", note: "+219.40 عائد هذا الشهر" },
+  ];
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const stack = document.getElementById("stack"), dots = document.getElementById("dots");
+  const pattern = `<svg class="pat" viewBox="0 0 300 200" aria-hidden="true">${Array.from({ length: 6 }, (_, i) => `<circle cx="300" cy="0" r="${40 + i * 34}" fill="none" stroke="currentColor" stroke-width="2"/>`).join("")}</svg>`;
+  ACCOUNTS.forEach((a, i) => {
+    const c = document.createElement("div");
+    c.className = `card c${i}`;
+    c.setAttribute("role", "group"); c.setAttribute("aria-label", a.kind);
+    c.innerHTML = `${pattern}<div class="row"><span class="kind">${a.kind}</span><span class="logo">سند</span></div><span class="chip"></span><div class="row" style="align-items:flex-end"><span class="num">${a.num}</span><span style="font-size:13px;opacity:.75">مدى · فيزا</span></div>`;
+    stack.append(c);
+    dots.append(document.createElement("i"));
+  });
+  let at = 0, shown = 0;
+  const fmt = (n) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function lay(drag = 0) {
+    [...stack.children].forEach((c, i) => {
+      const k = (i - at + ACCOUNTS.length) % ACCOUNTS.length;
+      const x = k === 0 ? drag : 0;
+      c.style.zIndex = 10 - k;
+      c.style.transform = `translateX(${x}px) translateY(${k * 12}px) scale(${1 - k * 0.06}) rotate(${k === 0 ? drag / 30 : 0}deg)`;
+      c.style.opacity = k > 2 ? 0 : 1 - k * 0.15;
+      c.style.transition = drag ? "none" : "";
+    });
+    dots.querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i === at));
+  }
+  function count(to) {
+    const from = shown, t0 = performance.now(), dur = still ? 0 : 700;
+    document.getElementById("b-label").textContent = ACCOUNTS[at].label;
+    document.getElementById("b-note").textContent = ACCOUNTS[at].note;
+    const step = (t) => {
+      const p = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - p, 3);
+      shown = from + (to - from) * e;
+      document.getElementById("b-num").textContent = fmt(shown);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  function go(d) { at = (at + d + ACCOUNTS.length) % ACCOUNTS.length; lay(); count(ACCOUNTS[at].bal); }
+
+  /* swipe the top card away; in Arabic the next account comes from the left */
+  let x0 = null, dx = 0;
+  stack.addEventListener("pointerdown", (e) => { x0 = e.clientX; dx = 0; stack.setPointerCapture(e.pointerId); });
+  stack.addEventListener("pointermove", (e) => { if (x0 === null) return; dx = e.clientX - x0; lay(dx); });
+  stack.addEventListener("pointerup", () => { if (x0 === null) return; x0 = null; if (Math.abs(dx) > 60) go(dx > 0 ? 1 : -1); else if (Math.abs(dx) < 4) go(1); else lay(); });
+  stack.tabIndex = 0;
+  stack.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") go(1); if (e.key === "ArrowRight") go(-1); });
+  lay(); count(ACCOUNTS[0].bal);
+</script>
+</body>
+</html>

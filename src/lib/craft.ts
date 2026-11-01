@@ -16,6 +16,8 @@ export type Live = {
   src: string;
   /** the still for feed cards: a JPEG of the piece at `w` × `h`, `scale` times as many pixels */
   poster: string;
+  /** a desktop page's still for portrait cards: the top of the page at `w` × TALL_H */
+  tall?: { src: string; w: number; h: number };
   w: number;
   h: number;
   scale: number;
@@ -28,6 +30,8 @@ export type Live = {
 type CraftRecord = {
   slug: string;
   kind: "component" | "screen";
+  /** a phone app's screen: drawn at a phone's size and filed under Apps. Otherwise a desktop page */
+  device?: "mobile";
   componentType?: string;
   archetype?: string;
   category: string;
@@ -59,10 +63,17 @@ export const ORIGINALS: Source = {
   about: "Interactive pieces made by Uiverse: one HTML file each, no dependencies, free to use and adapt under MIT.",
 };
 
-/* a hero is drawn at a laptop's width; a widget in a frame its size */
-export const craftViewport = (r: CraftRecord): [number, number] => r.poster.viewport ?? (r.kind === "screen" ? [1440, 900] : [800, 600]);
-/* posters are sharp at a card's width: small frames are taken at 1.5× */
-export const craftScale = (r: CraftRecord) => (craftViewport(r)[0] >= 1200 ? 1 : 1.5);
+/* a hero is drawn at a laptop's width, a phone app at a phone's; a widget in a frame its size */
+export const craftViewport = (r: CraftRecord): [number, number] =>
+  r.poster.viewport ?? (r.kind === "component" ? [800, 600] : r.device === "mobile" ? [390, 844] : [1440, 900]);
+/* a portrait card (3:4) shows a desktop page's top 1920px, as a capture's card shows its page's top */
+export const TALL_H = 1920;
+export const hasTall = (r: CraftRecord) => r.kind === "screen" && r.device !== "mobile" && !r.poster.viewport;
+/* posters are sharp at a card's width: small frames are taken at 1.5×, a phone's at 2× */
+export const craftScale = (r: CraftRecord) => {
+  const w = craftViewport(r)[0];
+  return w >= 1200 ? 1 : w <= 480 ? 2 : 1.5;
+};
 
 export function craftItems(): Item[] {
   return CRAFT_RECORDS.map((r) => {
@@ -88,8 +99,8 @@ export function craftItems(): Item[] {
       category: r.category,
       industry: r.industry,
       style: r.style,
-      platform: "web",
-      device: "desktop",
+      platform: r.device === "mobile" ? "ios" : "web",
+      device: r.device ?? "desktop",
       tech: ["html"],
       componentType: r.componentType,
       blocks: [],
@@ -103,6 +114,7 @@ export function craftItems(): Item[] {
       live: {
         src: `/craft/${r.slug}.html`,
         poster: `/craft/posters/${r.slug}.jpg`,
+        ...(hasTall(r) ? { tall: { src: `/craft/posters/${r.slug}-tall.jpg`, w: 900, h: Math.round((900 * TALL_H) / w) } } : {}),
         w,
         h,
         scale: craftScale(r),

@@ -1,0 +1,113 @@
+<!doctype html>
+<!-- Holographic card — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A collectible card that tilts toward the pointer on a spring while its foil, glitter and glare
+     slide with the light. Left alone, it turns slowly by itself. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Holographic card</title>
+<style>
+  :root { --bg: #0d0d14; --rx: 0deg; --ry: 0deg; --px: 50%; --py: 50%; --gx: 50%; --gy: 50%; --hyp: 0; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); display: grid; place-items: center; overflow: hidden; font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif; touch-action: none; }
+  .stage { position: relative; perspective: 900px; }
+  .floor { position: absolute; left: 50%; bottom: -46px; width: 300px; height: 40px; margin-left: -150px; border-radius: 50%; background: #000; opacity: .55; filter: blur(14px); transform: translateX(calc(var(--ry) * -1.4)); }
+  .card { position: relative; width: min(320px, 72vw); aspect-ratio: 5 / 7; border-radius: 18px; transform: rotateX(var(--rx)) rotateY(var(--ry)); transform-style: preserve-3d; cursor: grab;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+  .card:active { cursor: grabbing; }
+  .face { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; padding: 10px;
+    background: linear-gradient(135deg, #c9b06b, #f6e7a8 30%, #a8873e 55%, #f2dc94 80%, #9b7a35); }
+  .inner { height: 100%; border-radius: 10px; background: #141b38; color: #f4efe2; display: flex; flex-direction: column; padding: 12px 12px 10px; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .top b { font-size: clamp(18px, 6.2vw, 26px); font-weight: 800; letter-spacing: .08em; }
+  .top span { font-size: 11px; color: #f2d98a; font-weight: 600; letter-spacing: .06em; }
+  .sub { font-size: 12px; color: #aab3d6; margin-top: -2px; }
+  .art { margin-top: 8px; border-radius: 8px; overflow: hidden; border: 2px solid #f2d98a; }
+  .art svg { display: block; width: 100%; height: auto; }
+  .stats { margin-top: 10px; display: grid; gap: 4px; font-size: 12.5px; }
+  .stats div { display: flex; justify-content: space-between; padding: 5px 8px; border-radius: 6px; background: rgba(255,255,255,.06); }
+  .stats b { color: #f2d98a; }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; font-size: 10.5px; color: #8f98bd; letter-spacing: .04em; }
+
+  /* the light: foil, glitter and glare, all following the tilt */
+  .foil, .glitter, .glare { position: absolute; inset: 0; border-radius: 18px; pointer-events: none; }
+  .foil { background: repeating-linear-gradient(115deg, #ff7a7a 0%, #ffd36b 6%, #8cff9a 12%, #6bd8ff 18%, #b18cff 24%, #ff7ad9 30%, #ff7a7a 36%);
+    background-size: 300% 300%; background-position: var(--px) var(--py); mix-blend-mode: color-dodge; opacity: calc(.1 + var(--hyp) * .36);
+    -webkit-mask-image: linear-gradient(#000, #000), radial-gradient(#000, #000); }
+  .glitter { background-image: radial-gradient(circle, rgba(255,255,255,.9) 0 1px, transparent 1.6px), radial-gradient(circle, rgba(255,240,200,.8) 0 .8px, transparent 1.3px);
+    background-size: 9px 9px, 13px 13px; background-position: var(--px) var(--py), calc(var(--py) * 1.3) var(--px); mix-blend-mode: overlay; opacity: calc(.08 + var(--hyp) * .5); }
+  .glare { background: radial-gradient(farthest-corner circle at var(--gx) var(--gy), rgba(255,255,255,.65) 0%, rgba(255,255,255,.12) 28%, rgba(0,0,0,.35) 90%); mix-blend-mode: overlay; opacity: calc(.4 + var(--hyp) * .6); }
+  .hint { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; color: #5f6382; font-size: 13px; }
+  @media (prefers-reduced-motion: reduce) { .card { transform: none; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="floor" aria-hidden="true"></div>
+  <article class="card" id="card" aria-label="Saqr, peregrine falcon. Legendary card, 027 of 150.">
+    <div class="face">
+      <div class="inner">
+        <div class="top"><b>SAQR</b><span>LEGENDARY</span></div>
+        <p class="sub">Peregrine falcon · صقر</p>
+        <div class="art">
+          <svg viewBox="0 0 280 190" aria-hidden="true">
+            <rect width="280" height="190" fill="#ffb15c"/><rect y="60" width="280" height="60" fill="#ff8b5c"/><rect y="104" width="280" height="40" fill="#e9606c"/>
+            <circle cx="214" cy="104" r="34" fill="#ffe08a"/>
+            <path d="M0 150 C 60 120, 120 160, 180 136 S 260 128, 280 140 V190 H0Z" fill="#c4612b"/>
+            <path d="M0 170 C 70 150, 150 186, 280 160 V190 H0Z" fill="#8f3f1f"/>
+            <path d="M100 100 C 104 150, 130 180, 170 190 H 250 C 252 150, 240 120, 220 110 C 190 100, 140 96, 100 100 Z" fill="#f4efe6"/>
+            <g fill="none" stroke="#9aa1ad" stroke-width="3" stroke-linecap="round"><path d="M160 178 q7 5 14 0"/><path d="M182 182 q7 5 14 0"/><path d="M204 180 q7 5 14 0"/><path d="M172 166 q6 4 12 0"/><path d="M194 168 q6 4 12 0"/></g>
+            <path d="M96 100 C 102 50, 160 24, 214 38 C 248 50, 260 92, 252 140 C 250 160, 246 176, 244 190 H 222 C 226 160, 222 132, 206 120 C 188 108, 162 108, 148 112 C 142 134, 140 162, 132 188 C 118 168, 112 140, 114 114 C 108 108, 102 104, 96 100 Z" fill="#2c3346"/>
+            <path d="M150 50 C 178 42, 208 48, 226 64" fill="none" stroke="#3f4860" stroke-width="5" stroke-linecap="round"/>
+            <path d="M100 86 L 114 82 L 118 98 L 104 100 Z" fill="#f5c542"/>
+            <path d="M104 86 C 86 80, 70 92, 66 110 C 72 104, 80 102, 88 104 C 94 102, 100 100, 106 98 Z" fill="#3a3f4b"/>
+            <path d="M66 110 C 66 118, 70 122, 77 120" fill="none" stroke="#3a3f4b" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="130" cy="82" r="13" fill="#f5c542"/><circle cx="130" cy="82" r="9" fill="#0b0c10"/><circle cx="133" cy="79" r="3" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="stats">
+          <div><span>Dive speed</span><b>389 km/h</b></div>
+          <div><span>Eyesight</span><b>8× yours</b></div>
+          <div><span>Wingspan</span><b>1.1 m</b></div>
+        </div>
+        <p class="foot"><span>2026 SERIES</span><span>027 / 150</span><span>HOLO</span></p>
+      </div>
+    </div>
+    <div class="foil" aria-hidden="true"></div>
+    <div class="glitter" aria-hidden="true"></div>
+    <div class="glare" aria-hidden="true"></div>
+  </article>
+</div>
+<p class="hint" aria-hidden="true">Tilt it toward the light</p>
+
+<script>
+  const root = document.documentElement, card = document.getElementById("card");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* a spring for each value, aimed by the pointer or, when idle, by a slow turn */
+  const S = { rx: { v: 0, x: 0, t: 0 }, ry: { v: 0, x: 0, t: 0 }, hx: { v: 0, x: 50, t: 50 }, hy: { v: 0, x: 50, t: 50 } };
+  let pointer = null;
+  addEventListener("pointermove", (e) => { pointer = { x: e.clientX / innerWidth, y: e.clientY / innerHeight }; });
+  addEventListener("pointerleave", () => { pointer = null; });
+  document.addEventListener("mouseleave", () => { pointer = null; });
+  function frame(t) {
+    let fx, fy;
+    if (pointer) { fx = pointer.x; fy = pointer.y; }
+    else { fx = .5 + Math.sin(t / 1900) * .32; fy = .5 + Math.cos(t / 2600) * .26; }
+    S.ry.t = (fx - .5) * 30; S.rx.t = (.5 - fy) * 26; S.hx.t = fx * 100; S.hy.t = fy * 100;
+    for (const k in S) { const s = S[k]; s.v += (s.t - s.x) * .08; s.v *= .78; s.x += s.v; }
+    root.style.setProperty("--rx", S.rx.x.toFixed(2) + "deg");
+    root.style.setProperty("--ry", S.ry.x.toFixed(2) + "deg");
+    root.style.setProperty("--px", (S.hx.x * 1.2).toFixed(1) + "%");
+    root.style.setProperty("--py", (S.hy.x * 1.2).toFixed(1) + "%");
+    root.style.setProperty("--gx", S.hx.x.toFixed(1) + "%");
+    root.style.setProperty("--gy", S.hy.x.toFixed(1) + "%");
+    root.style.setProperty("--hyp", Math.min(1, Math.hypot(S.hx.x - 50, S.hy.x - 50) / 50).toFixed(3));
+    requestAnimationFrame(frame);
+  }
+  if (!still) requestAnimationFrame(frame);
+  else { root.style.setProperty("--gx", "30%"); root.style.setProperty("--gy", "20%"); root.style.setProperty("--hyp", ".5"); }
+</script>
+</body>
+</html>

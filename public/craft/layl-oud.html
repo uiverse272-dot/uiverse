@@ -1,0 +1,267 @@
+<!doctype html>
+<!-- Oud perfume house — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A dark-room product page: one bottle, lit, and three perfumes named for hours of the night.
+     Choosing an hour relights the room, refills the bottle and changes the smoke above it. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Layl — oud for the night</title>
+<style>
+  @property --light { syntax: "<color>"; inherits: true; initial-value: #d9822b; }
+  @property --liquid { syntax: "<color>"; inherits: true; initial-value: #b4561c; }
+  :root {
+    --bg: #0c0a08; --surface: #171411; --ink: #f3ede4; --soft: #a39b90; --gold: #c9a45a;
+    --serif: "Didot", "Bodoni 72", "Bodoni MT", "Big Caslon", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --m: clamp(20px, 3.4vw, 48px);
+    transition: --light 1.4s ease, --liquid 1.4s ease;
+  }
+  :root[data-hour="midnight"] { --light: #3f78a8; --liquid: #3b2c27; }
+  :root[data-hour="fajr"] { --light: #e6a98e; --liquid: #e8bf6a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font: 17px/1.55 var(--sans); overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+  /* ---------- the room */
+  .room { position: relative; min-height: 900px; height: 100svh; max-height: 1100px; overflow: hidden; isolation: isolate; }
+  .glow { position: absolute; z-index: -1; left: 50%; top: 46%; width: 1100px; height: 1100px; translate: -50% -50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--light) 46%, transparent), color-mix(in srgb, var(--light) 10%, transparent) 55%, transparent); }
+  .floor { position: absolute; z-index: -1; left: 50%; bottom: 7%; width: 760px; height: 150px; translate: -50% 0;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--light) 40%, transparent), transparent); }
+
+  nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 30px var(--m); }
+  .mark { display: flex; align-items: baseline; gap: 12px; font: 400 26px/1 var(--serif); letter-spacing: .32em; }
+  .mark span { font: 400 20px/1 "SF Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif; letter-spacing: 0; color: var(--gold); }
+  .links { display: flex; gap: 34px; font-size: 15px; color: var(--soft); }
+  .links a { transition: color .2s; }
+  .links a:hover, .links a:focus-visible { color: var(--ink); }
+  .bag { font-size: 15px; }
+
+  .stage { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr minmax(320px, 420px) 1fr; align-items: center; gap: 24px; padding: 96px var(--m) 40px; }
+  .intro h1 { font: 400 clamp(46px, 5vw, 76px)/1 var(--serif); letter-spacing: -.01em; max-width: 7.5em; text-wrap: balance; }
+  .intro p { margin-top: 28px; max-width: 30ch; }
+  .hours { display: grid; gap: 6px; margin-top: 40px; max-width: 330px; }
+  .hour { display: flex; justify-content: space-between; align-items: baseline; padding: 15px 18px; background: rgba(255,255,255,.035); text-align: left; transition: background .3s, color .3s; color: var(--soft); }
+  .hour b { font: 400 22px/1 var(--serif); color: var(--ink); }
+  .hour:hover { background: rgba(255,255,255,.07); }
+  .hour[aria-pressed="true"] { background: var(--ink); color: #5d554b; }
+  .hour[aria-pressed="true"] b { color: var(--bg); }
+  .hour:focus-visible, .add:focus-visible, .links a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  .bottle-wrap { position: relative; justify-self: center; width: 100%; max-width: 360px; }
+  .bottle { display: block; width: 100%; height: auto; filter: drop-shadow(0 30px 40px rgba(0,0,0,.55)); }
+  .reflect { position: absolute; left: 0; right: 0; top: 100%; transform: scaleY(-1); opacity: .16; pointer-events: none;
+    -webkit-mask-image: linear-gradient(to top, #000, transparent 38%); mask-image: linear-gradient(to top, #000, transparent 38%); }
+  #smoke { position: absolute; left: 50%; bottom: 66%; width: 420px; height: 420px; translate: -50% 0; pointer-events: none; }
+
+  .detail { justify-self: end; width: 100%; max-width: 380px; }
+  .detail .when { color: var(--soft); font-size: 15px; }
+  .detail h2 { margin-top: 8px; font: 400 clamp(56px, 6.4vw, 100px)/.95 var(--serif); letter-spacing: -.02em; }
+  .detail h2 small { display: block; margin-top: 14px; font: 400 26px/1 "SF Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif; color: var(--gold); letter-spacing: 0; }
+  .notes { margin-top: 34px; display: grid; gap: 14px; }
+  .notes div { display: grid; grid-template-columns: 64px 1fr; gap: 12px; }
+  .notes dt { color: var(--soft); font-size: 15px; }
+  .buy { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 36px; }
+  .price { font-size: 15px; color: var(--soft); }
+  .price b { display: block; font-weight: 500; font-size: 20px; color: var(--ink); }
+  .add { padding: 16px 26px; background: var(--gold); color: #1a1208; font-weight: 600; font-size: 15px; transition: transform .15s, background .2s; }
+  .add:hover { background: #dcb96c; }
+  .add:active { transform: scale(.97); }
+  .swap { transition: opacity .45s ease, transform .45s ease; }
+  .swap.out { opacity: 0; transform: translateY(8px); }
+
+  /* ---------- the three hours */
+  .three { padding: 160px var(--m) 140px; }
+  .three h2 { font: 400 clamp(36px, 4vw, 60px)/1.05 var(--serif); max-width: 14em; text-wrap: balance; }
+  .three > p { margin-top: 22px; max-width: 52ch; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 64px; }
+  .card { position: relative; padding: 36px 32px 34px; text-align: left; background: var(--surface); overflow: hidden; isolation: isolate; transition: background .3s; }
+  .card::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 34%; width: 420px; height: 420px; translate: -50% -50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 42%, transparent), transparent); }
+  .card svg { display: block; width: 46%; margin: 18px auto 40px; height: auto; }
+  .card h3 { font: 400 40px/1 var(--serif); }
+  .card p { margin-top: 10px; color: var(--soft); font-size: 15px; }
+  .card .p { margin-top: 18px; color: var(--ink); font-size: 16px; }
+  .card:hover { background: #1d1915; }
+  .card:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+  footer { padding: 0 var(--m) 40px; }
+  .foot { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; color: var(--soft); font-size: 15px; padding-bottom: 36px; }
+  .foot b { display: block; color: var(--ink); font-weight: 500; margin-bottom: 6px; }
+  .big { font: 400 clamp(90px, 25vw, 380px)/.78 var(--serif); letter-spacing: .02em; color: #241f1a; text-align: center; user-select: none; }
+
+  @media (max-width: 1080px) {
+    .room { height: auto; max-height: none; }
+    .stage { position: relative; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; padding-top: 20px; padding-bottom: 80px; }
+    .bottle-wrap { grid-row: span 2; max-width: 300px; }
+    .detail { justify-self: start; }
+  }
+  @media (max-width: 720px) {
+    .room { height: auto; max-height: none; min-height: 0; }
+    .links { display: none; }
+    .stage { position: relative; display: flex; flex-direction: column; align-items: stretch; padding: 8px var(--m) 60px; gap: 0; }
+    .intro h1 { font-size: 46px; }
+    .intro p { margin-top: 18px; }
+    .bottle-wrap { order: 2; max-width: 210px; margin: 40px auto 70px; }
+    .hours { order: 3; max-width: none; margin-top: 0; }
+    .detail { order: 4; max-width: none; margin-top: 40px; }
+    .detail h2 { font-size: 64px; }
+    .glow { top: 520px; width: 700px; height: 700px; }
+    .floor { display: none; }
+    .three { padding-top: 100px; }
+    .row { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :root, .swap { transition: none; }
+    #smoke { display: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" x1="0" x2="1"><stop offset="0" stop-color="#5a3f16"/><stop offset=".38" stop-color="#ecd08e"/><stop offset=".55" stop-color="#b98d42"/><stop offset="1" stop-color="#4c3512"/></linearGradient>
+    <linearGradient id="depth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".62"/></linearGradient>
+    <linearGradient id="sheen" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".18" stop-color="#fff" stop-opacity=".05"/><stop offset=".8" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".16"/></linearGradient>
+    <symbol id="flacon" viewBox="0 0 320 560">
+      <!-- cap: a faceted column with a domed top -->
+      <path d="M112 196 L124 66 L150 52 L150 196 Z" fill="#6e5021"/>
+      <path d="M150 52 L172 52 L172 196 L150 196 Z" fill="#ecd08e"/>
+      <path d="M172 52 L198 66 L210 196 L172 196 Z" fill="#a37a35"/>
+      <path d="M124 66 Q161 14 198 66 L172 52 L150 52 Z" fill="url(#gold)"/>
+      <rect x="157" y="60" width="4" height="128" fill="#fff" opacity=".35"/>
+      <rect x="108" y="190" width="106" height="12" fill="#4c3512"/>
+      <rect x="116" y="202" width="90" height="20" fill="url(#gold)"/>
+      <!-- glass -->
+      <path d="M60 226 H260 L292 258 V512 L264 540 H56 L28 512 V258 Z" fill="rgba(255,255,255,.07)"/>
+      <path d="M52 276 H268 L276 284 V498 L258 516 H62 L44 498 V284 Z" style="fill: var(--liquid)"/>
+      <path d="M52 276 H268 L276 284 V498 L258 516 H62 L44 498 V284 Z" fill="url(#depth)"/>
+      <path d="M52 276 H268 L276 284 V292 H44 V284 Z" fill="#fff" opacity=".22"/>
+      <path d="M60 226 H260 L292 258 V512 L264 540 H56 L28 512 V258 Z" fill="url(#sheen)"/>
+      <path d="M60 226 H260 L292 258 V512 L264 540 H56 L28 512 V258 Z" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
+      <rect x="40" y="270" width="9" height="226" rx="4.5" fill="#fff" opacity=".42"/>
+      <rect x="258" y="300" width="5" height="150" rx="2.5" fill="#fff" opacity=".2"/>
+      <text x="160" y="410" text-anchor="middle" fill="#f3e2b8" opacity=".86" font-family="Didot, 'Bodoni 72', Georgia, serif" font-size="30" letter-spacing="12">LAYL</text>
+      <text x="160" y="446" text-anchor="middle" fill="#f3e2b8" opacity=".7" font-family="'SF Arabic', 'Geeza Pro', Tahoma, sans-serif" font-size="22">ليل</text>
+    </symbol>
+  </defs>
+</svg>
+
+<section class="room" aria-labelledby="title">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="floor" aria-hidden="true"></div>
+  <nav aria-label="Main">
+    <a class="mark" href="#">LAYL <span>ليل</span></a>
+    <div class="links"><a href="#">Perfumes</a><a href="#">The wood</a><a href="#">Stockists</a></div>
+    <a class="bag" href="#">Bag (0)</a>
+  </nav>
+  <div class="stage">
+    <div class="intro">
+      <h1 id="title">Oud for the night</h1>
+      <p>Three extraits made in Sharjah from agarwood aged eleven years. Each is named for the hour it was made to be worn.</p>
+      <div class="hours" role="group" aria-label="Choose the hour">
+        <button class="hour" data-hour="maghrib" aria-pressed="true"><b>Maghrib</b> 6:12 pm</button>
+        <button class="hour" data-hour="midnight" aria-pressed="false"><b>Midnight</b> 12:00 am</button>
+        <button class="hour" data-hour="fajr" aria-pressed="false"><b>Fajr</b> 4:47 am</button>
+      </div>
+    </div>
+    <div class="bottle-wrap">
+      <canvas id="smoke" aria-hidden="true"></canvas>
+      <svg class="bottle" viewBox="0 0 320 560" role="img" aria-label="The Layl bottle"><use href="#flacon"/></svg>
+      <svg class="bottle reflect" viewBox="0 0 320 560" aria-hidden="true"><use href="#flacon"/></svg>
+    </div>
+    <div class="detail swap" aria-live="polite">
+      <p class="when" data-f="when">The hour after sunset</p>
+      <h2><span data-f="name">Maghrib</span><small data-f="ar">مغرب</small></h2>
+      <dl class="notes">
+        <div><dt>Top</dt><dd data-f="top">Saffron, pink pepper</dd></div>
+        <div><dt>Heart</dt><dd data-f="heart">Taif rose, Assam oud</dd></div>
+        <div><dt>Base</dt><dd data-f="base">Amber, labdanum, cedar</dd></div>
+      </dl>
+      <div class="buy">
+        <p class="price">Extrait, 75 ml <b data-f="price">AED 1,450</b></p>
+        <button class="add">Add to bag</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="three" aria-labelledby="three-title">
+  <h2 id="three-title">Sunset, midnight and the hour before dawn</h2>
+  <p>The same wood in all three, cut with what the air smells of at that hour: rose water after the heat, incense from the mosque yards at midnight, orange blossom when the city is still asleep.</p>
+  <div class="row">
+    <button class="card" data-hour="maghrib" style="--c:#d9822b; --liquid:#b4561c"><svg viewBox="0 0 320 560" aria-hidden="true"><use href="#flacon"/></svg><h3>Maghrib</h3><p>Saffron, Taif rose, amber</p><p class="p">AED 1,450</p></button>
+    <button class="card" data-hour="midnight" style="--c:#3f78a8; --liquid:#3b2c27"><svg viewBox="0 0 320 560" aria-hidden="true"><use href="#flacon"/></svg><h3>Midnight</h3><p>Frankincense, leather, black oud</p><p class="p">AED 1,620</p></button>
+    <button class="card" data-hour="fajr" style="--c:#e6a98e; --liquid:#e8bf6a"><svg viewBox="0 0 320 560" aria-hidden="true"><use href="#flacon"/></svg><h3>Fajr</h3><p>Orange blossom, white musk, sandalwood</p><p class="p">AED 1,380</p></button>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <p><b>Sharjah</b>Al Majaz waterfront, open 4 pm to midnight</p>
+    <p><b>Riyadh</b>Al Olaya, by appointment</p>
+    <p><b>London</b>Mount Street, Mayfair</p>
+    <p><b>Write to us</b>hello@layl.example</p>
+  </div>
+  <p class="big" aria-hidden="true">LAYL</p>
+</footer>
+
+<script>
+  const HOURS = {
+    maghrib: { when: "The hour after sunset", name: "Maghrib", ar: "مغرب", top: "Saffron, pink pepper", heart: "Taif rose, Assam oud", base: "Amber, labdanum, cedar", price: "AED 1,450", smoke: [217, 130, 43] },
+    midnight: { when: "The middle of the night", name: "Midnight", ar: "منتصف الليل", top: "Frankincense, black pepper", heart: "Leather, black oud", base: "Vetiver, smoked birch", price: "AED 1,620", smoke: [120, 160, 200] },
+    fajr: { when: "The hour before dawn", name: "Fajr", ar: "فجر", top: "Orange blossom, bergamot", heart: "White musk, iris", base: "Sandalwood, pale oud", price: "AED 1,380", smoke: [236, 190, 170] },
+  };
+  const root = document.documentElement;
+  const detail = document.querySelector(".detail");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let current = "maghrib";
+
+  function setHour(h) {
+    if (h === current) return;
+    current = h;
+    root.dataset.hour = h;
+    document.querySelectorAll(".hour").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.hour === h)));
+    const fill = () => { for (const el of detail.querySelectorAll("[data-f]")) el.textContent = HOURS[h][el.dataset.f]; };
+    if (still) return fill();
+    detail.classList.add("out");
+    setTimeout(() => { fill(); detail.classList.remove("out"); }, 450);
+  }
+  document.querySelectorAll("[data-hour]").forEach((b) => b.addEventListener("click", () => {
+    setHour(b.dataset.hour);
+    if (b.classList.contains("card")) document.querySelector(".room").scrollIntoView({ behavior: still ? "auto" : "smooth" });
+  }));
+
+  /* incense smoke: soft puffs rising from the cap, in the hour's colour */
+  const cv = document.getElementById("smoke");
+  const cx = cv.getContext("2d");
+  const DPR = Math.min(2, devicePixelRatio || 1);
+  let W = 0, H = 0, puffs = [], tint = [217, 130, 43];
+  function size() { W = cv.clientWidth; H = cv.clientHeight; cv.width = W * DPR; cv.height = H * DPR; cx.setTransform(DPR, 0, 0, DPR, 0, 0); }
+  size(); addEventListener("resize", size);
+  function frame(t) {
+    const want = HOURS[current].smoke;
+    tint = tint.map((v, i) => v + (want[i] - v) * 0.03);
+    if (puffs.length < 70 && Math.random() < 0.5) puffs.push({ x: W / 2 + (Math.random() - .5) * 10, y: H - 4, r: 6 + Math.random() * 6, a: 0, life: 0, seed: Math.random() * 6.28 });
+    cx.clearRect(0, 0, W, H);
+    for (const p of puffs) {
+      p.life += 1;
+      p.y -= 0.55 + p.life * 0.004;
+      p.x += Math.sin(p.seed + p.life * 0.025) * 0.55;
+      p.r += 0.16;
+      p.a = Math.min(1, p.life / 30) * Math.max(0, 1 - p.life / 360);
+      const g = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+      const [r, gg, b] = tint.map(Math.round);
+      g.addColorStop(0, `rgba(${r},${gg},${b},${0.12 * p.a})`);
+      g.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+      cx.fillStyle = g;
+      cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill();
+    }
+    puffs = puffs.filter((p) => p.life < 360 && p.y > -40);
+    requestAnimationFrame(frame);
+  }
+  if (!still) requestAnimationFrame(frame);
+</script>
+</body>
+</html>

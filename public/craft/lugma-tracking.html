@@ -1,0 +1,176 @@
+<!doctype html>
+<!-- Delivery tracking app — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A phone screen for an order on its way: the courier rides the drawn streets toward you, the time
+     left counts down, and the steps of the order fill in underneath. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lugma — your order</title>
+<style>
+  :root {
+    --map: #efe9dc; --block: #e3dccb; --street: #fffdf8; --park: #cfe2b0; --water: #b7d9ee;
+    --ink: #1c1a17; --soft: #6f685d; --red: #e8442e; --green: #1f8a4c; --sheet: #fffdf8; --raise: #f2ede3;
+    --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #d9d1c0; color: var(--ink); font: 15px/1.45 var(--sans); font-variant-numeric: tabular-nums; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+  .phone { position: relative; max-width: 430px; min-height: 100svh; margin: 0 auto; background: var(--map); overflow: hidden; }
+
+  .map { position: absolute; inset: 0 0 auto 0; height: 470px; }
+  .map svg { width: 100%; height: 100%; display: block; }
+  .route-bg { fill: none; stroke: #fff; stroke-width: 11; stroke-linecap: round; stroke-linejoin: round; }
+  .route { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .done { fill: none; stroke: var(--red); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .street-name { font: 600 10px var(--sans); fill: #9a9080; letter-spacing: .04em; }
+
+  .top { position: absolute; top: 0; left: 0; right: 0; padding: 0 16px; z-index: 2; }
+  .status { display: flex; justify-content: space-between; align-items: center; height: 46px; font: 600 15px/1 system-ui, sans-serif; }
+  .status i { display: inline-block; width: 24px; height: 11px; border: 1.5px solid var(--ink); border-radius: 3px; padding: 1px; vertical-align: middle; }
+  .status i b { display: block; width: 80%; height: 100%; background: var(--ink); border-radius: 1px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .round { width: 42px; height: 42px; border-radius: 50%; background: var(--sheet); display: grid; place-items: center; }
+  .round svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .eta { padding: 10px 16px; border-radius: 99px; background: var(--ink); color: var(--sheet); font-weight: 600; font-size: 15px; }
+  .eta b { color: #ffb4a6; }
+
+  .sheet { position: relative; z-index: 3; margin-top: 420px; background: var(--sheet); border-radius: 28px 28px 0 0; padding: 10px 20px 30px; min-height: calc(100svh - 420px); }
+  .grab { width: 40px; height: 5px; border-radius: 3px; background: #ddd5c6; margin: 0 auto 14px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+  .sub { color: var(--soft); margin-top: 4px; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 16px; }
+  .steps i { height: 6px; border-radius: 3px; background: var(--raise); overflow: hidden; position: relative; }
+  .steps i.on { background: var(--red); }
+  .steps i.now::after { content: ""; position: absolute; inset: 0; background: var(--red); transform-origin: left; animation: fill 2.4s ease-in-out infinite; }
+  @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 6px; font-size: 12px; color: var(--soft); }
+  .labels .cur { color: var(--ink); font-weight: 600; }
+
+  .rider { display: grid; grid-template-columns: 52px 1fr auto auto; gap: 12px; align-items: center; margin-top: 18px; padding: 12px; background: var(--raise); border-radius: 20px; }
+  .face { width: 52px; height: 52px; border-radius: 50%; background: #f2c14e; display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+  .rider b { display: block; font-size: 16px; }
+  .rider small { color: var(--soft); font-size: 13px; }
+  .rider button { width: 44px; height: 44px; border-radius: 50%; background: var(--sheet); display: grid; place-items: center; transition: transform .15s; }
+  .rider button:active { transform: scale(.9); }
+  .rider svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .order { margin-top: 18px; }
+  .order h2 { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; }
+  .order h2 span { color: var(--soft); font-weight: 500; }
+  .order ul { list-style: none; margin-top: 8px; display: grid; gap: 6px; }
+  .order li { display: flex; justify-content: space-between; gap: 10px; font-size: 14.5px; }
+  .order li span:first-child b { display: inline-block; min-width: 26px; color: var(--red); }
+  .tip { margin-top: 18px; }
+  .tip p { font-size: 14px; color: var(--soft); }
+  .chips { display: flex; gap: 8px; margin-top: 8px; }
+  .chips button { flex: 1; height: 44px; border-radius: 14px; background: var(--raise); font-weight: 600; transition: background .2s, color .2s; }
+  .chips button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
+  .total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--raise); font-weight: 700; font-size: 17px; }
+  .total span { font-weight: 500; color: var(--soft); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { .steps i.now::after { animation: none; transform: scaleX(.5); } }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="map" aria-hidden="true">
+    <svg viewBox="0 0 390 470" preserveAspectRatio="xMidYMid slice">
+      <rect width="390" height="470" fill="#efe9dc"/>
+      <path d="M-10 300 C 80 280, 120 340, 210 330 S 330 290, 400 320 L400 370 C 330 340, 260 380, 200 380 S 70 330, -10 350 Z" fill="#b7d9ee"/>
+      <g fill="#e3dccb">
+        <rect x="14" y="60" width="92" height="70" rx="8"/><rect x="122" y="60" width="110" height="70" rx="8"/><rect x="248" y="60" width="128" height="70" rx="8"/>
+        <rect x="14" y="146" width="92" height="120" rx="8"/><rect x="248" y="146" width="128" height="58" rx="8"/><rect x="248" y="220" width="128" height="62" rx="8"/>
+        <rect x="14" y="396" width="140" height="74" rx="8"/><rect x="170" y="396" width="96" height="74" rx="8"/><rect x="282" y="396" width="94" height="74" rx="8"/>
+      </g>
+      <rect x="122" y="146" width="110" height="120" rx="10" fill="#cfe2b0"/>
+      <g fill="#b5cf92"><circle cx="150" cy="180" r="12"/><circle cx="195" cy="172" r="15"/><circle cx="170" cy="225" r="13"/><circle cx="210" cy="240" r="10"/></g>
+      <text class="street-name" x="20" y="142">TAHLIA STREET</text>
+      <text class="street-name" x="240" y="140" transform="rotate(90 240 140)">OLAYA ST</text>
+      <text class="street-name" x="180" y="392">CORNICHE ROAD</text>
+      <path class="route-bg" d="M64 100 H 114 V 138 H 240 V 290 C 240 320, 280 330, 300 360 V 388"/>
+      <path class="route" id="route" d="M64 100 H 114 V 138 H 240 V 290 C 240 320, 280 330, 300 360 V 388"/>
+      <path class="done" id="done" d="M64 100 H 114 V 138 H 240 V 290 C 240 320, 280 330, 300 360 V 388"/>
+      <g transform="translate(64 100)"><circle r="16" fill="#1c1a17"/><path d="M-6 -5 h12 v4 a6 6 0 0 1 -12 0z M-2 4 h4 v4 h-4z" fill="#fffdf8"/></g>
+      <g transform="translate(300 392)"><path d="M0 0 C -14 -16, -16 -24, -16 -30 A 16 16 0 1 1 16 -30 C 16 -24, 14 -16, 0 0 Z" fill="#e8442e"/><path d="M-7 -28 l7 -6 l7 6 v8 h-14 z" fill="#fffdf8"/></g>
+      <g id="rider"><circle r="19" fill="#e8442e" opacity=".22"/><circle r="13" fill="#e8442e" stroke="#fffdf8" stroke-width="3"/><path d="M-6 3 a3 3 0 1 0 0.1 0 M6 3 a3 3 0 1 0 0.1 0 M-6 3 L-1 -4 H4 L6 3 M-1 -4 L-3 -6" fill="none" stroke="#fffdf8" stroke-width="1.8" stroke-linecap="round"/></g>
+    </svg>
+  </div>
+
+  <div class="top">
+    <div class="status" aria-hidden="true"><span>12:48</span><span><i><b></b></i></span></div>
+    <div class="bar">
+      <button class="round" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <p class="eta" aria-live="polite">Arriving in <b id="eta">12 min</b></p>
+      <button class="round" aria-label="Help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4c-.6.2-.5.7-.5 1.6M12 17h.01"/></svg></button>
+    </div>
+  </div>
+
+  <section class="sheet" aria-labelledby="title">
+    <div class="grab" aria-hidden="true"></div>
+    <h1 id="title">Hamad is on Olaya Street</h1>
+    <p class="sub" id="sub">Your order from Tannour left at 12:41. It's still hot.</p>
+    <div class="steps" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="now" id="s3"></i><i id="s4"></i></div>
+    <div class="labels"><span>Ordered</span><span>Cooked</span><span class="cur" id="l3">On the way</span><span id="l4">At your door</span></div>
+
+    <div class="rider">
+      <span class="face" aria-hidden="true">H</span>
+      <div><b>Hamad</b><small>★ 4.9 · Red scooter, plate 4182</small></div>
+      <button aria-label="Message Hamad"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></button>
+      <button aria-label="Call Hamad"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></button>
+    </div>
+
+    <div class="order">
+      <h2>Tannour, Al Olaya <span>3 items</span></h2>
+      <ul>
+        <li><span><b>2×</b>Chicken shawarma plate</span><span>SAR 58.00</span></li>
+        <li><span><b>1×</b>Kunafa with cream</span><span>SAR 24.00</span></li>
+        <li><span><b>1×</b>Fresh lemon and mint</span><span>SAR 14.00</span></li>
+      </ul>
+    </div>
+    <div class="tip">
+      <p>A tip for Hamad, all of it goes to him</p>
+      <div class="chips" role="group" aria-label="Tip">
+        <button aria-pressed="false" data-t="0">None</button><button aria-pressed="true" data-t="5">SAR 5</button><button aria-pressed="false" data-t="10">SAR 10</button><button aria-pressed="false" data-t="15">SAR 15</button>
+      </div>
+    </div>
+    <p class="total"><span>Paid with Apple Pay</span><b id="total">SAR 110.00</b></p>
+  </section>
+</div>
+
+<script>
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const route = document.getElementById("route"), done = document.getElementById("done"), rider = document.getElementById("rider");
+  const len = route.getTotalLength();
+  done.style.strokeDasharray = `${len} ${len}`;
+  /* the ride: 12 minutes, played in about 40 seconds; it starts a third of the way there */
+  let p = 0.34, mins = 12;
+  const STREETS = [[0.12, "Tahlia Street"], [0.62, "Olaya Street"], [0.8, "the Corniche"], [1.01, "your door"]];
+  function place() {
+    const pt = route.getPointAtLength(len * p);
+    rider.setAttribute("transform", `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+    done.style.strokeDashoffset = String(len * (1 - p));
+    const left = Math.max(0, Math.ceil((1 - p) * 18.2));
+    if (left !== mins) { mins = left; document.getElementById("eta").textContent = left ? `${left} min` : "now"; }
+    const st = STREETS.find(([at]) => p < at)[1];
+    document.getElementById("title").textContent = p >= 1 ? "Hamad is at your door" : `Hamad is on ${st}`;
+    if (p >= 1) {
+      document.getElementById("s3").className = "on"; document.getElementById("s4").className = "on";
+      document.getElementById("l3").className = ""; document.getElementById("l4").className = "cur";
+      document.getElementById("sub").textContent = "Enjoy your meal. Rate Hamad when you're done.";
+    }
+  }
+  place();
+  if (!still) {
+    let last = performance.now();
+    const tick = (t) => { p = Math.min(1, p + (t - last) / 40000 * 0.66); last = t; place(); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  /* the tip changes the total */
+  document.querySelectorAll(".chips button").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll(".chips button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    document.getElementById("total").textContent = `SAR ${(105 + +b.dataset.t).toFixed(2)}`;
+  }));
+</script>
+</body>
+</html>

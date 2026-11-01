@@ -15,7 +15,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import sharp from "sharp";
-import { CRAFT_RECORDS, craftScale, craftViewport } from "../src/lib/craft";
+import { CRAFT_RECORDS, TALL_H, craftScale, craftViewport, hasTall } from "../src/lib/craft";
 
 const PUBLIC = path.join(process.cwd(), "public");
 const OUT = path.join(PUBLIC, "craft", "posters");
@@ -34,7 +34,9 @@ for (const r of CRAFT_RECORDS) {
     console.warn(`skipped ${r.slug}: public/craft/${r.slug}.html isn't there`);
     continue;
   }
-  if (!all && !only.size && existsSync(out) && statSync(out).mtimeMs >= statSync(src).mtimeMs) continue;
+  const tall = path.join(OUT, `${r.slug}-tall.jpg`);
+  const fresh = (f: string) => existsSync(f) && statSync(f).mtimeMs >= statSync(src).mtimeMs;
+  if (!all && !only.size && fresh(out) && (!hasTall(r) || fresh(tall))) continue;
 
   const [width, height] = craftViewport(r);
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: craftScale(r) });
@@ -47,12 +49,19 @@ for (const r of CRAFT_RECORDS) {
   if (type) await page.keyboard.type(type, { delay: 60 });
   await page.waitForTimeout(wait);
   await sharp(await page.screenshot()).jpeg({ quality: 82, mozjpeg: true }).toFile(out);
+  /* the portrait card's still: the page's top, or the screen drawn that tall when the page is shorter */
+  if (hasTall(r)) {
+    const long = (await page.evaluate(() => document.documentElement.scrollHeight)) >= TALL_H;
+    if (!long) { await page.setViewportSize({ width, height: TALL_H }); await page.waitForTimeout(600); }
+    const shot = await page.screenshot(long ? { fullPage: true, clip: { x: 0, y: 0, width, height: TALL_H } } : {});
+    await sharp(shot).resize({ width: 900 }).jpeg({ quality: 80, mozjpeg: true }).toFile(tall);
+  }
   await page.close();
   written++;
 }
 await browser.close();
 
-const keep = new Set(CRAFT_RECORDS.map((r) => `${r.slug}.jpg`));
+const keep = new Set(CRAFT_RECORDS.flatMap((r) => [`${r.slug}.jpg`, ...(hasTall(r) ? [`${r.slug}-tall.jpg`] : [])]));
 let removed = 0;
 for (const f of await readdir(OUT)) {
   if (keep.has(f)) continue;

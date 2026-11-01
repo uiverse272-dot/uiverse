@@ -69,6 +69,12 @@ const craft = [
 const nextConfig: NextConfig = {
   /* the local embedded Postgres ships WebAssembly and data files that must load from node_modules as-is */
   serverExternalPackages: ["@electric-sql/pglite"],
+  /*
+   * public/ is served as static files. Server code that reads from it (lib/shots.ts, lib/og.tsx)
+   * builds the path at run time, so the tracer would copy the whole folder, every screenshot,
+   * into every function: past Vercel's 250 MB limit. Off disk, both read it over HTTP instead.
+   */
+  outputFileTracingExcludes: { "/*": ["public/**/*"] },
   images: {
     /*
      * Every image is already sized by the script that wrote it (capture cards and first screens,

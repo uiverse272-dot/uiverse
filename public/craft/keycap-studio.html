@@ -1,0 +1,141 @@
+<!doctype html>
+<!-- Keycap configurator — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A 60% keyboard you can type on: your real keys press the drawn ones, with a click made in the
+     browser (no sound files). Pick a colourway and it washes across the board key by key. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Keycap configurator</title>
+<style>
+  :root {
+    --desk: #e7e2d8; --ink: #1d1a16; --soft: #6e675c; --u: 44px;
+    --case: #c9b28f; --alpha: #f3eadb; --alpha-l: #5a4632; --mod: #b98d5c; --mod-l: #fff4e3; --acc: #d9562b; --acc-l: #fff4e3;
+    --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--desk); color: var(--ink); font: 14px/1.4 var(--sans); display: grid; place-items: center; overflow: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .wrap { width: calc(var(--u) * 15 + 14 * 4px + 36px); max-width: 96vw; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  h1 { font-size: 22px; letter-spacing: -.02em; }
+  h1 small { display: block; font-size: 13px; font-weight: 500; color: var(--soft); letter-spacing: 0; }
+  .ways { display: flex; gap: 6px; }
+  .way { display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 6px; border-radius: 99px; background: rgba(255,255,255,.55); font-weight: 600; font-size: 13px; transition: background .2s; }
+  .way i { display: flex; width: 26px; height: 18px; border-radius: 99px; overflow: hidden; }
+  .way i b { flex: 1; }
+  .way[aria-pressed="true"] { background: var(--ink); color: var(--desk); }
+  .typed { margin: 22px 0 18px; height: 40px; font-size: 26px; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; display: flex; align-items: center; }
+  .typed .ph { color: #a59d90; }
+  .typed .caret { display: inline-block; width: 2px; height: 30px; margin-left: 2px; background: var(--ink); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .board { padding: 18px; border-radius: 16px; background: var(--case); box-shadow: inset 0 -6px 0 rgba(0,0,0,.14), 0 24px 40px -22px rgba(0,0,0,.45); transition: background .5s; }
+  .row { display: flex; gap: 4px; }
+  .row + .row { margin-top: 4px; }
+  .key { position: relative; flex: none; height: var(--u); width: calc(var(--u) * var(--w, 1) + (var(--w, 1) - 1) * 4px); border-radius: 7px;
+    background: var(--alpha); color: var(--alpha-l); font-size: 12.5px; font-weight: 600; text-align: left; padding: 6px 0 0 9px;
+    box-shadow: inset 0 -5px 0 rgba(0,0,0,.17), inset 0 0 0 1px rgba(0,0,0,.05);
+    transition: background .35s var(--d, 0ms), color .35s var(--d, 0ms), transform .06s, box-shadow .06s; }
+  .key.mod { background: var(--mod); color: var(--mod-l); font-size: 11.5px; }
+  .key.acc { background: var(--acc); color: var(--acc-l); font-size: 11.5px; }
+  .key.down { transform: translateY(3px); box-shadow: inset 0 -2px 0 rgba(0,0,0,.17), inset 0 0 0 1px rgba(0,0,0,.05); }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: var(--soft); font-size: 13px; }
+  .foot b { color: var(--ink); }
+  .sound { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); }
+  .sound i { width: 34px; height: 20px; border-radius: 99px; background: #cfc8bb; position: relative; transition: background .2s; }
+  .sound i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .sound[aria-pressed="true"] i { background: var(--ink); }
+  .sound[aria-pressed="true"] i::after { transform: translateX(14px); }
+  @media (max-width: 820px) { :root { --u: calc((96vw - 36px - 56px) / 15); } .key { font-size: 9px; padding: 3px 0 0 4px; } .head { flex-direction: column; align-items: flex-start; } .ways { flex-wrap: wrap; } }
+  @media (prefers-reduced-motion: reduce) { .key, .board, .way { transition: none; } .typed .caret { animation: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <h1>Keycaps, sixty percent<small id="desc">Dune · PBT, dye-sublimated · 68 keys</small></h1>
+    <div class="ways" role="group" aria-label="Colourway" id="ways"></div>
+  </div>
+  <p class="typed" id="typed" aria-live="polite"><span class="ph">Type on your keyboard, or click the keys</span><span class="caret"></span></p>
+  <div class="board" id="board" role="group" aria-label="Keyboard"></div>
+  <div class="foot"><span id="price"><b>$89</b> for the set, ships in a week</span><button class="sound" id="sound" aria-pressed="true"><i></i>Sound</button></div>
+</main>
+
+<script>
+  const ROWS = [
+    [["Escape", "esc", 1, "acc"], ...[..."1234567890"].map((d) => ["Digit" + d, d]), ["Minus", "-"], ["Equal", "="], ["Backspace", "delete", 2, "mod"]],
+    [["Tab", "tab", 1.5, "mod"], ..."QWERTYUIOP".split("").map((k) => ["Key" + k, k]), ["BracketLeft", "["], ["BracketRight", "]"], ["Backslash", "\\", 1.5, "mod"]],
+    [["CapsLock", "caps", 1.75, "mod"], ..."ASDFGHJKL".split("").map((k) => ["Key" + k, k]), ["Semicolon", ";"], ["Quote", "'"], ["Enter", "return", 2.25, "acc"]],
+    [["ShiftLeft", "shift", 2.25, "mod"], ..."ZXCVBNM".split("").map((k) => ["Key" + k, k]), ["Comma", ","], ["Period", "."], ["Slash", "/"], ["ShiftRight", "shift", 2.75, "mod"]],
+    [["ControlLeft", "ctrl", 1.25, "mod"], ["MetaLeft", "cmd", 1.25, "mod"], ["AltLeft", "alt", 1.25, "mod"], ["Space", "", 6.25], ["AltRight", "alt", 1.25, "mod"], ["MetaRight", "cmd", 1.25, "mod"], ["ContextMenu", "menu", 1.25, "mod"], ["ControlRight", "ctrl", 1.25, "mod"]],
+  ];
+  const WAYS = {
+    Dune: { case: "#c9b28f", alpha: "#f3eadb", "alpha-l": "#5a4632", mod: "#b98d5c", "mod-l": "#fff4e3", acc: "#d9562b", "acc-l": "#fff4e3", tone: 900, desc: "Dune · PBT, dye-sublimated · 68 keys", price: 89 },
+    Oasis: { case: "#1f5c57", alpha: "#e9f0e6", "alpha-l": "#1f5c57", mod: "#7fb7a4", "mod-l": "#10302d", acc: "#f2c14e", "acc-l": "#10302d", tone: 1100, desc: "Oasis · PBT, double-shot · 68 keys", price: 95 },
+    Midnight: { case: "#12162b", alpha: "#262d4f", "alpha-l": "#e6e2d3", mod: "#3b4470", "mod-l": "#f2c14e", acc: "#f2c14e", "acc-l": "#12162b", tone: 1600, desc: "Midnight · ABS, double-shot · 68 keys", price: 79 },
+    Paper: { case: "#d4d0c7", alpha: "#fbfaf6", "alpha-l": "#222", mod: "#a9a59b", "mod-l": "#fff", acc: "#222", "acc-l": "#fbfaf6", tone: 2200, desc: "Paper · PBT, dye-sublimated · 68 keys", price: 85 },
+  };
+  const $ = (id) => document.getElementById(id);
+  const keys = {};
+  ROWS.forEach((row, r) => {
+    const el = document.createElement("div"); el.className = "row";
+    row.forEach(([code, label, w = 1, kind = ""], c) => {
+      const k = document.createElement("button");
+      k.className = "key " + kind; k.textContent = label; k.dataset.code = code;
+      k.setAttribute("aria-label", label || "space");
+      k.style.setProperty("--w", w); k.style.setProperty("--d", (c * 18 + r * 40) + "ms");
+      k.addEventListener("pointerdown", (e) => { e.preventDefault(); press(code, label.length === 1 ? label.toLowerCase() : code === "Space" ? " " : null); });
+      keys[code] = k; el.append(k);
+    });
+    $("board").append(el);
+  });
+  $("ways").innerHTML = Object.entries(WAYS).map(([n, w], i) => `<button class="way" data-w="${n}" aria-pressed="${i === 0}"><i><b style="background:${w.alpha}"></b><b style="background:${w.mod}"></b><b style="background:${w.acc}"></b></i>${n}</button>`).join("");
+  let way = WAYS.Dune;
+  $("ways").addEventListener("click", (e) => {
+    const b = e.target.closest(".way"); if (!b) return;
+    way = WAYS[b.dataset.w];
+    document.querySelectorAll(".way").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    for (const k of ["case", "alpha", "alpha-l", "mod", "mod-l", "acc", "acc-l"]) document.documentElement.style.setProperty("--" + k, way[k]);
+    $("desc").textContent = way.desc; $("price").innerHTML = `<b>$${way.price}</b> for the set, ships in a week`;
+  });
+
+  /* the click: a short burst of filtered noise over a low knock, pitched by the colourway */
+  let ac = null, soundOn = true;
+  function click() {
+    if (!soundOn) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      const t = ac.currentTime, len = Math.floor(ac.sampleRate * .03), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len) ** 3;
+      const src = ac.createBufferSource(); src.buffer = buf;
+      const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = way.tone * (0.9 + Math.random() * .2); bp.Q.value = 1.4;
+      const g = ac.createGain(); g.gain.value = .5;
+      src.connect(bp).connect(g).connect(ac.destination); src.start(t);
+      const o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(70, t + .05);
+      og.gain.setValueAtTime(.22, t); og.gain.exponentialRampToValueAtTime(.001, t + .06); o.connect(og).connect(ac.destination); o.start(t); o.stop(t + .07);
+    } catch { soundOn = false; }
+  }
+  let text = "";
+  function show() {
+    $("typed").innerHTML = (text ? `<span>${text.replace(/[&<]/g, (c) => c === "&" ? "&amp;" : "&lt;").slice(-34)}</span>` : '<span class="ph">Type on your keyboard, or click the keys</span>') + '<span class="caret"></span>';
+  }
+  function press(code, ch) {
+    const k = keys[code]; if (!k) return;
+    k.classList.add("down"); setTimeout(() => k.classList.remove("down"), 110); click();
+    if (code === "Backspace") text = text.slice(0, -1);
+    else if (code === "Enter") text = "";
+    else if (ch) text += ch;
+    show();
+  }
+  addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || !keys[e.code]) return;
+    e.preventDefault(); if (e.repeat) return;
+    press(e.code, e.key.length === 1 ? e.key : null);
+  });
+  $("sound").addEventListener("click", () => { soundOn = !soundOn; $("sound").setAttribute("aria-pressed", String(soundOn)); });
+</script>
+</body>
+</html>

@@ -214,5 +214,149 @@
   "aboutAr": "واجهة من اليمين إلى اليسار لتطبيق مصرفي سعودي، مبنية بالخصائص المنطقية لتنعكس بشكل صحيح، مع نموذج لشاشة جوال.",
   "palette": { "bg": "#0f2a24", "surface": "#0a1a16", "text": "#f6f1e7", "muted": "#a9bdb4", "accent": "#e9c46a", "dark": true },
   "poster": { "wait": 900 }, "days": 0, "weight": 4300
+ },
+ {
+  "slug": "layl-oud", "kind": "screen", "archetype": "ecommerce", "category": "ecommerce", "industry": "fashion", "style": "luxury",
+  "title": "Oud perfume house", "titleAr": "دار عطور العود",
+  "about": "A dark-room product page for three oud perfumes named after hours of the night. Choose an hour and the room relights, the bottle refills and the smoke changes colour.",
+  "aboutAr": "صفحة منتج في غرفة مظلمة لثلاثة عطور عود سُمّيت بساعات الليل. اختر الساعة فتتبدّل إضاءة الغرفة ولون العطر في القارورة ولون الدخان فوقها.",
+  "palette": { "bg": "#0c0a08", "surface": "#171411", "text": "#f3ede4", "muted": "#a39b90", "accent": "#c9a45a", "dark": true },
+  "poster": { "wait": 1600 }, "days": 0, "weight": 4800
+ },
+ {
+  "slug": "ashgar-roastery", "kind": "screen", "archetype": "ecommerce", "category": "ecommerce", "industry": "food", "style": "editorial", "dir": "rtl",
+  "title": "Blond-roast coffee shop", "titleAr": "متجر قهوة شقراء",
+  "about": "An Arabic, right-to-left shop for a Riyadh roastery named for the light roast of Saudi qahwa. Drag the roast and the bean, its colour field and the tasting notes darken with it.",
+  "aboutAr": "متجر عربي من اليمين إلى اليسار لمحمصة في الرياض تحمل اسم التحميص الأشقر للقهوة السعودية. حرّك درجة التحميص فتغمق الحبة ولون خلفيتها ووصف النكهة معها.",
+  "palette": { "bg": "#f6f2ea", "surface": "#ece6da", "text": "#1d1712", "muted": "#65594d", "accent": "#a8322a", "dark": false },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4700
+ },
+ {
+  "slug": "yonder-departures", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "fintech", "style": "retro",
+  "title": "Savings departure board", "titleAr": "لوحة مغادرة للادخار",
+  "about": "A savings app dressed as a station's split-flap board: every goal is a departure with a date and a status. Move the monthly amount and the board flips to the new dates.",
+  "aboutAr": "تطبيق ادخار في هيئة لوحة مغادرة قلّابة في محطة قطار: كل هدف رحلة لها موعد وحالة. غيّر المبلغ الشهري فتتقلّب اللوحة إلى المواعيد الجديدة.",
+  "palette": { "bg": "#e1ac10", "surface": "#cf9d0c", "text": "#0b0b0b", "muted": "#4d3d0a", "accent": "#121212", "dark": false },
+  "poster": { "wait": 2800 }, "days": 0, "weight": 4750
+ },
+ {
+  "slug": "marginalia-library", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "education", "style": "brutalist",
+  "title": "Neo-brutalist reading app", "titleAr": "تطبيق قراءة بأسلوب بروتالي",
+  "about": "A library screen in thick black borders, hard shadows and flat colour, with every cover drawn in code. Pick a book and the side panel loads it; play the sample and the narration runs.",
+  "aboutAr": "شاشة مكتبة بحدود سوداء عريضة وظلال حادة وألوان مسطحة، وكل غلاف فيها مرسوم بالكود. اختر كتاباً فيظهر في اللوحة الجانبية، وشغّل العيّنة ليبدأ السرد.",
+  "palette": { "bg": "#fbf7ef", "surface": "#ffde59", "text": "#111111", "muted": "#4a4a4a", "accent": "#3a5bff", "dark": false },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4700
+ },
+ {
+  "slug": "harf-letters", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "education", "style": "playful",
+  "title": "Learn to read Arabic", "titleAr": "تعلّم قراءة العربية",
+  "about": "A loud, flat landing page for an Arabic reading course. Its working part is the lesson: pick a name or type with the letters and see each letter in the shape it takes in that word.",
+  "aboutAr": "صفحة هبوط بألوان صاخبة لدورة في قراءة العربية، والجزء التفاعلي فيها هو الدرس نفسه: اختر اسماً أو اكتب بالحروف لترى كل حرف بالشكل الذي يأخذه في الكلمة.",
+  "palette": { "bg": "#ff87ab", "surface": "#0a0a0a", "text": "#0a0a0a", "muted": "#6b1f3a", "accent": "#def915", "dark": false },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4650
+ },
+ {
+  "slug": "lull-board", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "saas", "style": "dark",
+  "title": "Monitoring board", "titleAr": "لوحة مراقبة الخوادم",
+  "about": "A SaaS landing page built as one board of tiles, each a working part of the product. Pull the plug on a server and watch it handle the outage while the on-call engineer sleeps.",
+  "aboutAr": "صفحة هبوط لخدمة برمجية مبنية كلوحة واحدة من المربعات، كل مربع فيها جزء حيّ من المنتج. افصل أحد الخوادم وشاهد كيف يعالج العطل بينما يبقى المهندس المناوب نائماً.",
+  "palette": { "bg": "#0f0f0f", "surface": "#1a1a1a", "text": "#ffffff", "muted": "#9a9a9a", "accent": "#dafa9c", "dark": true },
+  "poster": { "wait": 1500 }, "days": 1, "weight": 4600
+ },
+ {
+  "slug": "kestrel-trade", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "crypto", "style": "dark",
+  "title": "Crypto trading screen", "titleAr": "شاشة تداول العملات الرقمية",
+  "about": "A dark exchange screen that runs: the price ticks, the last candle grows, the order book flashes and the order form does its sums. Its own order type hovers 2% under the day's high, drawn on the chart.",
+  "aboutAr": "شاشة منصة تداول داكنة تعمل فعلاً: يتحرك السعر وتكبر الشمعة الأخيرة ويومض دفتر الأوامر ويحسب نموذج الطلب المبالغ. ونوع الأمر الخاص بها يحوم تحت أعلى سعر لليوم بنسبة 2%، ويظهر على الرسم البياني.",
+  "palette": { "bg": "#0e1013", "surface": "#14171c", "text": "#e8eaed", "muted": "#8a919c", "accent": "#e8833a", "dark": true },
+  "poster": { "wait": 2000 }, "days": 1, "weight": 4600
+ },
+ {
+  "slug": "sidra-sunplan", "kind": "screen", "archetype": "ecommerce", "category": "marketplace", "industry": "real-estate", "style": "minimal",
+  "title": "Apartment sun plan", "titleAr": "مخطط شقة وضوء الشمس",
+  "about": "A flat sold on its light. The floor plan is drawn large, and moving the sun through the day and the year casts light through each window onto the floor.",
+  "aboutAr": "شقة تُعرض بضوئها: مخطط الطابق مرسوم بحجم كبير، وتحريك الشمس عبر ساعات اليوم وفصول السنة يُلقي الضوء من كل نافذة على الأرض.",
+  "palette": { "bg": "#dfdedb", "surface": "#ebeae6", "text": "#26251e", "muted": "#5f5d55", "accent": "#2456d6", "dark": false },
+  "poster": { "wait": 900 }, "days": 2, "weight": 4550
+ },
+ {
+  "slug": "rubber-studio", "kind": "screen", "archetype": "agency", "category": "agency", "industry": "productivity", "style": "brutalist",
+  "title": "Motion studio", "titleAr": "استوديو للرسوم المتحركة",
+  "about": "The studio's name as a monument across the bottom of the screen, and it's made of rubber: the letters stretch toward the pointer and spring back. Hover the work list for a still of each project.",
+  "aboutAr": "اسم الاستوديو نُصب ضخم في أسفل الشاشة، وهو من المطاط: تتمدد الحروف نحو المؤشر ثم ترتد. مرّر المؤشر على قائمة الأعمال لترى لقطة من كل مشروع.",
+  "palette": { "bg": "#ff7a1f", "surface": "#050f16", "text": "#050f16", "muted": "#5a2306", "accent": "#050f16", "dark": false },
+  "poster": { "hover": "h1 span:nth-child(3)", "wait": 700 }, "days": 1, "weight": 4550
+ },
+ {
+  "slug": "gist-meeting", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "ai", "style": "light",
+  "title": "AI meeting notes", "titleAr": "ملاحظات اجتماعات بالذكاء الاصطناعي",
+  "about": "The product carries the first screen: a meeting is under way, the transcript writes itself, and decisions, to-dos and open questions are pulled out beside it, each linked to the line it came from.",
+  "aboutAr": "المنتج نفسه يملأ الشاشة الأولى: اجتماع جارٍ يُكتب نصّه تلقائياً، وتُستخرج بجانبه القرارات والمهام والأسئلة المفتوحة، وكل منها مرتبط بالسطر الذي قيل فيه.",
+  "palette": { "bg": "#eef0f3", "surface": "#ffffff", "text": "#0b0c0e", "muted": "#5d6470", "accent": "#1f2de6", "dark": false },
+  "poster": { "wait": 5200 }, "days": 1, "weight": 4500
+ },
+ {
+  "slug": "sanad-wallet", "kind": "screen", "device": "mobile", "archetype": "mobile-finance", "category": "dashboard", "industry": "fintech", "style": "luxury", "dir": "rtl",
+  "title": "Arabic wallet app", "titleAr": "تطبيق محفظة عربي",
+  "about": "A right-to-left banking home screen for a phone: swipe the card stack and the balance counts to that account, with this month's spending and the latest payments beneath.",
+  "aboutAr": "شاشة رئيسية لتطبيق مصرفي على الجوال من اليمين إلى اليسار: اسحب البطاقات فيعدّ الرصيد إلى رصيد الحساب المختار، وتحتها مصروفات الشهر وآخر العمليات.",
+  "palette": { "bg": "#133621", "surface": "#1a4429", "text": "#f2efe4", "muted": "#a9bfae", "accent": "#f4d96c", "dark": true },
+  "poster": { "wait": 1200 }, "days": 0, "weight": 4600
+ },
+ {
+  "slug": "sahar-boarding", "kind": "screen", "device": "mobile", "archetype": "mobile-profile", "category": "dashboard", "industry": "travel", "style": "light",
+  "title": "Boarding pass app", "titleAr": "تطبيق بطاقة صعود الطائرة",
+  "about": "A phone screen that is the boarding pass: the airport codes large, a live countdown to boarding, and a tap that turns the pass over to show the walk to the gate.",
+  "aboutAr": "شاشة جوال هي بطاقة الصعود نفسها: رموز المطارات بخط كبير، وعدّ تنازلي حيّ لموعد الصعود، ونقرة تقلب البطاقة لتُظهر الطريق إلى البوابة.",
+  "palette": { "bg": "#6bb4ee", "surface": "#fbfaf6", "text": "#0e1822", "muted": "#4b6276", "accent": "#ff5a1f", "dark": false },
+  "poster": { "wait": 900 }, "days": 1, "weight": 4500
+ },
+ {
+  "slug": "lugma-tracking", "kind": "screen", "device": "mobile", "archetype": "mobile-feed", "category": "ecommerce", "industry": "food", "style": "light",
+  "title": "Delivery tracking app", "titleAr": "تطبيق تتبّع التوصيل",
+  "about": "A phone screen for an order on its way: the courier rides the drawn streets toward you, the time left counts down, and the steps of the order fill in underneath.",
+  "aboutAr": "شاشة جوال لطلب في طريقه إليك: يتحرك المندوب في الشوارع المرسومة نحوك، ويتناقص الوقت المتبقي، وتكتمل مراحل الطلب في الأسفل.",
+  "palette": { "bg": "#efe9dc", "surface": "#fffdf8", "text": "#1c1a17", "muted": "#6f685d", "accent": "#e8442e", "dark": false },
+  "poster": { "wait": 2500 }, "days": 2, "weight": 4400
+ },
+ {
+  "slug": "holo-card", "kind": "component", "componentType": "cards", "category": "ecommerce", "industry": "ecommerce", "style": "futuristic",
+  "title": "Holographic card", "titleAr": "بطاقة هولوغرافية",
+  "about": "A collectible card that tilts toward the pointer on a spring while its foil, glitter and glare slide with the light. Left alone, it turns slowly by itself.",
+  "aboutAr": "بطاقة للمقتنين تميل نحو المؤشر بحركة نابضة، وتنزلق معها ألوان الطلاء الهولوغرافي واللمعان والبريق مع الضوء. وإذا تُركت تدور ببطء من تلقاء نفسها.",
+  "palette": { "bg": "#0d0d14", "surface": "#141b38", "text": "#f4efe2", "muted": "#8f98bd", "accent": "#f2d98a", "dark": true },
+  "poster": { "wait": 1500 }, "days": 0, "weight": 4800
+ },
+ {
+  "slug": "keycap-studio", "kind": "component", "componentType": "inputs", "category": "ecommerce", "industry": "ecommerce", "style": "playful",
+  "title": "Keycap configurator", "titleAr": "أداة تخصيص أغطية المفاتيح",
+  "about": "A 60% keyboard you can type on: your real keys press the drawn ones, with a click made in the browser. Pick a colourway and it washes across the board key by key.",
+  "aboutAr": "لوحة مفاتيح بحجم 60% يمكنك الكتابة عليها: تضغط مفاتيحك الحقيقية المفاتيح المرسومة مع صوت نقرة يولّده المتصفح. اختر مجموعة ألوان فتسري على اللوحة مفتاحاً بعد مفتاح.",
+  "palette": { "bg": "#e7e2d8", "surface": "#c9b28f", "text": "#1d1a16", "muted": "#6e675c", "accent": "#d9562b", "dark": false },
+  "poster": { "click": "[data-w=Midnight]", "type": "uiverse", "wait": 1200 }, "days": 0, "weight": 4550
+ },
+ {
+  "slug": "magnify-dock", "kind": "component", "componentType": "navbar", "category": "dashboard", "industry": "productivity", "style": "playful",
+  "title": "Magnifying dock", "titleAr": "شريط تطبيقات مكبِّر",
+  "about": "An app dock over a drawn desert dusk. Icons swell as the pointer passes, name themselves and bounce when opened; the arrow keys move along it too.",
+  "aboutAr": "شريط تطبيقات فوق غروب صحراوي مرسوم. تكبر الأيقونات كلما مرّ بها المؤشر وتظهر أسماؤها وتقفز عند فتحها، ويمكن التنقل فيه بمفاتيح الأسهم أيضاً.",
+  "palette": { "bg": "#241a3d", "surface": "#fff6eb", "text": "#fff3e3", "muted": "#8c3d62", "accent": "#ffc46b", "dark": true },
+  "poster": { "hover": ".app:nth-child(4)", "wait": 400 }, "days": 1, "weight": 4500
+ },
+ {
+  "slug": "vinyl-player", "kind": "component", "componentType": "cards", "category": "feed", "industry": "productivity", "style": "retro",
+  "title": "Turntable player", "titleAr": "مشغّل أسطوانات",
+  "about": "A record player beside its album: press play and the arm swings onto the record, the record spins at 33 or 45, and the needle creeps inward as the track plays.",
+  "aboutAr": "مشغّل أسطوانات بجانب ألبومه: اضغط تشغيل فتنتقل الذراع إلى الأسطوانة، وتدور بسرعة 33 أو 45، وتتقدم الإبرة نحو المركز مع تقدّم المقطع.",
+  "palette": { "bg": "#472913", "surface": "#55321a", "text": "#f1ead6", "muted": "#c2ad8a", "accent": "#e0a53c", "dark": true },
+  "poster": { "click": "#play", "wait": 1600 }, "days": 1, "weight": 4450
+ },
+ {
+  "slug": "command-palette", "kind": "component", "componentType": "search", "category": "dashboard", "industry": "saas", "style": "minimal",
+  "title": "Command palette", "titleAr": "لوحة الأوامر",
+  "about": "A ⌘K palette over a dimmed app: fuzzy matching with the matched letters marked, results in groups, arrow keys and Enter, and an empty state that offers a way out.",
+  "aboutAr": "لوحة أوامر ⌘K فوق تطبيق معتّم: بحث تقريبي تُبرز فيه الحروف المطابقة، ونتائج في مجموعات، وتنقّل بالأسهم ومفتاح الإدخال، وحالة فارغة تقترح بديلاً.",
+  "palette": { "bg": "#f6f6f8", "surface": "#ffffff", "text": "#16161a", "muted": "#6b6b76", "accent": "#2b59ff", "dark": false },
+  "poster": { "type": "inv", "wait": 500 }, "days": 0, "weight": 4400
  }
 ]

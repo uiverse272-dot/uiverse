@@ -126,8 +126,10 @@ describe("searchItems", () => {
     expect(rtl.length).toBeGreaterThan(0);
     for (const q of ["عربي", "عربية"]) {
       const { results } = searchItems(q);
-      expect(results.length).toBe(rtl.length);
-      expect(results.every((i) => dirOf(i) === "rtl")).toBe(true);
+      expect(rtl.every((i) => results.includes(i))).toBe(true);
+      /* beyond those, only a design whose own title is about Arabic (a course in reading it) */
+      const others = results.filter((i) => dirOf(i) !== "rtl");
+      expect(others.every((i) => arNorm(i.live?.titleAr ?? "").includes("عربي"))).toBe(true);
     }
   });
 

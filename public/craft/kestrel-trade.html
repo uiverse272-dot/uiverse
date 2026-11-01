@@ -1,0 +1,389 @@
+<!doctype html>
+<!-- Crypto trading screen — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A dark exchange screen that runs: the price ticks, the last candle grows, the book flashes, and the
+     order form does its sums. Kestrel's own order type hovers 2% under the day's high, drawn on the chart. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kestrel — BTC / USD</title>
+<style>
+  :root {
+    --bg: #0e1013; --panel: #14171c; --raise: #1b1f26; --line: #232832; --ink: #e8eaed; --soft: #8a919c; --dim: #5d6470;
+    --up: #2ebd85; --down: #f0616d; --rufous: #e8833a;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 13px/1.4 var(--sans); font-variant-numeric: tabular-nums; overflow-x: hidden; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--rufous); outline-offset: 1px; }
+  .up { color: var(--up); } .down { color: var(--down); }
+
+  .app { display: grid; grid-template-rows: 52px auto 1fr 200px; height: 100svh; min-height: 820px; }
+  /* top bar */
+  .top { display: flex; align-items: center; gap: 22px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+  .mark { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+  .mark svg { width: 24px; height: 24px; }
+  .top nav { display: flex; gap: 4px; margin-left: 8px; }
+  .top nav a { padding: 7px 12px; border-radius: 6px; color: var(--soft); text-decoration: none; font-size: 14px; }
+  .top nav a[aria-current] { background: var(--raise); color: var(--ink); }
+  .top nav a:hover { color: var(--ink); }
+  .watch { display: flex; gap: 18px; margin-left: auto; font-size: 13px; color: var(--soft); }
+  .watch b { color: var(--ink); font-weight: 500; margin: 0 4px; }
+  .acct { display: flex; align-items: center; gap: 12px; padding-left: 18px; border-left: 1px solid var(--line); }
+  .acct small { display: block; color: var(--soft); font-size: 12px; }
+  .acct b { font-size: 14px; font-weight: 600; }
+  .ava { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #3a2a1f; color: var(--rufous); font-weight: 600; font-size: 12px; }
+
+  /* title row */
+  .head { display: flex; align-items: flex-end; gap: 34px; padding: 14px 16px 12px; border-bottom: 1px solid var(--line); }
+  .pair { display: flex; align-items: center; gap: 10px; }
+  .coin { width: 30px; height: 30px; border-radius: 50%; background: #f7931a; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px; }
+  h1 { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+  h1 + small { display: block; color: var(--soft); font-size: 12px; }
+  .px { font-size: 30px; font-weight: 600; letter-spacing: -.02em; line-height: 1; transition: color .25s; }
+  .stat small { display: block; color: var(--soft); font-size: 12px; margin-bottom: 3px; }
+  .stat b { font-weight: 500; font-size: 14px; }
+
+  /* main row */
+  .main { display: grid; grid-template-columns: 1fr 292px 312px; min-height: 0; }
+  .chart { position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--line); min-width: 0; }
+  .tools { display: flex; align-items: center; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .tools button { padding: 5px 10px; border-radius: 5px; color: var(--soft); font-size: 13px; }
+  .tools button[aria-pressed="true"] { background: var(--raise); color: var(--ink); }
+  .tools .ohlc { margin-left: auto; color: var(--soft); font-size: 12px; }
+  .tools .ohlc b { color: var(--ink); font-weight: 500; margin: 0 8px 0 3px; }
+  .plot { position: relative; flex: 1; min-height: 0; }
+  .plot svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .grid line { stroke: #1d2129; }
+  .axis text { fill: var(--dim); font-size: 11px; font-family: var(--sans); }
+  .hover-line { stroke: var(--rufous); stroke-width: 1.5; stroke-dasharray: 6 5; }
+  .hover-tag rect { fill: var(--rufous); }
+  .hover-tag text { fill: #1a0f06; font-size: 11px; font-weight: 600; font-family: var(--sans); }
+  .last-line { stroke-width: 1; stroke-dasharray: 2 3; }
+  .cross line { stroke: #4a5160; stroke-dasharray: 3 3; }
+
+  /* the book */
+  .book { display: flex; flex-direction: column; border-right: 1px solid var(--line); min-height: 0; }
+  .tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .tabs button { padding: 5px 10px; border-radius: 5px; color: var(--soft); font-size: 13px; }
+  .tabs button[aria-selected="true"] { background: var(--raise); color: var(--ink); }
+  .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 6px 12px; color: var(--dim); font-size: 11px; }
+  .cols3 span:not(:first-child), .lvl span:not(:first-child) { text-align: right; }
+  .levels { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .side { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .side.bids { justify-content: flex-start; }
+  .lvl { position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 2.5px 12px; font-size: 12px; }
+  .lvl i { position: absolute; top: 1px; bottom: 1px; right: 0; opacity: .14; transition: width .4s; }
+  .asks .lvl i { background: var(--down); } .bids .lvl i { background: var(--up); }
+  .asks .lvl span:first-child { color: var(--down); } .bids .lvl span:first-child { color: var(--up); }
+  .lvl.flash { background: rgba(255,255,255,.05); }
+  .spread { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .spread b { font-size: 17px; font-weight: 600; }
+  .spread small { color: var(--soft); font-size: 12px; }
+  .trades { display: none; flex: 1; overflow: hidden; }
+  .book[data-tab="trades"] .levels, .book[data-tab="trades"] .cols3.b { display: none; }
+  .book[data-tab="trades"] .trades { display: block; }
+  .book:not([data-tab="trades"]) .cols3.t { display: none; }
+
+  /* the order form */
+  .order { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--raise); border-radius: 8px; padding: 3px; }
+  .seg button { padding: 8px; border-radius: 6px; font-weight: 600; color: var(--soft); transition: background .2s, color .2s; }
+  .seg button[aria-pressed="true"][data-side="buy"] { background: var(--up); color: #062417; }
+  .seg button[aria-pressed="true"][data-side="sell"] { background: var(--down); color: #2a0609; }
+  .types { display: flex; gap: 16px; font-size: 13px; border-bottom: 1px solid var(--line); }
+  .types button { padding: 4px 0 8px; color: var(--soft); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .types button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--rufous); }
+  .field { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 12px; height: 42px; background: var(--raise); border-radius: 8px; }
+  .field label { color: var(--soft); font-size: 12px; white-space: nowrap; }
+  .field input { width: 100%; min-width: 0; background: none; border: 0; text-align: right; font-size: 14px; font-weight: 500; outline: none; }
+  .field span { color: var(--soft); font-size: 12px; }
+  .note { color: var(--soft); font-size: 12px; line-height: 1.45; }
+  .note b { color: var(--rufous); font-weight: 500; }
+  .pcts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pcts button { padding: 6px 0; border-radius: 6px; background: var(--raise); color: var(--soft); font-size: 12px; }
+  .pcts button:hover { color: var(--ink); }
+  .sum { display: grid; gap: 5px; font-size: 12px; color: var(--soft); }
+  .sum div { display: flex; justify-content: space-between; }
+  .sum b { color: var(--ink); font-weight: 500; }
+  .go { margin-top: auto; height: 46px; border-radius: 8px; font-weight: 700; font-size: 15px; background: var(--up); color: #062417; transition: filter .2s, transform .1s; }
+  .go.sell { background: var(--down); color: #2a0609; }
+  .go:hover { filter: brightness(1.08); }
+  .go:active { transform: scale(.98); }
+  .toast { position: absolute; right: 16px; bottom: 16px; padding: 10px 14px; border-radius: 8px; background: var(--raise); border: 1px solid var(--line); font-size: 13px; opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; pointer-events: none; }
+  .toast.on { opacity: 1; transform: none; }
+
+  /* bottom: orders */
+  .bottom { border-top: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 400; color: var(--dim); font-size: 12px; padding: 8px 16px; }
+  td { padding: 10px 16px; border-top: 1px solid var(--line); }
+  td.n, th.n { text-align: right; }
+  td .kind { display: inline-flex; align-items: center; gap: 6px; }
+  td .kind i { width: 8px; height: 8px; border-radius: 2px; background: var(--rufous); }
+  td .x { color: var(--soft); text-decoration: underline; text-underline-offset: 3px; }
+  td .x:hover { color: var(--ink); }
+  .bar { height: 4px; width: 80px; background: var(--raise); border-radius: 2px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  .bar i { display: block; height: 100%; background: var(--soft); }
+
+  @media (max-width: 1180px) {
+    .app { height: auto; grid-template-rows: auto auto auto auto; }
+    .watch { display: none; }
+    .main { grid-template-columns: 1fr 300px; }
+    .chart { grid-column: 1 / -1; height: 440px; border-right: 0; border-bottom: 1px solid var(--line); }
+    .book { height: 520px; }
+  }
+  @media (max-width: 700px) {
+    .top nav, .acct small { display: none; }
+    .head { flex-wrap: wrap; gap: 14px 24px; }
+    .tools { flex-wrap: wrap; }
+    .tools .ohlc { margin-left: 0; width: 100%; padding-top: 4px; }
+    .main { grid-template-columns: 1fr; }
+    .chart { height: 360px; }
+    .book { height: 440px; border-right: 0; border-bottom: 1px solid var(--line); }
+    .bottom { overflow-x: auto; }
+    table { min-width: 720px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .px, .lvl i, .toast, .go { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="mark" href="#" style="color:inherit;text-decoration:none">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9 L12 13 L22 6 L15 15 L12 22 L9 15 Z" fill="#e8833a"/></svg>Kestrel</a>
+    <nav aria-label="Main"><a href="#" aria-current="page">Trade</a><a href="#">Portfolio</a><a href="#">Earn</a><a href="#">Activity</a></nav>
+    <div class="watch" id="watch"></div>
+    <div class="acct"><div><small>Account value</small><b id="acct">$0</b></div><span class="ava">LH</span></div>
+  </header>
+
+  <section class="head" aria-label="Market">
+    <div class="pair"><span class="coin">₿</span><div><h1>BTC / USD</h1><small>Bitcoin, spot</small></div></div>
+    <p class="px" id="px">67,412.50</p>
+    <div class="stat"><small>24h change</small><b id="chg">+2.31%</b></div>
+    <div class="stat"><small>24h high</small><b id="hi">67,640.00</b></div>
+    <div class="stat"><small>24h low</small><b id="lo">65,210.50</b></div>
+    <div class="stat"><small>24h volume</small><b>18,402 BTC</b></div>
+  </section>
+
+  <main class="main">
+    <section class="chart" aria-label="Price chart">
+      <div class="tools" role="group" aria-label="Interval">
+        <button data-tf="15m" aria-pressed="true">15m</button><button data-tf="1h" aria-pressed="false">1h</button><button data-tf="4h" aria-pressed="false">4h</button><button data-tf="1d" aria-pressed="false">1d</button>
+        <span class="ohlc" id="ohlc"></span>
+      </div>
+      <div class="plot" id="plot"><svg id="svg" aria-hidden="true"></svg></div>
+    </section>
+
+    <section class="book" id="book" aria-label="Order book">
+      <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="book">Book</button><button role="tab" aria-selected="false" data-tab="trades">Trades</button></div>
+      <div class="cols3 b"><span>Price</span><span>Size BTC</span><span>Total</span></div>
+      <div class="cols3 t"><span>Price</span><span>Size BTC</span><span>Time</span></div>
+      <div class="levels">
+        <div class="side asks" id="asks"></div>
+        <div class="spread"><b id="mid">67,412.50</b><small id="spr">Spread 0.50</small></div>
+        <div class="side bids" id="bids"></div>
+      </div>
+      <div class="trades" id="trades"></div>
+    </section>
+
+    <section class="order" aria-label="Place an order" style="position:relative">
+      <div class="seg" role="group" aria-label="Side"><button data-side="buy" aria-pressed="true">Buy</button><button data-side="sell" aria-pressed="false">Sell</button></div>
+      <div class="types" role="group" aria-label="Order type"><button data-type="limit" aria-pressed="false">Limit</button><button data-type="market" aria-pressed="false">Market</button><button data-type="hover" aria-pressed="true">Hover</button></div>
+      <div class="field" id="price-field"><label for="price">Price</label><input id="price" inputmode="decimal" value="66,287.20"><span>USD</span></div>
+      <p class="note" id="note">Hovers <b>2.0% under the day's high</b> and follows it up. Buys if the price dives to the line.</p>
+      <div class="field"><label for="amt">Amount</label><input id="amt" inputmode="decimal" value="0.1500"><span>BTC</span></div>
+      <div class="pcts" role="group" aria-label="Share of available"><button data-p=".25">25%</button><button data-p=".5">50%</button><button data-p=".75">75%</button><button data-p="1">Max</button></div>
+      <div class="sum">
+        <div><span>Available</span><b id="avail">18,240.12 USD</b></div>
+        <div><span>Total</span><b id="total">9,943.08 USD</b></div>
+        <div><span>Fee, 0.10%</span><b id="fee">9.94 USD</b></div>
+      </div>
+      <button class="go" id="go">Place hover buy</button>
+      <p class="toast" id="toast" role="status"></p>
+    </section>
+  </main>
+
+  <section class="bottom" aria-labelledby="orders-title">
+    <div class="tabs"><button aria-selected="true" id="orders-title">Open orders (<span id="n-open">2</span>)</button><button aria-selected="false">Holdings</button><button aria-selected="false">History</button></div>
+    <table>
+      <thead><tr><th>Type</th><th>Side</th><th class="n">Price</th><th class="n">Amount</th><th>Filled</th><th class="n">Total</th><th>Placed</th><th></th></tr></thead>
+      <tbody id="orders">
+        <tr><td><span class="kind"><i></i>Hover</span></td><td class="up">Buy</td><td class="n" data-hover>66,287.20</td><td class="n">0.1500 BTC</td><td><span class="bar"><i style="width:0%"></i></span>0%</td><td class="n" data-hover-total>9,943.08</td><td>Today 08:41</td><td><button class="x">Cancel</button></td></tr>
+        <tr><td><span class="kind"><i style="background:var(--soft)"></i>Limit</span></td><td class="down">Sell</td><td class="n">69,500.00</td><td class="n">0.1000 BTC</td><td><span class="bar"><i style="width:40%"></i></span>40%</td><td class="n">6,950.00</td><td>Yesterday 21:16</td><td><button class="x">Cancel</button></td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fmt = (n, d = 2) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  function rng(seed) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+  /* candles that walk from the open to today's price */
+  const OPEN = 65890, LAST = 67412.5;
+  let candles = [], tf = "15m";
+  function make(seed, n, vol) {
+    const r = rng(seed); let p = OPEN; const out = [];
+    for (let i = 0; i < n; i++) {
+      const pull = (LAST - p) / (n - i) ;
+      const o = p, c = Math.max(1000, o + pull + (r() - .5) * vol);
+      const h = Math.max(o, c) + r() * vol * .45, l = Math.min(o, c) - r() * vol * .45;
+      out.push({ o, h, l, c, v: 40 + r() * 160 + Math.abs(c - o) * .6 }); p = c;
+    }
+    out.at(-1).c = LAST; out.at(-1).h = Math.max(out.at(-1).h, LAST); out.at(-1).l = Math.min(out.at(-1).l, LAST);
+    return out;
+  }
+  const TF = { "15m": [11, 64, 210], "1h": [23, 64, 330], "4h": [37, 64, 560], "1d": [51, 64, 1100] };
+  function load(t) { tf = t; const [s, n, v] = TF[t]; candles = make(s, n, v); }
+  load("15m");
+  let price = LAST, dayHigh = 67640, dayLow = 65210.5;
+  const hover = () => dayHigh * 0.98;
+
+  function draw(cross) {
+    const svg = $("svg"), W = $("plot").clientWidth, H = $("plot").clientHeight;
+    if (!W || !H) return;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = "";
+    const R = 64, top = 16, volH = H * .16, bottom = H - 22, priceB = bottom - volH - 8;
+    const hi = Math.max(...candles.map((c) => c.h), dayHigh) + 60, lo = Math.min(...candles.map((c) => c.l), hover()) - 60;
+    const y = (v) => top + (hi - v) / (hi - lo) * (priceB - top);
+    const cw = (W - R - 8) / candles.length;
+    const add = (tag, a, p = svg) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); p.append(e); return e; };
+    const g = add("g", { class: "grid" }), ax = add("g", { class: "axis" });
+    const step = 500;
+    for (let v = Math.ceil(lo / step) * step; v < hi; v += step) {
+      add("line", { x1: 0, x2: W - R, y1: y(v), y2: y(v) }, g);
+      add("text", { x: W - R + 8, y: y(v) + 4 }, ax).textContent = fmt(v, 0);
+    }
+    const vmax = Math.max(...candles.map((c) => c.v));
+    candles.forEach((c, i) => {
+      const x = 4 + i * cw + cw / 2, up = c.c >= c.o, col = up ? "var(--up)" : "var(--down)";
+      add("rect", { x: x - cw * .32, y: bottom - (c.v / vmax) * volH, width: cw * .64, height: (c.v / vmax) * volH, fill: col, opacity: .22 });
+      add("line", { x1: x, x2: x, y1: y(c.h), y2: y(c.l), stroke: col, "stroke-width": 1 });
+      add("rect", { x: x - cw * .34, y: y(Math.max(c.o, c.c)), width: cw * .68, height: Math.max(1, Math.abs(y(c.o) - y(c.c))), fill: col });
+    });
+    const labels = { "15m": ["06:00", "10:00", "14:00", "18:00"], "1h": ["Tue", "Wed", "Thu", "Fri"], "4h": ["8 Oct", "15 Oct", "22 Oct", "29 Oct"], "1d": ["Jul", "Aug", "Sep", "Oct"] }[tf];
+    labels.forEach((t, i) => add("text", { x: ((i + .5) / labels.length) * (W - R), y: H - 6, "text-anchor": "middle" }, ax).textContent = t);
+    /* the last price */
+    const lc = candles.at(-1), lup = lc.c >= lc.o;
+    add("line", { class: "last-line", x1: 0, x2: W - R, y1: y(price), y2: y(price), stroke: lup ? "var(--up)" : "var(--down)" });
+    const tag = add("g", {});
+    add("rect", { x: W - R + 2, y: y(price) - 10, width: R - 4, height: 20, rx: 3, fill: lup ? "var(--up)" : "var(--down)" }, tag);
+    add("text", { x: W - R + 7, y: y(price) + 4, fill: "#08120d", "font-size": 11, "font-weight": 600 }, tag).textContent = fmt(price, 1);
+    /* Kestrel's hover order */
+    const hy = y(hover());
+    add("line", { class: "hover-line", x1: 0, x2: W - R, y1: hy, y2: hy });
+    const ht = add("g", { class: "hover-tag" });
+    add("rect", { x: 10, y: hy - 22, width: 236, height: 18, rx: 3 }, ht);
+    add("text", { x: 17, y: hy - 9 }, ht).textContent = `Hover buy 0.15 BTC at ${fmt(hover())}`;
+    add("rect", { x: W - R + 2, y: hy - 10, width: R - 4, height: 20, rx: 3, fill: "var(--rufous)" });
+    add("text", { x: W - R + 7, y: hy + 4, fill: "#1a0f06", "font-size": 11, "font-weight": 600, "font-family": "system-ui" }).textContent = fmt(hover(), 1);
+    if (cross) {
+      const i = Math.max(0, Math.min(candles.length - 1, Math.floor((cross.x - 4) / cw)));
+      const cx = 4 + i * cw + cw / 2, c = candles[i], cg = add("g", { class: "cross" });
+      add("line", { x1: cx, x2: cx, y1: top, y2: bottom }, cg);
+      add("line", { x1: 0, x2: W - R, y1: cross.y, y2: cross.y }, cg);
+      showOhlc(c);
+    } else showOhlc(candles.at(-1));
+  }
+  function showOhlc(c) { $("ohlc").innerHTML = `O<b>${fmt(c.o, 1)}</b>H<b>${fmt(c.h, 1)}</b>L<b>${fmt(c.l, 1)}</b>C<b class="${c.c >= c.o ? "up" : "down"}">${fmt(c.c, 1)}</b>`; }
+  $("plot").addEventListener("mousemove", (e) => { const r = $("plot").getBoundingClientRect(); draw({ x: e.clientX - r.left, y: e.clientY - r.top }); });
+  $("plot").addEventListener("mouseleave", () => draw());
+  document.querySelectorAll("[data-tf]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-tf]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    load(b.dataset.tf); draw();
+  }));
+  addEventListener("resize", () => draw());
+
+  /* the book: twelve levels a side around the price */
+  const sizes = rng(7);
+  let asks = [], bids = [];
+  function book() {
+    asks = Array.from({ length: 12 }, (_, i) => ({ p: price + 0.5 + i * 4.5, s: +(0.02 + sizes() * 1.6).toFixed(4) }));
+    bids = Array.from({ length: 12 }, (_, i) => ({ p: price - i * 4.5, s: +(0.02 + sizes() * 1.6).toFixed(4) }));
+  }
+  function paintBook(flashSet = new Set()) {
+    const side = (rows, el, rev) => {
+      let cum = 0; const tot = rows.reduce((a, r) => a + r.s, 0);
+      const html = rows.map((r, i) => { cum += r.s; return `<div class="lvl${flashSet.has((rev ? "a" : "b") + i) ? " flash" : ""}"><i style="width:${(cum / tot) * 100}%"></i><span>${fmt(r.p, 1)}</span><span>${r.s.toFixed(4)}</span><span>${fmt(cum, 3)}</span></div>`; });
+      el.innerHTML = (rev ? html.reverse() : html).join("");
+    };
+    side(asks, $("asks"), true); side(bids, $("bids"), false);
+    $("mid").textContent = fmt(price); $("mid").className = candles.at(-1).c >= candles.at(-1).o ? "up" : "down";
+    $("spr").textContent = `Spread ${fmt(asks[0].p - bids[0].p)}`;
+  }
+  book(); paintBook();
+  const trades = [];
+  function paintTrades() { $("trades").innerHTML = trades.slice(0, 26).map((t) => `<div class="lvl"><span class="${t.up ? "up" : "down"}">${fmt(t.p, 1)}</span><span>${t.s.toFixed(4)}</span><span>${t.t}</span></div>`).join(""); }
+
+  /* account and the order form */
+  const USD = 18240.12, BTC = 0.4512;
+  const W8 = [["ETH", 3512.4, 1.22], ["SOL", 172.33, -0.84], ["XRP", 0.5821, 0.31]];
+  $("watch").innerHTML = W8.map(([s, p, c]) => `<span>${s}<b>${fmt(p, p < 10 ? 4 : 2)}</b><em class="${c >= 0 ? "up" : "down"}" style="font-style:normal">${c >= 0 ? "+" : ""}${c}%</em></span>`).join("");
+  let side = "buy", type = "hover";
+  const num = (s) => parseFloat(String(s).replace(/,/g, "")) || 0;
+  function form() {
+    const p = type === "market" ? price : type === "hover" ? hover() : num($("price").value);
+    if (type !== "limit") $("price").value = fmt(p);
+    $("price").disabled = type !== "limit";
+    $("price-field").style.opacity = type === "market" ? .5 : 1;
+    const a = num($("amt").value), total = p * a;
+    $("total").textContent = fmt(total) + " USD";
+    $("fee").textContent = fmt(total * 0.001) + " USD";
+    $("avail").textContent = side === "buy" ? fmt(USD) + " USD" : BTC.toFixed(4) + " BTC";
+    $("note").innerHTML = type === "hover" ? `Hovers <b>2.0% under the day's high</b> and follows it up. ${side === "buy" ? "Buys" : "Sells"} if the price dives to the line.` : type === "market" ? "Fills now at the best price in the book." : "Waits in the book at your price.";
+    $("go").textContent = `Place ${type} ${side}`;
+    $("go").className = "go" + (side === "sell" ? " sell" : "");
+    document.querySelectorAll("[data-hover]").forEach((e) => e.textContent = fmt(hover()));
+    document.querySelectorAll("[data-hover-total]").forEach((e) => e.textContent = fmt(hover() * 0.15));
+    $("acct").textContent = "$" + fmt(USD + BTC * price);
+  }
+  document.querySelectorAll("[data-side]").forEach((b) => b.addEventListener("click", () => { side = b.dataset.side; document.querySelectorAll("[data-side]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); form(); }));
+  document.querySelectorAll("[data-type]").forEach((b) => b.addEventListener("click", () => { type = b.dataset.type; document.querySelectorAll("[data-type]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); form(); }));
+  document.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", () => {
+    const p = type === "market" ? price : type === "hover" ? hover() : num($("price").value);
+    $("amt").value = (side === "buy" ? (USD * b.dataset.p) / p / 1.001 : BTC * b.dataset.p).toFixed(4); form();
+  }));
+  $("price").addEventListener("input", form); $("amt").addEventListener("input", form);
+  $("go").addEventListener("click", () => {
+    const t = $("toast"); t.textContent = `${type[0].toUpperCase() + type.slice(1)} ${side} for ${num($("amt").value).toFixed(4)} BTC placed`;
+    t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 2200);
+    $("n-open").textContent = +$("n-open").textContent + 1;
+  });
+  document.querySelectorAll("#book .tabs button").forEach((b) => b.addEventListener("click", () => {
+    $("book").dataset.tab = b.dataset.tab;
+    document.querySelectorAll("#book .tabs button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  }));
+
+  /* the market moves */
+  const tick = rng(99);
+  let open24 = price / 1.0231;
+  function step() {
+    const prev = price;
+    price = Math.max(1000, Math.round((price + (tick() - .49) * 14) * 2) / 2);
+    const c = candles.at(-1); c.c = price; c.h = Math.max(c.h, price); c.l = Math.min(c.l, price); c.v += tick() * 6;
+    dayHigh = Math.max(dayHigh, price); dayLow = Math.min(dayLow, price);
+    const pxEl = $("px"); pxEl.textContent = fmt(price);
+    pxEl.style.color = price > prev ? "var(--up)" : price < prev ? "var(--down)" : "";
+    setTimeout(() => pxEl.style.color = "", 450);
+    const ch = (price / open24 - 1) * 100;
+    $("chg").textContent = (ch >= 0 ? "+" : "") + ch.toFixed(2) + "%"; $("chg").className = ch >= 0 ? "up" : "down";
+    $("hi").textContent = fmt(dayHigh); $("lo").textContent = fmt(dayLow);
+    const fl = new Set(); book();
+    for (let i = 0; i < 4; i++) fl.add((tick() < .5 ? "a" : "b") + Math.floor(tick() * 12));
+    paintBook(fl);
+    const d = new Date(); trades.unshift({ p: price, s: +(tick() * .4).toFixed(4), up: price >= prev, t: d.toTimeString().slice(0, 8) }); paintTrades();
+    draw(); form();
+  }
+  for (let i = 0; i < 26; i++) { const d = new Date(Date.now() - i * 4000); trades.push({ p: price + (tick() - .5) * 20, s: +(tick() * .4).toFixed(4), up: tick() > .45, t: d.toTimeString().slice(0, 8) }); }
+  paintTrades(); draw(); form();
+  setInterval(step, still ? 3000 : 1100);
+</script>
+</body>
+</html>

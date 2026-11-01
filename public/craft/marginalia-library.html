@@ -1,0 +1,269 @@
+<!doctype html>
+<!-- Neo-brutalist reading app — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A library screen in thick black borders, hard shadows and flat colour. Every cover is drawn in code.
+     Pick a book and the side panel loads it; play the sample and the narration runs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Marginalia — Library</title>
+<style>
+  :root {
+    --paper: #fbf7ef; --yellow: #ffde59; --blue: #3a5bff; --pink: #ff9ec7; --green: #2fd17d; --ink: #111; --soft: #4a4a4a;
+    --b: 2px solid var(--ink); --shadow: 4px 4px 0 var(--ink);
+    --sans: "Helvetica Neue", "Arial", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #e9e3d6; color: var(--ink); font: 14px/1.45 var(--sans); overflow-x: hidden; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  .app { display: grid; grid-template-columns: 88px 1fr 372px; grid-template-rows: 72px 1fr; height: 100svh; min-height: 840px; background: var(--paper); border: var(--b); }
+  /* rail */
+  .rail { grid-row: 1 / 3; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 0 18px; border-right: var(--b); }
+  .logo { width: 48px; height: 48px; display: grid; place-items: center; background: var(--blue); border: var(--b); box-shadow: 3px 3px 0 var(--ink); margin-bottom: 16px; }
+  .rail a { width: 72px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 0; font-size: 12px; font-weight: 600; color: var(--ink); text-decoration: none; border: 2px solid transparent; }
+  .rail a svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .rail a[aria-current] { background: var(--yellow); border: var(--b); box-shadow: 3px 3px 0 var(--ink); }
+  .rail a:hover:not([aria-current]) { border-color: var(--ink); }
+  .rail .push { margin-top: auto; }
+
+  /* top bar */
+  .top { grid-column: 2 / 4; display: flex; align-items: stretch; border-bottom: var(--b); }
+  .search { flex: 1; display: flex; align-items: center; gap: 14px; padding: 0 22px; background: var(--yellow); }
+  .search label { flex: 1; max-width: 520px; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: #fff; border: var(--b); box-shadow: var(--shadow); }
+  .search svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 2.4; flex: none; }
+  .search input { flex: 1; border: 0; background: none; outline: none; font-size: 15px; }
+  .search kbd { font: 600 12px var(--sans); padding: 2px 7px; border: var(--b); background: var(--paper); }
+  .me { display: flex; align-items: center; gap: 12px; padding: 0 20px; border-left: var(--b); min-width: 290px; }
+  .me .face { width: 44px; height: 44px; border: var(--b); background: var(--pink); display: grid; place-items: center; font-weight: 800; font-size: 16px; }
+  .me b { display: block; font-size: 15px; }
+  .me small { font-size: 12.5px; color: var(--soft); }
+  .bell { width: 72px; display: grid; place-items: center; border-left: var(--b); position: relative; }
+  .bell svg { width: 24px; height: 24px; fill: none; stroke: var(--ink); stroke-width: 2; }
+  .bell i { position: absolute; top: 20px; right: 22px; width: 10px; height: 10px; background: var(--blue); border: 2px solid var(--ink); border-radius: 50%; }
+
+  /* centre */
+  .centre { padding: 22px 26px 26px; overflow: hidden; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .titlebar { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+  .streak { font-size: 14px; font-weight: 600; padding: 6px 12px; background: var(--green); border: var(--b); box-shadow: 3px 3px 0 var(--ink); }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { padding: 7px 14px; border: var(--b); background: #fff; font-weight: 600; font-size: 13px; transition: transform .1s, box-shadow .1s; }
+  .chip:hover { transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--yellow); }
+  .row-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  h2 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+  .row-head a { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .continue { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cont { display: grid; grid-template-columns: 74px 1fr; gap: 14px; align-items: center; padding: 12px; background: #fff; border: var(--b); box-shadow: var(--shadow); text-align: left; transition: transform .12s, box-shadow .12s; }
+  .cont:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .cont .cv { width: 74px; aspect-ratio: 2 / 3; border: var(--b); }
+  .cont b { display: block; font-size: 16px; line-height: 1.2; }
+  .cont small { color: var(--soft); font-size: 13px; }
+  .prog { margin-top: 10px; height: 14px; border: var(--b); background: var(--paper); }
+  .prog i { display: block; height: 100%; background: var(--blue); border-right: var(--b); }
+  .cont .left { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12.5px; font-weight: 600; }
+  .shelf { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; align-items: start; }
+  .book { display: flex; flex-direction: column; text-align: left; }
+  .book .cv { width: 100%; aspect-ratio: 2 / 3; border: var(--b); box-shadow: var(--shadow); transition: transform .12s, box-shadow .12s; }
+  .book:hover .cv { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 var(--ink); }
+  .book[aria-pressed="true"] .cv { outline: 4px solid var(--blue); outline-offset: 3px; }
+  .book b { display: block; margin-top: 12px; font-size: 14px; line-height: 1.25; }
+  .book small { display: block; color: var(--soft); font-size: 12.5px; }
+  .book .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12.5px; font-weight: 700; }
+  .book .meta span:last-child { padding: 1px 6px; border: var(--b); background: var(--yellow); font-size: 11.5px; }
+  .cv svg { display: block; width: 100%; height: 100%; }
+
+  /* the panel */
+  .panel { border-left: var(--b); padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+  .pick { display: grid; grid-template-columns: 120px 1fr; gap: 16px; }
+  .pick .cv { border: var(--b); box-shadow: var(--shadow); aspect-ratio: 2 / 3; }
+  .pick h3 { font-size: 22px; font-weight: 800; line-height: 1.12; letter-spacing: -.02em; }
+  .pick p { margin-top: 8px; font-size: 13.5px; color: var(--soft); }
+  .pick p b { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; height: 50px; border: var(--b); box-shadow: var(--shadow); font-weight: 700; font-size: 15px; transition: transform .1s, box-shadow .1s; }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn.read { background: var(--blue); color: #fff; }
+  .btn.play { background: #fff; }
+  .btn.play svg { width: 16px; height: 16px; fill: var(--ink); }
+  .player { display: none; align-items: center; gap: 10px; padding: 10px 12px; background: var(--ink); color: var(--yellow); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .player.on { display: flex; }
+  .wave { flex: 1; display: flex; align-items: center; gap: 2px; height: 26px; }
+  .wave i { flex: 1; background: #555; }
+  .wave i.done { background: var(--yellow); }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); border: var(--b); }
+  .trio button { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px 4px; font-size: 12.5px; font-weight: 600; background: #fff; transition: background .15s; }
+  .trio button + button { border-left: var(--b); }
+  .trio button:hover { background: var(--yellow); }
+  .trio button[aria-pressed="true"] { background: var(--pink); }
+  .trio svg { width: 20px; height: 20px; fill: none; stroke: var(--ink); stroke-width: 2; }
+  dl.facts { display: grid; grid-template-columns: 96px 1fr; gap: 7px 10px; font-size: 13.5px; }
+  dl.facts dt { color: var(--soft); }
+  dl.facts dd { font-weight: 600; }
+  .about { font-size: 13.5px; line-height: 1.55; padding-top: 14px; border-top: var(--b); }
+
+  @media (max-width: 1180px) {
+    .app { grid-template-columns: 88px 1fr; grid-template-rows: 72px auto auto; height: auto; }
+    .top { grid-column: 2 / 3; }
+    .rail { grid-row: 1 / 4; }
+    .panel { grid-column: 2; border-left: 0; border-top: var(--b); }
+    .shelf { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto; min-height: 0; }
+    .rail { grid-row: auto; flex-direction: row; justify-content: space-between; padding: 8px 10px; border-right: 0; border-bottom: var(--b); overflow-x: auto; }
+    .logo { margin: 0; width: 40px; height: 40px; flex: none; }
+    .rail a { width: 58px; flex: none; }
+    .rail .push, .rail .push ~ a { display: none; }
+    .top { grid-column: 1; flex-direction: column; }
+    .search { padding: 12px 14px; }
+    .me { border-left: 0; border-top: var(--b); padding: 10px 14px; min-width: 0; }
+    .bell { display: none; }
+    .centre { padding: 18px 14px; }
+    .continue { grid-template-columns: 1fr; }
+    .shelf { grid-template-columns: repeat(2, 1fr); }
+    .panel { grid-column: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .chip, .cont, .book .cv, .btn { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <span class="logo" aria-label="Marginalia"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h7v16H4zM13 4h7v16h-7z" fill="#fff" stroke="#111" stroke-width="2"/><path d="M6 8h3M6 11h3M15 8h3" stroke="#111" stroke-width="2"/></svg></span>
+    <a href="#" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/></svg>Home</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M4 4h6v16H4zM14 6l5-1 2 14-5 1z"/></svg>Shelves</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0v5h-4v-6h4M4 13h4v6H4z"/></svg>Listen</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Offline</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-5-6 5z"/></svg>Saved</a>
+    <a href="#" class="push"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+    <a href="#"><svg viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg>Log out</a>
+  </nav>
+
+  <header class="top">
+    <div class="search">
+      <label><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input placeholder="Title, author, narrator or a line you remember" aria-label="Search the library"><kbd>/</kbd></label>
+    </div>
+    <div class="me"><span class="face" aria-hidden="true">MS</span><div><b>Mona Al-Saud</b><small>312 pages read this week</small></div></div>
+    <button class="bell" aria-label="Notifications, 2 new"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><i></i></button>
+  </header>
+
+  <main class="centre">
+    <div class="titlebar"><h1>Library</h1><span class="streak">19 days in a row</span></div>
+    <div class="chips" role="group" aria-label="Filter">
+      <button class="chip" data-f="all" aria-pressed="true">Everything</button><button class="chip" data-f="novel" aria-pressed="false">Novels</button>
+      <button class="chip" data-f="classic" aria-pressed="false">Arabic classics</button><button class="chip" data-f="ideas" aria-pressed="false">History and ideas</button>
+      <button class="chip" data-f="audio" aria-pressed="false">Audiobooks</button><button class="chip" data-f="poetry" aria-pressed="false">Poetry</button>
+    </div>
+    <section aria-labelledby="cont-title">
+      <div class="row-head"><h2 id="cont-title">Continue reading</h2><a href="#">All 4</a></div>
+      <div class="continue" id="continue"></div>
+    </section>
+    <section aria-labelledby="new-title">
+      <div class="row-head"><h2 id="new-title">On your shelves</h2><a href="#" id="count">8 books</a></div>
+      <div class="shelf" id="shelf"></div>
+    </section>
+  </main>
+
+  <aside class="panel" aria-live="polite" aria-label="Selected book">
+    <div class="pick"><div class="cv" id="p-cover"></div><div><h3 id="p-title"></h3><p>By <b id="p-author"></b><br><span id="p-narr"></span></p></div></div>
+    <button class="btn read">Read free for 30 days</button>
+    <button class="btn play" id="play"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2l11 6-11 6z"/></svg><span>Play a sample</span></button>
+    <div class="player" id="player" aria-label="Sample"><span id="t">0:00</span><div class="wave" id="wave"></div><span>2:00</span></div>
+    <div class="trio">
+      <button><svg viewBox="0 0 24 24"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Download</button>
+      <button id="save" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-5-6 5z"/></svg>Save</button>
+      <button><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Add to list</button>
+    </div>
+    <dl class="facts" id="facts"></dl>
+    <p class="about" id="about"></p>
+  </aside>
+</div>
+
+<script>
+  /* every cover is drawn here: a field, a motif and the title set on it */
+  const BOOKS = [
+    { id: "kalila", t: "Kalila and Dimna", a: "Ibn al-Muqaffaʿ", n: "Read by Khalid Abdallah", bg: "#ff7a3d", fg: "#111", m: "jackal", tags: ["classic", "audio"], pages: 344, len: "9 hr 12 min", lang: "Arabic, English", pub: "Dar al-Waraq", year: "c. 750", r: 4.8,
+      about: "Two jackals at a lion's court tell each other stories about power, friendship and betrayal. The book that carried fables from Sanskrit into Arabic, and from Arabic to the rest of the world." },
+    { id: "muqaddimah", t: "The Muqaddimah", a: "Ibn Khaldun", n: "Read by Omar Sharif Jr.", bg: "#3a5bff", fg: "#fff", m: "bars", tags: ["ideas", "classic", "audio"], pages: 512, len: "21 hr 40 min", lang: "Arabic, English", pub: "Maktabat al-Bayt", year: "1377", r: 4.9,
+      about: "Written in a castle in Algeria in five months: a theory of why dynasties rise and fall, why cities need trade, and how history should be checked rather than repeated." },
+    { id: "prophet", t: "The Prophet", a: "Kahlil Gibran", n: "Read by Rania Hamdan", bg: "#111", fg: "#ffde59", m: "moon", tags: ["poetry", "audio"], pages: 107, len: "1 hr 34 min", lang: "English", pub: "Knopf", year: "1923", r: 4.7,
+      about: "A traveller about to sail home is asked to speak on love, work, children, eating and dying. Twenty-six short prose poems, and the most translated book of its century." },
+    { id: "nights", t: "One Thousand and One Nights", a: "Anonymous", n: "Read by a cast of six", bg: "#ff9ec7", fg: "#111", m: "dots", tags: ["classic", "novel", "audio"], pages: 960, len: "38 hr 5 min", lang: "Arabic, English", pub: "Dar al-Waraq", year: "9th c.", r: 4.9,
+      about: "Shahrazad tells a story every night to keep herself alive until morning. Inside her stories, people tell more stories, sometimes seven deep." },
+    { id: "season", t: "Season of Migration to the North", a: "Tayeb Salih", n: "Read by Ahmed Malek", bg: "#2fd17d", fg: "#111", m: "river", tags: ["novel", "classic"], pages: 169, len: "5 hr 2 min", lang: "Arabic, English", pub: "Heinemann", year: "1966", r: 4.6,
+      about: "A man comes home to a village on the Nile and meets a stranger with a past in London. A short, strange novel about returning and never quite arriving." },
+    { id: "moby", t: "Moby-Dick", a: "Herman Melville", n: "Read by Frank Muller", bg: "#9fd6ff", fg: "#111", m: "tail", tags: ["novel", "audio"], pages: 635, len: "24 hr 50 min", lang: "English", pub: "Harper & Brothers", year: "1851", r: 4.2,
+      about: "A whaling captain chases the white whale that took his leg, and takes his crew with him. Also: a long, loving encyclopaedia of whales." },
+    { id: "dalloway", t: "Mrs Dalloway", a: "Virginia Woolf", n: "Read by Juliet Stevenson", bg: "#ffde59", fg: "#111", m: "flowers", tags: ["novel"], pages: 194, len: "7 hr 3 min", lang: "English", pub: "Hogarth Press", year: "1925", r: 4.3,
+      about: "One June day in London, from buying flowers in the morning to a party at night, told from inside the heads of the people passing through it." },
+    { id: "frank", t: "Frankenstein", a: "Mary Shelley", n: "Read by Dan Stevens", bg: "#1f3d2b", fg: "#2fd17d", m: "bolt", tags: ["novel", "audio"], pages: 280, len: "8 hr 35 min", lang: "English", pub: "Lackington", year: "1818", r: 4.5,
+      about: "A young scientist builds a man from parts and runs from what he made. Written when its author was eighteen, for a ghost-story contest on a rainy holiday." },
+  ];
+  const READING = [{ id: "muqaddimah", p: 62, left: "8 hr 14 min left" }, { id: "season", p: 28, left: "112 pages left" }];
+
+  function motif(m, fg) {
+    switch (m) {
+      case "jackal": return `<circle cx="100" cy="150" r="62" fill="${fg}"/><path d="M58 120 L76 70 L92 116 Z M108 116 L124 70 L142 120 Z" fill="${fg}"/><circle cx="84" cy="150" r="9" fill="#ff7a3d"/><circle cx="116" cy="150" r="9" fill="#ff7a3d"/>`;
+      case "bars": return [40, 70, 55, 95, 120, 80].map((h, i) => `<rect x="${28 + i * 25}" y="${215 - h}" width="18" height="${h}" fill="${fg}"/>`).join("");
+      case "moon": return `<circle cx="100" cy="130" r="58" fill="${fg}"/><circle cx="124" cy="116" r="54" fill="#111"/>`;
+      case "dots": return Array.from({ length: 49 }, (_, i) => `<circle cx="${34 + (i % 7) * 22}" cy="${70 + Math.floor(i / 7) * 22}" r="${i === 24 ? 9 : 5}" fill="${fg}"/>`).join("");
+      case "river": return `<path d="M58 196 C 128 172, 40 138, 108 110 S 92 62, 138 44" fill="none" stroke="${fg}" stroke-width="12" stroke-linecap="round"/><path d="M126 34 L150 40 L134 58 Z" fill="${fg}"/>`;
+      case "tail": return `<path d="M100 220 C 96 180, 92 160, 100 140 C 70 140, 48 120, 40 92 C 66 104, 86 108, 100 120 C 114 108, 134 104, 160 92 C 152 120, 130 140, 100 140" fill="${fg}"/><path d="M20 200 Q 50 186 80 200 T 140 200 T 200 200" fill="none" stroke="${fg}" stroke-width="6"/>`;
+      case "flowers": return [[64, 100], [130, 86], [100, 160], [150, 170], [50, 190]].map(([x, y], i) => `<g fill="${fg}">${[0, 72, 144, 216, 288].map((a) => `<circle cx="${x + Math.cos(a * Math.PI / 180) * 13}" cy="${y + Math.sin(a * Math.PI / 180) * 13}" r="10"/>`).join("")}<circle cx="${x}" cy="${y}" r="7" fill="#ff7a3d"/></g>`).join("");
+      case "bolt": return `<path d="M112 46 L66 146 L100 146 L84 226 L140 112 L104 112 Z" fill="${fg}"/>`;
+    }
+  }
+  function cover(b) {
+    const words = b.t.split(" "), lines = [];
+    let cur = "";
+    for (const w of words) { if ((cur + " " + w).trim().length > 13) { lines.push(cur.trim()); cur = w; } else cur += " " + w; }
+    lines.push(cur.trim());
+    const title = lines.map((l, i) => `<text x="14" y="${262 + i * 19 - (lines.length - 1) * 19}" font-size="17" font-weight="800" letter-spacing="-.3" fill="${b.fg}" font-family="Helvetica Neue, Arial, sans-serif">${l}</text>`).join("");
+    return `<svg viewBox="0 0 200 300" aria-hidden="true"><rect width="200" height="300" fill="${b.bg}"/>${motif(b.m, b.fg)}<text x="14" y="24" font-size="11" font-weight="600" fill="${b.fg}" font-family="Helvetica Neue, Arial, sans-serif">${b.a.toUpperCase()}</text>${title}</svg>`;
+  }
+  const $ = (id) => document.getElementById(id);
+  const byId = Object.fromEntries(BOOKS.map((b) => [b.id, b]));
+  let current = "kalila", filter = "all";
+
+  function shelf() {
+    const list = BOOKS.filter((b) => filter === "all" || b.tags.includes(filter)).slice(0, 5);
+    $("count").textContent = `${BOOKS.filter((b) => filter === "all" || b.tags.includes(filter)).length} books`;
+    $("shelf").innerHTML = list.map((b) => `<button class="book" data-id="${b.id}" aria-pressed="${b.id === current}"><div class="cv">${cover(b)}</div><b>${b.t}</b><small>${b.a}</small><span class="meta"><span>★ ${b.r}</span><span>${b.tags.includes("audio") ? "Audio" : "Book"}</span></span></button>`).join("");
+    $("shelf").querySelectorAll(".book").forEach((el) => el.addEventListener("click", () => pick(el.dataset.id)));
+  }
+  $("continue").innerHTML = READING.map((r) => { const b = byId[r.id]; return `<button class="cont" data-id="${b.id}"><div class="cv">${cover(b)}</div><div><b>${b.t}</b><small>${b.a}</small><div class="prog" role="progressbar" aria-valuenow="${r.p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${r.p}%"></i></div><div class="left"><span>${r.p}%</span><span>${r.left}</span></div></div></button>`; }).join("");
+  $("continue").querySelectorAll(".cont").forEach((el) => el.addEventListener("click", () => pick(el.dataset.id)));
+
+  function pick(id) {
+    current = id; const b = byId[id];
+    $("p-cover").innerHTML = cover(b); $("p-title").textContent = b.t; $("p-author").textContent = b.a; $("p-narr").textContent = b.n;
+    $("facts").innerHTML = [["Rating", `★ ${b.r} (${(b.r * 812).toFixed(0)})`], ["Length", `${b.pages} pages · ${b.len}`], ["Language", b.lang], ["Publisher", b.pub], ["First out", b.year]].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+    $("about").textContent = b.about;
+    document.querySelectorAll(".book").forEach((el) => el.setAttribute("aria-pressed", String(el.dataset.id === id)));
+    stop();
+  }
+  document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
+    filter = c.dataset.f; document.querySelectorAll(".chip").forEach((x) => x.setAttribute("aria-pressed", String(x === c))); shelf();
+  }));
+
+  /* the sample: two minutes of narration, drawn as a waveform that fills */
+  $("wave").innerHTML = Array.from({ length: 48 }, (_, i) => `<i style="height:${20 + Math.abs(Math.sin(i * 1.7) * 60 + Math.sin(i * .5) * 20)}%"></i>`).join("");
+  let timer = null, sec = 0;
+  function stop() { clearInterval(timer); timer = null; sec = 0; $("player").classList.remove("on"); $("play").querySelector("span").textContent = "Play a sample"; paintWave(); }
+  function paintWave() { const bars = $("wave").children; for (let i = 0; i < bars.length; i++) bars[i].classList.toggle("done", i / bars.length < sec / 120); $("t").textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; }
+  $("play").addEventListener("click", () => {
+    if (timer) return stop();
+    $("player").classList.add("on"); $("play").querySelector("span").textContent = "Stop the sample";
+    timer = setInterval(() => { sec = Math.min(120, sec + 1); paintWave(); if (sec === 120) stop(); }, 250);
+  });
+  $("save").addEventListener("click", () => $("save").setAttribute("aria-pressed", String($("save").getAttribute("aria-pressed") !== "true")));
+  addEventListener("keydown", (e) => { if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); document.querySelector(".search input").focus(); } });
+  shelf(); pick("kalila");
+</script>
+</body>
+</html>
