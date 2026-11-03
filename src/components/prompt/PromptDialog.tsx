@@ -15,6 +15,7 @@ import { Check, Close, Copy, Sparkle } from "../ui/icons";
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { guideEvent } from "../guide/events";
 import { consume, FREE_LIMIT, isCharged, readUsed, reset } from "./quota";
+import { lockScroll } from "../ui/scrollLock";
 
 /**
  * `defaults` starts the options somewhere other than everything-on (a palette has no sections to
@@ -63,11 +64,10 @@ export function PromptDialog({
       onClose();
     };
     window.addEventListener("keydown", onKey, true);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockScroll();
     return () => {
       window.removeEventListener("keydown", onKey, true);
-      document.body.style.overflow = prev;
+      unlock();
     };
   }, [onClose]);
 

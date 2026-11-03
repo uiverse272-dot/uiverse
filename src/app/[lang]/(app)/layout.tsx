@@ -5,6 +5,8 @@ import { SaveToast } from "@/components/save/SaveToast";
 import { Guide } from "@/components/guide/Guide";
 import { LANDINGS } from "@/components/guide/landings";
 import { PRESENT } from "@/lib/query";
+import { ViewTransition } from "react";
+import { ShellHost } from "@/components/detail/ShellHost";
 
 export default function AppLayout({
   children,
@@ -19,10 +21,14 @@ export default function AppLayout({
         <Sidebar />
         <div className="min-w-0 flex-1">
           <Navbar present={PRESENT} />
-          <main className="pb-16 md:pb-0">{children}</main>
+          {/* a navigation crossfades the page while the bars around it hold still (globals.css .page) */}
+          <ViewTransition update={{ nav: "page", default: "none" }} enter="none" exit="none" default="none">
+            <main className="pb-16 md:pb-0">{children}</main>
+          </ViewTransition>
         </div>
       </div>
       {modal}
+      <ShellHost />
       <BottomNav />
       <SaveToast />
       <Guide landings={LANDINGS} />

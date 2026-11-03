@@ -15,7 +15,7 @@ export default async function ScreenModal({ params }: { params: Promise<{ slug: 
   const data = loadDetail(slug, "screen");
   if (!data) notFound();
   return (
-    <Overlay label={itemTitle(data.item, await getLang())}>
+    <Overlay key={slug} slug={slug} label={itemTitle(data.item, await getLang())}>
       <DetailView {...data} presentation="overlay" />
     </Overlay>
   );

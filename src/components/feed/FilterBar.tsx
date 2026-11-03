@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
+import { Link, useI18n, useLocalPath, useLocalRouter } from "@/i18n/client";
 import { fromStart } from "../ui/fromStart";
 import { Check, Chevron, Close, Filter } from "../ui/icons";
 
@@ -12,26 +12,43 @@ export type FilterDef = {
   options: readonly { slug: string; name: string }[];
 };
 
-/** All feed state lives in the URL — shareable, back-button correct, SSR-able. */
+/**
+ * All feed state lives in the URL — shareable, back-button correct, SSR-able. A control shows
+ * its new state the moment it's pressed: the URL it asks for is held as the optimistic state
+ * until the navigation to it commits, so nothing waits on the server to look selected.
+ */
 export function useFilterState() {
   const router = useLocalRouter();
   const pathname = useLocalPath();
   const sp = useSearchParams();
+  const [qs, setQs] = useOptimistic(sp.toString());
+  const [, start] = useTransition();
 
-  const set = useCallback(
+  /* the query with this value turned on, or off again if it already is */
+  const toggled = useCallback(
     (param: string, value?: string) => {
-      const next = new URLSearchParams(sp.toString());
+      const next = new URLSearchParams(qs);
       if (!value || next.get(param) === value) next.delete(param);
       else next.set(param, value);
-      const qs = next.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      return next.toString();
     },
-    [router, pathname, sp],
+    [qs],
   );
+  const url = useCallback((q: string) => (q ? `${pathname}?${q}` : pathname), [pathname]);
 
-  const clear = useCallback(() => router.replace(pathname, { scroll: false }), [router, pathname]);
+  const go = useCallback(
+    (q: string) =>
+      start(() => {
+        setQs(q);
+        router.replace(url(q), { scroll: false });
+      }),
+    [router, url, setQs],
+  );
+  const set = useCallback((param: string, value?: string) => go(toggled(param, value)), [go, toggled]);
+  const clear = useCallback(() => go(""), [go]);
+  const href = useCallback((param: string, value?: string) => url(toggled(param, value)), [url, toggled]);
 
-  return { get: (p: string) => sp.get(p) ?? undefined, set, clear, sp };
+  return { get: (p: string) => new URLSearchParams(qs).get(p) ?? undefined, set, clear, href, sp };
 }
 
 function Popover({
@@ -214,25 +231,44 @@ export function ChipRail({
   chips: { label: string; href?: string; param?: string; value?: string }[];
   param?: string;
 }) {
-  const { get, set } = useFilterState();
+  const { get, set, href } = useFilterState();
   return (
     <div className="flex items-center gap-2 overflow-x-auto scroll-x">
       {chips.map((c) => {
         const p = c.param ?? param;
         /* the chip without a value is the default: selected when the URL names none */
         const on = c.value ? get(p) === c.value : !get(p);
-        return (
-          <button
-            key={c.label}
-            onClick={() => set(p, c.value)}
-            className={`h-8 shrink-0 whitespace-nowrap border border-border px-3 text-[12.5px] transition-colors ${
-              on ? "bg-accent text-accent-fg" : "bg-surface hover:bg-bg-subtle"
-            }`}
-          >
-            {c.label}
-          </button>
-        );
+        return <Chip key={c.label} label={c.label} on={on} href={href(p, c.value)} onPick={() => set(p, c.value)} />;
       })}
     </div>
+  );
+}
+
+/* a link, so its results can be fetched as the pointer arrives and it opens in a new tab;
+   a plain click goes through set(), which shows the chip selected at once */
+function Chip({ label, on, href, onPick }: { label: string; on: boolean; href: string; onPick: () => void }) {
+  const [intent, setIntent] = useState(false);
+  const want = () => setIntent(true);
+  return (
+    <Link
+      href={href}
+      replace
+      scroll={false}
+      prefetch={intent}
+      onPointerEnter={want}
+      onTouchStart={want}
+      onFocus={want}
+      aria-current={on || undefined}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        onPick();
+      }}
+      className={`inline-flex h-8 shrink-0 items-center whitespace-nowrap border border-border px-3 text-[12.5px] transition-colors ${
+        on ? "bg-accent text-accent-fg" : "bg-surface hover:bg-bg-subtle"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }

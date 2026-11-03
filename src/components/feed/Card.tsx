@@ -1,11 +1,14 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { Link, useI18n } from "@/i18n/client";
 import { itemTitle } from "@/i18n/content";
 import type { Item } from "@/lib/data";
 import { LazyPreview } from "../mock/LazyPreview";
 import { SaveButton } from "../save/SaveButton";
 import { Code, Layers, Sparkle } from "../ui/icons";
+import { markSource, openShell } from "../motion/morph";
+import { useReveal } from "../motion/reveal";
 
 /**
  * A framed plate: the capture sits inside a ruled mat, the caption reads like a
@@ -14,19 +17,43 @@ import { Code, Layers, Sparkle } from "../ui/icons";
  * `lazy` holds a sample design's preview back until the card nears the screen; `eager` fetches a
  * capture's image first, for the cards a page opens on. `footer` goes under the caption — a
  * board's note and tools.
+ *
+ * A click answers at once with the overlay's empty shell, drawn here in the browser; the detail
+ * view itself is fetched the moment someone shows interest (pointer, touch, keyboard focus), so
+ * it's usually there by the click. Prefetching every card in view would cost a request each.
  */
 export function Card({
   item, crop, lazy = false, eager = false, footer,
 }: { item: Item; crop?: number; lazy?: boolean; eager?: boolean; footer?: React.ReactNode }) {
   const { lang, t } = useI18n();
   const href = item.kind === "component" ? `/component/${item.slug}` : `/screen/${item.slug}`;
+  const [intent, setIntent] = useState(false);
+  const want = () => setIntent(true);
+  const card = useRef<HTMLDivElement>(null);
+  const plate = useRef<HTMLDivElement>(null);
+  useReveal(card);
 
   return (
-    <div data-guide="card">
+    <div ref={card} data-guide="card">
       <div className="group relative">
-        <Link href={href} className="block focus-visible:outline-none" prefetch={false}>
+        <Link
+          href={href}
+          className="block focus-visible:outline-none"
+          prefetch={intent}
+          /* it opens an overlay over this page, not a new page: no page crossfade (app layout) */
+          transitionTypes={[]}
+          onPointerEnter={want}
+          onTouchStart={want}
+          onFocus={want}
+          onClick={(e) => {
+            /* a plain click opens the overlay here; new tabs and windows have nothing to grow into */
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0 || !plate.current) return;
+            markSource(item.slug, plate.current);
+            openShell(item.kind === "component" ? "component" : "screen");
+          }}
+        >
           <div className="border border-border bg-surface p-1.5 transition-[transform,box-shadow] duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 group-hover:shadow-[4px_4px_0_var(--border)] group-focus-visible:shadow-[4px_4px_0_var(--focus)]">
-            <div className="relative overflow-hidden border border-border">
+            <div ref={plate} className="relative overflow-hidden border border-border">
               <LazyPreview item={crop ? { ...item, aspect: crop } : item} lazy={lazy} eager={eager} />
 
               <div className="absolute bottom-1.5 end-1.5 flex items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 max-md:hidden">

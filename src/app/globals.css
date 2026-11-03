@@ -105,6 +105,9 @@
 
 html {
   color-scheme: light dark;
+  /* the scrollbar's room is kept even when an overlay locks scrolling, so the page behind
+     doesn't jump sideways as one opens */
+  scrollbar-gutter: stable;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -209,11 +212,78 @@ body {
   animation: sheet-up 240ms var(--ease) backwards;
 }
 
+/*
+ * Motion that carries the eye from one state to the next, quick and quiet (under a third of a
+ * second), never in the way of reading or clicking.
+ */
+
+/* cards below the first screen rise in as they arrive (motion/reveal.ts) */
+[data-reveal="wait"] {
+  opacity: 0;
+  transform: translateY(14px);
+}
+[data-reveal="in"] {
+  transition:
+    opacity 320ms var(--ease) var(--rd, 0ms),
+    transform 320ms var(--ease) var(--rd, 0ms);
+}
+
+/* previews fade in when their image has arrived instead of popping (motion/fade.ts) */
+img[data-fade] {
+  transition: opacity 260ms var(--ease);
+}
+img[data-fade]:not([data-loaded]) {
+  opacity: 0;
+}
+
+/* view transitions: let clicks through to the live page while one runs */
+::view-transition {
+  pointer-events: none;
+}
+/* the theme switch crossfades the whole page */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: var(--ease);
+}
+/* a navigation: the old page steps back fast, the new one settles in from just below; the bars
+   around it are outside and hold still (app layout) */
+::view-transition-group(.page) {
+  animation-duration: 0s;
+}
+::view-transition-old(.page) {
+  animation: 110ms ease-in both vt-out;
+}
+::view-transition-new(.page) {
+  animation: 230ms var(--ease) 50ms both vt-in;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  [data-reveal="wait"] {
+    opacity: 1;
+    transform: none;
   }
 }

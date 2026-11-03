@@ -15,7 +15,7 @@ export default async function ComponentModal({ params }: { params: Promise<{ slu
   const data = loadDetail(slug, "component");
   if (!data) notFound();
   return (
-    <Overlay label={itemTitle(data.item, await getLang())}>
+    <Overlay key={slug} slug={slug} label={itemTitle(data.item, await getLang())}>
       <DetailView {...data} presentation="overlay" />
     </Overlay>
   );

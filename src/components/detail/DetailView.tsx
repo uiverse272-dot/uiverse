@@ -114,6 +114,8 @@ export function DetailView({
             <div
               /* focusable, so the page inside can be scrolled from the keyboard */
               tabIndex={0}
+              /* where a clicked card's picture lands as the overlay opens (motion/morph.ts) */
+              data-morph-target
               aria-label={`${itemTitle(item, lang)} — ${t.detail.viewports[device]}`}
               className="max-h-[76vh] overflow-y-auto overscroll-contain border border-border transition-[width] duration-200"
               style={{ width: frameWidth }}

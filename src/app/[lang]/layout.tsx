@@ -44,6 +44,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* without scripts no image reports its load, so none waits to fade in */}
+        <noscript>
+          <style>{"img[data-fade]{opacity:1!important}"}</style>
+        </noscript>
       </head>
       <body className="antialiased">
         <LangProvider lang={lang} t={DICTS[lang]}>

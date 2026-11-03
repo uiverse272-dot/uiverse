@@ -28,10 +28,15 @@ export function ThemeToggle({ rail = false }: { rail?: boolean }) {
 
   const next = () => {
     const t = theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = t;
-    try {
-      localStorage.setItem("uiv.theme", t);
-    } catch {}
+    const apply = () => {
+      document.documentElement.dataset.theme = t;
+      try {
+        localStorage.setItem("uiv.theme", t);
+      } catch {}
+    };
+    /* the whole page crossfades into the other theme, where the browser can (globals.css) */
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(apply);
+    else apply();
   };
 
   const label = theme === "dark" ? t.theme.toLight : t.theme.toDark;

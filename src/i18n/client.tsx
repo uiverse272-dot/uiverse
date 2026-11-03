@@ -20,11 +20,15 @@ export function useI18n() {
   return ctx;
 }
 
+/** Every in-app navigation carries this type, so the page crossfade (the app layout) runs on
+    navigations and not on the other transitions a page makes, such as saving. */
+export const NAV = ["nav"];
+
 /** next/link that keeps you in your language: href="/web" is /ar/web on an Arabic page. */
 export function Link({ href, ...props }: React.ComponentProps<typeof NextLink>) {
   const { lang } = useI18n();
   const to = typeof href === "string" ? localize(lang, href) : { ...href, pathname: href.pathname && localize(lang, href.pathname) };
-  return <NextLink href={to} {...props} />;
+  return <NextLink href={to} transitionTypes={NAV} {...props} />;
 }
 
 /**
@@ -41,8 +45,8 @@ export function useLocalRouter() {
   return useMemo(
     () => ({
       ...router,
-      push: (href: string, o?: Parameters<typeof router.push>[1]) => router.push(localize(lang, href), o),
-      replace: (href: string, o?: Parameters<typeof router.replace>[1]) => router.replace(localize(lang, href), o),
+      push: (href: string, o?: Parameters<typeof router.push>[1]) => router.push(localize(lang, href), { transitionTypes: NAV, ...o }),
+      replace: (href: string, o?: Parameters<typeof router.replace>[1]) => router.replace(localize(lang, href), { transitionTypes: NAV, ...o }),
       prefetch: (href: string) => router.prefetch(localize(lang, href)),
     }),
     [router, lang],

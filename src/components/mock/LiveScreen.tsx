@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import type { Item } from "@/lib/data";
 import { VIEWPORTS, type Viewport } from "./primitives";
+import { fadeIn } from "../motion/fade";
 
 /**
  * A Uiverse Original (lib/craft.ts). Same contract as MockScreen: without `viewport` it fills a
@@ -81,6 +82,8 @@ function Poster({ item, eager }: { item: Item; eager: boolean }) {
         sizes="(max-width: 768px) 50vw, 340px"
         alt={item.title}
         draggable={false}
+        data-fade
+        onLoad={fadeIn}
         {...(eager ? { loading: "eager" as const, fetchPriority: "high" as const } : {})}
         style={{ display: "block", width: "100%", height: "100%", objectFit: fit, objectPosition: anchor }}
       />

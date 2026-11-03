@@ -6,6 +6,7 @@ import type { Item } from "@/lib/data";
 import type { Viewport } from "@/lib/captures";
 import { captureSrc } from "@/lib/captureSrc";
 import { cardOf, firstOf } from "@/lib/cards";
+import { fadeIn } from "../motion/fade";
 
 /**
  * A real capture, drawn from its screenshot. Same contract as MockScreen: without
@@ -38,6 +39,9 @@ export function CaptureScreen({ item, viewport, eager = false }: { item: Item; v
         sizes={sizes}
         alt={`${item.source.name} — ${item.title}`}
         draggable={false}
+        /* fades in once it has arrived (globals.css img[data-fade]) */
+        data-fade
+        onLoad={fadeIn}
         style={{ display: "block", width: "100%", height: "auto", maxWidth: "none" }}
       />
     );
