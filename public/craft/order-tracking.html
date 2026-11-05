@@ -1,0 +1,685 @@
+<!doctype html>
+<!-- Parcel tracking card — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A delivery card for a parcel on its way: copy the tracking number, watch the van drive the drawn route
+     and the stages fill, open the full scan history, change where it's left, and step it through to a photo at the door. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Northpost — Track a parcel</title>
+<style>
+  :root {
+    --bg: #e9ebe4; --card: #ffffff; --tint: #f3f5f0; --line: #e1e5de; --ink: #14201a; --soft: #5a665f; --faint: #8b958f;
+    --brand: #08694a; --brand-2: #05553b; --brand-ink: #043b29; --on: #ffffff; --on-soft: #c6e7d5; --mint: #dff2e8;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 12px; --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { min-height: 100svh; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); font-variant-numeric: tabular-nums; display: grid; place-items: center; padding: 20px 24px; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+  .top :focus-visible { outline-color: #fff; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  .card { width: min(952px, 100%); background: var(--card); border-radius: 18px; overflow: hidden; box-shadow: 0 1px 0 rgba(20, 32, 26, .04), 0 12px 32px -18px rgba(20, 40, 30, .28); border: 1px solid #dde1d9; }
+
+  /* ---------- the green top ---------- */
+  .top { background: var(--brand); color: var(--on); padding: 16px 24px 18px; }
+  .bar { display: flex; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
+  .brand svg { width: 24px; height: 24px; }
+  .tn { display: flex; align-items: center; gap: 8px; margin-left: 12px; padding-left: 16px; border-left: 1px solid rgba(255,255,255,.22); min-width: 0; }
+  .tn span { color: var(--on-soft); font-size: 13px; }
+  .tn b { font: 600 13.5px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
+  .copy { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 8px; border-radius: 8px; background: rgba(255,255,255,.12); color: var(--on); font-size: 12.5px; font-weight: 600; transition: background .15s; }
+  .copy:hover { background: rgba(255,255,255,.2); }
+  .copy svg { width: 15px; height: 15px; }
+  .copy .ok { display: none; }
+  .copy.done .ok { display: block; } .copy.done .cp { display: none; }
+  .notif { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--on-soft); cursor: pointer; white-space: nowrap; }
+  .switch { width: 38px; height: 22px; border-radius: 11px; background: rgba(255,255,255,.22); position: relative; transition: background .2s; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); }
+  .switch[aria-checked="true"] { background: #fff; }
+  .switch[aria-checked="true"]::after { transform: translateX(16px); background: var(--brand); }
+
+  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-top: 18px; }
+  .head .from { color: var(--on-soft); font-size: 13px; }
+  h1 { font-size: 30px; line-height: 1.12; font-weight: 700; letter-spacing: -.022em; margin-top: 4px; }
+  .head .sub { color: var(--on-soft); font-size: 14px; margin-top: 6px; }
+  .eta { text-align: right; flex: none; }
+  .eta small { display: block; color: var(--on-soft); font-size: 13px; }
+  .eta b { display: block; font-size: 22px; font-weight: 650; letter-spacing: -.015em; margin-top: 2px; }
+  .count { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; height: 26px; padding: 0 10px; border-radius: 13px; background: var(--brand-2); font-size: 12.5px; font-weight: 600; }
+  .count svg { width: 14px; height: 14px; }
+
+  .steps { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); position: relative; margin-top: 20px; }
+  .steps::before, .fill { content: ""; position: absolute; top: 9px; left: 10%; height: 2px; background: rgba(255,255,255,.24); border-radius: 1px; }
+  .steps::before { right: 10%; }
+  .fill { background: #fff; width: 0; transition: width .7s var(--ease); }
+  .steps li { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; font-size: 13px; color: var(--on-soft); }
+  .dot { width: 20px; height: 20px; border-radius: 50%; background: var(--brand); border: 2px solid rgba(255,255,255,.35); display: grid; place-items: center; position: relative; z-index: 1; transition: background .25s, border-color .25s, transform .25s var(--ease); }
+  .dot svg, .dot::after { grid-area: 1 / 1; }
+  .dot svg { width: 12px; height: 12px; stroke: var(--brand); stroke-width: 3; opacity: 0; transition: opacity .2s; }
+  .steps li.done .dot { background: #fff; border-color: #fff; }
+  .steps li.done .dot svg { opacity: 1; }
+  .steps li.now .dot { border-color: #fff; background: var(--brand); transform: scale(1.15); }
+  .steps li.now .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .steps li.now.done .dot { background: #fff; border-color: #fff; }
+  .steps li.now.done .dot::after { display: none; }
+  .steps li.done, .steps li.now { color: var(--on); }
+  .steps li.now span { font-weight: 650; }
+  .steps time { display: block; font-size: 12px; color: var(--on-soft); margin-top: -6px; min-height: 17px; }
+
+  /* ---------- the white body ---------- */
+  .body { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: 20px; padding: 18px 24px 20px; }
+  .map { position: relative; border-radius: var(--r); overflow: hidden; background: #edf1ea; border: 1px solid var(--line); min-height: 300px; }
+  .map svg.m { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .map .lbl { font: 600 10.5px var(--sans); fill: #3f4b44; paint-order: stroke; stroke: #edf1ea; stroke-width: 3px; stroke-linejoin: round; }
+  .map .st { font: 500 9.5px var(--sans); fill: #8a958d; letter-spacing: .02em; }
+  .driver { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.96); border: 1px solid var(--line); font-size: 13px; transition: opacity .25s, transform .25s var(--ease); }
+  .driver.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  .face { width: 30px; height: 30px; border-radius: 50%; background: #e7d6c3; color: #5b3a1d; display: grid; place-items: center; font-weight: 700; font-size: 12px; flex: none; }
+  .driver b { font-weight: 650; }
+  .driver small { display: block; color: var(--soft); font-size: 12px; }
+  .driver .stops { margin-left: auto; text-align: right; font-weight: 650; white-space: nowrap; }
+
+  .pod { position: absolute; top: 12px; right: 12px; width: 46%; max-width: 220px; background: #fff; border-radius: 10px; padding: 6px 6px 8px; border: 1px solid var(--line); box-shadow: 0 10px 24px -14px rgba(10, 30, 20, .45); transform: translateY(-8px) rotate(1.5deg); opacity: 0; transition: opacity .3s, transform .35s var(--ease); pointer-events: none; }
+  .pod.on { opacity: 1; transform: rotate(1.5deg); pointer-events: auto; }
+  .pod svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+  .pod p { font-size: 12px; color: var(--soft); padding: 6px 2px 0; line-height: 1.35; }
+  .pod p b { color: var(--ink); font-weight: 650; display: block; }
+
+  .side { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .to { display: flex; gap: 12px; align-items: flex-start; padding: 0 0 14px; border-bottom: 1px solid var(--line); }
+  .to .pin { width: 36px; height: 36px; border-radius: 10px; background: var(--mint); color: var(--brand); display: grid; place-items: center; flex: none; }
+  .to small { color: var(--soft); font-size: 12.5px; display: block; }
+  .to b { font-weight: 650; font-size: 14px; display: block; }
+  .to .how { color: var(--ink); font-size: 13px; margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+  .to .how svg { width: 14px; height: 14px; color: var(--brand); }
+  .to .txt { flex: 1; min-width: 0; }
+  .ghost { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s; }
+  .ghost:hover { background: var(--tint); border-color: #d2d8cf; }
+  .ghost:disabled { opacity: .45; cursor: not-allowed; }
+
+  .hist { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0 8px; }
+  h2 { font-size: 14px; font-weight: 650; }
+  .hist span { color: var(--soft); font-size: 12.5px; }
+  .events { list-style: none; position: relative; overflow: hidden; transition: max-height .3s var(--ease); }
+  .events.open { overflow-y: auto; overscroll-behavior: contain; }
+  .ev { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; position: relative; padding-bottom: 12px; }
+  .ev::before { content: ""; position: absolute; left: 8.5px; top: 14px; bottom: -2px; width: 1px; background: var(--line); }
+  .ev:last-child::before { display: none; }
+  .ev .b { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #c4cbc5; background: #fff; margin: 5px 0 0 4.5px; position: relative; z-index: 1; }
+  .ev:first-child .b { border-color: var(--brand); background: var(--brand); box-shadow: 0 0 0 3px var(--mint); }
+  .ev p { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+  .ev small { display: block; color: var(--soft); font-size: 12.5px; }
+  .ev time { color: var(--soft); font-size: 12.5px; text-align: right; white-space: nowrap; line-height: 1.5; }
+  .ev time b { display: block; color: var(--ink); font-weight: 600; font-size: 13px; }
+  .ev.new { animation: drop .32s var(--ease); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-6px); } }
+  .more { display: inline-flex; align-items: center; gap: 4px; color: var(--brand); font-weight: 600; font-size: 13px; padding: 2px 0; margin-top: 2px; border-radius: 4px; }
+  .more svg { width: 15px; height: 15px; transition: transform .2s; }
+  .more[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .acts { display: flex; gap: 10px; margin-top: auto; padding-top: 14px; align-items: center; }
+  .primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; background: var(--brand); color: #fff; font-weight: 650; font-size: 14px; flex: 1; transition: background .15s, transform .12s; }
+  .primary:hover { background: var(--brand-2); }
+  .primary:active { transform: scale(.98); }
+  .primary svg { width: 16px; height: 16px; }
+  .acts .hint { color: var(--soft); font-size: 12px; max-width: 150px; line-height: 1.3; }
+
+  /* ---------- change-delivery dialog ---------- */
+  .scrim { position: fixed; inset: 0; background: rgba(14, 26, 20, .38); display: grid; place-items: center; padding: 16px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s, visibility 0s .2s; z-index: 5; }
+  .scrim.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .2s; }
+  .dlg { width: min(460px, 100%); max-height: calc(100svh - 32px); overflow-y: auto; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 24px 60px -24px rgba(10, 30, 20, .55); transform: translateY(10px) scale(.98); transition: transform .25s var(--ease); }
+  .scrim.on .dlg { transform: none; }
+  .dlg header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .dlg h3 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+  .dlg header p { color: var(--soft); font-size: 13px; margin-top: 2px; }
+  .x { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: var(--soft); flex: none; }
+  .x:hover { background: var(--tint); color: var(--ink); }
+  fieldset { border: 0; margin-top: 16px; display: grid; gap: 8px; }
+  legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .opt { border: 1px solid var(--line); border-radius: 12px; transition: border-color .15s, background .15s; }
+  .opt:has(input:checked) { border-color: var(--brand); background: #f6fbf8; }
+  .opt.dis { opacity: .55; }
+  .opt > label { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; padding: 12px 14px; cursor: pointer; }
+  .opt.dis > label { cursor: not-allowed; }
+  .opt input[type=radio] { appearance: none; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #b7c0b9; margin-top: 1px; display: grid; place-items: center; cursor: inherit; }
+  .opt input[type=radio]:checked { border-color: var(--brand); }
+  .opt input[type=radio]:checked::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
+  .opt input[type=radio]:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .opt b { font-weight: 650; display: block; }
+  .opt small { color: var(--soft); font-size: 12.5px; display: block; }
+  .more-opts { display: none; padding: 0 14px 14px 46px; }
+  .opt:has(input:checked) .more-opts { display: block; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 550; transition: background .12s, border-color .12s, color .12s; }
+  .chip:hover { border-color: #c9d0ca; }
+  .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .chip.date { height: auto; padding: 6px 10px; display: grid; text-align: center; line-height: 1.2; min-width: 52px; }
+  .chip.date small { font-size: 11px; color: inherit; opacity: .75; font-weight: 500; }
+  .note { margin-top: 10px; }
+  .note label { font-size: 12.5px; color: var(--soft); display: flex; justify-content: space-between; }
+  .note textarea { width: 100%; margin-top: 4px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: none; height: 56px; font-size: 13px; }
+  .note textarea:focus { outline: 2px solid var(--brand); outline-offset: -1px; border-color: transparent; }
+  .dlg footer { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 16px; }
+  .dlg footer .err { margin-right: auto; color: #a3361f; font-size: 12.5px; }
+  .dlg .primary { flex: none; }
+  .dlg .primary:disabled { background: #a8bdb2; cursor: not-allowed; transform: none; }
+
+  /* ---------- toast & text notification ---------- */
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 12px); padding: 10px 14px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 13.5px; opacity: 0; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; max-width: calc(100% - 32px); z-index: 9; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .sms { position: fixed; top: 14px; right: 14px; width: min(300px, calc(100% - 28px)); display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(28, 33, 30, .94); color: #fff; font-size: 13px; line-height: 1.35; transform: translateY(-12px); opacity: 0; transition: opacity .2s, transform .3s var(--ease); pointer-events: none; z-index: 9; }
+  .sms.on { opacity: 1; transform: none; }
+  .sms i { width: 28px; height: 28px; border-radius: 7px; background: var(--brand); display: grid; place-items: center; }
+  .sms i svg { width: 18px; height: 18px; }
+  .sms b { font-weight: 650; display: flex; justify-content: space-between; }
+  .sms b span { color: #a9b3ad; font-weight: 500; font-size: 12px; }
+  [hidden] { display: none !important; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    .body { grid-template-columns: 1fr; }
+    .map { min-height: 0; aspect-ratio: 520 / 340; }
+    .tn > span { display: none; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 0; place-items: start; }
+    .card { border-radius: 0; border: 0; }
+    .top { padding: 16px 16px 20px; }
+    .bar { flex-wrap: wrap; row-gap: 12px; }
+    .tn { order: 3; margin: 0; padding: 0; border: 0; flex-basis: 100%; }
+    .notif { font-size: 12.5px; }
+    .head { flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 18px; }
+    h1 { font-size: 25px; }
+    .eta { text-align: left; display: grid; grid-template-columns: auto auto; column-gap: 12px; align-items: center; }
+    .eta small { grid-column: 1 / -1; }
+    .eta .count { margin-top: 2px; }
+    .steps li { font-size: 11.5px; gap: 6px; }
+    .steps time { display: none; }
+    .body { padding: 16px; }
+    .acts .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<article class="card" aria-labelledby="status">
+  <section class="top">
+    <div class="bar">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="6" fill="#fff"/><path d="M7 17V7l10 10V7" fill="none" stroke="#08694a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Northpost
+      </div>
+      <div class="tn">
+        <span id="tnl">Tracking number</span>
+        <b id="tn" aria-labelledby="tnl">NP 4821 7730 52 GB</b>
+        <button class="copy" id="copy" type="button" aria-label="Copy tracking number">
+          <svg class="i cp" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
+          <svg class="i ok" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+          <span id="copyt">Copy</span>
+        </button>
+      </div>
+      <label class="notif" for="notify">Text me at each scan <button class="switch" id="notify" type="button" role="switch" aria-checked="true"></button></label>
+    </div>
+
+    <div class="head">
+      <div>
+        <p class="from">From Kiln &amp; Crate, Bristol · 2 items · 2.4 kg</p>
+        <h1 id="status" aria-live="polite">On its way to Leeds</h1>
+        <p class="sub" id="sub">Left the Midlands sorting centre at 05:12</p>
+      </div>
+      <div class="eta" id="eta">
+        <small id="etaday">Expected Thursday 5 Nov</small>
+        <b id="window">10:40 – 11:40</b>
+        <span class="count" id="countw"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg><span id="count">3h 20m</span></span>
+        <span class="count" id="ontime" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Inside your window</span>
+      </div>
+    </div>
+
+    <ol class="steps" id="steps" aria-label="Delivery progress">
+      <i class="fill" id="fill" aria-hidden="true"></i>
+    </ol>
+  </section>
+
+  <section class="body">
+    <div class="map" aria-label="Route map">
+      <svg class="m" id="map" viewBox="0 0 520 340" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="maptitle">
+        <title id="maptitle">Map of the van's route from the Leeds delivery office to Grove Lane</title>
+        <rect width="520" height="340" fill="#edf1ea"/>
+        <!-- parks and blocks -->
+        <g fill="#dbe9d5">
+          <rect x="332" y="128" width="66" height="58" rx="10"/>
+          <path d="M20 20h80v60H40a20 20 0 0 1-20-20z"/>
+          <rect x="430" y="210" width="80" height="44" rx="10"/>
+        </g>
+        <g fill="#c4dcbd"><circle cx="350" cy="146" r="5"/><circle cx="366" cy="164" r="6"/><circle cx="382" cy="144" r="4"/><circle cx="46" cy="44" r="5"/><circle cx="70" cy="58" r="6"/><circle cx="452" cy="230" r="5"/><circle cx="478" cy="224" r="4"/></g>
+        <g fill="#e1e6dc"><rect x="-10" y="80" width="30" height="19" rx="3"/><rect x="26" y="80" width="82" height="22" rx="3"/><rect x="-10" y="122" width="118" height="35" rx="3"/><rect x="-10" y="182" width="118" height="36" rx="3"/><rect x="-10" y="238" width="118" height="14" rx="3"/><rect x="128" y="-10" width="15" height="67" rx="3"/><rect x="160" y="-10" width="44" height="70" rx="3"/><rect x="128" y="80" width="76" height="19" rx="3"/><rect x="128" y="124" width="76" height="33" rx="3"/><rect x="128" y="180" width="14" height="35" rx="3"/><rect x="159" y="180" width="45" height="38" rx="3"/><rect x="128" y="238" width="20" height="11" rx="3"/><rect x="154" y="238" width="19" height="11" rx="3"/><rect x="179" y="240" width="25" height="12" rx="3"/><rect x="224" y="-8" width="84" height="65" rx="3"/><rect x="224" y="80" width="34" height="19" rx="3"/><rect x="264" y="82" width="44" height="20" rx="3"/><rect x="224" y="124" width="84" height="36" rx="3"/><rect x="224" y="180" width="45" height="38" rx="3"/><rect x="284" y="180" width="24" height="35" rx="3"/><rect x="224" y="238" width="30" height="14" rx="3"/><rect x="264" y="240" width="44" height="12" rx="3"/><rect x="328" y="-8" width="74" height="68" rx="3"/><rect x="328" y="80" width="32" height="19" rx="3"/><rect x="373" y="80" width="29" height="22" rx="3"/><rect x="328" y="180" width="21" height="38" rx="3"/><rect x="366" y="180" width="36" height="38" rx="3"/><rect x="328" y="240" width="74" height="9" rx="3"/><rect x="422" y="-8" width="54" height="68" rx="3"/><rect x="482" y="-8" width="48" height="68" rx="3"/><rect x="422" y="80" width="19" height="22" rx="3"/><rect x="450" y="82" width="80" height="17" rx="3"/><rect x="422" y="122" width="108" height="35" rx="3"/><rect x="422" y="182" width="84" height="36" rx="3"/><rect x="512" y="180" width="18" height="35" rx="3"/></g>
+        <!-- river -->
+        <path d="M-10 286c90-26 160 14 250-8s170-36 290-8" fill="none" stroke="#cfe0ea" stroke-width="22" stroke-linecap="round"/>
+        <g fill="#e1e6dc"><rect x="20" y="312" width="80" height="40" rx="3"/><rect x="128" y="316" width="70" height="40" rx="3"/><rect x="226" y="314" width="84" height="40" rx="3"/><rect x="330" y="306" width="60" height="40" rx="3"/><rect x="424" y="300" width="86" height="40" rx="3"/></g>
+        <!-- streets -->
+        <g fill="none" stroke="#fff" stroke-linecap="round">
+          <g stroke-width="9"><path d="M118 0v262M214 0v262M318 0v262M412 0v262M0 70h520M0 112h520M0 170h520M0 228h520M0 300c120-8 300 6 520-14M214 262v80M412 262v80"/></g>
+        </g>
+        <!-- ring road -->
+        <path id="ring" d="M-20 252C80 248 150 206 214 170C262 146 300 196 340 206S460 200 540 236" fill="none" stroke="#f3e6c4" stroke-width="12" stroke-linecap="round"/>
+        <path d="M-20 252C80 248 150 206 214 170C262 146 300 196 340 206S460 200 540 236" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="6 8" opacity=".9"/>
+        <text class="st" x="134" y="64">OTLEY RD</text>
+        <text class="st" x="226" y="106">GROVE LN</text>
+        <text class="st" x="240" y="252" transform="rotate(0)">KIRKSTALL RD</text>
+        <text class="st" x="330" y="246">CARDIGAN AVE</text>
+        <!-- route -->
+        <path id="route" d="M-12 252C70 248 150 206 214 170L214 112L318 112L318 70L412 70L412 40" fill="none" stroke="#0e7a55" stroke-opacity=".38" stroke-width="4" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <path id="done" d="M-12 252C70 248 150 206 214 170L214 112L318 112L318 70L412 70L412 40" fill="none" stroke="#08694a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- delivery office -->
+        <g transform="translate(214 170)">
+          <rect x="-10" y="-10" width="20" height="20" rx="5" fill="#fff" stroke="#08694a" stroke-width="2"/>
+          <path d="M-4.5 -2.5h9v6h-9zM-4.5 -2.5l4.5-3 4.5 3" fill="none" stroke="#08694a" stroke-width="1.6" stroke-linejoin="round"/>
+          <text class="lbl" x="16" y="-10">Leeds delivery office</text>
+        </g>
+        <!-- home -->
+        <g transform="translate(412 40)">
+          <circle r="15" fill="#08694a"/>
+          <path d="M-6 1 0-5l6 6v6h-4v-4h-4v4h-4z" fill="#fff"/>
+          <text class="lbl" x="-22" y="4" text-anchor="end">27 Grove Lane</text>
+        </g>
+        <text class="lbl" x="30" y="273">Daventry hub · 98 mi</text>
+        <!-- van -->
+        <g id="van">
+          <circle r="15" fill="#fff" stroke="#08694a" stroke-width="2"/>
+          <g id="vanflip"><g transform="translate(-9.5 -9) scale(.8)"><path d="M2 6.5A1.5 1.5 0 0 1 3.5 5H14v11H2zM14 9h4.2l3.3 3.6V16H14z" fill="#08694a"/><path d="M15.6 10.4h2l1.7 1.9h-3.7z" fill="#fff"/><circle cx="6.5" cy="17" r="2.4" fill="#fff" stroke="#08694a" stroke-width="1.6"/><circle cx="17.5" cy="17" r="2.4" fill="#fff" stroke="#08694a" stroke-width="1.6"/></g></g>
+        </g>
+      </svg>
+      <div class="driver off" id="driver" aria-live="polite">
+        <span class="face" aria-hidden="true">TW</span>
+        <div><b>Tomasz Wiśniewski</b><small>Van 14 · Leeds North round</small></div>
+        <div class="stops" id="stops">14 stops away</div>
+      </div>
+      <figure class="pod" id="pod" aria-hidden="true">
+        <svg viewBox="0 0 200 140" role="img" aria-label="Photo of the parcel left at the door">
+          <rect width="200" height="140" fill="#cfc6b8"/>
+          <rect x="0" y="0" width="200" height="104" fill="#b9a993"/>
+          <g stroke="#a8977f" stroke-width="1"><path d="M0 14h200M0 30h200M0 46h200M0 62h200M0 78h200M0 94h200"/><path d="M20 0v14M60 0v14M100 0v14M140 0v14M180 0v14M40 14v16M80 14v16M120 14v16M160 14v16M20 30v16M60 30v16M100 30v16M140 30v16M180 30v16M40 46v16M80 46v16M120 46v16M160 46v16M20 62v16M60 62v16M100 62v16M140 62v16M180 62v16M40 78v16M80 78v16M120 78v16M160 78v16M20 94v10M60 94v10M140 94v10M180 94v10"/></g>
+          <rect x="70" y="16" width="62" height="92" fill="#ece6da"/>
+          <rect x="76" y="22" width="50" height="86" fill="#2f5a4c"/>
+          <rect x="83" y="30" width="36" height="28" rx="2" fill="none" stroke="#24493d" stroke-width="2"/>
+          <rect x="83" y="64" width="36" height="34" rx="2" fill="none" stroke="#24493d" stroke-width="2"/>
+          <circle cx="116" cy="66" r="2.6" fill="#d6b56a"/>
+          <text id="podnum" x="101" y="48" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#d6b56a">27</text>
+          <rect x="0" y="104" width="200" height="36" fill="#8d8a84"/>
+          <rect x="60" y="104" width="82" height="10" fill="#a19e98"/>
+          <g id="podbox"><path d="M80 96h40l6 6v22H86l-6-6z" fill="#c98c4f"/><path d="M80 96v22l6 6V102z" fill="#a8703a"/><path d="M80 96l6 6h40" fill="none" stroke="#e1a96d" stroke-width="1"/><path d="M98 102h10v22H98z" fill="#d9b48a"/><rect x="108" y="108" width="14" height="9" rx="1" fill="#fff"/><path d="M110 111h8M110 114h5" stroke="#08694a" stroke-width="1.2"/></g>
+          <g id="podplant"><path d="M150 124h20l-3 14h-14z" fill="#8a4b2a"/><path d="M160 124c-6-10-14-12-16-22 8 2 13 8 16 16 2-10 8-16 16-18-2 10-10 14-16 24" fill="#5c7f4c"/></g>
+          <rect x="0" y="124" width="200" height="16" fill="rgba(0,0,0,.45)"/>
+          <text x="8" y="135" font-family="ui-monospace, Menlo, monospace" font-size="8.5" fill="#fff" id="podstamp">THU 05 NOV 10:47 · LS6 3AZ</text>
+        </svg>
+        <p><b>Proof of delivery</b><span id="podcap">Left at the front door</span></p>
+      </figure>
+    </div>
+
+    <div class="side">
+      <div class="to">
+        <span class="pin" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg></span>
+        <div class="txt">
+          <small>Delivering to Amara Okafor</small>
+          <b>27 Grove Lane, Leeds LS6 3AZ</b>
+          <span class="how"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="how">Hand it to me at the door</span></span>
+        </div>
+        <button class="ghost" id="change" type="button" aria-haspopup="dialog">Change</button>
+      </div>
+
+      <div class="hist"><h2 id="histh">Tracking history</h2><span id="histn">5 scans</span></div>
+      <ol class="events" id="events" aria-labelledby="histh"></ol>
+      <div><button class="more" id="more" type="button" aria-expanded="false" aria-controls="events"><span id="moret">Show all scans</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+
+      <div class="acts">
+        <button class="primary" id="sim" type="button"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V5h4M20 7V5h-4M4 17v2h4M20 17v2h-4M8 9v6M11 9v6M14 9v6M17 9v6"/></svg><span id="simt">Simulate next scan</span></button>
+        <p class="hint" id="simhint">Demo: steps the parcel to its next scan.</p>
+      </div>
+    </div>
+  </section>
+</article>
+
+<div class="scrim" id="scrim">
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgh" id="dlg">
+    <header>
+      <div><h3 id="dlgh">Change delivery</h3><p>Tomasz sees your choice on his route straight away.</p></div>
+      <button class="x" id="x" type="button" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <fieldset id="opts">
+      <legend>How should we deliver?</legend>
+      <div class="opt"><label><input type="radio" name="how" value="me"><span><b>Hand it to me</b><small>We'll knock. If no one's in, we try a neighbour.</small></span></label></div>
+      <div class="opt"><label><input type="radio" name="how" value="neighbour"><span><b>Leave with a neighbour</b><small>Pick the door you'd like us to try.</small></span></label>
+        <div class="more-opts"><div class="chips" data-group="neighbour" role="group" aria-label="Neighbour">
+          <button type="button" class="chip" data-v="No. 25">No. 25</button><button type="button" class="chip" data-v="No. 29">No. 29</button><button type="button" class="chip" data-v="No. 30, opposite">No. 30, opposite</button>
+        </div></div></div>
+      <div class="opt"><label><input type="radio" name="how" value="safe"><span><b>Leave in a safe place</b><small>We'll take a photo where we leave it.</small></span></label>
+        <div class="more-opts"><div class="chips" data-group="safe" role="group" aria-label="Safe place">
+          <button type="button" class="chip" data-v="Porch">Porch</button><button type="button" class="chip" data-v="Behind the side gate">Behind the side gate</button><button type="button" class="chip" data-v="Garden shed">Garden shed</button><button type="button" class="chip" data-v="Recycling bin">Recycling bin</button>
+        </div>
+        <div class="note"><label for="note"><span>Note for the driver (optional)</span><span id="notec">0/80</span></label><textarea id="note" maxlength="80" placeholder="e.g. Gate code 4471, please close it after"></textarea></div></div></div>
+      <div class="opt" id="optre"><label><input type="radio" name="how" value="later" id="later"><span><b>Deliver on another day</b><small id="laters">We'll keep it at the Leeds delivery office until then.</small></span></label>
+        <div class="more-opts"><div class="chips" data-group="later" role="group" aria-label="Delivery day" id="days"></div></div></div>
+    </fieldset>
+    <footer><span class="err" id="err" role="alert"></span><button class="ghost" id="cancel" type="button">Cancel</button><button class="primary" id="save" type="button">Save</button></footer>
+  </div>
+</div>
+
+<p class="toast" id="toast" role="status"></p>
+<div class="sms" id="sms" role="status" aria-live="polite"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17V7l10 10V7" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i><div><b>Northpost <span>now</span></b><span id="smst"></span></div></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const STAGES = ["Ordered", "Packed", "Shipped", "Out for delivery", "Delivered"];
+  const DAYS = ["Wednesday 4 Nov", "Thursday 5 Nov", "Friday 6 Nov", "Saturday 7 Nov", "Sunday 8 Nov", "Monday 9 Nov", "Tuesday 10 Nov", "Wednesday 11 Nov"];
+  const SHORT = (d) => DAYS[d + 1].split(" ").map((w, i) => i === 0 ? w.slice(0, 3) : w).join(" ");
+  const fmt = (m) => { const h = Math.floor(((m % 1440) + 1440) % 1440 / 60), mm = ((m % 60) + 60) % 60; return String(h).padStart(2, "0") + ":" + String(mm).padStart(2, "0"); };
+  const T = (day, h, m) => day * 1440 + h * 60 + m;   // minutes from Thursday 00:00
+
+  /* the parcel's story so far, newest last */
+  const BASE = [
+    { t: T(-1, 11, 2), stage: 0, p: "Order placed", s: "kilnandcrate.shop · order 30418" },
+    { t: T(-1, 16, 30), stage: 1, p: "Packed and labelled", s: "Kiln & Crate studio, Bristol BS2" },
+    { t: T(-1, 18, 5), stage: 2, p: "Collected from the sender", s: "Bristol, BS2 0JA" },
+    { t: T(-1, 22, 47), stage: 2, p: "Arrived at the sorting centre", s: "Midlands hub, Daventry NN11" },
+    { t: T(0, 5, 12), stage: 2, p: "Left the sorting centre", s: "Midlands hub, Daventry NN11" },
+  ];
+  /* van distance along the route for each scan, as a share of the two legs */
+  let state;
+  function fresh() {
+    return { events: BASE.map((e) => ({ ...e })), step: 0, clock: T(0, 7, 20) * 60, day: 0, how: { kind: "me", text: "Hand it to me at the door" }, open: false };
+  }
+
+  const route = $("route"), done = $("done"), van = $("van");
+  const L = route.getTotalLength();
+  /* the motorway leg ends at the delivery office (214,170): find its length once */
+  let L1 = 0; for (let d = 0; d <= L; d += 1) { const p = route.getPointAtLength(d); if (Math.abs(p.x - 214) < .6 && Math.abs(p.y - 170) < .6) { L1 = d; break; } }
+  const L2 = L - L1;
+  done.style.strokeDasharray = `${L} ${L}`;
+
+  /* the scans the demo steps through */
+  function nextScans() {
+    const d = state.day;
+    return [
+      { t: T(0, 7, 48), stage: 2, p: "Arrived at the delivery office", s: "Kirkstall Road, Leeds LS4", at: L1, head: "At your local delivery office", sub: "Sorted onto Van 14 for its next round", sms: "Your parcel NP…52GB is at the Leeds delivery office." },
+      { t: T(d, 8, 55), stage: 3, p: "Out for delivery", s: "Van 14 with Tomasz", at: L1 + L2 * .14, head: "Out for delivery", sub: "Tomasz has it on Van 14 · 14 stops before you", sms: "Out for delivery today. Tomasz is 14 stops away." , win: [T(d, 10, 40), T(d, 11, 20)] },
+      { t: T(d, 10, 31), stage: 3, p: "Nearly there", s: "3 stops away · Grove Lane", at: L1 + L2 * .74, head: "3 stops away", sub: "Tomasz is on Grove Lane, about 15 minutes out", sms: "Tomasz is 3 stops away, about 15 minutes.", win: [T(d, 10, 40), T(d, 10, 55)] },
+      { t: T(d, 10, 47), stage: 4, p: "Delivered", s: "", at: L, head: "Delivered", sub: "", sms: "" },
+    ];
+  }
+
+  /* ---------- painting ---------- */
+  const steps = $("steps");
+  STAGES.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="dot" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span>${s}</span><time></time>`;
+    steps.appendChild(li);
+  });
+  function stage() { return state.events[state.events.length - 1].stage; }
+  function paintSteps(animate) {
+    const cur = stage();
+    [...steps.querySelectorAll("li")].forEach((li, i) => {
+      li.classList.toggle("done", i < cur || (i === cur && cur === 4));
+      li.classList.toggle("now", i === cur);
+      if (i === cur) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+      const first = state.events.find((e) => e.stage === i);
+      li.querySelector("time").textContent = first ? `${SHORT(Math.floor(first.t / 1440)).replace(/ \d+ Nov/, "")} ${fmt(first.t)}` : "";
+    });
+    const pct = cur / 4 * 80;
+    const f = $("fill");
+    if (!animate) { f.style.transition = "none"; f.style.width = pct + "%"; f.offsetWidth; f.style.transition = ""; }
+    else f.style.width = pct + "%";
+  }
+
+  function paintEvents(fresh) {
+    const list = $("events");
+    const evs = [...state.events].reverse();
+    list.innerHTML = evs.map((e, i) => `<li class="ev${fresh && i === 0 ? " new" : ""}"><span class="b"></span><div><p>${e.p}</p>${e.s ? `<small>${e.s}</small>` : ""}</div><time datetime="2026-11-${String(5 + Math.floor(e.t / 1440)).padStart(2, "0")}T${fmt(e.t)}"><b>${fmt(e.t)}</b>${SHORT(Math.floor(e.t / 1440))}</time></li>`).join("");
+    $("histn").textContent = `${evs.length} scans`;
+    sizeEvents();
+  }
+  function sizeEvents() {
+    const list = $("events"), items = [...list.children];
+    const shown = state.open ? items.length : Math.min(3, items.length);
+    let h = 0; items.slice(0, shown).forEach((li) => (h += li.offsetHeight));
+    if (state.open) {
+      list.style.maxHeight = h + "px";
+    } else list.style.maxHeight = h + "px";
+    list.classList.toggle("open", state.open);
+    items.forEach((li, i) => li.toggleAttribute("hidden", !state.open && i >= 3));
+    $("more").setAttribute("aria-expanded", String(state.open));
+    $("moret").textContent = state.open ? "Show fewer" : `Show all ${items.length} scans`;
+    $("more").parentElement.hidden = items.length <= 3;
+  }
+
+  let vanAt = 0, vanAnim = 0;
+  function placeVan(d) {
+    vanAt = d;
+    const p = route.getPointAtLength(Math.max(0, Math.min(L, d)));
+    const q = route.getPointAtLength(Math.max(0, Math.min(L, d + 2)));
+    van.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+    $("vanflip").setAttribute("transform", q.x < p.x - .3 ? "scale(-1 1)" : "");
+    done.style.strokeDashoffset = String(L - d);
+  }
+  function driveTo(d, ms = 1100) {
+    cancelAnimationFrame(vanAnim);
+    if (still) { placeVan(d); return; }
+    const from = vanAt, t0 = performance.now();
+    const ease = (x) => 1 - Math.pow(1 - x, 3);
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / ms);
+      placeVan(from + (d - from) * ease(k));
+      if (k < 1) vanAnim = requestAnimationFrame(step);
+    };
+    vanAnim = requestAnimationFrame(step);
+  }
+
+  function paintHead() {
+    const last = state.events[state.events.length - 1];
+    const cur = last.stage;
+    $("countw").hidden = cur === 4;
+    if (cur === 4) {
+      $("status").textContent = "Delivered";
+      $("sub").textContent = `${SHORT(Math.floor(last.t / 1440))} at ${fmt(last.t)} · ${state.how.pod}`;
+      $("etaday").textContent = `Delivered ${DAYS[Math.floor(last.t / 1440) + 1]}`;
+      $("window").textContent = fmt(last.t);
+      $("ontime").hidden = false;
+      return;
+    }
+    $("ontime").hidden = true;
+    $("status").textContent = state.head;
+    $("sub").textContent = state.sub;
+    $("etaday").textContent = `Expected ${DAYS[state.day + 1]}`;
+    $("window").textContent = `${fmt(state.win[0])} – ${fmt(state.win[1])}`;
+  }
+
+  function tick() {
+    const cur = stage();
+    if (cur === 4) return;
+    const now = state.clock, start = state.win[0] * 60, end = state.win[1] * 60;
+    let txt;
+    if (now < start) {
+      const s = start - now, d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      txt = d ? `in ${d}d ${h}h ${m}m` : h ? `in ${h}h ${String(m).padStart(2, "0")}m ${String(sec).padStart(2, "0")}s` : `in ${m}m ${String(sec).padStart(2, "0")}s`;
+    } else if (now < end) txt = `due by ${fmt(state.win[1])}`;
+    else txt = "running a little late";
+    $("count").textContent = txt;
+  }
+
+  function render(animate) {
+    paintSteps(animate);
+    paintEvents(animate);
+    paintHead();
+    tick();
+    const cur = stage();
+    $("driver").classList.toggle("off", cur !== 3);
+    $("pod").classList.toggle("on", cur === 4);
+    $("pod").setAttribute("aria-hidden", String(cur !== 4));
+    $("change").disabled = cur === 4;
+    $("how").textContent = cur === 4 ? state.how.pod : state.how.text;
+    $("simt").textContent = cur === 4 ? "Start the demo again" : "Simulate next scan";
+    $("simhint").textContent = cur === 4 ? "Back to the morning, before the first scan." : "Demo: steps the parcel to its next scan.";
+  }
+
+  /* ---------- the demo's scans ---------- */
+  let busy = false, queued = false;
+  function next() {
+    if (busy) { queued = true; return; }
+    if (stage() === 4) { reset(); toast("Back to 07:20 on Thursday"); return; }
+    const scans = nextScans();
+    const sc = scans[state.step];
+    if (!sc) return;
+    busy = true; setTimeout(() => { busy = false; if (queued) { queued = false; next(); } }, still ? 0 : 450);
+    state.step++;
+    state.clock = sc.t * 60;
+    if (sc.stage === 4) {
+      sc.p = "Delivered"; sc.s = state.how.pod;
+      $("podcap").textContent = state.how.pod;
+      $("podnum").textContent = state.how.door || "27";
+      $("podplant").style.display = state.how.kind === "safe" ? "none" : "";
+      $("podstamp").textContent = `${SHORT(state.day).toUpperCase().replace(/ (\d) /, " 0$1 ")} ${fmt(sc.t)} · LS6 ${state.how.kind === "neighbour" ? "3BA" : "3AZ"}`;
+    }
+    state.events.push({ t: sc.t, stage: sc.stage, p: sc.p, s: sc.s });
+    if (sc.head) { state.head = sc.head; state.sub = sc.stage === 2 && state.day > 0 ? `Held here until ${DAYS[state.day + 1].split(" ")[0]}, as you asked` : sc.sub; }
+    if (sc.win) state.win = sc.win;
+    if (sc.stage === 3 && sc.at < L) $("stops").textContent = state.step === 2 ? "14 stops away" : "3 stops away";
+    render(true);
+    driveTo(sc.at, sc.stage === 4 ? 900 : 1300);
+    if (notify && sc.sms) sms(sc.sms);
+    if (sc.stage === 4 && notify) sms(`Delivered at ${fmt(sc.t)}. ${state.how.pod}. Photo in the app.`);
+  }
+  function reset() {
+    state = fresh();
+    state.head = "On its way to Leeds"; state.sub = "Left the Midlands sorting centre at 05:12";
+    state.win = [T(0, 10, 40), T(0, 11, 40)];
+    state.how.pod = "Handed to Amara at the door";
+    $("how").textContent = state.how.text;
+    render(false);
+    placeVan(L1 * .4);
+  }
+
+  /* ---------- clock ---------- */
+  setInterval(() => { state.clock += 1; tick(); if (stage() === 3 && !still && vanAt < L - 4) placeVan(vanAt + .15); }, 1000);
+
+  /* ---------- copy ---------- */
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText("NP4821773052GB"); } catch (e) { /* the frame may not allow it; still confirm */ }
+    $("copy").classList.add("done"); $("copyt").textContent = "Copied";
+    clearTimeout($("copy").h); $("copy").h = setTimeout(() => { $("copy").classList.remove("done"); $("copyt").textContent = "Copy"; }, 1600);
+  });
+
+  /* ---------- notifications ---------- */
+  let notify = true;
+  $("notify").addEventListener("click", (e) => {
+    e.preventDefault();
+    notify = !notify; $("notify").setAttribute("aria-checked", String(notify));
+    toast(notify ? "We'll text 07700 900418 at every scan" : "Texts off. You'll still see scans here.");
+  });
+
+  /* ---------- timeline ---------- */
+  $("more").addEventListener("click", () => { state.open = !state.open; sizeEvents(); if (!state.open) $("events").scrollTop = 0; });
+  addEventListener("resize", sizeEvents);
+
+  /* ---------- change delivery ---------- */
+  const scrim = $("scrim"), dlg = $("dlg");
+  let pick = {}, lastFocus = null;
+  function buildDays() {
+    const opts = [[1, "Fri", "6"], [2, "Sat", "7"], [4, "Mon", "9"], [5, "Tue", "10"], [6, "Wed", "11"]];
+    $("days").innerHTML = opts.map(([d, w, n]) => `<button type="button" class="chip date" data-v="${d}" aria-pressed="false"><small>${w}</small>${n} Nov</button>`).join("");
+  }
+  function openDlg() {
+    lastFocus = document.activeElement;
+    const kind = state.how.kind;
+    pick = { neighbour: state.how.kind === "neighbour" ? state.how.v : null, safe: state.how.kind === "safe" ? state.how.v : null, later: state.how.kind === "later" ? state.day : null };
+    dlg.querySelectorAll("input[name=how]").forEach((r) => (r.checked = r.value === kind));
+    const late = stage() >= 3;
+    $("later").disabled = late; $("optre").classList.toggle("dis", late);
+    $("laters").textContent = late ? "Too late to change the day: the van has already left." : "We'll keep it at the Leeds delivery office until then.";
+    $("note").value = state.how.note || ""; $("notec").textContent = `${$("note").value.length}/80`;
+    paintChips(); $("err").textContent = "";
+    scrim.classList.add("on");
+    setTimeout(() => (dlg.querySelector("input[name=how]:checked") || dlg.querySelector("input[name=how]")).focus(), 30);
+  }
+  function closeDlg() { scrim.classList.remove("on"); (lastFocus || $("change")).focus(); }
+  function paintChips() {
+    dlg.querySelectorAll(".chips").forEach((g) => g.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(String(pick[g.dataset.group]) === c.dataset.v))));
+  }
+  dlg.addEventListener("click", (e) => {
+    const c = e.target.closest(".chip"); if (!c) return;
+    const g = c.parentElement.dataset.group;
+    pick[g] = c.dataset.v; paintChips(); $("err").textContent = "";
+    const r = dlg.querySelector(`input[value=${g === "later" ? "later" : g}]`); if (r && !r.checked) r.checked = true;
+  });
+  dlg.addEventListener("change", () => { $("err").textContent = ""; });
+  $("note").addEventListener("input", () => ($("notec").textContent = `${$("note").value.length}/80`));
+  $("save").addEventListener("click", () => {
+    const r = dlg.querySelector("input[name=how]:checked");
+    if (!r) { $("err").textContent = "Choose how you'd like it delivered."; return; }
+    const k = r.value, v = pick[k];
+    if (k === "neighbour" && !v) { $("err").textContent = "Pick which neighbour."; return; }
+    if (k === "safe" && !v) { $("err").textContent = "Pick a safe place."; return; }
+    if (k === "later" && v == null) { $("err").textContent = "Pick a day."; return; }
+    const note = $("note").value.trim();
+    let how;
+    if (k === "me") how = { kind: k, text: "Hand it to me at the door", pod: "Handed to Amara at the door" };
+    if (k === "neighbour") how = { kind: k, v, door: v.replace(/\D/g, ""), text: `Leave with ${v}`, pod: `Left with the neighbour at ${v.replace(", opposite", "")}` };
+    if (k === "safe") how = { kind: k, v, note, text: `Safe place: ${v.toLowerCase()}${note ? " · note added" : ""}`, pod: `Left in your safe place: ${v.toLowerCase()}` };
+    if (k === "later") {
+      const d = +v;
+      how = { kind: k, text: `Deliver on ${DAYS[d + 1]}`, pod: "Handed to Amara at the door" };
+      state.day = d; state.win = [T(d, 9, 0), T(d, 13, 0)];
+      state.head = `Coming on ${DAYS[d + 1].split(" ")[0]}`; state.sub = "Held for you at the Leeds delivery office";
+    } else if (state.how.kind === "later" && stage() < 3) {
+      state.day = 0; state.win = [T(0, 10, 40), T(0, 11, 40)];
+      state.head = vanAt >= L1 ? "At your local delivery office" : "On its way to Leeds";
+      state.sub = vanAt >= L1 ? "Sorted onto Van 14 for its next round" : "Left the Midlands sorting centre at 05:12";
+    }
+    state.how = how;
+    $("how").textContent = how.text;
+    state.events.push({ t: Math.floor(state.clock / 60), stage: stage(), p: "Delivery instructions changed", s: how.text });
+    render(true);
+    closeDlg();
+    toast(k === "later" ? `Moved to ${DAYS[+v + 1]}. We'll text you the window that morning.` : "Saved. Tomasz will see it on his route.");
+  });
+  $("change").addEventListener("click", openDlg);
+  $("x").addEventListener("click", closeDlg);
+  $("cancel").addEventListener("click", closeDlg);
+  scrim.addEventListener("mousedown", (e) => { if (e.target === scrim) closeDlg(); });
+  addEventListener("keydown", (e) => {
+    if (!scrim.classList.contains("on")) return;
+    if (e.key === "Escape") { e.preventDefault(); closeDlg(); }
+    if (e.key === "Tab") {
+      const f = [...dlg.querySelectorAll("button, input, textarea")].filter((x) => !x.disabled && x.offsetParent !== null && !(x.type === "radio" && !x.checked && dlg.querySelector(`input[name=${x.name}]:checked`)));
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  /* ---------- toasts ---------- */
+  function toast(t) { const el = $("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(el.h); el.h = setTimeout(() => el.classList.remove("on"), 2400); }
+  function sms(t) { const el = $("sms"); $("smst").textContent = t; el.classList.add("on"); clearTimeout(el.h); el.h = setTimeout(() => el.classList.remove("on"), 3200); }
+
+  $("sim").addEventListener("click", next);
+
+  /* ---------- first paint: the line grows to today's stage, the van rolls in ---------- */
+  buildDays();
+  reset();
+  if (!still) {
+    $("fill").style.transition = "none"; $("fill").style.width = "0%"; $("fill").offsetWidth; $("fill").style.transition = "";
+    placeVan(0);
+    setTimeout(() => { paintSteps(true); driveTo(L1 * .4, 1200); }, 120);
+  }
+})();
+</script>
+</body>
+</html>

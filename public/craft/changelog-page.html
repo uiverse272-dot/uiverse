@@ -1,0 +1,832 @@
+<!doctype html>
+<!-- Changelog page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A product changelog set like a good reference book: a timeline of releases with drawn product
+     vignettes, New / Improved / Fixed notes, a sticky type filter and month index with scroll-spy,
+     search that highlights, subscribe, and a rail that shows what is new since your last visit. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fathom — Changelog</title>
+<style>
+  :root {
+    --bg: #fff; --panel: #f4f5f6; --ink: #111315; --soft: #565b62; --faint: #6c7178; --line: #e4e6e9; --line-2: #cdd0d5;
+    --accent: #c93c0a; --accent-ink: #a82f05; --tint: #fdeee7; --hit: #ffe0cf;
+    --sans: "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --date-col: 136px; --rail-gap: 56px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 15px/24px var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button, input { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; }
+  a { color: inherit; }
+  ul { list-style: none; }
+  svg.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 40px; }
+
+  /* top */
+  .top { display: flex; align-items: center; gap: 32px; height: 64px; border-bottom: 1px solid var(--line); }
+  .mark { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; letter-spacing: -.012em; text-decoration: none; }
+  .mark svg { width: 20px; height: 20px; }
+  .top nav { display: flex; gap: 24px; margin-right: auto; }
+  .top nav a { font-size: 14px; color: var(--soft); text-decoration: none; transition: color .15s; }
+  .top nav a:hover { color: var(--ink); }
+  .top nav a[aria-current] { color: var(--ink); font-weight: 500; }
+  .signin { font-size: 14px; font-weight: 500; text-decoration: none; }
+  .signin:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  /* masthead */
+  .mast { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 48px; align-items: end; padding: 56px 0 40px; border-bottom: 1px solid var(--ink); }
+  h1 { font-size: 96px; line-height: 92px; font-weight: 500; letter-spacing: -.045em; margin-left: -4px; }
+  .lede { margin-top: 20px; font-size: 18px; line-height: 26px; color: var(--soft); letter-spacing: -.006em; max-width: 44ch; }
+  .sub label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+  .subrow { display: flex; gap: 8px; }
+  .subrow input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 4px; background: var(--bg); transition: border-color .15s; }
+  .subrow input:hover { border-color: var(--faint); }
+  .subrow input::placeholder { color: var(--faint); }
+  .subrow input[aria-invalid="true"] { border-color: var(--accent); }
+  .btn { height: 40px; padding: 0 16px; border-radius: 4px; background: var(--ink); color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background .15s; }
+  .btn:hover { background: #33373c; }
+  .submeta { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; font-size: 13px; line-height: 20px; color: var(--soft); min-height: 20px; }
+  .submeta .err { color: var(--accent-ink); }
+  .rss { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); text-decoration: none; white-space: nowrap; font-weight: 500; }
+  .rss:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .rss svg { width: 14px; height: 14px; }
+  .done { font-size: 14px; line-height: 22px; border-top: 1px solid var(--ink); padding-top: 12px; }
+  .done:focus { outline: none; }
+  .done b { display: block; font-weight: 600; }
+  .done button { color: var(--soft); text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
+
+  /* layout */
+  .layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); column-gap: 72px; align-items: start; }
+  .side { position: sticky; top: 0; padding: 32px 0 24px; max-height: 100svh; overflow-y: auto; scrollbar-width: none; margin: 0 -4px; padding-left: 4px; padding-right: 4px; }
+  .search { position: relative; }
+  .search svg { position: absolute; left: 10px; top: 12px; color: var(--soft); pointer-events: none; }
+  .search input { width: 100%; height: 40px; padding: 0 32px 0 34px; border: 1px solid var(--line-2); border-radius: 4px; background: var(--bg); font-size: 14px; transition: border-color .15s; }
+  .search input:hover { border-color: var(--faint); }
+  .search input::placeholder { color: var(--faint); }
+  .search input::-webkit-search-cancel-button { display: none; }
+  .search kbd { position: absolute; right: 8px; top: 10px; width: 20px; height: 20px; display: grid; place-items: center; font: 11px var(--mono); color: var(--soft); border: 1px solid var(--line-2); border-radius: 3px; pointer-events: none; }
+  .search .clr { position: absolute; right: 6px; top: 8px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 3px; color: var(--soft); }
+  .search .clr:hover { background: var(--panel); color: var(--ink); }
+  .search .clr svg { position: static; width: 14px; height: 14px; }
+  .wn { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; width: 100%; margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 4px; text-align: left; transition: border-color .15s, background .15s; }
+  .wn:hover { border-color: var(--line-2); }
+  .wn b { font-weight: 600; font-size: 14px; line-height: 20px; }
+  .wn .n { color: var(--accent-ink); font-weight: 600; font-size: 14px; line-height: 20px; }
+  .wn small { grid-column: 1 / -1; font-size: 12px; line-height: 16px; color: var(--soft); }
+  .wn[aria-pressed="true"] { border-color: var(--accent); background: var(--tint); }
+  .wn[aria-disabled="true"] { cursor: default; border-color: var(--line); background: none; }
+  .wn[aria-disabled="true"] .n { color: var(--soft); font-weight: 400; }
+  .side h2 { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--soft); margin: 28px 0 4px; }
+  .opt { position: relative; display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; font-size: 14px; text-align: left; color: var(--soft); text-decoration: none; transition: color .15s; }
+  .opt:hover { color: var(--ink); }
+  .opt[aria-pressed="true"], .opt[aria-current] { color: var(--ink); font-weight: 600; }
+  .opt .ct { margin-left: auto; font-size: 13px; font-weight: 400; color: var(--soft); }
+  .opt svg.i { width: 14px; height: 14px; }
+  .opt[aria-disabled="true"] { color: #9a9ea5; cursor: default; }
+  .opt[aria-disabled="true"] .ct { color: #9a9ea5; }
+  .months { position: relative; padding-left: 12px; margin-left: 0; }
+  .months::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--line); }
+  .months .ind { position: absolute; left: 0; top: 0; width: 1px; height: 32px; background: var(--ink); box-shadow: 1px 0 0 var(--ink); transition: transform .2s ease-out; }
+
+  /* timeline */
+  .feed { padding-top: 32px; min-width: 0; }
+  .result { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 0 0 24px calc(var(--date-col) + var(--rail-gap)); font-size: 14px; color: var(--soft); }
+  .result b { color: var(--ink); font-weight: 600; }
+  .result button { color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+  .entry { position: relative; display: grid; grid-template-columns: var(--date-col) minmax(0, 1fr); column-gap: var(--rail-gap); padding-bottom: 88px; scroll-margin-top: 32px; }
+  .entry::before { content: ""; position: absolute; left: calc(var(--date-col) + 24px); top: 6px; bottom: -6px; width: 1px; background: var(--line); transition: background .25s ease-out; }
+  .entry.unread::before { background: var(--accent); }
+  .entry.tail { padding-bottom: 40px; }
+  .entry.tail::before { bottom: 40px; }
+  .node { position: absolute; left: calc(var(--date-col) + 20px); top: 8px; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1px var(--ink); transition: background .25s ease-out, box-shadow .25s ease-out; }
+  .entry.unread .node { background: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .when { position: sticky; top: 32px; align-self: start; display: grid; justify-items: start; gap: 4px; text-align: left; }
+  .when time { font-size: 15px; line-height: 24px; font-weight: 600; letter-spacing: -.006em; }
+  .ver { display: inline-flex; align-items: center; gap: 4px; height: 24px; font: 12px/24px var(--mono); color: var(--soft); border-radius: 2px; transition: color .15s; }
+  .ver:hover { color: var(--ink); }
+  .ver svg.i { width: 12px; height: 12px; opacity: 0; transition: opacity .15s; }
+  .ver:hover svg.i, .ver:focus-visible svg.i { opacity: 1; }
+  .ver.ok { color: var(--accent-ink); }
+  .ver.ok svg.i { opacity: 1; }
+  .unreadtag { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--accent-ink); }
+  .body { min-width: 0; }
+  .entry h3 { font-size: 34px; line-height: 40px; font-weight: 500; letter-spacing: -.028em; max-width: 24em; outline: none; text-wrap: balance; }
+  .fig { display: block; margin: 24px 0; border-radius: 4px; background: var(--panel); overflow: hidden; }
+  .fig svg { display: block; width: 100%; height: auto; }
+  .prose { font-size: 16px; line-height: 26px; max-width: 62ch; text-wrap: pretty; }
+  mark { background: var(--hit); color: inherit; border-radius: 2px; box-shadow: 0 0 0 1px var(--hit); }
+  .notes { margin-top: 24px; border-top: 1px solid var(--line); }
+  .grp { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .grp h4 { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 24px; font-weight: 600; height: 24px; }
+  .grp li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; font-size: 15px; line-height: 24px; padding: 2px 0; max-width: 68ch; }
+  .mk { display: flex; align-items: center; height: 24px; }
+  .mk svg.i { width: 14px; height: 14px; }
+  .k-new { color: var(--accent-ink); }
+  .k-imp { color: var(--ink); }
+  .k-fix { color: var(--soft); }
+    .by { margin-top: 12px; font-size: 13px; line-height: 20px; color: var(--soft); }
+
+  /* the line that marks your last visit */
+  .last { position: relative; display: grid; grid-template-columns: var(--date-col) minmax(0, 1fr); column-gap: var(--rail-gap); margin: -32px 0 64px; }
+  .last::before { content: ""; position: absolute; left: calc(var(--date-col) + 24px); top: -32px; bottom: -64px; width: 1px; background: var(--line); }
+  .last::after { content: ""; position: absolute; left: calc(var(--date-col) + 24px); top: -32px; height: 44px; width: 1px; background: var(--accent); }
+  .last .tick { position: absolute; left: calc(var(--date-col) + 24px); top: 12px; right: 0; height: 1px; background: var(--accent); }
+  .last .lab { grid-column: 2; position: relative; display: flex; justify-content: space-between; gap: 16px; font-size: 13px; line-height: 24px; color: var(--accent-ink); font-weight: 500; }
+  .last .lab span, .last .lab button { background: var(--bg); }
+  .last .lab span { padding: 0 12px; margin-left: -12px; }
+  .last .lab button { padding-left: 12px; color: var(--accent-ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+
+  .none { padding: 40px 0 80px calc(var(--date-col) + var(--rail-gap)); }
+  .none h3 { font-size: 34px; line-height: 40px; font-weight: 500; letter-spacing: -.028em; }
+  .none p { color: var(--soft); margin: 8px 0 16px; max-width: 52ch; }
+  .none .sugg { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+  .none .sugg button { text-decoration: underline; text-underline-offset: 3px; font-weight: 500; }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 24px 0 40px; border-top: 1px solid var(--ink); font-size: 13px; color: var(--soft); }
+  .foot button { font-weight: 500; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* entries soften in once you start to scroll; nothing is hidden before that, so stills stay whole */
+  .entry.pending > .when, .entry.pending > .body { opacity: 0; transform: translateY(12px); }
+  .entry.in > .when, .entry.in > .body { transition: opacity .32s ease-out, transform .32s ease-out; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; z-index: 10; transform: translate(-50%, 8px); opacity: 0; pointer-events: none; padding: 8px 12px; background: var(--ink); color: #fff; font-size: 13px; line-height: 20px; border-radius: 4px; width: max-content; max-width: calc(100vw - 32px); transition: opacity .18s ease-out, transform .18s ease-out; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* vignettes */
+  .vg text { font: 12px var(--sans); fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .vg .m { fill: var(--soft); }
+  .vg .b { font-weight: 600; }
+  .vg .e { text-anchor: end; }
+  .vg .c { text-anchor: middle; }
+  .vg .sm { font-size: 11px; }
+  .vg .lg { font-size: 22px; font-weight: 500; letter-spacing: -.02em; }
+  .vg .w { fill: #fff; }
+  .vg .wm { fill: #bcc0c6; }
+  .vg .ac { fill: var(--accent-ink); }
+  .vg .code { font: 12px var(--mono); }
+  .vg .card { fill: #fff; stroke: var(--line-2); stroke-width: 1; }
+  .vg .ghost { fill: #e7e9eb; }
+  .vg .ghost2 { fill: #dcdfe3; }
+  .vg .track { fill: #eef0f1; }
+  .vg .ink { fill: var(--ink); }
+  .vg .a { fill: var(--accent); }
+  .vg .tint { fill: var(--tint); }
+  .vg .hl { fill: var(--panel); }
+  .vg .ln { stroke: var(--line); stroke-width: 1; fill: none; }
+  .vg .ln2 { stroke: var(--line-2); stroke-width: 1; fill: none; }
+  .vg .sk { stroke: var(--ink); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .vg .ska { stroke: var(--accent); stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .vg .rib { fill: #e4e6e9; }
+  .vg .riba { fill: var(--accent); fill-opacity: .55; }
+
+  @media (max-width: 1160px) {
+    :root { --date-col: 96px; --rail-gap: 48px; }
+    .layout { column-gap: 40px; grid-template-columns: 200px minmax(0, 1fr); }
+    h1 { font-size: 80px; line-height: 80px; }
+    .mast { grid-template-columns: minmax(0, 1fr) 340px; }
+    .wrap { padding: 0 24px; }
+  }
+  @media (max-width: 960px) {
+    .mast { grid-template-columns: 1fr; gap: 32px; padding: 40px 0 32px; }
+    .layout { display: block; }
+    .side { position: static; display: contents; }
+    .search { margin-top: 24px; }
+    .wn { margin-top: 12px; }
+    .filters { display: flex; gap: 16px; margin-top: 12px; }
+    .filters h2 { display: none; }
+    #cats { display: flex; gap: 4px; flex: 1; }
+    #cats .opt { flex: 1 1 0; justify-content: center; gap: 4px; height: 40px; border: 1px solid var(--line); border-radius: 4px; padding: 0 8px; min-width: 0; }
+    #cats .opt[aria-pressed="true"] { border-color: var(--ink); }
+    #cats .opt .ct { margin-left: 0; }
+    .monthbar { position: sticky; top: 0; z-index: 5; background: var(--bg); margin-top: 12px; border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); }
+    .monthbar h2 { display: none; }
+    .months { display: flex; padding: 0; }
+    .months::before, .months .ind { display: none; }
+    .months li { flex: 1; }
+    .months .opt { justify-content: center; height: 40px; }
+    .months .opt[aria-current] { box-shadow: inset 0 -2px 0 var(--ink); }
+    .months .opt .ct, .months .opt .full { display: none; }
+    .feed { padding-top: 32px; }
+    .entry { scroll-margin-top: 64px; }
+    .when { top: 56px; }
+  }
+  @media (min-width: 961px) { .months .opt .short { display: none; } }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .top { gap: 16px; }
+    .top nav a:not([aria-current]) { display: none; }
+    h1 { font-size: 60px; line-height: 60px; letter-spacing: -.04em; margin-left: -2px; }
+    .lede { font-size: 16px; line-height: 24px; margin-top: 12px; }
+    .mast { padding: 32px 0 24px; gap: 24px; }
+    .subrow input, .btn { height: 44px; }
+    .entry { display: block; padding: 0 0 56px 20px; }
+    .entry::before { left: 4px; top: 6px; }
+    .node { left: 0; top: 8px; }
+    .when { position: static; display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; margin-bottom: 8px; }
+    .entry h3, .none h3 { font-size: 26px; line-height: 32px; letter-spacing: -.022em; }
+    .fig { margin: 16px 0; }
+    .prose { font-size: 15px; line-height: 24px; }
+    .grp { grid-template-columns: 1fr; gap: 4px; }
+    .ver svg.i { opacity: 1; }
+    .last { display: block; margin: -24px 0 40px; }
+    .last::before { left: 4px; top: -24px; bottom: -40px; }
+    .last::after { left: 4px; top: -24px; height: 36px; }
+    .last::after { content: ""; position: absolute; left: calc(var(--date-col) + 24px); top: -32px; height: 44px; width: 1px; background: var(--accent); }
+  .last .tick { left: 4px; }
+    .last .lab { padding-left: 20px; }
+    .last .lab span { padding: 0 8px; margin-left: -8px; }
+    .last .lab button { padding-left: 8px; }
+    .result { padding: 0 0 20px; }
+    .none { padding: 16px 0 48px; }
+    #cats .opt { font-size: 13px; padding: 0 4px; }
+    #cats .opt svg.i { display: none; }
+    .search input { height: 44px; }
+    .search svg { top: 14px; } .search kbd { display: none; } .search .clr { top: 10px; }
+    .opt, .months .opt, #cats .opt { height: 44px; }
+    .months .opt { height: 40px; }
+    .foot button { padding: 8px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+    .entry.pending > .when, .entry.pending > .body { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#" data-demo>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="4" fill="#111315"/><rect x="6" y="10" width="12" height="4" fill="#111315"/><rect x="9.5" y="16" width="5" height="4" fill="#c93c0a"/></svg>
+      Fathom
+    </a>
+    <nav aria-label="Main">
+      <a href="#" data-demo>Product</a>
+      <a href="#" data-demo>Docs</a>
+      <a href="#" data-demo>Pricing</a>
+      <a href="#" aria-current="page" id="navHere">Changelog</a>
+    </nav>
+    <a class="signin" href="#" data-demo>Sign in</a>
+  </header>
+
+  <section class="mast" aria-labelledby="pageT">
+    <div>
+      <h1 id="pageT">Changelog</h1>
+      <p class="lede">Everything we ship in Fathom, written by the people who built it. New releases most weeks.</p>
+    </div>
+    <div class="sub" id="sub">
+      <div id="subForm">
+        <label for="email">Get new releases by email</label>
+        <div class="subrow">
+          <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" aria-describedby="subMsg">
+          <button class="btn" id="subBtn" type="button">Subscribe</button>
+        </div>
+        <div class="submeta">
+          <span id="subMsg">Two emails a month at most.</span>
+          <a class="rss" id="rss" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11a8 8 0 0 1 8 8"/><path d="M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1"/></svg>RSS feed</a>
+        </div>
+      </div>
+      <div class="done" id="subDone" hidden tabindex="-1">
+        <b>Check your inbox</b>
+        <span id="subDoneT"></span>
+        <br><button type="button" id="subAgain">Use a different address</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="side" aria-label="Filter the changelog">
+      <div class="search" role="search">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <input id="q" type="search" placeholder="Search releases" aria-label="Search releases" autocomplete="off" spellcheck="false">
+        <kbd id="qKey" aria-hidden="true">/</kbd>
+        <button class="clr" id="qClr" type="button" aria-label="Clear search" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <button class="wn" id="wn" type="button" aria-pressed="false"><b>What’s new</b><span class="n" id="wnN"></span><small id="wnS"></small></button>
+      <div class="filters">
+        <h2 id="catH">Type</h2>
+        <ul id="cats" aria-labelledby="catH"></ul>
+      </div>
+      <div class="monthbar">
+        <h2 id="monH">Months</h2>
+        <nav aria-labelledby="monH"><ul class="months" id="months"></ul></nav>
+      </div>
+    </aside>
+
+    <main class="feed" id="feed">
+      <div class="result" id="result" hidden><span id="resultT"></span><button type="button" id="resultClr">Clear filters</button></div>
+      <div id="list"></div>
+      <div class="none" id="none" hidden>
+        <h3 id="noneT"></h3>
+        <p>Search looks through titles, notes, version numbers and who built it.</p>
+        <div class="sugg"><button type="button" data-try="funnel">funnel</button><button type="button" data-try="retention">retention</button><button type="button" data-try="time zone">time zone</button><button type="button" id="noneClr">Clear filters</button></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <span>Fathom keeps every release back to v1.0 in the archive. This page covers the last six months.</span>
+    <button type="button" id="toTop">Back to top</button>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var ICON = {
+    new: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    imp: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>',
+    fix: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+    link: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
+  };
+  var KINDS = [["new", "New"], ["imp", "Improved"], ["fix", "Fixed"]];
+
+  /* ---------- drawing helpers for the vignettes ---------- */
+  function T(x, y, s, c) { return '<text x="' + x + '" y="' + y + '"' + (c ? ' class="' + c + '"' : "") + ">" + s + "</text>"; }
+  function B(x, y, w, h, c, rx) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (rx == null ? 2 : rx) + '" class="' + c + '"/>'; }
+  function P(d, c) { return '<path d="' + d + '" class="' + c + '"/>'; }
+  function L(x1, y1, x2, y2, c) { return P("M" + x1 + " " + y1 + "H" + x2 + "V" + y2, c || "ln"); }
+  var VIG = {
+    funnel: function () {
+      var rows = [["Visited signup", "12,480", "100%", 100], ["Created account", "5,862", "47%", 47], ["Connected a source", "3,047", "24%", 24.4], ["Built a report", "1,768", "14%", 14.2]], s = "";
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Signup to first report", "b") + T(564, 52, "Last 30 days", "m e");
+      rows.forEach(function (r, i) {
+        var y = 84 + i * 50;
+        s += T(156, y, r[0]) + T(322, y, r[1], "e") + T(360, y, r[2], "m e");
+        s += B(156, y + 8, 408, 14, "track") + B(156, y + 8, 408 * r[3] / 100, 14, i === 2 ? "a" : "ink");
+      });
+      s += B(372, 170, 196, 96, "ink", 4) + T(388, 196, "2,815 dropped here", "w b") + T(388, 216, "61% are on the Free plan", "wm") + T(388, 234, "Median 3 days after signup", "wm") + T(388, 254, "See these people", "w") + P("M488 250h8m-3-3 3 3-3 3", "skw");
+      return s;
+    },
+    speed: function () {
+      var rows = [["Plan query", 6, 6], ["Scan events", 146, 86], ["Join people", 152, 0], ["Draw chart", 36, 28]], s = "";
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Weekly active users", "b") + T(564, 52, "1.4 billion events", "m e");
+      s += T(156, 92, "3.4 s", "lg m") + T(208, 92, "before", "m") + T(276, 92, "1.2 s", "lg") + T(328, 92, "now", "");
+      var x0 = 224, sc = 1, cols = [0, 1, 2, 3];
+      cols.forEach(function (c) { var x = x0 + c * 100; s += P("M" + x + " 112V268", "ln") + T(x, 284, c + " s", "m sm c"); });
+      var bx = 0, ax = 0;
+      rows.forEach(function (r, i) {
+        var y = 124 + i * 36;
+        s += T(156, y + 10, r[0]);
+        if (r[1]) s += B(x0 + bx, y, r[1] * sc, 10, "ghost2", 1);
+        bx += r[1];
+        if (r[2]) { s += B(x0 + ax, y + 12, r[2] * sc, 10, "a", 1); ax += r[2]; }
+        else s += T(x0 + ax + 8, y + 21, "Skipped", "ac sm");
+      });
+      return s;
+    },
+    retention: function () {
+      var s = "", weeks = ["0", "1", "2", "3", "4", "5", "6", "7"];
+      var rows = [["Sep 1", 100, 64, 53, 47, 43, 40, 38, 37], ["Sep 8", 100, 66, 55, 49, 44, 41, 39], ["Sep 15", 100, 61, 51, 45, 41, 38], ["Sep 22", 100, 68, 58, 51, 47], ["Sep 29", 100, 70, 59, 53], ["Oct 6", 100, 72, 62], ["Oct 13", 100, 74]];
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Retention, split by plan", "b");
+      s += B(424, 36, 140, 24, "track", 3) + B(466, 38, 50, 20, "card", 2);
+      s += T(445, 52, "Free", "m c") + T(491, 52, "Team", "b c") + T(540, 52, "Scale", "m c");
+      var x0 = 212, cw = 44, ch = 26, y0 = 92;
+      weeks.forEach(function (w, i) { s += T(x0 + i * cw + cw / 2 - 1, y0 - 8, w === "0" ? "Week 0" : w, "m sm c"); });
+      rows.forEach(function (r, ri) {
+        var y = y0 + ri * ch;
+        s += T(156, y + 17, r[0], "m");
+        for (var c = 1; c < r.length; c++) {
+          var v = r[c], a = Math.max(.06, Math.pow(v / 100, 1.6));
+          s += '<rect x="' + (x0 + (c - 1) * cw) + '" y="' + y + '" width="' + (cw - 2) + '" height="' + (ch - 2) + '" rx="1" fill="#c93c0a" fill-opacity="' + a.toFixed(2) + '"/>';
+          s += T(x0 + (c - 1) * cw + cw / 2 - 1, y + 16, v + (c === 1 ? "%" : ""), "sm c" + (v > 90 ? " w" : ""));
+        }
+      });
+      return s;
+    },
+    paths: function () {
+      var s = "";
+      function rib(x1, y1a, y1b, x2, y2a, y2b, c) {
+        var m = (x1 + x2) / 2;
+        return '<path class="' + c + '" d="M' + x1 + " " + y1a + "C" + m + " " + y1a + " " + m + " " + y2a + " " + x2 + " " + y2a + "V" + y2b + "C" + m + " " + y2b + " " + m + " " + y1b + " " + x1 + " " + y1b + 'Z"/>';
+      }
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "What people do after Pricing", "b") + T(564, 52, "8,204 people", "m e");
+      var a = 182, b = 360, c = 538;
+      s += rib(a, 84, 124, b, 76, 100, "rib") + rib(a, 124, 184, b, 128, 188, "riba") + rib(a, 184, 268, b, 214, 268, "rib");
+      s += rib(b, 128, 168, c, 76, 116, "riba") + rib(b, 168, 188, c, 136, 156, "rib");
+      s += rib(b, 76, 100, c, 184, 208, "rib") + rib(b, 214, 268, c, 228, 268, "rib");
+      s += B(a - 4, 84, 8, 184, "ink", 1) + B(b - 4, 76, 8, 24, "ink", 1) + B(b - 4, 128, 8, 60, "a", 1) + B(b - 4, 214, 8, 54, "ink", 1) + B(c - 4, 76, 8, 40, "a", 1) + B(c - 4, 136, 8, 20, "ink", 1) + B(c - 4, 184, 8, 24, "ink", 1) + B(c - 4, 228, 8, 40, "ink", 1);
+      s += T(a - 12, 72, "Pricing", "b sm") + T(b + 10, 88, "Docs", "sm") + T(b + 10, 154, "Start trial", "b sm") + T(b + 10, 245, "Exit", "sm");
+      s += T(c - 10, 92, "Connected", "b sm e") + T(c - 10, 106, "1,640", "sm e") + T(c - 10, 150, "Team invite", "sm e") + T(c - 10, 200, "Docs again", "sm e") + T(c - 10, 252, "Left", "sm e");
+      return s;
+    },
+    alerts: function () {
+      var s = "", n = 28, x0 = 156, w = 372, top = 66, h = 200;
+      var vals = [3.1, 3.2, 3.0, 3.3, 3.2, 3.05, 2.98, 3.15, 3.25, 3.1, 3.3, 3.18, 3.02, 2.96, 3.12, 3.28, 3.2, 3.08, 3.22, 3.3, 3.14, 3.0, 3.04, 3.18, 2.92, 2.62, 2.28, 2.1];
+      function X(i) { return +(x0 + i * w / (n - 1)).toFixed(1); }
+      function Y(v) { return +(top + (3.7 - v) / 1.8 * h).toFixed(1); }
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Checkout conversion", "b") + T(564, 52, "Every 15 minutes", "m e");
+      var hi = "", lo = "";
+      vals.forEach(function (v, i) { var o = Math.sin(i / 2.2) * .05; hi += (i ? "L" : "M") + X(i) + " " + Y(3.42 + o); lo = "L" + X(i) + " " + Y(2.86 + o) + lo; });
+      s += P(hi + lo + "Z", "track");
+      [3.5, 3, 2.5, 2].forEach(function (g) { s += P("M" + x0 + " " + Y(g) + "H" + (x0 + w), "ln") + T(564, Y(g) + 4, g.toFixed(1) + "%", "m sm e"); });
+      var a = "", b = "";
+      vals.forEach(function (v, i) { if (i <= 24) a += (i ? "L" : "M") + X(i) + " " + Y(v); if (i >= 24) b += (i === 24 ? "M" : "L") + X(i) + " " + Y(v); });
+      s += P(a, "sk") + P(b, "ska");
+      s += '<circle cx="' + X(27) + '" cy="' + Y(2.1) + '" r="4" class="a"/>';
+      s += B(172, 196, 240, 80, "ink", 4) + T(188, 220, "Below its normal range", "w b") + T(188, 240, "2.1% now, usually 2.9 to 3.4%", "wm") + T(188, 258, "Outside for 45 minutes", "wm");
+      return s;
+    },
+    filter: function () {
+      var s = "";
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "People", "b") + T(564, 52, "4,218 match", "m e");
+      s += B(156, 68, 408, 40, "card", 3);
+      s += B(166, 76, 92, 24, "track", 2) + T(174, 92, "plan is Team") + B(264, 76, 132, 24, "track", 2) + T(272, 92, "country in DE, FR, SA");
+      s += T(406, 93, "sign") + P("M431 80V96", "ska");
+      s += B(396, 114, 168, 0, "ln", 0);
+      s += B(156, 116, 408, 148, "card", 3) + B(157, 117, 406, 36, "hl", 2);
+      var opts = [["sign", "ed_up_at", "Date", ""], ["sign", "up_source", "Text", ""], ["sign", "_in_count", "Number", ""], ["sign", "ature_plan", "Text", ""]];
+      opts.forEach(function (o, i) {
+        var y = 140 + i * 36;
+        s += '<text x="172" y="' + y + '" class="code"><tspan class="ac" font-weight="600">' + o[0] + "</tspan>" + o[1] + "</text>" + T(548, y, o[2], "m e");
+      });
+      return s + B(156, 272, 180, 0, "ln", 0) + T(156, 284, "Up and down to choose, Tab to accept", "m sm");
+    },
+    schedule: function () {
+      var s = "";
+      s += B(124, 24, 320, 272, "card", 4) + T(144, 52, "Weekly growth", "b");
+      s += B(144, 68, 88, 56, "track") + B(240, 68, 88, 56, "track") + B(336, 68, 88, 56, "track");
+      s += T(152, 88, "Signups", "m sm") + T(152, 112, "1,284", "lg") + T(248, 88, "Trials", "m sm") + T(248, 112, "312", "lg") + T(344, 88, "Paid", "m sm") + T(344, 112, "71", "lg");
+      var bars = [34, 46, 42, 58, 52, 66, 60, 74, 70, 84, 78, 92];
+      s += P("M144 276H424", "ln2");
+      bars.forEach(function (h, i) { s += B(144 + i * 23.5, 276 - h * 1.2, 16, h * 1.2, i === 11 ? "a" : "ink", 1); });
+      s += B(344, 48, 240, 232, "card", 4);
+      s += T(362, 76, "Send on a schedule", "b");
+      s += T(362, 104, "Every", "m sm");
+      ["M", "T", "W", "T", "F", "S", "S"].forEach(function (d, i) {
+        s += B(362 + i * 29, 112, 25, 25, i === 0 ? "ink" : "track", 2) + T(374.5 + i * 29, 129, d, "c" + (i === 0 ? " w" : ""));
+      });
+      s += T(362, 160, "At 09:00 in each person’s time zone", "");
+      s += T(362, 188, "To", "m sm");
+      [["AO", "#111315"], ["JW", "#565b62"], ["RD", "#c93c0a"]].forEach(function (f, i) { s += '<circle cx="' + (374 + i * 26) + '" cy="208" r="12" fill="' + f[1] + '"/>' + T(374 + i * 26, 212, f[0], "w sm c"); });
+      s += T(442, 212, "+ 4 people", "m");
+      return s + B(362, 234, 204, 30, "ink", 3) + T(464, 253, "Start sending", "w c");
+    },
+    schema: function () {
+      var s = "";
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Review queue", "b") + T(564, 52, "From app release 7.3", "m e");
+      s += P("M136 68H584", "ln");
+      s += T(156, 92, "checkout_completed", "code b");
+      var lines = [["+", "coupon_code", "string", 1], ["+", "items_count", "number", 1], ["−", "cart_size", "number", 0], [" ", "currency", "string", 2]];
+      lines.forEach(function (l, i) {
+        var y = 104 + i * 26;
+        if (l[3] === 1) s += B(137, y, 446, 26, "hl", 0);
+        if (l[3] === 0) s += B(137, y, 446, 26, "tint", 0);
+        s += T(156, y + 17, l[0], "code " + (l[3] === 0 ? "ac" : "b")) + T(176, y + 17, l[1], "code" + (l[3] === 2 ? " m" : "")) + T(564, y + 17, l[2], "code m e");
+      });
+      s += P("M136 216H584", "ln");
+      s += T(156, 240, "Used by 3 saved reports", "m");
+      s += '<text x="156" y="262" class="m">One of them reads </text>' + T(262, 262, "cart_size", "code");
+      return s + B(428, 232, 60, 32, "track", 3) + T(458, 252, "Reject", "c") + B(496, 232, 68, 32, "ink", 3) + T(530, 252, "Approve", "w c");
+    },
+    sync: function () {
+      var s = "";
+      s += B(136, 24, 448, 272, "card", 4) + T(156, 52, "Cohort sync", "b") + T(564, 52, "Hourly", "m e");
+      s += B(156, 84, 112, 64, "track", 3) + T(168, 108, "Saved cohort") + T(168, 130, "Churn risk", "m");
+      s += P("M268 116H296", "sk") + P("M292 112l4 4-4 4", "sk");
+      s += B(296, 84, 128, 64, "ink", 3) + T(308, 108, "Fathom", "w b") + T(308, 130, "Adds and updates", "wm");
+      s += P("M424 116H452", "ska") + P("M448 112l4 4-4 4", "ska");
+      /* a warehouse, drawn as a cylinder */
+      s += '<path d="M452 92c0-6 112-6 112 0v48c0 6-112 6-112 0Z" class="card"/><path d="M452 92c0 6 112 6 112 0" class="ln2"/>';
+      s += T(508, 124, "Your warehouse", "c sm");
+      s += P("M136 170H584", "ln");
+      s += T(156, 194, "analytics.churn_risk", "code") + T(564, 194, "Synced 4 min ago", "m e");
+      [["p_48213", "Team", "0.81", 0], ["p_51907", "Free", "0.74", 1], ["p_50266", "Team", "0.62", 0], ["p_47738", "Scale", "0.58", 0]].forEach(function (r, i) {
+        var y = 206 + i * 21;
+        if (r[3]) s += B(137, y, 446, 21, "tint", 0);
+        s += T(156, y + 15, r[0], "code" + (r[3] ? "" : " m")) + T(300, y + 15, r[1], r[3] ? "" : "m") + T(420, y + 15, r[3] ? "Updated just now" : "", "ac sm") + T(564, y + 15, r[2], "code e" + (r[3] ? "" : " m"));
+      });
+      return s;
+    }
+  };
+
+  /* ---------- the releases ---------- */
+  var E = [
+    { id: "v4-12-0", v: "v4.12.0", date: "2026-11-04", d: "4 Nov", mon: "2026-11", unread: 1, vg: "funnel", alt: "A funnel with four steps. The third is selected and shows that 2,815 people dropped there, 61 percent of them on the Free plan.",
+      t: "Funnels now show who dropped, not only how many",
+      p: "Click any step in a funnel and Fathom lists the people who stopped there, with the plan they’re on, the last thing they did and how long they took to get that far. Save them as a cohort or send the list to your CRM without writing a query.",
+      new: ["A drop-off panel on every funnel step, with people, plans and last event", "Save the people who dropped as a cohort in one click", "Compare a funnel against the previous period, shown as a second bar"],
+      imp: ["Funnels now allow up to 12 steps, up from 8", "Step names can be edited in place on the chart"],
+      fix: ["Conversion windows longer than 30 days no longer cut off the last day", "Funnel totals match the CSV export when a filter uses “is not”"],
+      by: "Amara Okafor and Jonas Weber" },
+    { id: "v4-11-2", v: "v4.11.2", date: "2026-10-28", d: "28 Oct", mon: "2026-10", unread: 1, vg: "speed", alt: "A timing chart of a chart’s query, before and after. The join on people is now skipped, taking the total from 3.4 seconds to 1.2.",
+      t: "Charts on large projects load in about a third of the time",
+      p: "Projects with more than a billion events spent most of each chart waiting on a join they rarely needed. We now plan the query first and skip the join when nothing in the chart reads from people. The median chart on our largest projects went from 3.4 seconds to 1.2.",
+      new: [],
+      imp: ["Results are cached for 60 seconds per filter set, and the cache is shared across your team", "Dashboards load their tiles in the order you can see them"],
+      fix: ["Time zone offsets on daily charts during the October clock change", "A spinner that never stopped when a chart’s date range was cleared"],
+      by: "Mei Lin Chua" },
+    { id: "v4-11-0", v: "v4.11.0", date: "2026-10-21", d: "21 Oct", mon: "2026-10", unread: 1, vg: "retention", alt: "A cohort retention table with Team selected among Free, Team and Scale. Week one retention rises from 64 to 74 percent across cohorts.",
+      t: "Retention you can split by plan",
+      p: "Retention used to treat everyone alike, which made a healthy paid base look worse than it was. Split any retention chart by a property and you get one table for each value, on the same scale, so the difference between Free and Team is there at a glance.",
+      new: ["Split retention by any person or event property, up to 6 values", "Weekly, fortnightly and monthly cohorts"],
+      imp: ["Cells show the person count on hover, not just the percentage", "Retention tables paste into spreadsheets with their headers"],
+      fix: ["Cohorts that started on the last day of a month were counted twice"],
+      by: "Yuki Tanabe and Rosa Delgado" },
+    { id: "v4-10-0", v: "v4.10.0", date: "2026-10-08", d: "8 Oct", mon: "2026-10", vg: "paths", alt: "A flow diagram of what people do after the pricing page. The thickest route runs through Start trial to Connected, 1,640 people.",
+      t: "Paths: see where people go next",
+      p: "Pick any event and Paths draws what people did before and after it, five steps either way. Thick ribbons are the common routes. Click one to keep only the people who took it, then carry them into a funnel or a cohort.",
+      new: ["The Paths report, five steps forward and back from any event", "Group page views by URL pattern, so /invoice/123 and /invoice/456 count as one step"],
+      imp: ["The event picker remembers your last ten events per project"],
+      fix: ["Events sent within the same millisecond now keep their original order"],
+      by: "Farid Haddad" },
+    { id: "v4-9-0", v: "v4.9.0", date: "2026-09-24", d: "24 Sep", mon: "2026-09", vg: "alerts", alt: "A line chart of checkout conversion with a shaded normal range. The line falls below the range to 2.1 percent, and an alert explains it.",
+      t: "Alerts when a metric leaves its normal range",
+      p: "Fixed thresholds go stale and fire on every public holiday. Alerts now learn a normal range for each metric from its last eight weeks, weekly rhythm included, and message a channel or an email address when it stays outside that range for longer than you allow.",
+      new: ["Range alerts on any saved metric", "Quiet hours per alert, in the time zone of whoever set it up"],
+      imp: ["Alert messages include the chart, not just the number"],
+      fix: ["Muted alerts no longer unmute when the metric is renamed", "Duplicate alerts after a project changed time zone"],
+      by: "Ngozi Adeyemi and Tomas Lindqvist" },
+    { id: "v4-8-0", v: "v4.8.0", date: "2026-09-09", d: "9 Sep", mon: "2026-09", vg: "filter", alt: "A filter bar holding two filters and the typed word sign, with a list of matching properties beneath it.",
+      t: "Filter by typing",
+      p: "The filter bar now reads what you type. Start with a property name, pick from the matches, and carry on with the keyboard. Saved filters work as they did, and the old menus are one click away for anyone who prefers them.",
+      new: ["Type-ahead filters with property and value suggestions", "Paste a comma-separated list to fill an “in” filter"],
+      imp: ["Arrow keys and Backspace move through and edit filters already in the bar"],
+      fix: ["Property names containing a dot no longer break the filter"],
+      by: "Leila Nasser" },
+    { id: "v4-7-0", v: "v4.7.0", date: "2026-08-19", d: "19 Aug", mon: "2026-08", vg: "schedule", alt: "A dashboard with a schedule panel over it, set to every Monday at 09:00 in each person’s time zone.",
+      t: "Send a dashboard on a schedule",
+      p: "Set a dashboard to arrive by email on the days you choose, at the same hour in each recipient’s own time zone, as a readable summary rather than an attachment. People outside your workspace can receive it without taking a seat.",
+      new: ["Scheduled dashboard emails, daily, weekly or on the days you pick", "Send a test to yourself before you start a schedule"],
+      imp: ["Dashboard tiles can be resized from any corner", "Dashboard links keep their date range and filters"],
+      fix: ["Number tiles rounded 999.5 down instead of up"],
+      by: "Kwame Boateng and Sofia Nowak" },
+    { id: "v4-6-0", v: "v4.6.0", date: "2026-08-05", d: "5 Aug", mon: "2026-08", vg: "schema", alt: "A review queue showing the checkout_completed event: two properties added and one removed, with Reject and Approve buttons.",
+      t: "Review event changes before they land",
+      p: "New events and properties from your app now wait in a review queue if your project has a schema. You see exactly what would change and which reports would notice, then approve it or reject it. Anything rejected is kept for 30 days in case you change your mind.",
+      new: ["A review queue for events and properties", "See which saved reports read a property before you remove it"],
+      imp: ["Property types are inferred from the first 1,000 events, up from 100"],
+      fix: ["Renamed events kept their old name in the CSV export"],
+      by: "Priya Raman" },
+    { id: "v4-5-0", v: "v4.5.0", date: "2026-07-16", d: "16 Jul", mon: "2026-07", vg: "sync", alt: "A saved cohort flowing through Fathom into a warehouse table, last synced four minutes ago.",
+      t: "Sync results to your warehouse",
+      p: "Any saved cohort or report can now be written to a table in your warehouse every hour. Fathom adds and updates rows rather than rewriting the table, so jobs downstream see a steady change instead of a full reload.",
+      new: ["Hourly sync of cohorts and reports to a warehouse table", "A sync history with row counts and any errors"],
+      imp: ["Exports over 1 million rows now run in the background and email you a link"],
+      fix: ["People merged after a sync now update the row that already exists"],
+      by: "Daniel Osei and Hana Sato" }
+  ];
+  var MONTHS = [["2026-11", "November", "Nov"], ["2026-10", "October", "Oct"], ["2026-09", "September", "Sep"], ["2026-08", "August", "Aug"], ["2026-07", "July", "Jul"]];
+
+  var state = { q: "", cat: "all", unreadOnly: false, read: false };
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function hl(text) {
+    if (!state.q) return esc(text);
+    var low = text.toLowerCase(), q = state.q.toLowerCase(), out = "", i = 0, j;
+    while ((j = low.indexOf(q, i)) >= 0) { out += esc(text.slice(i, j)) + "<mark>" + esc(text.slice(j, j + q.length)) + "</mark>"; i = j + q.length; }
+    return out + esc(text.slice(i));
+  }
+
+  /* ---------- build once ---------- */
+  var list = $("list"), html = "";
+  E.forEach(function (e) {
+    var notes = KINDS.map(function (k) {
+      if (!e[k[0]].length) return "";
+      return '<section class="grp" data-kind="' + k[0] + '"><h4 class="k-' + k[0] + '">' + k[1] + "</h4><ul>" +
+        e[k[0]].map(function (b, i) { return '<li><span class="mk k-' + k[0] + '">' + ICON[k[0]] + '</span><span data-b="' + k[0] + i + '"></span></li>'; }).join("") + "</ul></section>";
+    }).join("");
+    html += '<article class="entry" id="' + e.id + '" aria-labelledby="t-' + e.id + '"><span class="node" aria-hidden="true"></span>' +
+      '<div class="when"><time datetime="' + e.date + '">' + e.d + '</time><button class="ver" type="button" data-copy="' + e.id + '" aria-label="Copy link to ' + e.v + '">' + '<span class="vtx" data-f="v"></span>' + ICON.link + "</button>" +
+      (e.unread ? '<span class="unreadtag">Unread</span>' : "") + "</div>" +
+      '<div class="body"><h3 id="t-' + e.id + '" tabindex="-1" data-f="t"></h3>' +
+      '<figure class="fig"><svg class="vg" viewBox="40 4 640 312" role="img" aria-label="' + esc(e.alt) + '">' + VIG[e.vg]().replace(/class="skw"/g, 'fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"') + "</svg></figure>" +
+      '<p class="prose" data-f="p"></p><div class="notes">' + notes + '</div><p class="by" data-f="by"></p></div></article>';
+    if (e.id === "v4-11-0") html += '<div class="last" id="last"><span class="tick"></span><div class="lab"><span>You were last here on 14 Oct</span><button type="button" id="markRead">Mark all as read</button></div></div>';
+  });
+  list.innerHTML = html;
+  E.forEach(function (e) { e.el = $(e.id); });
+  var lastEl = $("last");
+
+  $("cats").innerHTML = [["all", "All notes", ""]].concat(KINDS).map(function (k) {
+    var ic = k[0] === "all" ? "" : '<span class="k-' + k[0] + '" style="display:inline-flex">' + ICON[k[0]] + "</span>";
+    return '<li style="flex:1 1 0;min-width:0"><button class="opt" type="button" data-cat="' + k[0] + '" aria-pressed="' + (k[0] === "all") + '">' + ic + "<span>" + (k[0] === "all" ? "All" : k[1]) + '</span><span class="ct"></span></button></li>';
+  }).join("");
+  $("months").innerHTML = MONTHS.map(function (m) {
+    return '<li><a class="opt" href="#" data-mon="' + m[0] + '"><span class="full">' + m[1] + '</span><span class="short">' + m[2] + '</span><span class="ct"></span></a></li>';
+  }).join("") + '<li class="ind" id="ind" aria-hidden="true"></li>';
+
+  /* on a phone the mat goes and the drawing fills the width, so its text stays readable */
+  var phone = matchMedia("(max-width: 640px)");
+  function fitVignettes() { document.querySelectorAll(".vg").forEach(function (v) { v.setAttribute("viewBox", phone.matches ? "128 16 464 288" : "40 4 640 312"); }); }
+  if (phone.addEventListener) phone.addEventListener("change", fitVignettes);
+  fitVignettes();
+
+  /* ---------- filtering ---------- */
+  function has(s) { return s.toLowerCase().indexOf(state.q.toLowerCase()) >= 0; }
+  function headMatch(e) { return !state.q || has(e.t) || has(e.p) || has(e.v) || has(e.d) || has(e.by); }
+  function noteOn(e, kind, text, cat) { return (cat === "all" || cat === kind) && (headMatch(e) || has(text)); }
+  function entryOn(e, cat) {
+    if (state.unreadOnly && !(e.unread && !state.read)) return false;
+    var any = KINDS.some(function (k) { return e[k[0]].some(function (b) { return noteOn(e, k[0], b, cat); }); });
+    return any || (cat === "all" && headMatch(e));
+  }
+  function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
+
+  function apply(scrollTop) {
+    var visible = [], notes = 0;
+    E.forEach(function (e) {
+      var on = entryOn(e, state.cat);
+      e.el.hidden = !on;
+      e.el.classList.toggle("unread", !!e.unread && !state.read);
+      var tag = e.el.querySelector(".unreadtag"); if (tag) tag.hidden = state.read;
+      e.el.classList.remove("tail");
+      e.el.querySelector('[data-f="t"]').innerHTML = hl(e.t);
+      e.el.querySelector('[data-f="p"]').innerHTML = hl(e.p);
+      e.el.querySelector('[data-f="v"]').innerHTML = hl(e.v);
+      e.el.querySelector('[data-f="by"]').innerHTML = "By " + hl(e.by);
+      KINDS.forEach(function (k) {
+        var grp = e.el.querySelector('[data-kind="' + k[0] + '"]'); if (!grp) return;
+        var shown = 0;
+        e[k[0]].forEach(function (b, i) {
+          var li = grp.querySelector('[data-b="' + k[0] + i + '"]'), n = noteOn(e, k[0], b, state.cat);
+          li.parentNode.hidden = !n; li.innerHTML = hl(b); if (n) { shown++; if (on) notes++; }
+        });
+        grp.hidden = !shown;
+      });
+      if (on) { visible.push(e); e.el.classList.remove("pending"); e.el.classList.add("in"); }
+    });
+    if (visible.length) visible[visible.length - 1].el.classList.add("tail");
+    // counts
+    document.querySelectorAll("[data-cat]").forEach(function (b) {
+      var c = b.dataset.cat, n = 0;
+      E.forEach(function (e) {
+        if (state.unreadOnly && !(e.unread && !state.read)) return;
+        KINDS.forEach(function (k) { e[k[0]].forEach(function (t) { if (noteOn(e, k[0], t, c)) n++; }); });
+      });
+      b.querySelector(".ct").textContent = n;
+      b.setAttribute("aria-pressed", String(state.cat === c));
+    });
+    document.querySelectorAll("[data-mon]").forEach(function (a) {
+      var n = visible.filter(function (e) { return e.mon === a.dataset.mon; }).length;
+      a.querySelector(".ct").textContent = n || "";
+      if (n) a.removeAttribute("aria-disabled"); else a.setAttribute("aria-disabled", "true");
+    });
+    // what's new
+    var unread = E.filter(function (e) { return e.unread && !state.read; }).length, wn = $("wn");
+    $("wnN").textContent = unread || "None";
+    $("wnS").textContent = unread ? plural(unread, "release", "releases") + " since your visit on 14 Oct" : "You’re all caught up";
+    wn.setAttribute("aria-pressed", String(state.unreadOnly));
+    if (unread) wn.removeAttribute("aria-disabled"); else wn.setAttribute("aria-disabled", "true");
+    // last-visit line only makes sense with the whole list on show
+    lastEl.hidden = state.read || !!state.q || state.cat !== "all" || state.unreadOnly;
+    // result + empty
+    var filtered = !!state.q || state.cat !== "all" || state.unreadOnly;
+    $("result").hidden = !filtered || !visible.length;
+    if (filtered) {
+      var bits = plural(visible.length, "release", "releases") + ", " + plural(notes, "note", "notes");
+      $("resultT").innerHTML = "<b>" + bits + "</b>" + (state.q ? " matching “" + esc(state.q) + "”" : "");
+      $("live").textContent = visible.length ? bits : "Nothing matches.";
+    } else $("live").textContent = "";
+    $("none").hidden = !!visible.length;
+    if (!visible.length) $("noneT").textContent = state.q ? "Nothing matches “" + state.q + "”" : "Nothing here with these filters";
+    $("qClr").hidden = !state.q; $("qKey").hidden = !!state.q;
+    if (scrollTop && window.scrollY > feedTop()) scrollTo(0, feedTop());
+    spy();
+  }
+  function feedTop() { return $("feed").getBoundingClientRect().top + scrollY - 8; }
+
+  /* ---------- scroll-spy ---------- */
+  var ticking = false;
+  function spy() {
+    ticking = false;
+    var vis = E.filter(function (e) { return !e.el.hidden; }), cur = vis[0], th = innerWidth <= 960 ? 120 : 160;
+    vis.forEach(function (e) { if (e.el.getBoundingClientRect().top <= th) cur = e; });
+    if (vis.length && innerHeight + scrollY >= document.documentElement.scrollHeight - 2) cur = vis[vis.length - 1];
+    document.querySelectorAll("[data-mon]").forEach(function (a) {
+      if (cur && a.dataset.mon === cur.mon) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+    });
+    var active = document.querySelector("[data-mon][aria-current]"), ind = $("ind");
+    if (active && ind) { ind.style.visibility = ""; ind.style.transform = "translateY(" + active.parentNode.offsetTop + "px)"; }
+    else if (ind) ind.style.visibility = "hidden";
+  }
+  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, { passive: true });
+  addEventListener("resize", spy);
+
+  /* ---------- soft reveal: armed by the first scroll, so a page at rest hides nothing ---------- */
+  if (!reduced && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (items) {
+      items.forEach(function (it) {
+        if (!it.isIntersecting) return;
+        it.target.classList.add("in");
+        void it.target.offsetWidth;
+        it.target.classList.remove("pending");
+        io.unobserve(it.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    addEventListener("scroll", function arm() {
+      removeEventListener("scroll", arm);
+      E.forEach(function (e) {
+        if (e.el.hidden || e.el.getBoundingClientRect().top < innerHeight) return;
+        e.el.classList.add("pending"); io.observe(e.el);
+      });
+    }, { passive: true });
+  }
+
+  /* ---------- controls ---------- */
+  var qEl = $("q"), qTimer = 0;
+  qEl.addEventListener("input", function () { clearTimeout(qTimer); qTimer = setTimeout(function () { state.q = qEl.value.trim(); apply(true); }, 60); });
+  qEl.addEventListener("keydown", function (e) { if (e.key === "Escape" && qEl.value) { e.preventDefault(); e.stopPropagation(); setQ(""); } if (e.key === "Enter") e.preventDefault(); });
+  function setQ(v) { clearTimeout(qTimer); qEl.value = v; state.q = v.trim(); apply(true); }
+  $("qClr").addEventListener("click", function () { setQ(""); qEl.focus(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "/" && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); qEl.focus(); qEl.select(); }
+  });
+  $("cats").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cat]"); if (!b) return;
+    state.cat = b.dataset.cat; apply(true);
+  });
+  $("wn").addEventListener("click", function () {
+    if (this.getAttribute("aria-disabled") === "true") return;
+    state.unreadOnly = !state.unreadOnly; apply(true);
+  });
+  function clearAll() { state.cat = "all"; state.unreadOnly = false; setQ(""); }
+  $("resultClr").addEventListener("click", function () { clearAll(); qEl.focus(); });
+  $("noneClr").addEventListener("click", function () { clearAll(); qEl.focus(); });
+  document.querySelectorAll("[data-try]").forEach(function (b) { b.addEventListener("click", function () { state.cat = "all"; state.unreadOnly = false; setQ(b.dataset.try); qEl.focus(); }); });
+  $("months").addEventListener("click", function (e) {
+    var a = e.target.closest("[data-mon]"); if (!a) return;
+    e.preventDefault();
+    if (a.getAttribute("aria-disabled") === "true") return;
+    var first = E.filter(function (x) { return x.mon === a.dataset.mon && !x.el.hidden; })[0];
+    if (!first) return;
+    first.el.scrollIntoView({ block: "start" });
+    first.el.querySelector("h3").focus({ preventScroll: true });
+    spy();
+  });
+  function markRead() {
+    state.read = true; state.unreadOnly = false; apply();
+    toast("All marked as read.", function () { state.read = false; apply(); });
+    if (document.activeElement === document.body || !document.activeElement.offsetParent) $("wn").focus();
+  }
+  document.addEventListener("click", function (e) {
+    if (e.target.id === "markRead") { markRead(); return; }
+    var d = e.target.closest ? e.target.closest("[data-demo]") : null;
+    if (d) { e.preventDefault(); toast("This preview stays on the changelog."); return; }
+    if (e.target.id === "navHere" ) { e.preventDefault(); scrollTo(0, 0); return; }
+    var c = e.target.closest ? e.target.closest("[data-copy]") : null;
+    if (c) copyLink(c);
+  });
+  function tryCopy(text) { try { var p = navigator.clipboard && navigator.clipboard.writeText(text); if (p && p.catch) p.catch(function () {}); } catch (err) { /* blocked in a sandboxed frame; the copied state still shows */ } }
+  function copyLink(btn) {
+    var e = E.filter(function (x) { return x.id === btn.dataset.copy; })[0];
+    tryCopy("https://fathom.example/changelog#" + e.id);
+    var tx = btn.querySelector(".vtx");
+    clearTimeout(btn._t);
+    tx.textContent = "Link copied"; btn.classList.add("ok");
+    $("live").textContent = "Link to " + e.v + " copied.";
+    btn._t = setTimeout(function () { btn.classList.remove("ok"); tx.innerHTML = hl(e.v); }, 1500);
+  }
+  $("rss").addEventListener("click", function (e) {
+    e.preventDefault();
+    tryCopy("https://fathom.example/changelog.rss");
+    toast("Feed address copied: fathom.example/changelog.rss");
+  });
+  var tTimer = 0, toastEl = $("toast");
+  function toast(msg, undo) {
+    toastEl.textContent = msg;
+    if (undo) {
+      var u = document.createElement("button");
+      u.type = "button"; u.textContent = "Undo";
+      u.style.cssText = "color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:3px;margin-left:12px";
+      u.addEventListener("click", function () { toastEl.classList.remove("on"); toastEl.style.pointerEvents = ""; undo(); });
+      toastEl.appendChild(u); toastEl.style.pointerEvents = "auto";
+    } else toastEl.style.pointerEvents = "";
+    toastEl.classList.add("on");
+    clearTimeout(tTimer); tTimer = setTimeout(function () { toastEl.classList.remove("on"); toastEl.style.pointerEvents = ""; }, undo ? 6000 : 2800);
+  }
+  $("toTop").addEventListener("click", function () { scrollTo(0, 0); $("q").focus({ preventScroll: true }); });
+
+  /* subscribe: no form element, because a sandboxed frame never fires submit */
+  var emailEl = $("email"), msg = $("subMsg"), MSG0 = msg.textContent;
+  function subscribe() {
+    var v = emailEl.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+      emailEl.setAttribute("aria-invalid", "true");
+      msg.textContent = v ? "That address looks incomplete." : "Enter your email address.";
+      msg.className = "err"; emailEl.focus(); return;
+    }
+    $("subForm").hidden = true; $("subDone").hidden = false;
+    $("subDoneT").textContent = "We sent a confirmation link to " + v + ".";
+    $("subDone").focus();
+  }
+  $("subBtn").addEventListener("click", subscribe);
+  emailEl.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); subscribe(); } });
+  emailEl.addEventListener("input", function () { if (emailEl.getAttribute("aria-invalid")) { emailEl.removeAttribute("aria-invalid"); msg.textContent = MSG0; msg.className = ""; } });
+  $("subAgain").addEventListener("click", function () { $("subDone").hidden = true; $("subForm").hidden = false; emailEl.focus(); emailEl.select(); });
+
+  apply();
+})();
+</script>
+</body>
+</html>

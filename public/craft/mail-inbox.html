@@ -1,0 +1,1391 @@
+<!doctype html>
+<!-- Email client — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A three-pane inbox run from the keyboard: j and k move, e archives, s stars, r replies, / searches, ? lists it all.
+     Archive and snooze animate out with Undo, x starts a bulk selection, and compose saves its own draft. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Postbox — Inbox</title>
+<style>
+:root {
+  --paper: #f4f3ee; --sheet: #fffefb; --hover: #f6f4ef; --active: #ecebe4; --line: #e4e2da; --line2: #d6d3c9;
+  --ink: #1c1b18; --body: #3d3b35; --soft: #5f5d55; --dim: #706d64; --accent: #c5351c; --tint: #fbeae5; --mark: #fbdcd3; --ok: #2f6b4a;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --out: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--sheet); color: var(--ink); font: 13px/1.4 var(--sans); font-variant-numeric: tabular-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+button, input, textarea { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+ul { list-style: none; }
+svg { display: block; }
+.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border: 1px solid var(--line2); border-bottom-width: 2px; border-radius: 4px; background: var(--sheet); color: var(--soft); font: 500 11px/1 var(--sans); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ib { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 6px; color: var(--soft); flex: none; transition: background .15s, color .15s; }
+.ib:hover { background: var(--active); color: var(--ink); }
+.ib[aria-pressed="true"] { color: var(--accent); }
+.ib[aria-pressed="true"] .i { fill: currentColor; }
+[data-tip]:hover::after, [data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); padding: 4px 8px; border-radius: 5px; background: var(--ink); color: var(--paper); font-size: 12px; font-weight: 400; line-height: 1.3; white-space: pre; pointer-events: none; z-index: 30; }
+.ava { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #e8e6de; color: #45433c; font-size: 11px; font-weight: 600; line-height: 1; flex: none; }
+.ava.you { background: var(--ink); color: var(--paper); }
+.tbtn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid var(--line2); border-radius: 6px; background: var(--sheet); font-weight: 500; transition: background .12s, border-color .12s; }
+.tbtn:hover { background: var(--hover); border-color: #bdb9ad; }
+.send { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 6px; background: var(--accent); color: #fff; font-weight: 550; transition: background .15s; }
+.send:hover { background: #a92c16; }
+.send .i { width: 15px; height: 15px; }
+.send:focus-visible { outline-color: var(--ink); }
+kbd.lt { background: #a62b15; border-color: #dd7a66; color: #fff; height: 16px; min-width: 16px; margin-left: 2px; border-bottom-width: 1px; font-size: 10px; }
+
+.app { display: grid; grid-template-columns: 224px 412px minmax(0, 1fr); height: 100vh; height: 100dvh; }
+
+/* left: folders and labels */
+.rail { display: flex; flex-direction: column; background: var(--paper); border-right: 1px solid var(--line); padding: 12px 8px 8px; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.brand { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
+.brand svg { width: 20px; height: 20px; }
+.brand .close { margin-left: auto; display: none; }
+.write { display: flex; align-items: center; gap: 8px; width: 100%; height: 36px; margin: 12px 0; padding: 0 8px 0 10px; border-radius: 7px; background: var(--ink); color: var(--paper); font-weight: 550; transition: background .15s, transform .1s; }
+.write:hover { background: #33312b; }
+.write:active { transform: translateY(1px); }
+.write kbd, .toast button kbd { margin-left: auto; background: #36342e; border-color: #4b4840; color: #e8e6de; }
+.rail h2 { padding: 16px 8px 4px; color: var(--dim); font-size: 12px; font-weight: 500; }
+.nav-i { display: flex; align-items: center; gap: 10px; width: 100%; height: 30px; padding: 0 8px; border-radius: 6px; color: var(--body); text-align: left; transition: background .12s; }
+.nav-i:hover, .soon-i:hover { background: var(--active); }
+.nav-i .i { width: 16px; height: 16px; color: var(--soft); }
+.nav-i span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-i em { margin-left: auto; color: var(--soft); font-style: normal; font-size: 12px; }
+.nav-i[aria-current="true"] { background: #e6e4dc; color: var(--ink); font-weight: 600; }
+.nav-i[aria-current="true"] .i, .nav-i[aria-current="true"] em { color: var(--ink); }
+.soon-i { display: block; width: 100%; padding: 5px 8px; border-radius: 6px; text-align: left; transition: background .12s; }
+.soon-i b { display: block; font-weight: 450; color: var(--body); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.soon-i small, .soon-none { color: var(--soft); font-size: 12px; }
+.soon-none { padding: 2px 8px; }
+.cheat { display: none; }
+.cheat dl { display: grid; gap: 6px; padding: 6px 8px 0; color: var(--soft); font-size: 12px; }
+.cheat dl div { display: flex; align-items: center; justify-content: space-between; }
+.rail-spacer { flex: 1 0 12px; }
+.user { display: flex; align-items: center; gap: 8px; margin-top: 16px; padding: 8px 4px 0 8px; border-top: 1px solid var(--line); }
+.user div { min-width: 0; flex: 1; }
+.user b { display: block; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user small { display: block; color: var(--soft); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user .ib { width: 28px; height: 28px; font-weight: 600; font-size: 13px; }
+.user [data-tip]:hover::after, .user [data-tip]:focus-visible::after { top: auto; bottom: calc(100% + 6px); left: auto; right: 0; transform: none; }
+.scrim { position: fixed; inset: 0; background: rgba(28, 27, 24, .36); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 39; }
+
+/* middle: the list */
+.pane-list { position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); }
+.ltop { display: flex; align-items: center; gap: 4px; height: 56px; padding: 0 12px 0 16px; flex: none; }
+.ltop .menu-btn { display: none; margin: 0 4px 0 -6px; }
+.pick { position: relative; display: block; width: 28px; height: 28px; flex: none; cursor: pointer; }
+.pick input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.tick { position: absolute; inset: 5px; pointer-events: none; border: 1.5px solid #a9a69c; border-radius: 4px; background: var(--sheet); transition: background .1s, border-color .1s; }
+.pick:hover .tick { border-color: var(--ink); }
+.tick::after { content: ""; position: absolute; left: 4.2px; top: .8px; width: 5px; height: 10px; border: solid transparent; border-width: 0 1.75px 1.75px 0; transform: rotate(42deg); }
+input:checked + .tick, input:indeterminate + .tick { background: var(--ink); border-color: var(--ink); }
+input:checked + .tick::after { border-color: var(--paper); }
+input:indeterminate + .tick::after { left: 2.6px; top: 6.5px; width: 10px; height: 0; border-width: 0 0 1.75px; border-color: var(--paper); transform: none; }
+input:focus-visible + .tick { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; height: 34px; margin-left: 8px; padding: 0 8px 0 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); transition: border-color .15s, background .15s; }
+.search:focus-within { border-color: var(--ink); background: var(--sheet); }
+.search .i { width: 16px; height: 16px; color: var(--soft); }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; -webkit-appearance: none; appearance: none; }
+.search input::-webkit-search-cancel-button { display: none; }
+.search input::placeholder { color: var(--dim); }
+.search .clear { display: none; width: 22px; height: 22px; }
+.search .clear .i { width: 14px; height: 14px; }
+.search.has .clear { display: grid; }
+.search.has kbd, .search:focus-within kbd { display: none; }
+
+.sub { position: relative; height: 36px; flex: none; border-bottom: 1px solid var(--line); }
+.tabs { position: relative; display: flex; gap: 20px; height: 100%; padding: 0 16px; }
+.tabs button { display: flex; align-items: center; gap: 6px; height: 100%; color: var(--soft); font-weight: 500; transition: color .15s; }
+.tabs button:hover, .tabs button[aria-selected="true"] { color: var(--ink); }
+.tabs button[aria-selected="true"] { font-weight: 600; }
+.tabs button:focus-visible { outline-offset: -4px; border-radius: 4px; }
+.tabs em { font-style: normal; font-size: 12px; font-weight: 500; color: var(--soft); }
+.tabs em.un { color: var(--accent); font-weight: 600; }
+.tabs i { position: absolute; left: 0; bottom: -1px; height: 2px; width: 1px; background: var(--ink); transform-origin: 0 0; transition: transform .25s var(--out); }
+.ftitle { display: none; align-items: baseline; gap: 8px; height: 100%; padding: 8px 16px 0; font-weight: 600; }
+.ftitle small { color: var(--soft); font-weight: 400; font-size: 12px; }
+.sub.plain .tabs { display: none; }
+.sub.plain .ftitle { display: flex; }
+.bulk { position: absolute; inset: 0 0 -1px; z-index: 5; display: flex; align-items: center; gap: 2px; padding: 0 8px 0 16px; background: var(--ink); color: var(--paper); opacity: 0; transform: translateY(-4px); visibility: hidden; transition: opacity .15s, transform .15s var(--out), visibility .15s; }
+.bulk.on { opacity: 1; transform: none; visibility: visible; }
+.bulk b { font-weight: 550; margin-right: auto; }
+.bulk .ib, .c-head .ib { color: #d9d6cc; width: 30px; height: 30px; }
+.bulk .ib:hover, .c-head .ib:hover, .toast button:hover { background: #3a3832; color: #fff; }
+.bulk :focus-visible, .toast :focus-visible { outline-color: #fff; }
+
+.scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+.gh { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; height: 26px; padding: 0 16px; background: var(--sheet); color: var(--dim); font-size: 12px; font-weight: 500; border-bottom: 1px solid var(--line); }
+.row { position: relative; display: flex; border-bottom: 1px solid var(--line); background: var(--sheet); scroll-margin-top: 28px; transition: background .1s, height .22s var(--out), opacity .18s, transform .22s var(--out); }
+.row:hover { background: var(--hover); }
+.row.cur { background: var(--active); }
+.row.cur::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 1; }
+.row.sel { background: var(--tint); }
+.row.cur.sel { background: #f6dfd8; }
+.row:has(.open:focus-visible) { box-shadow: inset 0 0 0 2px var(--accent); }
+.row.leaving { opacity: 0; transform: translateX(-16px); overflow: hidden; border-bottom-color: transparent; pointer-events: none; }
+.row.entering { overflow: hidden; }
+.slot { position: relative; width: 28px; height: 28px; margin: 10px 0 0 16px; flex: none; }
+.slot .pick { position: absolute; inset: 0; opacity: 0; }
+.slot .ava { position: absolute; inset: 0; pointer-events: none; transition: opacity .1s; }
+.row:hover .slot .pick, .slot:focus-within .pick, .sel-mode .slot .pick { opacity: 1; }
+.row:hover .slot .ava, .slot:focus-within .ava, .sel-mode .slot .ava { opacity: 0; }
+.dot { position: absolute; left: 6px; top: 22px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0; transition: opacity .15s; }
+.row.un .dot { opacity: 1; }
+.row .open { flex: 1; min-width: 0; display: block; padding: 9px 12px 9px 8px; text-align: left; }
+.row .open:focus-visible { outline: 0; }
+.l1 { display: flex; align-items: baseline; gap: 6px; padding-right: 2px; }
+.from { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; color: var(--body); }
+.row.un .from { font-weight: 650; color: var(--ink); }
+.l1 small { color: var(--soft); font-size: 12px; flex: none; }
+.meta { display: flex; align-items: center; gap: 4px; margin-left: auto; color: var(--soft); font-size: 12px; flex: none; }
+.meta .i { width: 13px; height: 13px; }
+.row.un .meta time { color: var(--ink); font-weight: 550; }
+.l2, .l3 { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.l2 { margin-top: 1px; color: var(--body); }
+.row.un .l2 { color: var(--ink); font-weight: 600; }
+.l3 { color: var(--soft); font-size: 12.5px; padding-right: 22px; }
+mark { background: var(--mark); color: inherit; border-radius: 2px; box-shadow: 0 0 0 1px var(--mark); }
+.star { position: absolute; right: 8px; bottom: 7px; width: 24px; height: 24px; display: grid; place-items: center; color: var(--dim); opacity: 0; border-radius: 5px; transition: opacity .1s, color .1s; }
+.star .i { width: 15px; height: 15px; }
+.row:hover .star, .star:focus-visible, .star[aria-pressed="true"] { opacity: 1; }
+.star:hover { color: var(--ink); }
+.star[aria-pressed="true"] { color: var(--accent); }
+.star[aria-pressed="true"] .i { fill: currentColor; }
+.quick { position: absolute; right: 8px; top: 5px; display: none; background: inherit; border-radius: 6px; }
+.row:hover .quick, .quick:focus-within { display: flex; }
+.quick button { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 5px; color: var(--soft); }
+.quick button:hover { background: #dedcd3; color: var(--ink); }
+.quick .i { width: 15px; height: 15px; }
+.lempty { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 100%; padding: 40px 32px; text-align: center; color: var(--soft); }
+.lempty b { color: var(--ink); font-size: 15px; font-weight: 600; }
+.lempty p { max-width: 280px; }
+.lempty code { font: 12px ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); }
+.lempty .tbtn { margin-top: 12px; }
+.tend { padding: 16px; text-align: center; color: var(--dim); font-size: 12px; }
+
+/* right: the reading pane */
+.pane-read { position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--sheet); }
+.rtop { display: flex; align-items: center; gap: 2px; height: 56px; padding: 0 16px 0 24px; flex: none; border-bottom: 1px solid var(--line); }
+.rtop .back { display: none; margin: 0 4px 0 -8px; }
+.rtop hr { width: 1px; height: 18px; margin: 0 6px; border: 0; background: var(--line); }
+.pos { margin: 0 4px 0 auto; color: var(--soft); font-size: 12px; white-space: nowrap; }
+.rscroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+.rbody { max-width: 760px; margin: 0 auto; padding: 24px 32px 40px; }
+.fade, .msg.fresh, .reply-box { animation: rin .18s var(--out); }
+@keyframes rin { from { opacity: 0; transform: translateY(4px); } }
+.rbody h1 { font: 600 25px/1.2 var(--serif); letter-spacing: -.008em; text-wrap: balance; }
+.rmeta { display: flex; flex-wrap: wrap; gap: 4px 8px; margin: 8px 0 16px; color: var(--soft); }
+.rmeta button { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+.rmeta button:hover { text-decoration-color: var(--ink); }
+.msg { border-top: 1px solid var(--line); }
+.msg-h { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 0; text-align: left; }
+.msg-h:focus-visible { outline-offset: -2px; border-radius: 4px; }
+.who { min-width: 0; flex: none; max-width: 60%; }
+.who b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who small { display: block; color: var(--soft); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pre { flex: 1; min-width: 0; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-h time { margin-left: auto; padding-left: 12px; color: var(--soft); font-size: 12px; white-space: nowrap; flex: none; }
+.msg.open .pre, .msg:not(.open) .who small { display: none; }
+.msg:not(.open) .msg-h { padding: 8px 0; }
+.msg:not(.open) .msg-h:hover .pre { color: var(--ink); }
+.fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .22s var(--out); }
+.msg.open > .fold { grid-template-rows: 1fr; }
+.fold > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility .22s; }
+.msg.open > .fold > div { visibility: visible; }
+.prose { padding: 2px 0 16px 40px; font: 15.5px/1.58 var(--serif); color: #2a2925; }
+.prose p + p { margin-top: 10px; }
+.att { margin: 0 0 20px 40px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.att-h { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 12px; }
+.att-h .th { width: 34px; height: 44px; flex: none; }
+.att-h div { min-width: 0; flex: 1; }
+.att-h b { display: block; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.att-h small { color: var(--soft); font-size: 12px; }
+.chg { width: calc(100% - 40px); margin: -4px 0 20px 40px; border-collapse: collapse; font-size: 13px; }
+.chg th { padding: 0 12px 6px 0; color: var(--dim); font-size: 12px; font-weight: 500; text-align: left; }
+.chg td { padding: 8px 12px 8px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.chg td:first-child { width: 56px; color: var(--soft); white-space: nowrap; }
+.chg s { color: #a8341d; text-decoration-color: rgba(197, 53, 28, .55); }
+.reply-c { border-top: 1px solid var(--line); padding-top: 16px; }
+.reply-open { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--line2); border-radius: 8px; color: var(--soft); text-align: left; transition: border-color .15s, color .15s; }
+.reply-open:hover { border-color: var(--ink); color: var(--ink); }
+.reply-open kbd { margin-left: auto; }
+.reply-open .i { width: 16px; height: 16px; }
+.reply-box { border: 1px solid var(--ink); border-radius: 8px; }
+.reply-box .to { padding: 8px 12px 0; color: var(--soft); font-size: 12px; }
+.reply-box textarea { display: block; width: 100%; min-height: 96px; padding: 8px 12px; border: 0; outline: 0; background: none; resize: vertical; font: 15px/1.5 var(--serif); }
+.reply-box footer { display: flex; align-items: center; gap: 8px; padding: 8px; }
+.reply-box footer small { color: var(--accent); font-size: 12px; }
+.draft-acts { display: flex; gap: 8px; }
+.rnone { display: grid; place-content: center; justify-items: center; height: 100%; padding: 32px; text-align: center; color: var(--soft); }
+.rnone .pic { width: 240px; height: auto; color: var(--ink); margin-bottom: 20px; }
+.rnone h2 { font: 600 24px/1.2 var(--serif); color: var(--ink); margin-bottom: 6px; }
+.rnone p { max-width: 380px; font-size: 14px; }
+.rnone .draft-acts { margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+
+/* compose */
+.compose { position: fixed; right: 24px; bottom: 0; z-index: 25; display: flex; flex-direction: column; width: min(500px, calc(100vw - 32px)); height: min(500px, calc(100dvh - 40px)); background: var(--sheet); border: 1px solid var(--line2); border-bottom: 0; border-radius: 10px 10px 0 0; box-shadow: 0 8px 28px -10px rgba(28, 27, 24, .28); transition: height .24s var(--out), width .24s var(--out), opacity .16s, transform .24s var(--out); }
+.compose[hidden] { display: none; }
+.compose.in { opacity: 0; transform: translateY(14px); }
+.compose.min { height: 40px; width: 300px; }
+.c-head { display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 4px 0 12px; background: var(--ink); color: var(--paper); border-radius: 9px 9px 0 0; flex: none; }
+.c-head .ttl { flex: 1; min-width: 0; height: 40px; font-weight: 550; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-head .ib { width: 28px; height: 28px; }
+.c-head .ib .i { width: 16px; height: 16px; }
+.c-head :focus-visible { outline-color: #fff; outline-offset: -2px; }
+.c-body { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.compose.min .c-body { visibility: hidden; }
+.c-row { position: relative; display: flex; align-items: flex-start; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--line); }
+.c-row > label { color: var(--soft); line-height: 26px; flex: none; }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; flex: 1; min-width: 0; min-height: 26px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; height: 24px; max-width: 100%; padding: 0 2px 0 8px; border: 1px solid var(--line2); border-radius: 12px; background: var(--paper); font-size: 12.5px; animation: chip .15s var(--out); }
+@keyframes chip { from { opacity: 0; transform: scale(.92); } }
+.chip span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.chip.bad { border-color: var(--accent); background: var(--tint); color: #8e2612; }
+.chip button { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; color: var(--soft); flex: none; }
+.chip button:hover { background: var(--line2); color: var(--ink); }
+.chip .i { width: 11px; height: 11px; stroke-width: 2.25; }
+.chips input { flex: 1; min-width: 80px; height: 24px; border: 0; outline: 0; background: none; }
+.sug { position: absolute; left: 12px; right: 12px; top: 100%; z-index: 3; margin-top: -2px; padding: 4px; background: var(--sheet); border: 1px solid var(--line2); border-radius: 8px; box-shadow: 0 8px 20px -8px rgba(28, 27, 24, .25); }
+.sug[hidden], .c-err[hidden] { display: none; }
+.sug button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 4px 6px; border-radius: 5px; text-align: left; }
+.sug button[aria-selected="true"] { background: var(--active); }
+.sug small { margin-left: auto; color: var(--soft); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sug .ava { width: 22px; height: 22px; font-size: 9px; }
+.c-err { padding: 4px 12px; border-bottom: 1px solid var(--line); background: var(--tint); color: #a42a13; font-size: 12px; }
+.c-subj { width: 100%; height: 36px; padding: 0 12px; border: 0; border-bottom: 1px solid var(--line); outline: 0; background: none; font-weight: 550; }
+.c-text { flex: 1; min-height: 0; width: 100%; padding: 12px; border: 0; outline: 0; background: none; resize: none; font: 15px/1.55 var(--serif); }
+.c-subj::placeholder, .c-text::placeholder { color: var(--dim); font-weight: 400; }
+.c-foot { display: flex; align-items: center; gap: 8px; padding: 8px; border-top: 1px solid var(--line); flex: none; }
+.c-foot small { color: var(--soft); font-size: 12px; margin-left: 4px; }
+.c-foot .ib { margin-left: auto; }
+.c-foot [data-tip]:hover::after, .c-foot [data-tip]:focus-visible::after { top: auto; bottom: calc(100% + 6px); }
+
+/* toast, hint, menus, overlay */
+.dock { position: fixed; left: 240px; bottom: 16px; z-index: 28; display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 256px); pointer-events: none; }
+.toast { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 4px 4px 14px; border-radius: 8px; background: var(--ink); color: var(--paper); box-shadow: 0 6px 18px -8px rgba(28, 27, 24, .5); opacity: 0; transform: translateY(8px); visibility: hidden; transition: opacity .16s, transform .2s var(--out), visibility .2s; }
+.toast.on { opacity: 1; transform: none; visibility: visible; pointer-events: auto; }
+.toast span { min-width: 0; max-width: 340px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.toast button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 5px; color: #fff; font-weight: 600; flex: none; }
+.toast button[hidden] { display: none; }
+.hint { position: absolute; left: 0; bottom: 0; display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--line2); border-radius: 6px; background: var(--sheet); color: var(--soft); font-size: 12px; white-space: nowrap; opacity: 0; transform: translateY(6px); transition: opacity .16s, transform .2s var(--out); }
+.hint.on { opacity: 1; transform: none; }
+.toast.on ~ .hint { bottom: 48px; }
+.snz { position: fixed; z-index: 35; width: 212px; padding: 4px; background: var(--sheet); border: 1px solid var(--line2); border-radius: 8px; box-shadow: 0 10px 24px -10px rgba(28, 27, 24, .3); animation: pop .14s var(--out); }
+.snz[hidden], .ov[hidden] { display: none; }
+@keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+.snz p { padding: 4px 8px; color: var(--dim); font-size: 12px; }
+.snz button { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; height: 30px; padding: 0 8px; border-radius: 5px; text-align: left; }
+.snz small { color: var(--soft); font-size: 12px; }
+.snz button:hover, .snz button:focus { background: var(--active); outline: 0; }
+.ov { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(28, 27, 24, .4); animation: fadein .16s; }
+@keyframes fadein { from { opacity: 0; } }
+.ov-c { width: min(720px, 100%); max-height: 100%; overflow-y: auto; background: var(--sheet); border-radius: 12px; box-shadow: 0 16px 48px -16px rgba(28, 27, 24, .5); animation: rin .2s var(--out); }
+.ov-h { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 12px 24px; border-bottom: 1px solid var(--line); }
+.ov-h h2 { font: 600 20px/1.2 var(--serif); }
+.ov-g { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding: 20px 24px 24px; }
+.ov-g h3 { margin-bottom: 8px; color: var(--dim); font-size: 12px; font-weight: 500; }
+.ov-g li { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 28px; }
+.ov-g li span { display: flex; gap: 2px; }
+
+@media (max-width: 1240px) { .app { grid-template-columns: 200px 360px minmax(0, 1fr); } .rbody { padding-inline: 24px; } }
+@media (max-width: 1060px) {
+  .prose { padding-left: 0; }
+  .att { margin-left: 0; }
+  .chg { margin-left: 0; width: 100%; }
+  .rtop { padding-left: 16px; }
+  .rbody { padding-inline: 20px; }
+  .ltop { padding-left: 12px; }
+}
+/* tablet: the rail folds to icons */
+@media (min-width: 721px) and (max-width: 1060px) {
+  .app { grid-template-columns: 56px 320px minmax(0, 1fr); }
+  .brand { padding: 0; justify-content: center; }
+  .brand b, .rail h2, .nav-i span, .nav-i em, .write span, .write kbd, .soon, .user div, .cheat { display: none; }
+  .write, .nav-i { justify-content: center; padding: 0; }
+  .nav-i { position: relative; height: 34px; }
+  .nav-i .i { width: 18px; height: 18px; }
+  .nav-i.count::after { content: ""; position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .labels-wrap { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .user { flex-direction: column; padding: 8px 0 0; }
+  .user [data-tip]:hover::after, .user [data-tip]:focus-visible::after { left: 0; right: auto; }
+  .dock { left: 72px; max-width: calc(100vw - 88px); }
+}
+/* phone: one pane at a time */
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .rail { position: fixed; inset: 0 auto 0 0; z-index: 40; width: 272px; transform: translateX(-100%); visibility: hidden; transition: transform .24s var(--out), visibility .24s; }
+  .app.drawer .rail { transform: none; visibility: visible; }
+  .app.drawer .scrim { opacity: 1; pointer-events: auto; }
+  .brand .close, .ltop .menu-btn, .rtop .back { display: grid; }
+  .nav-i, .write { height: 40px; }
+  .write kbd, .user .ib, .ltop .pick, .search kbd, .pos, .nx, .rtop hr, .hint, kbd.lt, .pre, .toast button kbd { display: none; }
+  .pane-list { border-right: 0; }
+  .ltop { padding: 0 12px; }
+  .search { margin-left: 0; }
+  .tabs { gap: 16px; padding: 0 12px; }
+  .row { min-height: 72px; }
+  .slot { margin-top: 12px; }
+  .row .open { padding-block: 10px; }
+  .star { opacity: 1; width: 32px; height: 32px; bottom: 4px; right: 6px; }
+  .row:hover .quick { display: none; }
+  .row:hover .slot .pick { opacity: 0; }
+  .row:hover .slot .ava { opacity: 1; }
+  .sel-mode .slot .pick { opacity: 1 !important; }
+  .sel-mode .slot .ava { opacity: 0 !important; }
+  .pane-read { position: fixed; inset: 0; z-index: 20; transform: translateX(100%); visibility: hidden; transition: transform .26s var(--out), visibility .26s; }
+  .app.reading .pane-read { transform: none; visibility: visible; }
+  .rtop { padding: 0 8px; }
+  .rtop .back { margin-left: 0; }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { display: none; }
+  .rbody { padding: 16px 16px 32px; }
+  .rbody h1 { font-size: 22px; }
+  .who { max-width: none; flex: 1; }
+  .msg-h time { padding-left: 8px; }
+  .compose { inset: 0; width: 100%; height: 100dvh; border: 0; border-radius: 0; }
+  .compose.min { inset: auto 12px 0; width: auto; height: 40px; border-radius: 9px 9px 0 0; }
+  .c-head { border-radius: 0; }
+  .compose.min .c-head { border-radius: 9px 9px 0 0; }
+  .dock { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+  .toast, .toast span { flex: 1; max-width: none; }
+  .ov-g { grid-template-columns: 1fr; gap: 16px; }
+  .rnone .pic { width: 180px; }
+}
+/* a tall window has room for more */
+@media (min-height: 1200px) and (min-width: 1061px) {
+  .cheat { display: block; }
+  .row .open { padding-block: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="rail" id="rail" aria-label="Mailboxes">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V9.5C5 5.4 8 2 12 2s7 3.4 7 7.5V22z" fill="#c5351c"/><rect x="8" y="9" width="8" height="2.2" rx="1.1" fill="#fffefb"/></svg>
+      <b>Postbox</b>
+      <button class="ib close" id="railClose" aria-label="Close menu"><svg class="i" viewBox="0 0 24 24"><use href="#x"/></svg></button>
+    </div>
+    <button class="write" id="write" aria-label="Compose a new message"><svg class="i" viewBox="0 0 24 24"><use href="#pen"/></svg><span>Compose</span><kbd>C</kbd></button>
+    <nav aria-label="Folders"><ul id="folders"></ul></nav>
+    <div class="labels-wrap"><h2>Labels</h2><ul id="labels"></ul></div>
+    <div class="soon"><h2>Back soon</h2><div id="soon"></div></div>
+    <div class="rail-spacer"></div>
+    <div class="cheat" aria-hidden="true"><h2>Keys</h2>
+      <dl>
+        <div><dt>Move</dt><dd><kbd>J</kbd> <kbd>K</kbd></dd></div>
+        <div><dt>Archive</dt><dd><kbd>E</kbd></dd></div>
+        <div><dt>Snooze</dt><dd><kbd>H</kbd></dd></div>
+        <div><dt>Star</dt><dd><kbd>S</kbd></dd></div>
+        <div><dt>Reply</dt><dd><kbd>R</kbd></dd></div>
+        <div><dt>Select</dt><dd><kbd>X</kbd></dd></div>
+        <div><dt>Search</dt><dd><kbd>/</kbd></dd></div>
+      </dl>
+    </div>
+    <div class="user">
+      <span class="ava you">HL</span>
+      <div><b>Hana Lindqvist</b><small>hana@marrowstreet.studio</small></div>
+      <button class="ib" id="help" aria-label="Keyboard shortcuts" data-tip="Shortcuts  ?">?</button>
+    </div>
+  </aside>
+
+  <section class="pane-list" id="paneList" aria-label="Messages">
+    <header class="ltop">
+      <button class="ib menu-btn" id="menu" aria-label="Open folders" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><use href="#menuic"/></svg></button>
+      <label class="pick"><input type="checkbox" id="all" aria-label="Select all in this list"><span class="tick"></span></label>
+      <div class="search" id="searchWrap">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><use href="#search"/></svg>
+        <input id="q" type="search" aria-label="Search mail" placeholder="Search mail" autocomplete="off" spellcheck="false">
+        <kbd>/</kbd>
+        <button class="ib clear" id="qClear" aria-label="Clear search"><svg class="i" viewBox="0 0 24 24"><use href="#x"/></svg></button>
+      </div>
+    </header>
+    <div class="sub" id="sub">
+      <div class="tabs" role="tablist" aria-label="Inbox bundles" id="tabs"><i id="tabInk"></i></div>
+      <div class="ftitle" id="ftitle"></div>
+      <div class="bulk" id="bulk" role="toolbar" aria-label="Bulk actions">
+        <b id="bulkN">0 selected</b>
+        <button class="ib" data-bulk="archive" aria-label="Archive selected"><svg class="i" viewBox="0 0 24 24"><use href="#archive"/></svg></button>
+        <button class="ib" data-bulk="snooze" aria-label="Snooze selected"><svg class="i" viewBox="0 0 24 24"><use href="#clock"/></svg></button>
+        <button class="ib" data-bulk="read" aria-label="Mark selected read or unread"><svg class="i" viewBox="0 0 24 24"><use href="#mail"/></svg></button>
+        <button class="ib" data-bulk="star" aria-label="Star selected"><svg class="i" viewBox="0 0 24 24"><use href="#star"/></svg></button>
+        <button class="ib" data-bulk="trash" aria-label="Delete selected"><svg class="i" viewBox="0 0 24 24"><use href="#trash"/></svg></button>
+        <button class="ib" data-bulk="clear" aria-label="Clear selection"><svg class="i" viewBox="0 0 24 24"><use href="#x"/></svg></button>
+      </div>
+    </div>
+    <div class="scroll" id="scroll"><ul id="list" aria-label="Conversations"></ul><div id="lempty"></div></div>
+  </section>
+
+  <main class="pane-read" id="paneRead" aria-label="Conversation">
+    <div class="rtop" id="rtop">
+      <button class="ib back" id="back" aria-label="Back to the list"><svg class="i" viewBox="0 0 24 24"><use href="#left"/></svg></button>
+      <button class="ib" id="aArchive" aria-label="Archive" data-tip="Archive  E"><svg class="i" viewBox="0 0 24 24"><use href="#archive"/></svg></button>
+      <button class="ib" id="aSnooze" aria-label="Snooze" aria-haspopup="menu" data-tip="Snooze  H"><svg class="i" viewBox="0 0 24 24"><use href="#clock"/></svg></button>
+      <button class="ib" id="aTrash" aria-label="Delete" data-tip="Delete  #"><svg class="i" viewBox="0 0 24 24"><use href="#trash"/></svg></button>
+      <hr>
+      <button class="ib" id="aStar" aria-label="Star" aria-pressed="false" data-tip="Star  S"><svg class="i" viewBox="0 0 24 24"><use href="#star"/></svg></button>
+      <button class="ib" id="aRead" aria-label="Mark as unread" data-tip="Unread  U"><svg class="i" viewBox="0 0 24 24"><use href="#mail"/></svg></button>
+      <button class="ib" id="aReply" aria-label="Reply" data-tip="Reply  R"><svg class="i" viewBox="0 0 24 24"><use href="#reply"/></svg></button>
+      <span class="pos" id="pos"></span>
+      <button class="ib nx" id="prev" aria-label="Previous conversation" data-tip="Previous  K"><svg class="i" viewBox="0 0 24 24"><use href="#up"/></svg></button>
+      <button class="ib nx" id="next" aria-label="Next conversation" data-tip="Next  J"><svg class="i" viewBox="0 0 24 24"><use href="#down"/></svg></button>
+    </div>
+    <div class="rscroll" id="rscroll"><div id="rbody"></div></div>
+  </main>
+  <div class="scrim" id="scrim"></div>
+</div>
+
+<div class="compose" id="compose" role="dialog" aria-label="Compose message" hidden>
+  <div class="c-head">
+    <button class="ttl" id="cTitle" aria-expanded="true">New message</button>
+    <button class="ib" id="cMin" aria-label="Minimise"><svg class="i" viewBox="0 0 24 24"><use href="#minus"/></svg></button>
+    <button class="ib" id="cClose" aria-label="Close and keep the draft"><svg class="i" viewBox="0 0 24 24"><use href="#x"/></svg></button>
+  </div>
+  <div class="c-body">
+    <div class="c-row">
+      <label for="cTo">To</label>
+      <div class="chips" id="chips"><input id="cTo" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="sug"></div>
+      <div class="sug" id="sug" role="listbox" aria-label="People" hidden></div>
+    </div>
+    <p class="c-err" id="cErr" role="alert" hidden></p>
+    <input class="c-subj" id="cSubj" placeholder="Subject" aria-label="Subject" autocomplete="off">
+    <textarea class="c-text" id="cText" aria-label="Message" placeholder="Write your message"></textarea>
+    <div class="c-foot">
+      <button class="send" id="cSend"><svg class="i" viewBox="0 0 24 24"><use href="#send"/></svg>Send<kbd class="lt">⌘↵</kbd></button>
+      <small id="cSaved" role="status"></small>
+      <button class="ib" id="cDiscard" aria-label="Discard draft" data-tip="Discard"><svg class="i" viewBox="0 0 24 24"><use href="#trash"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="dock">
+  <div class="toast" id="toast" role="status"><span id="toastT"></span><button id="undo">Undo <kbd>Z</kbd></button></div>
+  <div class="hint" id="hint" aria-hidden="true"></div>
+</div>
+
+<div class="snz" id="snz" role="menu" aria-label="Snooze until" hidden>
+  <p id="snzT">Snooze until</p>
+  <button role="menuitem" data-z="Later today" data-when="Today, 18:00" tabindex="-1">Later today <small>18:00</small></button>
+  <button role="menuitem" data-z="Tomorrow" data-when="Tomorrow, 08:00" tabindex="-1">Tomorrow <small>Wed 08:00</small></button>
+  <button role="menuitem" data-z="Next week" data-when="Mon 9 Nov, 08:00" tabindex="-1">Next week <small>Mon 08:00</small></button>
+</div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="ovT" hidden>
+  <div class="ov-c">
+    <div class="ov-h"><h2 id="ovT">Keyboard shortcuts</h2><button class="ib" id="ovX" aria-label="Close"><svg class="i" viewBox="0 0 24 24"><use href="#x"/></svg></button></div>
+    <div class="ov-g">
+      <section><h3>Move</h3><ul>
+        <li>Next conversation<span><kbd>J</kbd></span></li><li>Previous conversation<span><kbd>K</kbd></span></li><li>Bundles<span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span></li><li>Search<span><kbd>/</kbd></span></li><li>Open or close thread<span><kbd>O</kbd></span></li><li>Back out<span><kbd>Esc</kbd></span></li>
+      </ul></section>
+      <section><h3>Act</h3><ul>
+        <li>Archive<span><kbd>E</kbd></span></li><li>Snooze<span><kbd>H</kbd></span></li><li>Star<span><kbd>S</kbd></span></li><li>Read or unread<span><kbd>U</kbd></span></li><li>Delete<span><kbd>#</kbd></span></li><li>Undo<span><kbd>Z</kbd></span></li>
+      </ul></section>
+      <section><h3>Write and select</h3><ul>
+        <li>Compose<span><kbd>C</kbd></span></li><li>Reply<span><kbd>R</kbd></span></li><li>Send<span><kbd>⌘</kbd><kbd>↵</kbd></span></li><li>Select<span><kbd>X</kbd></span></li><li>Select all<span><kbd>*</kbd></span></li><li>This list<span><kbd>?</kbd></span></li>
+      </ul></section>
+    </div>
+  </div>
+</div>
+
+<p class="sr" id="live" aria-live="polite"></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="inbox" viewBox="0 0 24 24"><path d="M3 13h5l2 3h4l2-3h5"/><path d="M5.5 5h13L21 13v6H3v-6z"/></symbol>
+  <symbol id="star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="file" viewBox="0 0 24 24"><path d="M14 3.5H6v17h12V7.5z"/><path d="M14 3.5v4h4"/><path d="M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="send" viewBox="0 0 24 24"><path d="M4 11.5 20.5 4 15.5 20.5l-3.5-6.5z"/><path d="m20.5 4-8.5 10"/></symbol>
+  <symbol id="archive" viewBox="0 0 24 24"><path d="M3.5 5h17v4h-17z"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/></symbol>
+  <symbol id="trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m6 7 1 13h10l1-13"/></symbol>
+  <symbol id="tag" viewBox="0 0 24 24"><path d="M12.5 3.5h8v8L11 21l-8-8z"/><circle cx="16.5" cy="7.5" r="1"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="clip" viewBox="0 0 24 24"><path d="m19.5 11.5-7.7 7.7a4.6 4.6 0 0 1-6.5-6.5l8-8a3 3 0 0 1 4.3 4.3l-8 8a1.5 1.5 0 0 1-2.1-2.1l7.4-7.4"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+  <symbol id="left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="reply" viewBox="0 0 24 24"><path d="M10 6 4.5 11.5 10 17"/><path d="M5 11.5h9a5.5 5.5 0 0 1 5.5 5.5v1"/></symbol>
+  <symbol id="mail" viewBox="0 0 24 24"><path d="M3.5 6h17v12h-17z"/><path d="m3.5 7 8.5 6.5L20.5 7"/></symbol>
+  <symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="menuic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="pen" viewBox="0 0 24 24"><path d="m4 20 1-4.5L16.5 4 20 7.5 8.5 19z"/><path d="m14 6.5 3.5 3.5"/></symbol>
+</defs></svg>
+
+<script>
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (id) => document.getElementById(id);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ic = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><use href="#${n}"/></svg>`;
+const initials = (n) => n.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+
+/* ---------- the mail, by bundle and day: [time, from, address, subject, first paragraph, second paragraph, flags (u unread, s starred), label, attachment or thread] ---------- */
+const RAW = {
+  primary: {
+    Today: [
+      ["10:42", "Mireille Okafor", "mireille@okaforlegal.co", "Contract redlines for the Alder Street fit-out", "Thanks both. Redlines attached with all of that in: cap back to the fee, 45 days accepted, weekly visits until first fix.", "", "", "Clients", "alder"],
+      ["10:18", "Tomás Figueroa", "tomas@figueroabuild.es", "Site visit moved to Thursday, 9:30", "The scaffold inspector can only do Thursday morning, so I have moved us to 9:30 and told the client.", "Bring the revised mezzanine drawings if you can. The steel fixer wants to see rev C before he orders.", "u", "Clients"],
+      ["09:51", "Yuki Tanabe", "yuki.tanabe@marrowstreet.studio", "Portfolio review notes, and one hard question", "I went through all four portfolios for the studio lead role. Two are strong. One of them has never run a site, and that is the hard question.", "Can we talk it through before Friday? I would rather disagree in a room than in a spreadsheet.", "u", "Hiring", ["Studio-lead-review.pdf", "PDF, 6 pages, 840 KB"]],
+      ["09:14", "Kwame Boateng", "accounts@boatengjoinery.com", "Invoice 2291 is overdue by six days", "A quick nudge on invoice 2291 for the Hartley joinery, £6,240.00, which was due last Wednesday.", "If it has already gone out, ignore this and accept my thanks.", "us", "Invoices"],
+      ["08:37", "Anneli Virtanen", "anneli@marrowstreet.studio", "Can you look at the lighting schedule before 3?", "The electrician needs a final count by three. I have dropped the pendant over the stair and added two wall washers.", "It saves us about £900, but I want a second pair of eyes on the stair."],
+      ["07:55", "Deepa Krishnan", "deepa@northlighttravel.com", "Lisbon check-in moved to 15:00", "The hotel has changed check-in on the 19th from 14:00 to 15:00. Your flight lands at 11:20, so they will hold bags from noon.", "", "", "Travel"],
+    ],
+    Yesterday: [
+      ["Mon", "Rafael Mendes", "rafael@ceramicafonte.pt", "Tile samples arrived, and two are wrong", "Your samples reached the studio this morning. The 200 mm terracotta is right, but the glazed green and the off-white are last year's batch.", "The factory is sending the current ones by courier.", "u", "Clients", ["Tile-samples-photos.zip", "ZIP, 3 photos, 11.2 MB"]],
+      ["Mon", "Noor Al-Sayed", "noor@alsayedpartners.ae", "Reference call for the studio lead role", "Happy to give a reference for Daniel. He ran our Doha housing scheme for two years and I would hire him again tomorrow.", "Thursday after 2 works for me, Gulf time.", "", "Hiring"],
+      ["Mon", "Callum Reid", "callum@reidstructures.co.uk", "Lunch Friday? The new place on Ropewalk", "I owe you lunch for the Hartley drawings. The new place on Ropewalk does a very good bean stew, apparently.", "Friday at 1? I will book if you say yes.", "s"],
+      ["Mon", "Sofia Marchetti", "s.marchetti@citycouncil.example", "Planning office wants the fire strategy in PDF/A", "The planning portal has rejected the fire strategy upload. It needs to be PDF/A rather than plain PDF, and under 20 MB.", "", "", "Clients"],
+      ["Mon", "Emeka Obi", "emeka@obiandsons.ng", "Deposit received, thank you", "We have the deposit for the Lagos showroom in the account. The first set of drawings will follow next week as agreed.", "", "", "Invoices"],
+      ["Mon", "Lena Hoffmann", "lena@marrowstreet.studio", "Minutes from Monday's studio meeting", "Short ones this week. Daniel's start date is still open, the Hartley snag list goes out on Wednesday, and we are all doing Lisbon.", "Yours is the venue shortlist, which I believe you have started.", "", "", ["Studio-minutes-2-Nov.pdf", "PDF, 2 pages, 190 KB"]],
+    ],
+    "Last week": [
+      ["Sun", "Aroha Ngata", "aroha@ngatatimber.nz", "Timber supplier quote, revised down 8%", "The mill came back with a better price on the larch, so the revised quote is 8% lower than the one you saw.", "", "", "Invoices", ["Larch-quote-rev2.pdf", "PDF, 1 page, 96 KB"]],
+      ["Sun", "Mateusz Zieliński", "mateusz@marrowstreet.studio", "Mezzanine drawings: rev C", "Rev C is on the server. The stair moved 150 mm east to clear the duct, and everything downstream is updated.", "Only the balustrade fixing detail is still open, waiting on Callum.", "", "Clients", ["Mezzanine-rev-C.pdf", "PDF, 9 sheets, 4.8 MB"]],
+      ["Sat", "Fatima Zahra Idrissi", "fz@materialsforum.ma", "Your talk at the Materials Forum: slides by the 20th?", "We have you on the main stage on the Friday morning, thirty minutes and ten for questions. Slides by the 20th would be a great help.", "Marrakech will be warm. Bring the good jacket anyway; the hall is not.", "", "Travel"],
+      ["Sat", "Jun Park", "jun@parkproperty.kr", "Landlord replied about the lease break", "They will accept the break in June if we give six months' notice in writing by December. That is better than I expected."],
+      ["Fri", "Olivia Bennett", "olivia@hartleyhomes.co.uk", "Snag list from the Hartley handover", "We walked the house with the contractor yesterday. Twenty-three items, mostly paint, and one window that will not lock.", "Thank you for a lovely house, truly.", "", "Clients", ["Hartley-snag-list.pdf", "PDF, 14 pages, 6.1 MB"]],
+      ["Fri", "Ibrahim Keita", "ibrahim@keitaaccounts.fr", "VAT return needs your signature", "The Q3 VAT return is ready: £11,482.60 to pay by the 7th. Everything is reconciled except one Lisbon deposit.", "", "", "Invoices"],
+      ["Thu", "Chidi Eze", "chidi@tradecover.co.uk", "Insurance renewal: two options", "Your professional indemnity renews on 1 December. Option A keeps the £2m cap; option B lifts it to £5m for another £1,340 a year.", "", "", "Invoices"],
+      ["Thu", "Priya Nair", "priya.nair@claywell.in", "Thank you for the studio tour", "My students are still talking about the model room. Would you be willing to do it again with next year's cohort?"],
+      ["Thu", "Henrik Dahl", "henrik@dahlengineers.no", "Structural calcs for the rooflight", "Calcs for the Alder Street rooflight are done. The kerb can stay in timber if we add a steel flitch to the two long sides.", "", "", "Clients"],
+      ["Wed", "Zainab Mansour", "zainab@marrowstreet.studio", "The coffee machine is fixed, by the way", "It was the descaler. The engineer says we have been using the wrong one for about two years."],
+    ],
+  },
+  updates: {
+    Today: [
+      ["08:02", "Harbour Bank", "alerts@harbourbank.example", "Your October statement is ready", "Your business account statement for October is ready to view in online banking.", "Closing balance: £48,216.09.", "u", "Invoices"],
+      ["07:30", "Parcelwright", "track@parcelwright.example", "Your courier from Lisbon is out for delivery", "Parcel PW-48213 from Cerâmica Fonte will arrive today between 13:00 and 15:00. Someone will need to sign for it.", "", "u"],
+    ],
+    Yesterday: [
+      ["Mon", "Calendar", "calendar@marrowstreet.studio", "Client review moved to Thursday, 14:00", "Olivia Bennett moved the Hartley review to Thursday, 14:00. Your other invitees have accepted.", "", "u"],
+      ["Mon", "Tallyroll Payroll", "no-reply@tallyroll.example", "November payroll opens on Friday", "Payroll for 11 people opens on Friday. Any changes need to be in by the 20th."],
+    ],
+    "Last week": [
+      ["Sat", "Northlight Travel", "bookings@northlighttravel.com", "Your e-tickets for Lisbon", "Six seats on the 19th, returning on the 22nd. Your tickets are attached and checked bags are included.", "", "", "Travel", ["Lisbon-tickets.pdf", "PDF, 6 pages, 410 KB"]],
+      ["Thu", "Server Room", "alerts@marrowstreet.studio", "Backup finished: 412 GB", "Last night's studio backup finished at 02:14 and checked out clean."],
+    ],
+  },
+  news: {
+    Today: [["06:00", "The Detail", "issue@thedetail.example", "Issue 212: thin brick, and how to stop it cracking", "This week: why slip systems fail at the corners, a visit to a kiln in Porto, and the case against silicone.", "", "u"]],
+    Yesterday: [["Mon", "Site Notes", "hello@sitenotes.example", "Five rooflights that do not leak", "An unusually practical issue. Five details from five readers, with their drawings and how long each has lasted."]],
+    "Last week": [
+      ["Sun", "Material Matters", "letters@materialmatters.example", "Cork is having a moment again", "Prices are down and specification is up. Three recent projects and one warning about adhesives."],
+      ["Fri", "Practice Weekly", "editor@practiceweekly.example", "What small studios charge in 2026", "Our annual fee survey is out. Median hourly rates, by size and city, from 640 practices."],
+    ],
+  },
+};
+const THREADS = {
+  alder: [
+    { from: "Mireille Okafor", to: "to you", time: "Mon, 16:12", body: ["Hana, the client's lawyers came back on the Alder Street contract. Most of it is cosmetic, but clause 14 moves the liability cap from the fee to the full build cost, and I do not think we can sign that.", "Can we talk before I reply to them?"] },
+    { from: "You", to: "to Mireille", time: "Mon, 17:03", body: ["Agreed, the cap has to stay at the fee. Our insurer will not cover more than £2m regardless. What else did they touch?"] },
+    { from: "Mireille Okafor", to: "to you", time: "Mon, 17:41", body: ["Payment terms went from 30 days to 45, and they want site attendance written as weekly rather than as required. I can live with 45 if they drop the weekly visits."] },
+    { from: "You", to: "to Mireille, Tomás", time: "Mon, 18:20", body: ["Weekly for the whole build is too much for a studio of eleven. Tomás, what is realistic on site?"] },
+    { from: "Mireille Okafor", to: "to you, Tomás", time: "Today, 08:31", body: ["Before Tomás answers: their side wants this back by four today, so I will turn it around this morning."] },
+    { from: "Tomás Figueroa", to: "to Mireille, you", time: "Today, 08:57", body: ["Jumping in from the site side. Weekly attendance is fine through first fix, but after that fortnightly is plenty. I would offer that as the trade.", "They get what they care about, which is someone on site while the services go in, and we get our Thursdays back."] },
+    { from: "Mireille Okafor", to: "to you, Tomás", time: "Today, 10:42", body: ["Thanks both. Redlines attached with all of that in: cap back to the fee, 45 days accepted, weekly visits until first fix and fortnightly after. I have also tidied the definitions in clause 2 so they match the schedule.", "If you are happy I will send it to their side by four. They have asked for signature by Friday so the fit-out can start on the 16th.", "Mireille"], table: [["Cl. 2", "Definitions out of step with the schedule", "Matched to the schedule"], ["Cl. 9", "Payment in 30 days", "45 days, accepted"], ["Cl. 14", "Liability capped at the build cost", "Capped at the fee"], ["Sch. 3", "Site visits weekly throughout", "Weekly to first fix, then fortnightly"]], file: ["Alder-Street-contract-v4-redlines.pdf", "PDF, 14 pages, 2.4 MB"] },
+  ],
+};
+const CLOCK = ["16:20", "11:05", "14:32", "09:48"], mails = [];
+Object.entries(RAW).forEach(([tab, days]) => Object.entries(days).forEach(([group, rows]) => rows.forEach(([time, from, addr, subj, snip, more, flags = "", label, extra]) => {
+  const n = mails.length, file = Array.isArray(extra) ? extra : null;
+  mails.push({
+    id: n + 1, order: n, tab, group, time, from, addr, subj, snip, org: tab !== "primary", un: flags.includes("u"), star: flags.includes("s"), clip: !!extra, labels: label ? [label] : [], box: "inbox",
+    thread: file || !extra ? [{ from, to: "to you", time: group === "Today" ? "Today, " + time : (group === "Yesterday" ? "Yesterday" : time) + ", " + CLOCK[n % 4], body: more ? [snip, more] : [snip], file }] : THREADS[extra],
+  });
+})));
+let nextId = 900;
+function add(p) {
+  const m = { id: nextId++, order: 500, tab: "primary", group: "Earlier", time: "", from: "", addr: "", subj: "", snip: "", un: false, star: false, clip: false, labels: [], box: "inbox", ...p };
+  if (!m.thread) m.thread = [{ from: m.from, to: "to you", time: m.when || m.time, body: [m.snip] }];
+  mails.push(m); return m;
+}
+/* two resting until later, two filed, one sent, and a draft in progress */
+add({ box: "snoozed", order: 501, time: "Wed", until: "Tomorrow, 08:00", when: "Thu, 18:02", from: "Daniel Abara", addr: "daniel@abara.studio", subj: "Start date, once I have given notice", snip: "I can hand in my notice on Friday if the offer letter comes by then. That makes my first day 4 January." });
+add({ box: "snoozed", order: 502, time: "Thu", until: "Thu, 09:00", when: "Sat, 12:40", from: "Ines Oliveira", addr: "ines@casadomar.pt", subj: "Offsite dinner for fourteen on the 20th", snip: "I am holding the long table for you until Thursday. Tell me about allergies when you know them." });
+add({ box: "archive", order: 700, time: "28 Oct", when: "28 Oct, 15:40", from: "Ola Adeyemi", addr: "ola@marinepaint.example", subj: "Marine Paint Co. quote for Hartley", snip: "The revised quote is the same as the first one, less the undercoat." });
+add({ box: "archive", order: 701, time: "12 Oct", when: "12 Oct, 10:11", from: "Ibrahim Keita", addr: "ibrahim@keitaaccounts.fr", subj: "Your 2025 accounts are filed", snip: "Filed yesterday, nothing owing. The receipt is in your portal.", labels: ["Invoices"] });
+add({ box: "sent", order: 800, time: "Sat", from: "To: Callum Reid", subj: "Balustrade fixing detail", snip: "Can you get me the fixing detail by Wednesday? Mateusz has everything else ready for rev D.", thread: [{ from: "You", to: "to Callum Reid", time: "Sat, 09:22", body: ["Can you get me the fixing detail by Wednesday? Mateusz has everything else ready for rev D."] }] });
+const CONTACTS = ["Lena Hoffmann", "Callum Reid", "Mireille Okafor", "Tomás Figueroa", "Yuki Tanabe", "Anneli Virtanen", "Mateusz Zieliński", "Deepa Krishnan", "Noor Al-Sayed", "Kwame Boateng"].map((name) => ({ name, addr: mails.find((m) => m.from === name).addr }));
+const seeded = add({ box: "drafts", order: 801, time: "Draft", from: "To: Lena, Callum", subj: "Lisbon offsite: venue shortlist", snip: "Three places are still standing after the site visits.", thread: [], labels: ["Travel"], draft: { to: CONTACTS.slice(0, 2), subj: "Lisbon offsite: venue shortlist", body: "Three places are still standing after the site visits.\n\nFábrica Alta has the light and the long table, but no room for breakouts. Casa do Mar can do everything for fourteen and is a ten-minute walk from the hotel. The Print Works is the cheapest by some way and also the coldest.\n\nI lean towards Casa do Mar. Shout by Thursday if you feel otherwise, because Ines is holding the table until then." } });
+
+const FOLDERS = [["inbox", "Inbox", "inbox"], ["starred", "Starred", "star"], ["snoozed", "Snoozed", "clock"], ["drafts", "Drafts", "file"], ["sent", "Sent", "send"], ["archive", "Archive", "archive"], ["trash", "Trash", "trash"]];
+const LABELS = ["Clients", "Hiring", "Invoices", "Travel"];
+const TABS = [["primary", "Primary"], ["updates", "Updates"], ["news", "Newsletters"]];
+const S = { folder: "inbox", label: null, tab: "primary", q: "", cur: null, sel: new Set(), lastSel: null, undo: null, opened: new Set(), userThread: false };
+const mailBy = (id) => mails.find((m) => m.id === id);
+const tabName = (k) => TABS.find((t) => t[0] === k)[1];
+const call = (m, name) => (m.org ? name : name.split(" ")[0]);
+const inInbox = () => S.folder === "inbox" && !S.label;
+let dwell = 0;
+
+/* ---------- what's showing ---------- */
+function parseQ(q) {
+  const terms = [], ops = {};
+  q.trim().split(/\s+/).forEach((w) => { const m = w.match(/^(from|is|has):(.+)$/i); if (m) ops[m[1].toLowerCase()] = m[2].toLowerCase(); else if (w) terms.push(w.toLowerCase()); });
+  return { terms, ops };
+}
+function qMatch(m, { terms, ops }) {
+  if (ops.from && !m.from.toLowerCase().includes(ops.from)) return false;
+  if (ops.is === "unread" && !m.un) return false;
+  if (ops.is === "starred" && !m.star) return false;
+  if (ops.has?.startsWith("attach") && !m.clip) return false;
+  const t = [m.from, m.subj, m.snip, ...m.thread.flatMap((x) => x.body), m.draft?.body || ""].join(" ").toLowerCase();
+  return terms.every((w) => t.includes(w));
+}
+function inFolder(m) {
+  if (S.label) return m.labels.includes(S.label) && (m.box === "inbox" || m.box === "archive");
+  if (S.folder === "starred") return m.star && m.box !== "trash" && m.box !== "drafts";
+  return m.box === S.folder;
+}
+function visible(tab = S.tab) {
+  let l = mails.filter(inFolder).sort((a, b) => a.order - b.order);
+  if (inInbox()) l = l.filter((m) => m.tab === tab);
+  if (S.q.trim()) { const P = parseQ(S.q); l = l.filter((m) => qMatch(m, P)); }
+  return l;
+}
+const curIndex = () => visible().findIndex((m) => m.id === S.cur);
+function hl(text, terms) {
+  const html = esc(text);
+  if (!terms.length) return html;
+  return html.replace(new RegExp("(" + terms.map((t) => esc(t).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi"), "<mark>$1</mark>");
+}
+/* when the hit is deeper in the thread, show the words around it instead of the first line */
+function excerpt(m, terms) {
+  if (!terms.length || terms.some((t) => { const i = m.snip.toLowerCase().indexOf(t); return i >= 0 && i < 48; })) return m.snip;
+  const all = m.thread.flatMap((t) => t.body).join(" "), at = terms.map((t) => all.toLowerCase().indexOf(t)).find((i) => i >= 0);
+  if (at === undefined) return m.snip;
+  const s = Math.max(0, at - 24);
+  return (s ? "…" : "") + all.slice(s, s + 110);
+}
+
+/* ---------- rail and tabs ---------- */
+const unreadIn = (tab) => mails.filter((m) => m.box === "inbox" && m.un && (!tab || m.tab === tab)).length;
+function renderRail() {
+  $("folders").innerHTML = FOLDERS.map(([k, name, icon]) => {
+    const n = k === "inbox" ? unreadIn() : k === "drafts" || k === "snoozed" ? mails.filter((m) => m.box === k).length : 0;
+    return `<li><button class="nav-i${n && k === "inbox" ? " count" : ""}" data-folder="${k}" aria-label="${name}${n ? `, ${n}` : ""}"${!S.label && S.folder === k ? ' aria-current="true"' : ""}>${ic(icon)}<span>${name}</span>${n ? `<em>${n}</em>` : ""}</button></li>`;
+  }).join("");
+  $("labels").innerHTML = LABELS.map((l) => {
+    const n = mails.filter((m) => m.labels.includes(l) && m.box === "inbox").length;
+    return `<li><button class="nav-i" data-label="${l}" aria-label="Label ${l}${n ? `, ${n} in the inbox` : ""}"${S.label === l ? ' aria-current="true"' : ""}>${ic("tag")}<span>${l}</span>${n ? `<em>${n}</em>` : ""}</button></li>`;
+  }).join("");
+  const rest = mails.filter((m) => m.box === "snoozed");
+  $("soon").innerHTML = rest.length ? rest.slice(0, 3).map((m) => `<button class="soon-i" data-soon="${m.id}"><b>${esc(m.subj)}</b><small>${esc(m.until)}</small></button>`).join("") : `<p class="soon-none">Nothing is on its way back.</p>`;
+}
+function renderTabs() {
+  $("sub").classList.toggle("plain", !inInbox());
+  if (!inInbox()) {
+    const n = visible().length;
+    $("ftitle").innerHTML = `${esc(S.label || FOLDERS.find((f) => f[0] === S.folder)[1])}<small>${n} ${n === 1 ? "conversation" : "conversations"}</small>`;
+    return;
+  }
+  const had = document.activeElement?.closest?.("#tabs") ? S.tab : null;
+  $$("#tabs button").forEach((b) => b.remove());
+  TABS.forEach(([k, name]) => {
+    const un = unreadIn(k), hits = S.q.trim() ? visible(k).length : null, b = document.createElement("button");
+    b.setAttribute("role", "tab"); b.dataset.tab = k; b.id = "tab-" + k;
+    b.setAttribute("aria-selected", String(S.tab === k)); b.tabIndex = S.tab === k ? 0 : -1;
+    b.innerHTML = name + (hits !== null ? `<em>${hits}</em>` : un ? `<em class="un" aria-label="${un} unread">${un}</em>` : "");
+    $("tabs").insertBefore(b, $("tabInk"));
+  });
+  if (had) $("tab-" + S.tab).focus();
+  moveInk();
+}
+function moveInk() {
+  const b = $("tab-" + S.tab);
+  if (b) $("tabInk").style.transform = `translateX(${b.offsetLeft}px) scaleX(${b.offsetWidth})`;
+}
+
+/* ---------- the list ---------- */
+function rowHTML(m, terms) {
+  const on = S.sel.has(m.id), cur = m.id === S.cur, mine = m.box === "sent" || m.box === "drafts";
+  return `<li class="row${m.un ? " un" : ""}${cur ? " cur" : ""}${on ? " sel" : ""}" data-id="${m.id}">
+    <i class="dot"></i>
+    <div class="slot"><span class="ava${mine ? " you" : ""}">${mine ? "HL" : initials(m.from)}</span><label class="pick"><input type="checkbox" data-pick="${m.id}"${on ? " checked" : ""} aria-label="Select ${esc(m.subj)}"><span class="tick"></span></label></div>
+    <button class="open" data-open="${m.id}" tabindex="${cur ? 0 : -1}" aria-current="${cur}" aria-label="${esc(m.from)}, ${esc(m.subj)}${m.un ? ", unread" : ""}">
+      <span class="l1"><span class="from">${hl(m.from, terms)}</span>${m.thread.length > 1 ? `<small>${m.thread.length}</small>` : ""}<span class="meta">${m.clip ? `<svg class="i" viewBox="0 0 24 24" role="img" aria-label="Has attachment"><use href="#clip"/></svg>` : ""}<time>${esc(m.time)}</time></span></span>
+      <span class="l2">${hl(m.subj, terms)}</span>
+      <span class="l3">${hl(excerpt(m, terms), terms)}</span>
+    </button>
+    ${m.box === "drafts" ? "" : `<div class="quick"><button data-q="archive" data-id="${m.id}" aria-label="Archive" tabindex="-1">${ic("archive")}</button><button data-q="snooze" data-id="${m.id}" aria-label="Snooze" tabindex="-1">${ic("clock")}</button></div>
+    <button class="star" data-star="${m.id}" aria-pressed="${m.star}" aria-label="Star ${esc(m.subj)}" tabindex="-1">${ic("star")}</button>`}
+  </li>`;
+}
+function renderList(keepFocus) {
+  const hadFocus = keepFocus || document.activeElement?.closest?.("#list");
+  const list = visible(), { terms } = parseQ(S.q), grouped = (inInbox() || S.folder === "starred") && !S.q.trim();
+  let html = "", g = null;
+  list.forEach((m) => {
+    if (grouped && m.group !== g) { g = m.group; html += `<li class="gh" role="presentation">${esc(g)}</li>`; }
+    html += rowHTML(m, terms);
+  });
+  $("list").innerHTML = html;
+  $("paneList").classList.toggle("sel-mode", S.sel.size > 0);
+  renderEmpty(list); renderBulk(); renderTabs(); renderRail(); paintPos();
+  if (hadFocus) focusCur();
+}
+const rowEl = (id) => document.querySelector(`.row[data-id="${id}"]`);
+const rowOpen = (id) => document.querySelector(`.row[data-id="${id}"] .open`);
+const focusCur = () => rowOpen(S.cur)?.focus({ preventScroll: true });
+function renderEmpty(list) {
+  const el = $("lempty");
+  el.className = list.length ? "" : "lempty";
+  if (list.length) { el.innerHTML = inInbox() && !S.q.trim() ? `<p class="tend">That is everything from the last seven days.</p>` : ""; return; }
+  if (S.q.trim()) {
+    const other = inInbox() ? TABS.filter(([k]) => k !== S.tab).map(([k, n]) => [k, n, visible(k).length]).find((x) => x[2]) : null;
+    el.innerHTML = other
+      ? `<b>Nothing in ${tabName(S.tab)}</b><p>But there ${other[2] === 1 ? "is 1 match" : `are ${other[2]} matches`} in ${other[1]}.</p><button class="tbtn" data-tabgo="${other[0]}">Show ${other[1]}</button>`
+      : `<b>No mail matches “${esc(S.q.trim())}”</b><p>Try a name, or narrow it with <code>from:</code> <code>is:unread</code> <code>has:attachment</code>.</p><button class="tbtn" data-clearq="1">Clear search</button>`;
+    return;
+  }
+  if (inInbox()) {
+    const other = TABS.filter(([k]) => k !== S.tab).map(([k, n]) => [k, n, mails.filter((m) => m.box === "inbox" && m.tab === k).length]).find((x) => x[2]);
+    el.innerHTML = `<b>${tabName(S.tab)} is clear</b><p>${other ? "Nothing else needs you here." : "That was the last of it, in all three bundles."}</p>${other ? `<button class="tbtn" data-tabgo="${other[0]}">Go to ${other[1]} (${other[2]})</button>` : ""}`;
+    return;
+  }
+  const words = { starred: ["No stars yet", "Press S on anything you want to come back to."], snoozed: ["Nothing is snoozed", "Press H to put a message away until it matters."], drafts: ["No drafts", "Anything you start writing is kept here."], sent: ["Nothing sent", "Your replies will collect here."], archive: ["The archive is empty", "Archived mail waits here, out of the way."], trash: ["The trash is empty", "Deleted mail sits here for 30 days."] };
+  const [h, p] = S.label ? [`Nothing under ${S.label}`, "Mail with this label will show up here."] : words[S.folder];
+  el.innerHTML = `<b>${h}</b><p>${p}</p>`;
+}
+function renderBulk() {
+  const n = S.sel.size, all = $("all"), list = visible(), count = list.filter((m) => S.sel.has(m.id)).length;
+  $("bulk").classList.toggle("on", n > 0);
+  $("bulkN").textContent = `${n} selected`;
+  all.checked = list.length > 0 && count === list.length;
+  all.indeterminate = count > 0 && count < list.length;
+  all.disabled = !list.length;
+}
+function paintPos() { const i = curIndex(); $("pos").textContent = i >= 0 ? `${i + 1} of ${visible().length}` : ""; }
+
+/* ---------- the reading pane ---------- */
+const PIC = `<svg class="pic" viewBox="0 0 240 170" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M16 158h208"/><path d="M38 164h22M180 164h26" stroke="#d6d3c9"/>
+  <circle cx="176" cy="70" r="30"/><path d="M176 28v-10M214 70h10M203 43l7-7M149 43l-7-7" stroke="#b9b5a8"/>
+  <rect x="94" y="52" width="52" height="106" fill="#fffefb"/><path d="M94 52c0-20 12-34 26-34s26 14 26 34" fill="#fffefb"/>
+  <path d="M88 52h64"/><path d="M90 158v-6h60v6" fill="#fffefb"/>
+  <rect x="106" y="66" width="28" height="5" rx="2.5" fill="#c5351c" stroke="none"/>
+  <rect x="104" y="84" width="32" height="24" rx="1.5"/><path d="M110 92h20M110 99h12"/>
+  <path d="M58 158c0-14 2-22 8-28M66 130c-6-2-10-1-14 3M64 138c5-3 9-3 13 0"/>
+</svg>`;
+function attHTML(f) {
+  return `<div class="att"><div class="att-h"><svg class="th" viewBox="0 0 34 44" aria-hidden="true"><path d="M1 1h23l9 9v33H1z" fill="#fffefb" stroke="#bdb9ad"/><path d="M24 1v9h9" fill="none" stroke="#bdb9ad"/><path d="M6 16h22M6 21h22M6 26h15M6 31h20M6 36h10" stroke="#d6d3c9" stroke-width="1.5"/><path d="M6 21h14" stroke="#c5351c" stroke-width="1.5"/></svg>
+    <div><b>${esc(f[0])}</b><small>${esc(f[1])}</small></div>
+    <button class="ib" data-att="dl" aria-label="Download ${esc(f[0])}" data-tip="Download">${ic("dl")}</button></div></div>`;
+}
+function paintTools(m) {
+  const t = (id, label, tip) => { $(id).setAttribute("aria-label", label); $(id).dataset.tip = tip; };
+  $("aStar").setAttribute("aria-pressed", String(m.star));
+  t("aStar", m.star ? "Remove star" : "Star", (m.star ? "Unstar" : "Star") + "  S");
+  t("aRead", m.un ? "Mark as read" : "Mark as unread", (m.un ? "Read" : "Unread") + "  U");
+  const box = m.box === "inbox";
+  t("aArchive", box ? "Archive" : "Move to Inbox", (box ? "Archive" : "Move to Inbox") + "  E");
+  $("aArchive").innerHTML = ic(box ? "archive" : "inbox");
+}
+function renderRead(fade = true) {
+  const m = mailBy(S.cur), body = $("rbody");
+  $("rtop").style.visibility = m ? "" : "hidden";
+  paintPos();
+  if (!m) {
+    const back = mails.filter((x) => x.box === "snoozed");
+    body.className = "rnone";
+    if (inInbox() && !S.q.trim() && !visible().length) {
+      const clear = !mails.some((x) => x.box === "inbox");
+      const when = back[0]?.until.replace(/^(Today|Tomorrow)/, (w) => w.toLowerCase()).replace(", ", " at ");
+      body.innerHTML = `${PIC}<h2>${clear ? "Inbox zero. The box is empty." : `All clear in ${tabName(S.tab)}.`}</h2><p>${back.length ? `${back.length === 1 ? "One snoozed message returns" : back.length + " snoozed messages return, the first"} ${esc(when)}.` : "Nothing is due back."}${S.undo ? " The last thing you put away can still come back with Z." : ""}</p><div class="draft-acts"><button class="tbtn" data-compose="1">Write something</button><button class="tbtn" data-folder="archive">Open the archive</button></div>`;
+    } else body.innerHTML = `<p>${S.q.trim() ? "Pick a result to read it." : "Nothing selected. Press J to start."}</p>`;
+    return;
+  }
+  body.className = "rbody" + (fade && !still ? " fade" : "");
+  paintTools(m);
+  if (m.box === "drafts") {
+    const d = m.draft;
+    body.innerHTML = `<h1>${esc(d.subj || "No subject")}</h1><p class="rmeta">Draft to ${esc(d.to.map((c) => c.name || c.addr).join(", ") || "nobody yet")}</p><div class="msg"><div class="prose" style="padding:12px 0 16px">${(d.body || "Nothing written yet.").split(/\n\n+/).map((p) => `<p>${esc(p)}</p>`).join("")}</div></div><div class="draft-acts"><button class="send" data-resume="${m.id}">${ic("pen")}Keep writing</button><button class="tbtn" data-discard="${m.id}">Discard</button></div>`;
+    return;
+  }
+  const { terms } = parseQ(S.q), tall = innerHeight >= 1200 && innerWidth > 1060;
+  if (!S.opened.has(m.id)) { m.exp = m.thread.map((_, i) => i >= m.thread.length - (m.thread.length > 3 ? 2 : 1)); S.opened.add(m.id); }
+  const people = [...new Set(m.thread.map((t) => call(m, t.from)))];
+  body.innerHTML = `<h1>${hl(m.subj, terms)}</h1>
+    <div class="rmeta">${m.labels.map((l) => `<button data-label="${l}">${l}</button><span>·</span>`).join("")}<span>${m.thread.length} ${m.thread.length === 1 ? "message" : "messages"}</span><span>·</span><span>${esc(people.join(", "))}</span>${m.until ? `<span>·</span><span>Returns ${esc(m.until)}</span>` : ""}${m.box === "trash" ? `<span>·</span><span>In the trash</span>` : ""}</div>
+    <div id="thread">${m.thread.map((t, i) => msgHTML(m, t, i, tall, terms)).join("")}</div>
+    <div class="reply-c" id="replyC">${replyHTML(m)}</div>`;
+  if (m.replying) wireReply(m);
+  $("rscroll").scrollTop = 0;
+}
+function msgHTML(m, t, i, tall, terms) {
+  const open = (tall && !S.userThread) || m.exp[i], me = t.from === "You";
+  return `<article class="msg${open ? " open" : ""}">
+    <button class="msg-h" aria-expanded="${!!open}" data-toggle="${i}">
+      <span class="ava${me ? " you" : ""}">${me ? "HL" : initials(t.from)}</span>
+      <span class="who"><b>${esc(t.from)}</b><small>${esc(t.to)}</small></span>
+      <span class="pre">${esc(t.body[0])}</span>
+      <time>${esc(t.time)}</time>
+    </button>
+    <div class="fold"><div><div class="prose">${t.body.map((p) => `<p>${hl(p, terms)}</p>`).join("")}</div>${t.table ? `<table class="chg"><caption class="sr">What changed in the redlines</caption><tr><th scope="col">Clause</th><th scope="col">Their draft</th><th scope="col">Our redline</th></tr>${t.table.map((r) => `<tr><td>${r[0]}</td><td><s>${esc(r[1])}</s></td><td>${esc(r[2])}</td></tr>`).join("")}</table>` : ""}${t.file ? attHTML(t.file) : ""}</div></div>
+  </article>`;
+}
+function replyTarget(m) {
+  if (m.box === "sent") return m.from.replace(/^To: /, "");
+  return [...new Set(m.thread.filter((t) => t.from !== "You").map((t) => t.from))].join(", ");
+}
+function replyHTML(m) {
+  if (!m.replying) return `<button class="reply-open" id="replyOpen">${ic("reply")}Reply to ${esc(call(m, replyTarget(m).split(", ")[0]))}…<kbd>R</kbd></button>`;
+  return `<div class="reply-box" id="replyBox" role="group" aria-label="Reply"><p class="to">To ${esc(replyTarget(m))}</p><textarea id="replyT" aria-label="Your reply" placeholder="Write your reply">${esc(m.replyText || "")}</textarea><footer><button class="send" id="replyGo">${ic("send")}Send<kbd class="lt">⌘↵</kbd></button><button class="tbtn" id="replyX">Discard</button><small id="replyErr" role="alert"></small></footer></div>`;
+}
+
+/* ---------- moving and selecting ---------- */
+function dwellRead() {
+  clearTimeout(dwell);
+  const m = mailBy(S.cur);
+  if (m?.un) dwell = setTimeout(() => { if (S.cur === m.id) setRead(m, false); }, 500);
+}
+function setCur(id, { fade = true, scroll = true, focus = false } = {}) {
+  const prev = mailBy(S.cur);
+  if (prev && prev.id !== id && !prev.replyText) prev.replying = false;
+  S.cur = id;
+  $$(".row.cur").forEach((r) => { r.classList.remove("cur"); const b = r.querySelector(".open"); b.tabIndex = -1; b.setAttribute("aria-current", "false"); });
+  const el = rowEl(id);
+  if (el) {
+    const b = el.querySelector(".open");
+    el.classList.add("cur"); b.tabIndex = 0; b.setAttribute("aria-current", "true");
+    if (scroll) el.scrollIntoView({ block: "nearest" });
+    if (focus) b.focus({ preventScroll: true });
+  }
+  renderRead(fade);
+  const m = mailBy(id);
+  if (m) say(`${m.from}, ${m.subj}${m.un ? ", unread" : ""}. ${curIndex() + 1} of ${visible().length}.`);
+  dwellRead();
+}
+function setRead(m, un) {
+  m.un = un;
+  rowEl(m.id)?.classList.toggle("un", un);
+  renderTabs(); renderRail();
+  if (S.cur === m.id) paintTools(m);
+}
+function move(d) {
+  const l = visible(); if (!l.length) return;
+  let i = curIndex();
+  if (i < 0) i = d > 0 ? -1 : l.length;
+  const n = Math.max(0, Math.min(l.length - 1, i + d));
+  if (l[n].id === S.cur) { toast(d > 0 ? "That is the last one." : "That is the first one.", false, 1200); return; }
+  setCur(l[n].id, { focus: true });
+}
+function toggleSel(id, shift) {
+  const l = visible(), a = l.findIndex((m) => m.id === S.lastSel), b = l.findIndex((m) => m.id === id);
+  if (shift && a >= 0 && b >= 0) for (let i = Math.min(a, b); i <= Math.max(a, b); i++) S.sel.add(l[i].id);
+  else S.sel.has(id) ? S.sel.delete(id) : S.sel.add(id);
+  S.lastSel = id; paintSel();
+}
+function paintSel() {
+  $$(".row").forEach((r) => { const on = S.sel.has(+r.dataset.id); r.classList.toggle("sel", on); r.querySelector("input").checked = on; });
+  $("paneList").classList.toggle("sel-mode", S.sel.size > 0);
+  renderBulk();
+  say(S.sel.size ? `${S.sel.size} selected` : "Selection cleared");
+}
+function selectAll() {
+  const l = visible();
+  if (l.length && l.every((m) => S.sel.has(m.id))) S.sel.clear(); else l.forEach((m) => S.sel.add(m.id));
+  paintSel();
+}
+
+/* ---------- filing away, with animation and undo ---------- */
+function nextAfter(ids) {
+  const l = visible(), set = new Set(ids), i = l.findIndex((m) => m.id === S.cur);
+  if (!set.has(S.cur)) return S.cur;
+  for (let k = i + 1; k < l.length; k++) if (!set.has(l[k].id)) return l[k].id;
+  for (let k = i - 1; k >= 0; k--) if (!set.has(l[k].id)) return l[k].id;
+  return null;
+}
+let renderT = 0;
+function animateOut(ids, then) {
+  const els = ids.map(rowEl).filter(Boolean);
+  clearTimeout(renderT);
+  if (still || !els.length) return then();
+  els.forEach((el, i) => {
+    el.style.height = el.offsetHeight + "px"; el.offsetHeight;
+    el.style.transitionDelay = Math.min(i, 12) * 16 + "ms";
+    el.classList.add("leaving"); el.style.height = "0px";
+  });
+  renderT = setTimeout(then, 240 + Math.min(els.length, 12) * 16);
+}
+function animateIn(ids) {
+  if (still) return;
+  ids.map(rowEl).filter(Boolean).forEach((el) => {
+    const h = el.offsetHeight, s = el.style;
+    el.classList.add("entering"); s.height = "0px"; s.opacity = "0"; s.transform = "translateX(-12px)";
+    el.offsetHeight;
+    s.height = h + "px"; s.opacity = "1"; s.transform = "none";
+    setTimeout(() => { el.classList.remove("entering"); s.height = s.opacity = s.transform = ""; }, 260);
+  });
+}
+const targets = () => (S.sel.size ? [...S.sel].map(mailBy).filter(Boolean) : [mailBy(S.cur)].filter(Boolean));
+function fileAway(ms, box, verb, until, note, mouse) {
+  if (!ms.length) return;
+  const ids = ms.map((m) => m.id), after = nextAfter(ids);
+  S.undo = { kind: "file", cur: S.cur, items: ms.map(({ id, box, until, un, star }) => ({ id, box, until, un, star })) };
+  ms.forEach((m) => { m.box = box; if (box !== "inbox" && box !== "snoozed") m.un = false; m.until = until; if (!m.replyText) m.replying = false; });
+  S.sel.clear();
+  const left = visible(), gone = ids.filter((id) => !left.some((m) => m.id === id));
+  S.cur = left.some((m) => m.id === after) ? after : left[0]?.id ?? null;
+  $$(".row.cur").forEach((r) => r.classList.remove("cur"));
+  rowEl(S.cur)?.classList.add("cur");
+  $("paneList").classList.remove("sel-mode");
+  renderBulk(); renderTabs(); renderRail(); renderRead();
+  dwellRead();
+  const what = ms.length === 1 ? `“${ms[0].subj}”` : `${ms.length} conversations`;
+  toast(`${verb} ${what}${note ? " " + note : ""}`, true);
+  say(`${verb} ${what}.`);
+  if (mouse) showHint(mouse);
+  focusCur();
+  animateOut(gone, () => { renderList(true); rowEl(S.cur)?.scrollIntoView({ block: "nearest" }); });
+}
+function archive(mouse) {
+  const ms = targets(); if (!ms.length) return;
+  if (ms[0].box === "sent" || ms[0].box === "drafts") return toast(ms[0].box === "sent" ? "Sent mail stays in Sent." : "Drafts stay in Drafts until you send them.", false, 1800);
+  if (ms[0].box === "inbox") fileAway(ms.filter((m) => m.box === "inbox"), "archive", "Archived", undefined, "", mouse && "archive");
+  else fileAway(ms, "inbox", "Moved to Inbox", undefined, "", mouse && "archive");
+}
+function trash(mouse) {
+  const ms = targets(); if (!ms.length) return;
+  if (ms[0].box === "drafts") return discardDraft(ms[0]);
+  if (ms[0].box === "trash") return toast("It is already in the trash.", false, 1600);
+  fileAway(ms, "trash", "Deleted", undefined, "", mouse && "trash");
+}
+function snooze(label, when, mouse) {
+  const ms = targets().filter((m) => m.box === "inbox");
+  if (!ms.length) return toast("Only inbox mail can be snoozed.", false, 1600);
+  fileAway(ms, "snoozed", "Snoozed", when, `until ${label.toLowerCase()}`, mouse && "snooze");
+}
+function undo() {
+  const u = S.undo; if (!u) return;
+  S.undo = null; hideToast();
+  if (u.kind === "discard") { mails.push(u.mail); renderList(); return toast("Draft restored.", false, 1600); }
+  u.items.forEach((s) => Object.assign(mailBy(s.id) || {}, s));
+  S.cur = u.cur;
+  renderList(); renderRead();
+  animateIn(u.items.map((s) => s.id));
+  rowEl(S.cur)?.scrollIntoView({ block: "nearest" });
+  focusCur();
+  say("Undone.");
+}
+
+/* ---------- toast, key hint, announcements ---------- */
+let toastT = 0, hintT = 0;
+function toast(msg, canUndo, ms = 6000) {
+  $("toastT").textContent = msg; $("undo").hidden = !canUndo;
+  $("toast").classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(hideToast, ms);
+}
+const hideToast = () => $("toast").classList.remove("on");
+const HINTS = { archive: ["E", "to archive"], snooze: ["H", "to snooze"], star: ["S", "to star"], read: ["U", "for read and unread"], reply: ["R", "to reply"], compose: ["C", "to compose"], search: ["/", "to search"], select: ["X", "to select"], move: ["J", "and K to move"], trash: ["#", "to delete"], undo: ["Z", "to undo"] };
+const seen = new Set();
+function showHint(k) {
+  if (k === "move") { if (seen.has(k)) return; seen.add(k); }
+  $("hint").innerHTML = `Press <kbd>${HINTS[k][0]}</kbd> ${HINTS[k][1]}`;
+  $("hint").classList.add("on");
+  clearTimeout(hintT); hintT = setTimeout(() => $("hint").classList.remove("on"), 2200);
+}
+const say = (t) => { $("live").textContent = t; };
+
+/* ---------- snooze menu ---------- */
+let snzBack = null, snzMouse = false;
+const snoozeOpen = () => !$("snz").hidden;
+function openSnooze(anchor, mouse) {
+  const ms = targets(); if (!ms.length) return;
+  if (!ms.some((m) => m.box === "inbox")) return toast("Only inbox mail can be snoozed.", false, 1600);
+  snzBack = document.activeElement; snzMouse = mouse;
+  const el = $("snz"); el.hidden = false;
+  const r = anchor.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+  el.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + "px";
+  el.style.top = (r.bottom + h + 8 > innerHeight ? Math.max(8, r.top - h - 4) : r.bottom + 4) + "px";
+  $("snzT").textContent = ms.length > 1 ? `Snooze ${ms.length} until` : "Snooze until";
+  el.querySelector("button").focus();
+}
+function closeSnooze(back = true) { if (!snoozeOpen()) return; $("snz").hidden = true; if (back) snzBack?.focus?.({ preventScroll: true }); }
+$("snz").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; closeSnooze(false); snooze(b.dataset.z, b.dataset.when, snzMouse); });
+$("snz").addEventListener("keydown", (e) => {
+  const items = $$("#snz button"), i = items.indexOf(document.activeElement), go = (n) => { e.preventDefault(); items[(n + items.length) % items.length].focus(); };
+  if (e.key === "ArrowDown" || e.key === "j") go(i + 1);
+  else if (e.key === "ArrowUp" || e.key === "k") go(i - 1);
+  else if (e.key === "Home") go(0);
+  else if (e.key === "End") go(-1);
+  else if (e.key === "Escape" || e.key === "Tab") { e.preventDefault(); closeSnooze(); }
+  else if (/^[123]$/.test(e.key)) { e.preventDefault(); items[+e.key - 1].click(); }
+  e.stopPropagation();
+});
+addEventListener("pointerdown", (e) => { if (snoozeOpen() && !e.target.closest("#snz")) closeSnooze(false); });
+
+/* ---------- reply ---------- */
+function openReply(m, mouse) {
+  if (!m || m.box === "drafts") return;
+  m.replying = true;
+  $("replyC").innerHTML = replyHTML(m);
+  wireReply(m);
+  const t = $("replyT"); t.focus(); t.setSelectionRange(t.value.length, t.value.length); t.scrollIntoView({ block: "nearest" });
+  if (mouse) showHint("reply");
+}
+function closeReply(m, keep) {
+  if (!keep) m.replyText = "";
+  m.replying = false;
+  $("replyC").innerHTML = replyHTML(m);
+  rowOpen(m.id)?.focus({ preventScroll: true });
+}
+function wireReply(m) {
+  const t = $("replyT"); if (!t) return;
+  t.addEventListener("input", () => { m.replyText = t.value; $("replyErr").textContent = ""; });
+  t.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); sendReply(m); }
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeReply(m, true); if (m.replyText) toast("Reply kept. Press R to pick it up again.", false, 2000); }
+  });
+  $("replyGo").addEventListener("click", () => sendReply(m));
+  $("replyX").addEventListener("click", () => closeReply(m, false));
+}
+function sendReply(m) {
+  const text = (m.replyText || "").trim();
+  if (!text) { $("replyErr").textContent = "Write something first."; return $("replyT").focus(); }
+  m.thread.push({ from: "You", to: `to ${replyTarget(m)}`, time: "Just now", body: text.split(/\n\n+/) });
+  m.exp.push(true);
+  m.replying = false; m.replyText = ""; m.snip = `You: ${text}`; m.time = "Now";
+  renderRead(false);
+  const r = rowEl(m.id);
+  if (r) { r.querySelector(".l3").textContent = m.snip; r.querySelector("time").textContent = "Now"; }
+  const last = $$("#thread .msg").at(-1);
+  if (last) { last.scrollIntoView({ block: "nearest" }); if (!still) last.classList.add("fresh"); }
+  toast(`Reply sent to ${call(m, replyTarget(m).split(", ")[0])}.`, false, 2400);
+  rowOpen(m.id)?.focus({ preventScroll: true });
+}
+
+/* ---------- compose ---------- */
+const C = { draft: null, to: [], subj: "", body: "", min: false, open: false };
+let saveT = 0, sugI = -1, sugs = [];
+const validAddr = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+function paintChips() {
+  $$("#chips .chip").forEach((c) => c.remove());
+  C.to.forEach((c, i) => {
+    const el = document.createElement("span");
+    el.className = "chip" + (c.bad ? " bad" : "");
+    el.innerHTML = `<span title="${esc(c.addr)}">${esc(c.name || c.addr)}</span><button type="button" aria-label="Remove ${esc(c.name || c.addr)}" data-chip="${i}">${ic("x")}</button>`;
+    $("chips").insertBefore(el, $("cTo"));
+  });
+  $("cTo").placeholder = C.to.length ? "" : "Name or email";
+}
+function paintComp() {
+  $("compose").classList.toggle("min", C.min);
+  $("cTitle").textContent = C.subj || "New message";
+  $("cTitle").setAttribute("aria-expanded", String(!C.min));
+  $("cTitle").setAttribute("aria-label", (C.min ? "Open draft: " : "Draft: ") + (C.subj || "New message"));
+  $("cMin").innerHTML = ic(C.min ? "up" : "minus");
+  $("cMin").setAttribute("aria-label", C.min ? "Restore" : "Minimise");
+}
+function load(d) {
+  C.draft = d; C.to = d ? d.draft.to.map((x) => ({ ...x })) : []; C.subj = d?.draft.subj || ""; C.body = d?.draft.body || ""; C.open = true;
+  $("cSubj").value = C.subj; $("cText").value = C.body; $("cTo").value = ""; $("cErr").hidden = true; $("cSaved").textContent = d ? "Draft saved" : "";
+  const el = $("compose");
+  if (el.hidden) { el.hidden = false; if (!still) { el.classList.add("in"); el.offsetHeight; el.classList.remove("in"); } }
+  paintChips(); paintComp(); closeSug();
+}
+function openDraft(d, { min = false, focus = true } = {}) { C.min = min; load(d); if (focus && !min) $("cText").focus(); }
+function newMessage(mouse) {
+  if (mouse) showHint("compose");
+  if (C.open && C.draft) { C.min = false; paintComp(); return (C.to.length ? $("cText") : $("cTo")).focus(); }
+  C.min = false; load(null); $("cTo").focus();
+}
+function saveDraftSoon() { $("cSaved").textContent = "Saving…"; clearTimeout(saveT); saveT = setTimeout(saveDraft, 500); paintComp(); }
+function saveDraft() {
+  clearTimeout(saveT);
+  if (!C.subj.trim() && !C.body.trim() && !C.to.length) { if (C.draft) { remove(C.draft); C.draft = null; renderList(); } $("cSaved").textContent = ""; return; }
+  if (!C.draft) C.draft = add({ box: "drafts", order: 790 - nextId / 1e4, time: "Draft", thread: [] });
+  const d = C.draft, good = C.to.filter((c) => !c.bad);
+  d.draft = { to: C.to.map((x) => ({ ...x })), subj: C.subj, body: C.body };
+  d.subj = C.subj || "No subject"; d.snip = C.body.split("\n")[0] || "Nothing written yet.";
+  d.from = good.length ? "To: " + good.map((c) => (c.name || c.addr).split(" ")[0]).join(", ") : "No recipients yet";
+  $("cSaved").textContent = "Draft saved";
+  if (S.folder === "drafts") { renderList(); if (S.cur === d.id) renderRead(false); } else renderRail();
+}
+function remove(m) { const i = mails.indexOf(m); if (i >= 0) mails.splice(i, 1); }
+function closeCompose(keep) {
+  if (keep) saveDraft();
+  C.open = false; clearTimeout(saveT);
+  $("compose").hidden = true;
+  focusCur();
+}
+const compErr = (t) => { $("cErr").textContent = t; $("cErr").hidden = false; };
+function addTo(entry) { C.to.push(entry); $("cTo").value = ""; paintChips(); closeSug(); saveDraftSoon(); if (!C.to.some((c) => c.bad)) $("cErr").hidden = true; }
+function commitTo(text) {
+  const s = text.trim().replace(/[,;]$/, "").trim();
+  if (!s) return;
+  const hit = CONTACTS.find((c) => c.name.toLowerCase() === s.toLowerCase() || c.addr.toLowerCase() === s.toLowerCase());
+  const entry = hit ? { ...hit } : { name: "", addr: s, bad: !validAddr(s) };
+  if (C.to.some((c) => c.addr.toLowerCase() === entry.addr.toLowerCase())) { $("cTo").value = ""; return compErr(`${entry.name || entry.addr} is already on this message.`); }
+  addTo(entry);
+  if (entry.bad) compErr(`“${s}” is not an email address. Fix it or remove it.`);
+}
+function renderSug() {
+  const q = $("cTo").value.trim().toLowerCase();
+  sugs = q ? CONTACTS.filter((c) => (c.name.toLowerCase().includes(q) || c.addr.includes(q)) && !C.to.some((t) => t.addr === c.addr)).slice(0, 5) : [];
+  if (!sugs.length) return closeSug();
+  sugI = 0;
+  $("sug").innerHTML = sugs.map((c, i) => `<button type="button" role="option" id="s${i}" data-sug="${i}" tabindex="-1" aria-selected="${i === 0}"><span class="ava">${initials(c.name)}</span>${esc(c.name)}<small>${esc(c.addr)}</small></button>`).join("");
+  $("sug").hidden = false;
+  $("cTo").setAttribute("aria-expanded", "true"); $("cTo").setAttribute("aria-activedescendant", "s0");
+}
+function paintSug() { $$("#sug button").forEach((b, i) => b.setAttribute("aria-selected", String(i === sugI))); $("cTo").setAttribute("aria-activedescendant", "s" + sugI); }
+function closeSug() { $("sug").hidden = true; sugs = []; sugI = -1; $("cTo").setAttribute("aria-expanded", "false"); $("cTo").removeAttribute("aria-activedescendant"); }
+$("cTo").addEventListener("input", () => { const v = $("cTo").value; if (/[,;]$/.test(v)) commitTo(v); else renderSug(); });
+$("cTo").addEventListener("keydown", (e) => {
+  const v = $("cTo").value.trim();
+  if ((e.key === "ArrowDown" || e.key === "ArrowUp") && sugs.length) { e.preventDefault(); sugI = (sugI + (e.key === "ArrowDown" ? 1 : -1) + sugs.length) % sugs.length; paintSug(); }
+  else if (e.key === "Enter" || (e.key === "Tab" && v)) {
+    if (sugs.length) { e.preventDefault(); addTo({ ...sugs[sugI] }); }
+    else if (v) { e.preventDefault(); commitTo(v); }
+    else if (e.key === "Enter") { e.preventDefault(); $("cSubj").focus(); }
+  }
+  else if (e.key === "Backspace" && !$("cTo").value && C.to.length) { C.to.pop(); paintChips(); saveDraftSoon(); if (!C.to.some((c) => c.bad)) $("cErr").hidden = true; }
+  else if (e.key === "Escape" && sugs.length) { e.preventDefault(); e.stopPropagation(); closeSug(); }
+});
+$("cTo").addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== $("cTo") && C.open) { closeSug(); if ($("cTo").value.trim()) commitTo($("cTo").value); } }, 120));
+$("sug").addEventListener("pointerdown", (e) => { const b = e.target.closest("[data-sug]"); if (b) { e.preventDefault(); addTo({ ...sugs[+b.dataset.sug] }); $("cTo").focus(); } });
+$("chips").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-chip]");
+  if (b) { C.to.splice(+b.dataset.chip, 1); paintChips(); saveDraftSoon(); if (!C.to.some((c) => c.bad)) $("cErr").hidden = true; }
+  $("cTo").focus();
+});
+$("cSubj").addEventListener("input", () => { C.subj = $("cSubj").value; saveDraftSoon(); });
+$("cText").addEventListener("input", () => { C.body = $("cText").value; saveDraftSoon(); });
+$("cSubj").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("cText").focus(); } });
+function minimise(on) {
+  C.min = on; paintComp();
+  if (on) { saveDraft(); focusCur(); } else (C.to.length ? $("cText") : $("cTo")).focus();
+}
+$("cTitle").addEventListener("click", () => minimise(!C.min));
+$("cMin").addEventListener("click", () => minimise(!C.min));
+$("cClose").addEventListener("click", () => { const had = C.subj.trim() || C.body.trim() || C.to.length; closeCompose(true); if (had) toast("Saved to Drafts.", false, 1800); });
+$("cDiscard").addEventListener("click", () => (C.draft ? discardDraft(C.draft) : closeCompose(false)));
+function discardDraft(d) {
+  const l = visible(), i = l.findIndex((m) => m.id === d.id);
+  if (S.cur === d.id) S.cur = (l[i + 1] || l[i - 1])?.id ?? null;
+  remove(d);
+  if (C.draft === d) { C.draft = null; C.open = false; $("compose").hidden = true; }
+  S.undo = { kind: "discard", mail: d };
+  renderList(); renderRead(false);
+  toast("Draft discarded.", true);
+  focusCur();
+}
+function sendCompose() {
+  if ($("cTo").value.trim()) commitTo($("cTo").value);
+  if (!C.to.length) { compErr("Add at least one recipient."); return $("cTo").focus(); }
+  if (C.to.some((c) => c.bad)) { compErr("One of these addresses is not valid. Fix it or remove it."); return $("cTo").focus(); }
+  saveDraft();
+  const d = C.draft, names = C.to.map((c) => c.name || c.addr), body = (C.body.trim() || "(no message)").split(/\n\n+/);
+  remove(d);
+  add({ box: "sent", order: 600 - nextId / 1e4, time: "Now", from: "To: " + names.map((n) => n.split(" ")[0]).join(", "), subj: C.subj || "No subject", snip: body[0], thread: [{ from: "You", to: "to " + names.join(", "), time: "Just now", body }] });
+  C.draft = null; C.open = false; $("compose").hidden = true;
+  if (S.cur === d.id) { S.cur = visible()[0]?.id ?? null; renderRead(false); }
+  renderList();
+  toast(`Sent to ${names.length > 2 ? names.length + " people" : names.join(" and ")}.`, false, 2400);
+  focusCur();
+}
+$("cSend").addEventListener("click", sendCompose);
+$("compose").addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); sendCompose(); }
+  if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); minimise(true); }
+});
+
+/* ---------- shortcut overlay ---------- */
+let ovBack = null;
+function openKeys() { ovBack = document.activeElement; $("ov").hidden = false; $("ovX").focus(); }
+function closeKeys() { $("ov").hidden = true; ovBack?.focus?.({ preventScroll: true }); }
+$("ovX").addEventListener("click", closeKeys);
+$("ov").addEventListener("click", (e) => { if (e.target === $("ov")) closeKeys(); });
+$("ov").addEventListener("keydown", (e) => { if (e.key === "Tab") { e.preventDefault(); $("ovX").focus(); } });
+$("help").addEventListener("click", openKeys);
+
+/* ---------- folders, bundles, search ---------- */
+function land(say_) {
+  S.sel.clear();
+  S.cur = visible()[0]?.id ?? null;
+  renderList(); renderRead();
+  $("scroll").scrollTop = 0;
+  dwellRead();
+  if (say_) say(say_);
+}
+function goFolder(f, label, fromKey) {
+  S.folder = f; S.label = label || null;
+  closeDrawer(); $("app").classList.remove("reading");
+  land(`${label || FOLDERS.find((x) => x[0] === f)[1]}, ${visible().length} conversations`);
+  if (fromKey) (rowOpen(S.cur) || document.querySelector(label ? `[data-label="${label}"]` : `[data-folder="${f}"]`))?.focus({ preventScroll: true });
+}
+function goTab(k) {
+  if (S.tab === k && inInbox()) return;
+  S.tab = k; S.folder = "inbox"; S.label = null;
+  land(`${tabName(k)}, ${visible().length} conversations`);
+}
+function setQuery(v) {
+  S.q = v; $("q").value = v;
+  $("searchWrap").classList.toggle("has", !!v);
+  const l = visible();
+  if (!l.some((m) => m.id === S.cur)) S.cur = l[0]?.id ?? null;
+  renderList(); renderRead(false);
+  $("scroll").scrollTop = 0;
+}
+function openDrawer() { $("app").classList.add("drawer"); $("menu").setAttribute("aria-expanded", "true"); $("railClose").focus(); }
+function closeDrawer() { if (!$("app").classList.contains("drawer")) return; $("app").classList.remove("drawer"); $("menu").setAttribute("aria-expanded", "false"); }
+const phone = () => innerWidth <= 720;
+
+$("q").addEventListener("input", () => setQuery($("q").value));
+$("q").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); if ($("q").value) setQuery(""); focusCur(); }
+  if ((e.key === "Enter" || e.key === "ArrowDown") && S.cur) { e.preventDefault(); setCur(S.cur, { focus: true, fade: false }); }
+});
+$("q").addEventListener("mousedown", () => showHint("search"));
+$("qClear").addEventListener("click", () => { setQuery(""); $("q").focus(); });
+$("tabs").addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+  e.preventDefault();
+  const i = TABS.findIndex((t) => t[0] === S.tab), k = TABS[(i + (e.key === "ArrowRight" ? 1 : 2)) % 3][0];
+  goTab(k); $("tab-" + k).focus();
+});
+$("write").addEventListener("click", () => { closeDrawer(); newMessage(true); });
+$("menu").addEventListener("click", openDrawer);
+$("railClose").addEventListener("click", () => { closeDrawer(); $("menu").focus(); });
+$("scrim").addEventListener("click", closeDrawer);
+$("back").addEventListener("click", () => { $("app").classList.remove("reading"); focusCur(); });
+$("undo").addEventListener("click", () => { undo(); showHint("undo"); });
+$("all").addEventListener("click", () => { selectAll(); showHint("select"); });
+$("prev").addEventListener("click", () => { move(-1); showHint("move"); });
+$("next").addEventListener("click", () => { move(1); showHint("move"); });
+$("aArchive").addEventListener("click", () => archive(true));
+$("aTrash").addEventListener("click", () => trash(true));
+$("aSnooze").addEventListener("click", (e) => openSnooze(e.currentTarget, true));
+$("aStar").addEventListener("click", () => star(true));
+$("aRead").addEventListener("click", () => toggleRead(true));
+$("aReply").addEventListener("click", () => openReply(mailBy(S.cur), true));
+
+function star(mouse, ms = targets()) {
+  if (!ms.length) return;
+  const to = !ms.every((m) => m.star);
+  ms.forEach((m) => { m.star = to; document.querySelector(`[data-star="${m.id}"]`)?.setAttribute("aria-pressed", String(to)); });
+  const cur = mailBy(S.cur); if (cur) paintTools(cur);
+  say(to ? "Starred" : "Star removed");
+  if (mouse) showHint("star");
+  if (S.folder === "starred" && !S.label && !to) { S.cur = nextAfter(ms.map((m) => m.id)); renderList(); renderRead(); }
+}
+function toggleRead(mouse) {
+  const ms = targets(); if (!ms.length) return;
+  const to = !ms.every((m) => m.un);
+  clearTimeout(dwell);
+  ms.forEach((m) => setRead(m, to));
+  say(to ? "Marked unread" : "Marked read");
+  if (mouse) showHint("read");
+}
+function toggleMsg(i, all) {
+  const m = mailBy(S.cur); if (!m?.thread.length) return;
+  S.userThread = true;
+  const els = $$("#thread .msg");
+  m.exp = els.map((el) => el.classList.contains("open"));
+  if (all) { const to = !m.exp.every(Boolean); m.exp = m.exp.map((_, k) => to || k === m.exp.length - 1); } else m.exp[i] = !m.exp[i];
+  els.forEach((el, k) => { el.classList.toggle("open", m.exp[k]); el.querySelector(".msg-h").setAttribute("aria-expanded", String(m.exp[k])); });
+}
+
+/* delegated clicks in the lists and the reader */
+document.addEventListener("click", (e) => {
+  const t = e.target, at = (s) => t.closest(s), key = e.detail === 0;
+  let el;
+  if ((el = at("a[href]"))) e.preventDefault();
+  if ((el = at("[data-folder]"))) return goFolder(el.dataset.folder, null, key);
+  if ((el = at("[data-label]"))) return goFolder("inbox", el.dataset.label, key);
+  if ((el = at("[data-soon]"))) { goFolder("snoozed"); return setCur(+el.dataset.soon, { focus: true }); }
+  if ((el = at("[data-tab]") || at("[data-tabgo]"))) return goTab(el.dataset.tab || el.dataset.tabgo);
+  if (at("[data-clearq]")) { setQuery(""); return $("q").focus(); }
+  if (at("[data-compose]")) return newMessage(true);
+  if ((el = at("[data-resume]"))) return openDraft(mailBy(+el.dataset.resume));
+  if ((el = at("[data-discard]"))) return discardDraft(mailBy(+el.dataset.discard));
+  if ((el = at("[data-pick]"))) { toggleSel(+el.dataset.pick, e.shiftKey); return showHint("select"); }
+  if ((el = at("[data-star]"))) return star(true, [mailBy(+el.dataset.star)]);
+  if ((el = at("[data-q]"))) {
+    S.sel.clear();
+    if (S.cur !== +el.dataset.id) setCur(+el.dataset.id, { scroll: false });
+    return el.dataset.q === "archive" ? archive(true) : openSnooze(el, true);
+  }
+  if ((el = at("[data-open]"))) {
+    const m = mailBy(+el.dataset.open);
+    setCur(m.id, { focus: true });
+    if (m.box === "drafts") return openDraft(m);
+    showHint("move");
+    if (phone()) { $("app").classList.add("reading"); $("back").focus({ preventScroll: true }); }
+    return;
+  }
+  if ((el = at("[data-toggle]"))) return toggleMsg(+el.dataset.toggle);
+  if ((el = at("[data-att]"))) {
+    el.innerHTML = ic("check"); el.style.color = "var(--ok)"; toast("Saved to Downloads.", false, 1800);
+    return setTimeout(() => { el.innerHTML = ic("dl"); el.style.color = ""; }, 1600);
+  }
+  if (at("#replyOpen")) openReply(mailBy(S.cur), true);
+});
+document.addEventListener("submit", (e) => e.preventDefault());
+$("bulk").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-bulk]"); if (!b) return;
+  ({ archive: () => archive(true), snooze: () => openSnooze(b, true), read: () => toggleRead(true), star: () => star(true), trash: () => trash(true), clear: () => { S.sel.clear(); paintSel(); focusCur(); } })[b.dataset.bulk]();
+});
+
+/* the keyboard is the point */
+addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target, m = mailBy(S.cur), app = $("app").classList;
+  if (!$("ov").hidden) { if (e.key === "Escape" || e.key === "?") { e.preventDefault(); closeKeys(); } return; }
+  if (snoozeOpen() || t.matches?.("input:not([type=checkbox]), textarea")) return;
+  const act = {
+    j: () => move(1), ArrowDown: () => move(1), k: () => move(-1), ArrowUp: () => move(-1),
+    e: () => archive(false), s: () => star(false), u: () => toggleRead(false), r: () => openReply(m, false),
+    x: () => S.cur && toggleSel(S.cur, e.shiftKey), "*": selectAll, z: undo, c: () => newMessage(false), o: () => toggleMsg(0, true), "?": openKeys,
+    h: () => openSnooze(S.sel.size ? $("bulk").querySelector('[data-bulk="snooze"]') : $("aSnooze"), false),
+    "/": () => { closeDrawer(); $("q").focus(); $("q").select(); },
+    "#": () => trash(false), Delete: () => trash(false),
+    1: () => goTab("primary"), 2: () => goTab("updates"), 3: () => goTab("news"),
+  }[e.key];
+  if (act && !(t.closest?.("#tabs") && /^Arrow/.test(e.key))) { e.preventDefault(); return act(); }
+  if (e.key === "Enter" && (t.classList?.contains("open") || t === document.body) && m) {
+    e.preventDefault();
+    if (m.box === "drafts") openDraft(m); else if (phone()) app.add("reading"); else $$("#thread .msg-h").at(-1)?.focus();
+  }
+  if (e.key === "Escape") {
+    if (app.contains("drawer")) { closeDrawer(); $("menu").focus(); }
+    else if (app.contains("reading")) { app.remove("reading"); focusCur(); }
+    else if (S.sel.size) { S.sel.clear(); paintSel(); }
+    else if (S.q) setQuery("");
+  }
+});
+
+/* one letter arrives while you are here */
+setTimeout(() => {
+  const m = add({ order: -1, group: "Today", time: "Now", from: "Ines Oliveira", addr: "ines@casadomar.pt", subj: "A cancellation on the 20th, if you want the terrace", snip: "A wedding has fallen through, so the terrace is free for your dinner if fourteen of you would like it.", un: true, labels: ["Travel"], thread: [{ from: "Ines Oliveira", to: "to you", time: "Just now", body: ["A wedding has fallen through, so the terrace is free for your dinner if fourteen of you would like it.", "I can hold it until Thursday at the same price. It is cold after ten, but we have blankets."] }] });
+  const top = $("scroll").scrollTop, pick = S.cur == null && inInbox() && S.tab === "primary" && !S.q;
+  if (pick) S.cur = m.id;
+  renderList();
+  if (pick) { renderRead(); dwellRead(); }
+  $("scroll").scrollTop = top;
+  if (inInbox() && S.tab === "primary" && !S.q) animateIn([m.id]);
+  say(`New message from ${m.from}: ${m.subj}`);
+}, 15000);
+
+addEventListener("resize", () => { moveInk(); if (!S.userThread && !mailBy(S.cur)?.replying) renderRead(false); });
+
+/* first paint */
+S.cur = mails[0].id;
+renderList();
+renderRead(false);
+openDraft(seeded, { min: true, focus: false });
+</script>
+</body>
+</html>

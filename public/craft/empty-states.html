@@ -1,0 +1,814 @@
+<!doctype html>
+<!-- Empty states — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Six designed empty states inside a small team app: no projects, no search results, inbox zero,
+     offline, no access and a failed upload. Each drawing drifts and leans toward the pointer, and each
+     primary action really works: create a project, fix the search, reconnect, request access, retry. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Empty states</title>
+<style>
+  :root {
+    --page: #e9e5dc; --win: #fbfaf7; --side: #f3f0e9; --hover: #efebe3; --line: #e4dfd5; --line-2: #d3ccbe;
+    --ink: #22201d; --ink-2: #55504a; --ink-3: #6b655c;
+    --paper: #fffdf8; --shade: #ebe4d6; --shade-2: #dbd2c2; --acc: #ec8143; --acc-ink: #a4461a; --wash: #fbebdf;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--page); color: var(--ink); font: 14px/1.5 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  button:disabled { cursor: default; }
+  :focus-visible { outline: 2px solid var(--acc-ink); outline-offset: 2px; }
+  .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .shell { display: flex; flex-direction: column; height: 100%; padding: 16px 24px 24px; }
+
+  /* the switcher */
+  .bar { display: flex; align-items: center; gap: 16px; height: 40px; margin-bottom: 12px; }
+  .bar-t { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .bar-t b { color: var(--ink); font-weight: 600; }
+  .tabs { position: relative; display: flex; padding: 3px; margin-left: auto; background: #dfd9cd; border-radius: 9px; }
+  .tabs .thumb { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; background: var(--win); border-radius: 6px; box-shadow: 0 1px 2px rgba(34, 32, 29, .14), 0 0 0 1px rgba(34, 32, 29, .05); transition: transform .28s var(--ease), width .28s var(--ease); }
+  .tab { position: relative; height: 30px; padding: 0 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--ink-2); white-space: nowrap; transition: color .15s; }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--ink); }
+  .reset { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border-radius: 7px; font-size: 13px; color: var(--ink-2); }
+  .reset:hover { background: #dfd9cd; color: var(--ink); }
+  .reset .ic { width: 16px; height: 16px; }
+
+  /* the app */
+  .win { flex: 1; min-height: 0; display: grid; grid-template-columns: 196px minmax(0, 1fr); background: var(--win); border-radius: 12px; box-shadow: 0 0 0 1px rgba(34, 32, 29, .08), 0 12px 32px -18px rgba(34, 32, 29, .35); overflow: hidden; }
+  .side { display: flex; flex-direction: column; gap: 2px; padding: 12px 10px; background: var(--side); border-right: 1px solid var(--line); min-height: 0; }
+  .ws { display: flex; align-items: center; gap: 10px; padding: 6px 8px 14px; font-weight: 600; font-size: 14px; }
+  .ws svg { width: 24px; height: 24px; flex: none; }
+  .nav { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 8px; border-radius: 7px; color: var(--ink-2); font-size: 14px; text-align: left; width: 100%; }
+  .nav:hover { background: var(--hover); color: var(--ink); }
+  .nav[aria-current="page"] { background: #e8e3d9; color: var(--ink); font-weight: 500; }
+  .nav .ic { width: 17px; height: 17px; }
+  .nav .n { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+  .side h3 { font-size: 12px; font-weight: 500; color: var(--ink-3); padding: 16px 8px 6px; }
+  .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 8px; font-size: 13px; color: var(--ink-2); }
+  .av { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 10.5px; font-weight: 600; color: var(--ink); background: var(--shade); flex: none; letter-spacing: .02em; }
+
+  .main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .top { display: flex; align-items: center; gap: 16px; height: 52px; padding: 0 16px 0 20px; border-bottom: 1px solid var(--line); flex: none; }
+  .crumb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-3); white-space: nowrap; min-width: 0; overflow: hidden; }
+  .crumb b { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+  .crumb .ic { width: 14px; height: 14px; color: var(--shade-2); stroke-width: 2; }
+  .search { position: relative; margin-left: auto; width: 260px; flex: none; }
+  .search .ic { position: absolute; left: 10px; top: 9px; width: 16px; height: 16px; color: var(--ink-3); pointer-events: none; }
+  .search input { width: 100%; height: 34px; padding: 0 10px 0 34px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--paper); font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; }
+  .search input::placeholder { color: var(--ink-3); }
+  .search input:focus { border-color: var(--ink-2); box-shadow: 0 0 0 3px rgba(236, 129, 67, .22); }
+  .search input::-webkit-search-cancel-button { display: none; }
+
+  .banner { display: flex; align-items: center; gap: 10px; padding: 8px 20px; background: var(--wash); border-bottom: 1px solid #f1d6c2; font-size: 13px; color: var(--ink); flex: none; }
+  .banner .ic { width: 16px; height: 16px; color: var(--acc-ink); }
+  .banner button { margin-left: auto; font-weight: 500; color: var(--acc-ink); text-decoration: underline; text-underline-offset: 3px; }
+  .banner[hidden] { display: none; }
+
+  .stage { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+  .in { animation: rise .26s var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+  /* the empty state itself */
+  .es { margin: auto; width: 100%; max-width: 460px; padding: 24px 24px 32px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .art { width: 216px; height: 144px; margin-bottom: 12px; }
+  .es.tight .art { width: 168px; height: 112px; margin-bottom: 8px; }
+  .ill { width: 100%; height: 100%; overflow: visible; }
+  .es h2 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
+  .es h2:focus { outline: none; }
+  .es h2 q { quotes: "\201C" "\201D"; }
+  .es-p { margin-top: 6px; color: var(--ink-2); font-size: 14px; line-height: 22px; max-width: 400px; text-wrap: pretty; }
+  .acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+  .note { margin-top: 16px; font-size: 13px; color: var(--ink-3); }
+  kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; font: 500 11px var(--sans); color: var(--ink-2); background: var(--paper); }
+  .status { min-height: 20px; margin-top: 12px; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; justify-content: center; }
+  .status.ok span::before { content: ""; display: inline-block; width: 10px; height: 5px; margin: 0 8px 3px 0; border: solid currentColor; border-width: 0 0 1.75px 1.75px; transform: rotate(-45deg); }
+  .status.ok { color: #2f6b45; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 8px; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s, transform .15s; }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn .ic { width: 16px; height: 16px; }
+  .pri { background: var(--ink); color: var(--win); }
+  .pri:hover:not(:disabled) { background: #000; }
+  .pri:disabled { background: #6c665d; }
+  .sec { border: 1px solid var(--line-2); background: var(--paper); }
+  .sec:hover:not(:disabled) { background: var(--hover); border-color: #c4bcac; }
+  .sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .icb { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 7px; color: var(--ink-3); flex: none; }
+  .icb:hover { background: var(--hover); color: var(--ink); }
+  .icb .ic { width: 16px; height: 16px; }
+  .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(251, 250, 247, .35); border-top-color: var(--win); animation: turn .8s linear infinite; }
+  @keyframes turn { to { transform: rotate(1turn); } }
+
+  /* forms */
+  .form { width: 100%; max-width: 400px; margin-top: 20px; text-align: left; }
+  .form label, .form legend { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .field-row { display: flex; gap: 8px; }
+  .inp { flex: 1; min-width: 0; height: 36px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--paper); outline: none; font-size: 14px; transition: border-color .15s, box-shadow .15s; }
+  textarea.inp { display: block; width: 100%; height: 76px; padding: 8px 12px; resize: none; line-height: 20px; }
+  .inp::placeholder { color: #8a8378; }
+  .inp:focus { border-color: var(--ink-2); box-shadow: 0 0 0 3px rgba(236, 129, 67, .22); }
+  .inp[aria-invalid="true"] { border-color: #b4441c; box-shadow: 0 0 0 3px rgba(180, 68, 28, .14); }
+  .err { min-height: 20px; margin-top: 6px; font-size: 13px; color: #a3381a; }
+  .form-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .form-foot .count { margin-right: auto; font-size: 12px; color: var(--ink-3); }
+  fieldset { border: 0; }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--side); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 14px; }
+  .seg label { position: relative; margin: 0; height: 28px; padding: 0 12px; display: grid; place-items: center; border-radius: 6px; font-weight: 500; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  .seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .seg label:has(input:checked) { background: var(--paper); color: var(--ink); box-shadow: 0 1px 2px rgba(34, 32, 29, .14), 0 0 0 1px rgba(34, 32, 29, .05); }
+  .seg label:has(input:focus-visible) { outline: 2px solid var(--acc-ink); outline-offset: 1px; }
+
+  /* small bits */
+  .owner { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 10px 14px 10px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); text-align: left; }
+  .owner .av { width: 32px; height: 32px; font-size: 12px; background: #e7dccb; }
+  .owner b { display: block; font-size: 14px; font-weight: 500; line-height: 20px; }
+  .owner span { font-size: 13px; color: var(--ink-3); }
+  .fixes { list-style: none; width: 100%; max-width: 380px; margin-top: 16px; border-top: 1px solid var(--line); text-align: left; }
+  .fixes li { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+  .fixes button { font-weight: 500; font-size: 14px; color: var(--acc-ink); text-decoration: underline; text-decoration-color: rgba(164, 70, 26, .35); text-underline-offset: 3px; }
+  .fixes button:hover { text-decoration-color: currentColor; }
+  .fixes b { font-weight: 600; }
+  .file { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 4px 12px; align-items: center; width: 100%; max-width: 380px; margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); text-align: left; }
+  .file .fi { grid-row: span 2; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 7px; background: var(--side); color: var(--ink-2); }
+  .file b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file small { font-size: 12px; color: var(--ink-3); }
+  .file small.bad { color: #a3381a; }
+  .meter { grid-column: 2; height: 4px; border-radius: 2px; background: var(--shade); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; background: var(--acc); border-radius: 2px; }
+  .file.failed .meter i { background: #c9a28a; }
+
+  /* lists that replace an empty state */
+  .pane { padding: 20px 24px 24px; }
+  .pane-h { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .pane-h h2 { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+  .pane-h h2:focus { outline: none; }
+  .pane-h .cnt { font-size: 13px; color: var(--ink-3); }
+  .pane-h .btn, .pane-h .push { margin-left: auto; }
+  .rows { list-style: none; border-top: 1px solid var(--line); }
+  .rows li { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  .rows li.new { animation: rise .3s var(--ease) both; }
+  .rows .tx { flex: 1; min-width: 0; }
+  .rows .tx b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rows .tx span { display: block; font-size: 13px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rows .tx mark { background: var(--wash); color: inherit; border-radius: 3px; box-shadow: 0 0 0 1px #f3d4bf; }
+  .sq { width: 28px; height: 28px; border-radius: 7px; flex: none; display: grid; place-items: center; color: var(--ink-2); background: var(--side); border: 1px solid var(--line); }
+  .sq .ic { width: 15px; height: 15px; }
+  .tag { font-size: 12px; color: var(--ink-3); white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+  .tag .ic { width: 14px; height: 14px; }
+  .tag.ok { color: #2f6b45; }
+  .faces { display: flex; }
+  .faces .av { width: 22px; height: 22px; font-size: 9.5px; box-shadow: 0 0 0 2px var(--win); }
+  .faces .av + .av { margin-left: -6px; }
+  .scope { display: flex; align-items: center; gap: 8px; padding: 12px 24px 0; font-size: 13px; color: var(--ink-3); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 4px 0 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--paper); color: var(--ink); font-size: 13px; }
+  .chip button { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 4px; color: var(--ink-3); }
+  .chip button:hover { background: var(--hover); color: var(--ink); }
+  .chip .ic { width: 12px; height: 12px; stroke-width: 2; }
+  .recent { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+
+  /* popover */
+  .pop-wrap { position: relative; }
+  .pop { position: absolute; left: 50%; bottom: calc(100% + 8px); width: 280px; transform: translateX(-50%); padding: 6px; background: var(--paper); border-radius: 10px; box-shadow: 0 0 0 1px rgba(34, 32, 29, .1), 0 12px 28px -10px rgba(34, 32, 29, .3); text-align: left; z-index: 5; animation: pop .18s var(--ease) both; }
+  @keyframes pop { from { opacity: 0; transform: translate(-50%, 4px); } }
+  .pop h3 { font-size: 12px; font-weight: 500; color: var(--ink-3); padding: 6px 8px 4px; }
+  .sw { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px; border-radius: 7px; font-size: 13px; text-align: left; }
+  .sw:hover { background: var(--hover); }
+  .sw span { flex: 1; }
+  .sw i { position: relative; width: 30px; height: 18px; border-radius: 9px; background: var(--shade-2); flex: none; transition: background-color .2s; }
+  .sw i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); transition: transform .2s var(--ease); }
+  .sw[aria-checked="true"] i { background: var(--ink); }
+  .sw[aria-checked="true"] i::after { transform: translateX(12px); }
+
+  .toast { position: absolute; left: 50%; bottom: 20px; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); padding: 10px 14px; border-radius: 9px; background: var(--ink); color: var(--win); font-size: 13px; transform: translate(-50%, 8px); opacity: 0; pointer-events: none; transition: opacity .2s, transform .25s var(--ease); z-index: 6; }
+  .toast .ic { width: 16px; height: 16px; color: #f2a679; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* the drawings */
+  .ill .k { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ill .p { fill: var(--paper); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .ill .s { fill: var(--shade); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .ill .a { fill: var(--acc); stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
+  .ill .t { fill: none; stroke: var(--shade-2); stroke-width: 5; stroke-linecap: round; }
+  .ill .d { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-dasharray: .5 6; }
+  .ill .L { transform: translate(calc(var(--px, 0) * var(--d) * 8px), calc(var(--py, 0) * var(--d) * 5px)); transition: transform .5s var(--ease); }
+  .ill g[class^="i-"] { transform-box: fill-box; transform-origin: 50% 50%; }
+  .i-pencil { animation: pencil 3.6s ease-in-out infinite; transform-origin: 0 100% !important; }
+  @keyframes pencil { 25% { transform: translate(-2px, 2px) rotate(-2deg); } 50% { transform: translate(1px, 3px); } 75% { transform: translate(2px, 0) rotate(1.5deg); } }
+  .i-sheet { animation: sheet 6s ease-in-out infinite; }
+  @keyframes sheet { 50% { transform: rotate(-1.5deg) translateY(-1px); } }
+  .i-lens { animation: lens 5.5s ease-in-out infinite; }
+  @keyframes lens { 30% { transform: translate(-7px, -2px) rotate(-3deg); } 65% { transform: translate(5px, 1px) rotate(2deg); } }
+  .i-sun { animation: sun 7s ease-in-out infinite; }
+  @keyframes sun { 50% { transform: translateY(-5px); } }
+  .i-plane { animation: plane 4.8s ease-in-out infinite; }
+  @keyframes plane { 50% { transform: translate(4px, -4px) rotate(4deg); } }
+  .i-plug { animation: plug 3.8s ease-in-out infinite; transform-origin: 0 50% !important; }
+  @keyframes plug { 50% { transform: rotate(-3deg) translateY(-1px); } }
+  .plug-go { transition: transform .5s var(--ease); }
+  .ill.on .plug-go { transform: translateX(22px); }
+  .ill.on .i-plug { animation: none; }
+  .sparks { transition: opacity .2s; }
+  .ill.on .sparks { opacity: 0; }
+  .ill.on .lit { fill: var(--acc); }
+  .bar-f { transition: opacity .2s; }
+  .ill.busy .bar-f { opacity: 0; }
+  .i-key { animation: key 4.4s ease-in-out infinite; }
+  @keyframes key { 50% { transform: rotate(-8deg) translateY(-2px); } }
+  .i-arrow { animation: arrow 2.2s ease-in-out infinite; }
+  @keyframes arrow { 50% { transform: translateY(-3px); } }
+
+  @media (max-width: 860px) {
+    .bar { flex-wrap: wrap; height: auto; }
+    .bar-t { width: 100%; }
+    .tabs { margin-left: 0; flex: 1; }
+    .tab { flex: 1; padding: 0 6px; }
+    .win { grid-template-columns: minmax(0, 1fr); }
+    .side { display: none; }
+    .search { width: 200px; }
+  }
+  @media (max-width: 600px) {
+    html, body { height: auto; }
+    .shell { height: auto; min-height: 100vh; min-height: 100dvh; padding: 12px 16px 16px; }
+    .bar { gap: 8px; margin-bottom: 12px; }
+    .bar-t { width: auto; flex: 1; }
+    .tabs { order: 3; width: 100%; flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; }
+    .tabs .thumb { display: none; }
+    .tab { height: 32px; }
+    .tab[aria-selected="true"] { background: var(--win); box-shadow: 0 1px 2px rgba(34, 32, 29, .14), 0 0 0 1px rgba(34, 32, 29, .05); }
+    .win { min-height: 600px; }
+    .top { gap: 10px; padding: 0 12px; }
+    .crumb .hide-s { display: none; }
+    .search { width: auto; flex: 1; max-width: 220px; }
+    .es { padding: 24px 16px 32px; }
+    .pane { padding: 16px; }
+    .scope { padding: 12px 16px 0; }
+    .rows .faces, .rows .tag.opt { display: none; }
+    .field-row { flex-wrap: wrap; }
+    .field-row .inp { flex-basis: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <p class="bar-t"><b>Plot</b> · empty states</p>
+    <div class="tabs" role="tablist" aria-label="Empty state" id="tabs">
+      <span class="thumb" id="thumb" aria-hidden="true"></span>
+      <button class="tab" role="tab" id="t0" aria-controls="view">No projects</button>
+      <button class="tab" role="tab" id="t1" aria-controls="view">No results</button>
+      <button class="tab" role="tab" id="t2" aria-controls="view">Inbox zero</button>
+      <button class="tab" role="tab" id="t3" aria-controls="view">Offline</button>
+      <button class="tab" role="tab" id="t4" aria-controls="view">No access</button>
+      <button class="tab" role="tab" id="t5" aria-controls="view">Upload failed</button>
+    </div>
+    <button class="reset" type="button" id="reset" title="Put this state back the way it started"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/></svg>Reset</button>
+  </div>
+
+  <div class="win">
+    <aside class="side" aria-label="Plot">
+      <div class="ws"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="6" fill="#22201d"/><path d="M6 17c3-7 5 1 8-5" fill="none" stroke="#fbfaf7" stroke-width="1.75" stroke-linecap="round" stroke-dasharray=".5 3.2"/><circle cx="16.5" cy="9.5" r="2.5" fill="#ec8143"/></svg>Northfield Studio</div>
+      <nav aria-label="Main">
+        <button class="nav" type="button" data-tab="3"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z"/></svg>Home</button>
+        <button class="nav" type="button" data-tab="2"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5M5.5 5h13L21 13v6H3v-6z"/></svg>Inbox<span class="n" id="inbox-n"></span></button>
+        <button class="nav" type="button" data-tab="0"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6l2 2h8v12H4z"/></svg>Projects</button>
+        <button class="nav" type="button" data-tab="5"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></svg>Files</button>
+        <button class="nav" type="button" data-tab="1"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Search</button>
+      </nav>
+      <h3>Teams</h3>
+      <button class="nav" type="button" data-tab="0" data-team="Design"><span class="av" style="width:17px;height:17px;border-radius:5px;font-size:9px;background:#e3dccd">D</span>Design</button>
+      <button class="nav" type="button" data-tab="4"><span class="av" style="width:17px;height:17px;border-radius:5px;font-size:9px;background:#f3dcc9">F</span>Finance<svg class="ic" viewBox="0 0 24 24" aria-label="Locked" style="margin-left:auto;width:14px;height:14px;color:#8a8378"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+      <div class="me"><span class="av" style="background:#d9e2d4">KM</span>Kofi Mensah</div>
+    </aside>
+
+    <div class="main">
+      <header class="top">
+        <p class="crumb" id="crumb"></p>
+        <form class="search" role="search" id="sform">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          <label class="sr" for="q">Search Plot</label>
+          <input id="q" type="search" placeholder="Search Plot" autocomplete="off" spellcheck="false">
+        </form>
+      </header>
+      <div class="banner" id="banner" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M9 17.5a4 4 0 0 1 6 0M5.5 13.5a9 9 0 0 1 6-2.4M2 9.5a14 14 0 0 1 6.5-3.6M16 10.5a9 9 0 0 1 2.5 3M13.5 5.2A14 14 0 0 1 22 9.5"/></svg><span id="banner-t">You're offline. Changes are saved on this device.</span><button type="button" id="banner-b">Try again</button></div>
+      <section class="stage" id="view" role="tabpanel" tabindex="-1"></section>
+      <div class="toast" id="toast" role="status" aria-live="polite"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="toast-t"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const I = {
+    plus: "M12 5v14M5 12h14", check: "m5 12.5 4.5 4.5L19 7.5", trash: "M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13",
+    copy: "M9 9h10v10H9zM5 15V5h10", back: "M10 6l-6 6 6 6M4 12h16", undo: "M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3",
+    bell: "M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4", retry: "M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5",
+    doc: "M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h4", proj: "M4 5h6l2 2h8v12H4z", person: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0",
+    up: "M12 19V6M6.5 11.5 12 6l5.5 5.5", device: "M4 5h16v11H4zM2 19h20", x: "M6 6l12 12M18 6 6 18", arrow: "M5 12h14M13 6l6 6-6 6",
+    key: "M14.5 9.5a4 4 0 1 0-1.4 3L21 20.4M17 16.4l2-2",
+  };
+  const ic = (n, a = 'aria-hidden="true"') => `<svg class="ic" viewBox="0 0 24 24" ${a}><path d="${I[n]}"/></svg>`;
+
+  /* ── the drawings: ink lines, paper, one warm accent ─────────────────── */
+  const L = (d, inner) => `<g class="L" style="--d:${d}">${inner}</g>`;
+  const ground = `<path class="k" d="M34 140h120M164 140h12M186 140h20"/>`;
+  const ART = {
+    projects: () => ground +
+      L(.25, `<path class="s" d="M60 58h34a3 3 0 0 1 2.4 1.2L102 66h74a4 4 0 0 1 4 4v66H60z"/>`) +
+      L(.6, `<g class="i-sheet"><g transform="rotate(-5 120 72)"><rect class="p" x="76" y="38" width="88" height="66" rx="3"/><path class="d" d="M88 88c9-13 19 3 29-9s18-6 25-17"/><circle class="a" cx="143" cy="61" r="5"/><path class="t" d="M88 50h28"/></g></g>`) +
+      L(.15, `<path class="p" d="M52 86h136l-9 50H61z"/><path class="k" d="M106 110h28"/>`) +
+      L(1, `<g class="i-pencil"><g transform="translate(193 16) rotate(135)"><rect class="p" x="0" y="-5.5" width="44" height="11" rx="1"/><path class="k" d="M10 -5.5v11"/><path class="p" d="M44 -5.5 57 0 44 5.5z"/><path d="M53 -1.6 57 0l-4 1.6z" fill="#22201d"/><rect class="a" x="-9" y="-5.5" width="9" height="11" rx="2.5"/></g></g>`),
+    search: () => ground +
+      L(.2, `<rect class="s" x="54" y="54" width="104" height="74" rx="7"/>`) +
+      L(.45, `<rect class="p" x="68" y="40" width="108" height="76" rx="7"/><path class="t" d="M84 62h52M84 78h72M84 94h38"/>`) +
+      L(1.3, `<g class="i-lens"><path d="M166 112l17 17" stroke="#22201d" stroke-width="13" stroke-linecap="round"/><path d="M166 112l17 17" stroke="#ec8143" stroke-width="8" stroke-linecap="round"/><circle cx="148" cy="94" r="25" fill="#fffdf8" fill-opacity=".92" stroke="#22201d" stroke-width="2.5"/><path class="d" d="M140 94h16"/><path class="k" d="M134 84a16 16 0 0 1 9-6" stroke-width="2"/></g>`),
+    inbox: () => `<path class="k" d="M30 140h40M80 140h96M186 140h24"/>` +
+      L(.25, `<g class="i-sun"><circle class="a" cx="120" cy="96" r="30"/><path class="k" d="M120 52v-8M92 64l-5-6M148 64l5-6M80 88h-8M160 88h8"/></g>`) +
+      L(.55, `<path class="p" d="M60 104h120l-11 36H71z"/><path class="k" d="M94 104c0 9 5 15 12 15h28c7 0 12-6 12-15"/>`) +
+      L(1.2, `<path class="d" d="M136 72c14-10 26-14 42-22"/><g class="i-plane"><path class="p" d="M178 50 206 38l-10 26-7-9z"/><path class="k" d="M189 55 206 38"/></g>`),
+    offline: (on) => `<path class="k" d="M34 140h70M114 140h92"/>` +
+      L(.7, `<g class="plug-go"><g class="i-plug"><path class="k" d="M20 124c26 0 30-30 62-30" stroke-width="2.5"/><rect class="a" x="82" y="80" width="34" height="28" rx="6"/><path class="k" d="M92 88v12" /><path class="k" d="M116 88h13M116 100h13" stroke-width="3"/></g></g>`) +
+      L(.6, `<g class="sparks"><path class="k" d="M138 76l4 5M141 94h6M138 112l4-5"/></g>`) +
+      L(.25, `<rect class="p" x="154" y="62" width="52" height="64" rx="10"/><rect class="s lit" x="160" y="84" width="10" height="5" rx="1.5"/><rect class="s lit" x="160" y="96" width="10" height="5" rx="1.5"/><circle class="k" cx="192" cy="72" r="2.5"/><circle class="k" cx="192" cy="116" r="2.5"/>`),
+    access: () => ground +
+      L(.2, `<path class="s" d="M80 140V30h80v110"/>`) +
+      L(.4, `<rect class="p" x="88" y="38" width="64" height="102"/><rect class="k" x="98" y="48" width="44" height="30" rx="2"/><path class="t" d="M98 92h24"/><circle class="k" cx="141" cy="96" r="3.5"/><path class="k" d="M141 106v8"/><circle cx="141" cy="106" r="2.6" fill="#22201d"/>`) +
+      L(1.1, `<g class="i-key"><circle class="a" cx="182" cy="68" r="11"/><circle class="p" cx="182" cy="68" r="3.5"/><path class="k" d="M193 68h24M209 68v7M215 68v9" stroke-width="2.5"/></g>`),
+    upload: () => L(.15, `<rect x="56" y="146" width="128" height="6" rx="3" fill="#ebe4d6" stroke="#22201d" stroke-width="2"/><g class="bar-f"><rect x="57" y="147" width="80" height="4" rx="2" fill="#ec8143"/><path class="k" d="M137 142l4 4-4 4 4 4"/></g>`) +
+      L(.4, `<path class="p" d="M82 26h50l22 22v84H82z"/><path class="s" d="M132 26v22h22"/><path class="t" d="M96 64h40M96 78h44M96 92h30"/>`) +
+      L(1, `<circle class="p" cx="156" cy="116" r="20"/><g class="i-arrow"><path class="k" d="M156 126v-6M156 114v-6M148.5 115.5 156 108l7.5 7.5" stroke-width="2.5"/></g>`),
+  };
+  const art = (k, extra = "") => `<div class="art"><svg class="ill ${extra}" viewBox="0 0 240 160" aria-hidden="true" data-art="${k}">${ART[k](extra)}</svg></div>`;
+
+  /* ── data ────────────────────────────────────────────────────────────── */
+  const DOCS = [
+    ["Finance roadmap 2027", "doc", "Finance", "Edited by Thandiwe Mokoena · 2 days ago"],
+    ["Q3 payroll review", "proj", "Finance", "12 tasks · due 14 Nov"],
+    ["Supplier payments process", "doc", "Finance", "Edited by Yusuf Demir · last week"],
+    ["Spring product roadmap", "doc", "Design", "Edited by Kenji Watanabe · yesterday"],
+    ["Roadmap workshop notes", "doc", "Design", "Edited by Inês Carvalho · 3 Oct"],
+    ["Brand refresh", "proj", "Design", "24 tasks · 6 people"],
+    ["Riverside site survey", "proj", "Field ops", "9 tasks · due Friday"],
+    ["Inês Carvalho", "person", "Design", "Senior designer · Lisbon"],
+    ["Kenji Watanabe", "person", "Design", "Design lead · Osaka"],
+    ["Onboarding checklist", "doc", "People", "Edited by Amara Okafor · 1 Nov"],
+  ];
+  const VOCAB = [...new Set(DOCS.flatMap((d) => (d[0] + " " + d[2]).toLowerCase().split(/[^a-z0-9ê]+/)).filter((w) => w.length > 2))];
+  const DONE = [
+    ["KW", "#dfe3ef", "Kenji Watanabe asked you to review", "Spring product roadmap", "11:42"],
+    ["AO", "#efe0d6", "Amara Okafor mentioned you in", "Onboarding checklist", "10:15"],
+    ["TM", "#f3dcc9", "Thandiwe Mokoena assigned you", "Approve October invoices", "Yesterday"],
+    ["IC", "#dde8dc", "Inês Carvalho replied in", "Brand refresh", "Mon"],
+  ];
+  const COLORS = ["#ec8143", "#6f8f7a", "#7b86b0", "#c4a14a", "#a7685a"];
+
+  const fresh = () => ({
+    proj: { list: [], form: false, err: "", draft: "", made: 0 },
+    search: { q: "finanse roadmap", scope: true },
+    inbox: { view: "zero", items: [], done: DONE.map((d, i) => ({ id: i, d })), pop: false, prefs: [true, false, false] },
+    off: { phase: "idle", tries: 0, left: 5 },
+    perm: { phase: "idle", role: "view", note: "" },
+    up: { phase: "failed", pct: 64, copied: false },
+  });
+  let S = fresh();
+  let tab = 0;
+  const timers = { off: [], perm: [], up: [], copy: [] };
+  const clear = (k) => { timers[k].forEach((t) => { clearTimeout(t); clearInterval(t); }); timers[k] = []; };
+
+  /* ── helpers ─────────────────────────────────────────────────────────── */
+  const view = $("view"), qIn = $("q");
+  const es = ({ art: a, title, body, extra = "", acts = "", note = "", tight = false, status = null }) => `
+    <div class="es${tight ? " tight" : ""}">${a}
+      <h2 id="es-h" tabindex="-1">${title}</h2>
+      <p class="es-p">${body}</p>${extra}
+      ${acts ? `<div class="acts">${acts}</div>` : ""}
+      ${status !== null ? `<p class="status${status.ok ? " ok" : ""}" id="status" role="status"><span>${status.html || ""}</span></p>` : ""}
+      ${note ? `<p class="note">${note}</p>` : ""}
+    </div>`;
+  const B = (act, label, cls = "pri", icon = "", attrs = "") => `<button type="button" class="btn ${cls}" data-act="${act}" ${attrs}>${icon ? ic(icon) : ""}${label}</button>`;
+  let tt = 0;
+  function toast(msg) {
+    $("toast-t").textContent = msg;
+    const t = $("toast"); t.classList.add("on");
+    clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2800);
+  }
+
+  /* ── 0 · projects ────────────────────────────────────────────────────── */
+  const projForm = () => `
+    <form class="form" data-form="proj" novalidate>
+      <label for="pn">Project name</label>
+      <div class="field-row"><input class="inp" id="pn" maxlength="60" placeholder="e.g. Harbour Street fit-out" value="${esc(S.proj.draft)}" aria-describedby="pn-err"${S.proj.err ? ' aria-invalid="true"' : ""}>
+        <button class="btn pri" type="button" data-act="p-save">Create</button><button class="btn sec" type="button" data-act="p-cancel">Cancel</button></div>
+      <p class="err" id="pn-err" aria-live="polite">${esc(S.proj.err)}</p>
+    </form>`;
+  function vProjects() {
+    const P = S.proj;
+    if (!P.list.length) return es({
+      art: art("projects"), tight: P.form, title: "No projects yet",
+      body: "A project keeps a plan, its files and the people working on it in one place. Start one for whatever your team is doing next.",
+      extra: P.form ? projForm() : "",
+      acts: P.form ? "" : B("p-new", "Create project", "pri", "plus") + B("p-tpl", "Start from a template", "sec"),
+      note: P.form ? "" : "You can also press <kbd>N</kbd> anywhere in Plot.",
+    });
+    return `<div class="pane">
+      <div class="pane-h"><h2 id="es-h" tabindex="-1">Projects</h2><span class="cnt">${P.list.length}</span>${P.form ? "" : B("p-new", "New project", "pri sm", "plus")}</div>
+      ${P.form ? `<div style="max-width:440px;margin:-8px 0 8px">${projForm()}</div>` : ""}
+      <ul class="rows">${P.list.map((p) => `<li class="${p.fresh ? "new" : ""}">
+        <span class="sq" style="background:${p.c};border-color:transparent;color:#fff">${ic("proj")}</span>
+        <span class="tx"><b>${esc(p.name)}</b><span>${esc(p.meta)}</span></span>
+        <span class="faces" aria-label="Members: Kofi Mensah${p.tpl ? ", Inês Carvalho, Kenji Watanabe" : ""}"><span class="av" style="background:#d9e2d4">KM</span>${p.tpl ? '<span class="av" style="background:#dde8dc">IC</span><span class="av" style="background:#dfe3ef">KW</span>' : ""}</span>
+        <button class="icb" type="button" data-act="p-del" data-id="${p.id}" aria-label="Delete ${esc(p.name)}">${ic("trash")}</button></li>`).join("")}</ul>
+    </div>`;
+  }
+  function addProject(name, tpl) {
+    const P = S.proj;
+    P.list.forEach((p) => (p.fresh = false));
+    P.list.unshift({ id: ++P.made, name, tpl, fresh: true, c: COLORS[(P.made - 1) % COLORS.length], meta: tpl ? "From the Weekly planning template · 6 tasks · 3 people" : "Created just now by you · no tasks yet" });
+    P.form = false; P.err = ""; P.draft = "";
+    render(true, "#es-h");
+    toast(`“${name}” is ready`);
+  }
+
+  /* ── 1 · search ──────────────────────────────────────────────────────── */
+  const words = (q) => q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  function find(q, scope) {
+    const w = words(q);
+    if (!w.length) return [];
+    return DOCS.filter((d) => (!scope || d[2] === "Design") && w.every((x) => (d[0] + " " + d[2]).toLowerCase().split(/[^a-z0-9ê]+/).some((t) => t.startsWith(x))));
+  }
+  function lev(a, b) {
+    const m = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) m[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return m[a.length][b.length];
+  }
+  function suggest(q) {
+    let changed = false;
+    const out = words(q).map((w) => {
+      if (VOCAB.some((v) => v.startsWith(w))) return w;
+      let best = null, bd = 3;
+      VOCAB.forEach((v) => { const d = lev(w, v); if (d < bd && d <= Math.max(1, Math.floor(w.length / 3))) { bd = d; best = v; } });
+      if (best) { changed = true; return best; }
+      return w;
+    });
+    return changed ? out.join(" ") : null;
+  }
+  const hl = (s, q) => { let h = esc(s); words(q).forEach((w) => { h = h.replace(new RegExp(`(^|[^a-zê])(${w.replace(/[^a-z0-9ê]/g, "")})`, "gi"), "$1<mark>$2</mark>"); }); return h; };
+  const KIND = { doc: ["doc", "Doc"], proj: ["proj", "Project"], person: ["person", "Person"] };
+  function vSearch() {
+    const { q, scope } = S.search;
+    const scopeRow = `<div class="scope">Searching ${scope ? `<span class="chip">In: Design<button type="button" data-act="s-scope" aria-label="Remove the Design filter and search every team">${ic("x")}</button></span>` : "every team"}</div>`;
+    if (!words(q).length) return scopeRow + es({
+      art: art("search"), title: "Search projects, docs and people",
+      body: "Start typing in the search box above. Recent searches from your team:",
+      extra: `<div class="recent">${["Riverside", "payroll", "Kenji"].map((r) => `<button type="button" class="btn sec sm" data-act="s-try" data-q="${r}">${r}</button>`).join("")}</div>`,
+    });
+    const res = find(q, scope);
+    if (res.length) return scopeRow + `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">${res.length} ${res.length === 1 ? "result" : "results"} for “${esc(q.trim())}”</h2></div>
+      <ul class="rows">${res.map((d) => `<li><span class="sq">${ic(KIND[d[1]][0])}</span><span class="tx"><b>${hl(d[0], q)}</b><span>${KIND[d[1]][1]} · ${d[2]} · ${esc(d[3])}</span></span></li>`).join("")}</ul></div>`;
+    const sug = suggest(q), wantScope = scope && find(sug || q, false).length > 0;
+    const w = words(q);
+    let primary;
+    if (sug && scope) primary = B("s-both", `Search all teams for “${esc(sug)}”`, "pri", "", `data-q="${esc(sug)}"`);
+    else if (sug) primary = B("s-try", `Search for “${esc(sug)}”`, "pri", "", `data-q="${esc(sug)}"`);
+    else if (scope) primary = B("s-scope", "Search every team", "pri");
+    else primary = B("s-clear", "Clear search", "pri");
+    const fixes = [];
+    if (sug) fixes.push(`<li><button type="button" data-act="s-try" data-q="${esc(sug)}">Search for “${esc(sug)}”</button><span>“${esc(w.find((x, i) => x !== words(sug)[i]) || "")}” may be misspelled</span></li>`);
+    if (scope) fixes.push(`<li><button type="button" data-act="s-scope">Search every team</button><span>${wantScope ? "there are matches outside Design" : "not just Design"}</span></li>`);
+    const pool = words(sug || q), hit = pool.find((x) => find(x, scope).length) || pool.find((x) => VOCAB.includes(x));
+    if (w.length > 1 && hit) { const last = hit; fixes.push(`<li><button type="button" data-act="s-try" data-q="${esc(last)}">Try just “${esc(last)}”</button><span>fewer words find more</span></li>`); }
+    return scopeRow + es({
+      art: art("search"), tight: true,
+      title: `No results for <q>${esc(q.trim())}</q>`,
+      body: `We looked through projects, docs and people ${scope ? "in the Design team" : "in every team"}. A few things to try:`,
+      extra: fixes.length ? `<ul class="fixes">${fixes.join("")}</ul>` : "",
+      acts: primary + (primary.includes("s-clear") ? "" : B("s-clear", "Clear search", "sec")),
+    });
+  }
+  function setQuery(q, focusSel = "#es-h") { S.search.q = q; qIn.value = q; render(true, focusSel); }
+
+  /* ── 2 · inbox ───────────────────────────────────────────────────────── */
+  const PREFS = ["Email me a daily summary at 08:00", "Only notify me when I'm mentioned", "Pause notifications until tomorrow"];
+  const row2 = (it, act, label, icon) => `<li class="${it.fresh ? "new" : ""}"><span class="av" style="background:${it.d[1]}">${it.d[0]}</span><span class="tx"><b>${esc(it.d[3])}</b><span>${esc(it.d[2])} · ${it.d[4]}</span></span><button class="btn sec sm" type="button" data-act="${act}" data-id="${it.id}" aria-label="${label}: ${esc(it.d[3])}">${ic(icon)}${label}</button></li>`;
+  function vInbox() {
+    const X = S.inbox;
+    if (X.view === "done") return `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">Cleared</h2><span class="cnt">last 30 days</span><button class="btn sec sm push" type="button" data-act="i-back">${ic("back")}Back to inbox</button></div>
+      ${X.done.length ? `<ul class="rows">${X.done.map((it) => row2(it, "i-restore", "Move to inbox", "undo")).join("")}</ul>` : `<p class="note" style="margin-top:16px">Nothing cleared in the last 30 days.</p>`}</div>`;
+    if (X.items.length) return `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">Inbox</h2><span class="cnt">${X.items.length} waiting</span><button class="btn sec sm push" type="button" data-act="i-done-view">See cleared</button></div>
+      <ul class="rows">${X.items.map((it) => row2(it, "i-done", "Done", "check")).join("")}</ul></div>`;
+    return es({
+      art: art("inbox"), title: "Nothing needs you right now",
+      body: "Mentions, review requests and tasks assigned to you will land here. You cleared the last one at 11:42.",
+      acts: B("i-done-view", "See what you cleared", "pri") +
+        `<span class="pop-wrap">${B("i-pop", "Notification settings", "sec", "bell", `aria-expanded="${X.pop}" aria-controls="pop"`)}${X.pop ? `<div class="pop" id="pop" role="group" aria-label="Notification settings"><h3>Notifications</h3>${PREFS.map((p, i) => `<button type="button" class="sw" role="switch" aria-checked="${X.prefs[i]}" data-act="i-pref" data-id="${i}"><span>${p}</span><i aria-hidden="true"></i></button>`).join("")}</div>` : ""}</span>`,
+    });
+  }
+
+  /* ── 3 · offline ─────────────────────────────────────────────────────── */
+  const RECENT = [["Riverside site survey", "Edited 4 min ago"], ["Brand refresh moodboard", "Edited 12 min ago"], ["Supplier payments process", "Edited 31 min ago"]];
+  function vOffline() {
+    const O = S.off;
+    if (O.phase === "local" || O.phase === "online") {
+      const on = O.phase === "online";
+      return `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">Recently edited</h2><span class="cnt">${on ? "all synced" : "3 waiting to sync"}</span></div>
+        <ul class="rows">${RECENT.map((r) => `<li><span class="sq">${ic("doc")}</span><span class="tx"><b>${r[0]}</b><span>${r[1]} by you</span></span><span class="tag ${on ? "ok" : ""}">${on ? ic("check") + "Synced" : ic("device") + "On this device"}</span></li>`).join("")}</ul></div>`;
+    }
+    const ok = O.phase === "ok", busy = O.phase === "trying";
+    const st = busy ? "Reconnecting…" : O.phase === "failed" ? `Still no connection. Trying again in <span id="left">${O.left}</span> s.` : ok ? "Connected. 3 edits synced." : "";
+    return es({
+      art: art("offline", ok ? "on" : ""), title: ok ? "You're back online" : "Plot can't reach the server",
+      body: ok ? "Everything you changed while offline is saved to your team's workspace." : "Your last 3 edits are saved on this device and will sync as soon as the connection returns. Check your Wi‑Fi or network, then try again.",
+      acts: ok ? "" : `<button type="button" class="btn pri" data-act="o-try"${busy ? " disabled" : ""}>${busy ? '<span class="spin" aria-hidden="true"></span>Reconnecting' : ic("retry") + "Try again"}</button>` + B("o-local", "Keep working offline", "sec"),
+      status: { html: st, ok },
+    });
+  }
+  function reconnect() {
+    const O = S.off;
+    if (O.phase === "trying" || O.phase === "ok" || O.phase === "online") return;
+    clear("off");
+    O.phase = "trying"; O.tries++;
+    if (tab === 3) render(false, "[data-act=o-try]");
+    timers.off.push(setTimeout(() => {
+      if (O.tries === 1) {
+        O.phase = "failed"; O.left = 5;
+        if (tab === 3) render(false, "[data-act=o-try]");
+        timers.off.push(setInterval(() => {
+          O.left--;
+          const l = $("left"); if (l && tab === 3) l.textContent = O.left;
+          if (O.left <= 0) { clear("off"); O.phase = "idle"; reconnect(); }
+        }, 1000));
+      } else {
+        O.phase = "ok";
+        if (tab === 3) render(false, "#es-h");
+        timers.off.push(setTimeout(() => { O.phase = "online"; if (tab === 3) { render(true, "#es-h"); toast("Back online. 3 edits synced."); } }, 1600));
+      }
+    }, 1500));
+  }
+
+  /* ── 4 · no access ───────────────────────────────────────────────────── */
+  const BOARD = [["October payroll run", "48 people · €212,480", "Approved"], ["Overtime, Field ops", "11 people · €8,930", "In review"], ["Contractor invoices", "7 invoices · €23,105", "Approved"], ["Holiday accruals", "Updated 1 Nov", "Draft"]];
+  function vAccess() {
+    const P = S.perm;
+    const owner = `<div class="owner"><span class="av">TM</span><span><b>Thandiwe Mokoena</b><span>Owner · Finance lead</span></span></div>`;
+    if (P.phase === "open") return `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">Q3 payroll review</h2><span class="cnt">You can view</span></div>
+      <ul class="rows">${BOARD.map((r) => `<li><span class="sq">${ic("doc")}</span><span class="tx"><b>${r[0]}</b><span>${r[1]}</span></span><span class="tag${r[2] === "Approved" ? " ok" : ""}">${r[2] === "Approved" ? ic("check") : ""}${r[2]}</span></li>`).join("")}</ul></div>`;
+    if (P.phase === "granted") return es({
+      art: art("access"), title: "Thandiwe gave you access",
+      body: `You can now ${P.role === "edit" ? "edit" : "view"} Q3 payroll review. Her note: “Happy for you to see the Q3 figures. Shout if the overtime lines look off.”`,
+      acts: B("a-open", "Open the board", "pri", "arrow"),
+    });
+    if (P.phase === "sent") return es({
+      art: art("access"), title: "Request sent to Thandiwe",
+      body: `You asked to ${P.role === "edit" ? "edit" : "view"} Q3 payroll review. We'll email you at kofi@northfield.studio when she answers. Most requests here are answered within a day.`,
+      acts: B("a-withdraw", "Withdraw request", "sec"),
+      status: { html: "Waiting for Thandiwe…" },
+    });
+    if (P.phase === "form") return es({
+      art: art("access"), tight: true, title: "Ask for access to Q3 payroll review",
+      body: "Thandiwe Mokoena owns this board. Tell her why you need it; a sentence is plenty.",
+      extra: `<form class="form" data-form="perm" novalidate>
+        <fieldset><legend>Access you need</legend><div class="seg">
+          <label><input type="radio" name="role" value="view"${P.role === "view" ? " checked" : ""}>Can view</label>
+          <label><input type="radio" name="role" value="edit"${P.role === "edit" ? " checked" : ""}>Can edit</label></div></fieldset>
+        <label for="note">Note for Thandiwe <span style="color:var(--ink-3);font-weight:400">(optional)</span></label>
+        <textarea class="inp" id="note" maxlength="200" placeholder="I'm costing the Riverside overtime and need the Q3 figures.">${esc(P.note)}</textarea>
+        <div class="form-foot"><span class="count" id="count">${P.note.length} / 200</span><button class="btn sec" type="button" data-act="a-cancel">Cancel</button><button class="btn pri" type="button" data-act="a-send">Send request</button></div>
+      </form>`,
+    });
+    return es({
+      art: art("access"), title: "You don't have access to Q3 payroll review",
+      body: "This board belongs to the Finance team. Ask its owner and you'll get an email as soon as she decides.",
+      extra: owner,
+      acts: B("a-req", "Request access", "pri") + B("a-back", "Back to projects", "sec"),
+    });
+  }
+
+  /* ── 5 · upload failed ───────────────────────────────────────────────── */
+  const MB = 18.4;
+  const fileRow = (U) => {
+    const failed = U.phase === "failed" || U.phase === "cancelled";
+    const txt = U.phase === "uploading" ? `Uploading · ${Math.floor(U.pct)}% · ${(MB * U.pct / 100).toFixed(1)} of ${MB} MB` : U.phase === "cancelled" ? `Cancelled at ${Math.floor(U.pct)}%` : `Failed at 64% · 11.8 of ${MB} MB`;
+    return `<div class="file${failed ? " failed" : ""}"><span class="fi">${ic("doc")}</span><b>Riverside survey.pdf</b><small id="up-t" class="${failed ? "bad" : ""}">${txt}</small><span class="meter" style="grid-column:1/-1;margin-top:6px" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.floor(U.pct)}" id="up-m"><i id="up-bar" style="width:${U.pct}%"></i></span></div>`;
+  };
+  function vUpload() {
+    const U = S.up;
+    if (U.phase === "done") return `<div class="pane"><div class="pane-h"><h2 id="es-h" tabindex="-1">Riverside</h2><span class="cnt">1 file</span></div>
+      <ul class="rows"><li class="new"><span class="sq">${ic("doc")}</span><span class="tx"><b>Riverside survey.pdf</b><span>18.4 MB · uploaded just now by you</span></span><span class="tag ok">${ic("check")}Uploaded</span></li></ul></div>`;
+    const up = U.phase === "uploading";
+    return es({
+      art: art("upload", up ? "busy" : ""), tight: true,
+      title: U.phase === "cancelled" ? "Upload cancelled" : up ? "Uploading Riverside survey.pdf" : "Riverside survey.pdf didn't upload",
+      body: U.phase === "cancelled" ? "Nothing was saved to this folder. Start it again whenever you're ready." : up ? "Keep this tab open until it finishes. You can carry on working in the meantime." : "The connection dropped at 64%. Nothing was saved to this folder, and the file is still on your computer.",
+      extra: fileRow(U),
+      acts: up ? B("u-cancel", "Cancel upload", "sec") : B("u-retry", "Retry upload", "pri", "retry") + `<button type="button" class="btn sec" data-act="u-copy">${ic(U.copied ? "check" : "copy")}<span>${U.copied ? "Copied" : "Copy error details"}</span></button>`,
+    });
+  }
+  function startUpload() {
+    const U = S.up;
+    if (U.phase === "uploading") return;
+    clear("up");
+    U.phase = "uploading"; U.pct = 0;
+    render(false, "[data-act=u-cancel]");
+    timers.up.push(setInterval(() => {
+      U.pct = Math.min(100, U.pct + 2.2 + (U.pct > 70 ? 1.4 : 0));
+      if (tab === 5) {
+        const b = $("up-bar"), t = $("up-t"), m = $("up-m");
+        if (b) { b.style.width = U.pct + "%"; m.setAttribute("aria-valuenow", Math.floor(U.pct)); t.textContent = `Uploading · ${Math.floor(U.pct)}% · ${(MB * U.pct / 100).toFixed(1)} of ${MB} MB`; }
+      }
+      if (U.pct >= 100) { clear("up"); U.phase = "done"; if (tab === 5) { render(true, "#es-h"); toast("Riverside survey.pdf uploaded to Riverside"); } }
+    }, 60));
+  }
+
+  /* ── render ──────────────────────────────────────────────────────────── */
+  const VIEWS = [vProjects, vSearch, vInbox, vOffline, vAccess, vUpload];
+  const CRUMB = [["Northfield", "Projects"], ["Northfield", "Search"], ["Northfield", "Inbox"], ["Northfield", "Home"], ["Finance", "Q3 payroll review"], ["Files", "Site visits", "Riverside"]];
+  const NAVMAP = [2, 4, 1, 0, 6, 3];
+  function render(animate, focusSel) {
+    view.innerHTML = VIEWS[tab]();
+    if (animate && !reduce.matches) { view.classList.remove("in"); void view.offsetWidth; view.classList.add("in"); }
+    const c = CRUMB[tab];
+    $("crumb").innerHTML = c.map((x, i) => (i === c.length - 1 ? `<b>${x}</b>` : `<span class="hide-s">${x}</span>`)).join(`<svg class="ic hide-s" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`);
+    const O = S.off;
+    $("banner").hidden = !(tab === 3 && O.phase !== "online" && O.phase !== "ok");
+    $("banner-t").textContent = O.phase === "trying" ? "Reconnecting…" : "You're offline. Changes are saved on this device.";
+    $("banner-b").hidden = O.phase !== "local";
+    const n = S.inbox.items.length; $("inbox-n").textContent = n ? n : "";
+    document.querySelectorAll(".side .nav").forEach((b, i) => (i === NAVMAP[tab] ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")));
+    if (focusSel) { const f = view.querySelector(focusSel); if (f) f.focus({ preventScroll: false }); }
+  }
+
+  /* ── switching ───────────────────────────────────────────────────────── */
+  const tabs = [...document.querySelectorAll(".tab")], thumb = $("thumb");
+  function placeThumb() {
+    const t = tabs[tab];
+    thumb.style.width = t.offsetWidth + "px";
+    thumb.style.transform = `translateX(${t.offsetLeft}px)`;
+  }
+  function go(i, focusTab) {
+    if (S.inbox.pop) S.inbox.pop = false;
+    if (i !== tab) { clearTimeout(tt); $("toast").classList.remove("on"); }
+    tab = i;
+    tabs.forEach((t, j) => { t.setAttribute("aria-selected", j === i); t.tabIndex = j === i ? 0 : -1; });
+    view.setAttribute("aria-labelledby", "t" + i);
+    if (i === 1) qIn.value = S.search.q;
+    else if (document.activeElement !== qIn) qIn.value = "";
+    placeThumb();
+    render(true);
+    if (focusTab) tabs[i].focus();
+  }
+  tabs.forEach((t, i) => t.addEventListener("click", () => go(i)));
+  $("tabs").addEventListener("keydown", (e) => {
+    const k = e.key; let i = tab;
+    if (k === "ArrowRight" || k === "ArrowDown") i = (tab + 1) % 6;
+    else if (k === "ArrowLeft" || k === "ArrowUp") i = (tab + 5) % 6;
+    else if (k === "Home") i = 0; else if (k === "End") i = 5; else return;
+    e.preventDefault(); go(i, true);
+  });
+  document.querySelectorAll(".side .nav").forEach((b) => b.addEventListener("click", () => go(+b.dataset.tab)));
+  $("reset").addEventListener("click", () => {
+    const k = ["proj", "search", "inbox", "off", "perm", "up"][tab], f = fresh();
+    if (timers[k]) clear(k);
+    if (k === "up") clear("copy");
+    S[k] = f[k];
+    if (tab === 1) qIn.value = S.search.q;
+    render(true, "#es-h");
+  });
+  addEventListener("resize", placeThumb);
+
+  /* the search box in the top bar is real */
+  qIn.addEventListener("input", () => {
+    S.search.q = qIn.value;
+    if (tab !== 1) go(1); else render(false);
+  });
+  $("sform").addEventListener("submit", (e) => { e.preventDefault(); S.search.q = qIn.value; if (tab !== 1) go(1); else render(false); });
+  $("banner-b").addEventListener("click", () => { reconnect(); render(true, "#es-h"); });
+
+  /* ── actions ─────────────────────────────────────────────────────────── */
+  view.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
+    const a = b.dataset.act, id = b.dataset.id;
+    const P = S.proj, X = S.inbox, A = S.perm, U = S.up;
+    switch (a) {
+      case "p-new": P.form = true; P.err = ""; render(false, "#pn"); break;
+      case "p-cancel": P.form = false; P.err = ""; P.draft = ""; render(false, P.list.length ? "[data-act=p-new]" : "[data-act=p-new]"); break;
+      case "p-tpl": { let n = "Weekly planning", k = 2; while (P.list.some((p) => p.name === n)) n = `Weekly planning ${k++}`; addProject(n, true); break; }
+      case "p-del": {
+        const p = P.list.find((x) => x.id === +id); P.list = P.list.filter((x) => x.id !== +id);
+        render(!P.list.length, P.list.length ? "#es-h" : "[data-act=p-new]"); toast(`Deleted “${p.name}”`); break;
+      }
+      case "s-try": setQuery(b.dataset.q); break;
+      case "s-both": S.search.scope = false; setQuery(b.dataset.q); break;
+      case "s-scope": S.search.scope = false; render(true, "#es-h"); break;
+      case "s-clear": S.search.q = ""; qIn.value = ""; render(true); qIn.focus(); break;
+      case "i-done-view": X.view = "done"; X.pop = false; render(true, "#es-h"); break;
+      case "i-back": X.view = "zero"; render(true, X.items.length ? "#es-h" : "[data-act=i-done-view]"); break;
+      case "i-restore": {
+        const it = X.done.find((x) => x.id === +id); X.done = X.done.filter((x) => x.id !== +id);
+        X.items.forEach((x) => (x.fresh = false)); it.fresh = true; X.items.unshift(it);
+        render(false, X.done.length ? `[data-act=i-restore]` : "[data-act=i-back]"); toast(`Moved “${it.d[3]}” back to your inbox`); break;
+      }
+      case "i-done": {
+        const it = X.items.find((x) => x.id === +id); X.items = X.items.filter((x) => x.id !== +id);
+        it.fresh = false; X.done.unshift(it);
+        if (!X.items.length) X.view = "zero";
+        render(!X.items.length, X.items.length ? "[data-act=i-done]" : "#es-h"); break;
+      }
+      case "i-pop": X.pop = !X.pop; render(false, X.pop ? ".sw" : "[data-act=i-pop]"); break;
+      case "i-pref": { X.prefs[+id] = !X.prefs[+id]; b.setAttribute("aria-checked", X.prefs[+id]); break; }
+      case "p-save": submit("proj"); break;
+      case "a-send": submit("perm"); break;
+      case "o-try": reconnect(); break;
+      case "o-local": clear("off"); S.off.phase = "local"; render(true, "#es-h"); break;
+      case "a-req": A.phase = "form"; render(false, "input[name=role]:checked"); break;
+      case "a-cancel": A.phase = "idle"; render(false, "[data-act=a-req]"); break;
+      case "a-back": go(0); view.querySelector("#es-h")?.focus(); break;
+      case "a-withdraw": clear("perm"); A.phase = "idle"; render(true, "[data-act=a-req]"); toast("Request withdrawn"); break;
+      case "a-open": A.phase = "open"; render(true, "#es-h"); break;
+      case "u-retry": startUpload(); break;
+      case "u-cancel": clear("up"); U.phase = "cancelled"; render(false, "[data-act=u-retry]"); break;
+      case "u-copy": {
+        const txt = "UPL-413 · Connection reset at 64% (11.8 of 18.4 MB) · Riverside survey.pdf · 3 Nov 2026, 14:12";
+        try { navigator.clipboard.writeText(txt).catch(() => {}); } catch (err) { /* the frame may refuse the clipboard */ }
+        U.copied = true; render(false, "[data-act=u-copy]");
+        clear("copy"); timers.copy.push(setTimeout(() => { U.copied = false; if (tab === 5 && U.phase !== "uploading" && U.phase !== "done") render(false, document.activeElement && document.activeElement.dataset.act === "u-copy" ? "[data-act=u-copy]" : null); }, 2000));
+        break;
+      }
+    }
+  });
+  view.addEventListener("submit", (e) => e.preventDefault());
+  view.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.isComposing) return;
+    if (e.target.id === "pn") { e.preventDefault(); submit("proj"); }
+    else if (e.target.name === "role") { e.preventDefault(); submit("perm"); }
+  });
+  function submit(f) {
+    if (f === "proj") {
+      const v = $("pn").value.trim().replace(/\s+/g, " ");
+      S.proj.draft = $("pn").value;
+      if (!v) { S.proj.err = "Give the project a name so your team can find it."; render(false, "#pn"); return; }
+      if (S.proj.list.some((p) => p.name.toLowerCase() === v.toLowerCase())) { S.proj.err = `There's already a project called “${v}”.`; render(false, "#pn"); return; }
+      addProject(v, false);
+    } else if (f === "perm") {
+      const A = S.perm;
+      A.phase = "sent"; render(true, "#es-h");
+      clear("perm");
+      timers.perm.push(setTimeout(() => { if (A.phase !== "sent") return; A.phase = "granted"; if (tab === 4) render(true, "#es-h"); else toast("Thandiwe gave you access to Q3 payroll review"); }, 4200));
+    }
+  }
+  view.addEventListener("input", (e) => {
+    if (e.target.id === "pn") { S.proj.draft = e.target.value; if (S.proj.err) { S.proj.err = ""; e.target.removeAttribute("aria-invalid"); $("pn-err").textContent = ""; } }
+    if (e.target.id === "note") { S.perm.note = e.target.value; $("count").textContent = `${e.target.value.length} / 200`; }
+    if (e.target.name === "role") S.perm.role = e.target.value;
+  });
+
+  /* Escape backs out, outside clicks close the popover, N starts a project */
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (S.inbox.pop && tab === 2) { S.inbox.pop = false; render(false, "[data-act=i-pop]"); return; }
+      if (tab === 0 && S.proj.form) { S.proj.form = false; S.proj.err = ""; S.proj.draft = ""; render(false, "[data-act=p-new]"); return; }
+      if (tab === 4 && S.perm.phase === "form") { S.perm.phase = "idle"; render(false, "[data-act=a-req]"); return; }
+      if (document.activeElement === qIn && qIn.value) { qIn.value = ""; S.search.q = ""; if (tab === 1) render(false); }
+      return;
+    }
+    const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if ((e.key === "n" || e.key === "N") && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      if (tab !== 0) go(0);
+      S.proj.form = true; render(false, "#pn");
+    }
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (S.inbox.pop && tab === 2 && !e.target.closest(".pop-wrap")) { S.inbox.pop = false; render(false); }
+  });
+
+  /* ── the drawings lean toward the pointer ────────────────────────────── */
+  view.addEventListener("pointermove", (e) => {
+    if (reduce.matches || e.pointerType === "touch") return;
+    const svg = view.querySelector(".ill"); if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    const px = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / 260));
+    const py = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / 200));
+    svg.style.setProperty("--px", px.toFixed(3)); svg.style.setProperty("--py", py.toFixed(3));
+  });
+  view.addEventListener("pointerleave", () => { const svg = view.querySelector(".ill"); if (svg) { svg.style.setProperty("--px", 0); svg.style.setProperty("--py", 0); } });
+
+  go(0);
+})();
+</script>
+</body>
+</html>

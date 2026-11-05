@@ -1,0 +1,1222 @@
+<!doctype html>
+<!-- SaaS landing page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A complete long landing page for a shared-inbox product: a live inbox where a conversation gets its
+     owner while you watch, three working feature demos, pricing, FAQ, email capture and a full footer. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Northbeam — Shared inboxes for support teams</title>
+<script>document.documentElement.classList.add("js");</script>
+<style>
+:root {
+  --bg: #fff; --paper: #f5f4f0; --ink: #121311; --soft: #565a55; --line: #e4e3dd; --line-2: #cfcec7;
+  --accent: #db3a0a; --accent-deep: #b02d05; --tint: #fcebe4; --night: #121311; --night-2: #1d1e1b; --night-line: #2e2f2b; --night-soft: #b3b4ac;
+  --sans: "Helvetica Neue", Arial, sans-serif;
+  --r: 8px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); font-variant-numeric: tabular-nums; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+button, input, textarea { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+a { color: inherit; }
+ul, ol { list-style: none; }
+svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.wrap { width: 100%; max-width: 1440px; margin-inline: auto; padding-inline: clamp(16px, 4.2vw, 60px); }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 40; padding: 10px 14px; border-radius: var(--r); background: var(--ink); color: #fff; }
+.skip:focus { top: 12px; }
+
+/* shared bits */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 20px; border-radius: var(--r); font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color .15s ease-out, border-color .15s ease-out, transform .15s ease-out; }
+.btn:active { transform: translateY(1px); }
+.btn.solid { background: var(--accent); color: #fff; }
+.btn.solid:hover { background: var(--accent-deep); }
+.btn.ink { background: var(--ink); color: #fff; }
+.btn.ink:hover { background: #2c2d2a; }
+.btn.line { box-shadow: inset 0 0 0 1px var(--line-2); }
+.btn.line:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.av { display: inline-grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--c, #3d4a3f); color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+.av.none { background: none; box-shadow: none; border: 1.5px dashed var(--line-2); }
+h2 { font-size: clamp(36px, 4.45vw, 64px); line-height: 1.02; letter-spacing: -.032em; font-weight: 500; text-wrap: balance; }
+.lede { font-size: clamp(17px, 1.4vw, 20px); line-height: 1.45; color: var(--soft); }
+section { scroll-margin-top: 72px; }
+
+/* rise on scroll: only hides anything once scripts are known to be on */
+.js .rise { opacity: 0; transform: translateY(14px); transition: opacity .35s ease-out, transform .35s var(--ease); transition-delay: var(--d, 0ms); }
+.js .rise.in { opacity: 1; transform: none; }
+
+/* navbar */
+.nav { position: sticky; top: 0; z-index: 30; background: var(--bg); border-bottom: 1px solid transparent; transition: border-color .2s ease-out; }
+.nav.stuck { border-bottom-color: var(--line); }
+.nav .wrap { display: flex; align-items: center; height: 64px; gap: 40px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; text-decoration: none; border-radius: 4px; }
+.brand svg { width: 24px; height: 24px; }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { text-decoration: none; font-size: 15px; color: var(--soft); transition: color .15s ease-out; }
+.nav-links a:hover { color: var(--ink); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+.nav-right a.in-link { text-decoration: none; font-size: 15px; color: var(--soft); }
+.nav-right a.in-link:hover { color: var(--ink); }
+.nav .btn { height: 40px; padding: 0 16px; font-size: 15px; }
+.burger { display: none; width: 40px; height: 40px; place-items: center; border-radius: var(--r); box-shadow: inset 0 0 0 1px var(--line-2); }
+.drawer { display: none; }
+
+/* hero */
+.hero-top { padding-top: clamp(32px, 4.4vw, 64px); padding-bottom: clamp(32px, 3.4vw, 48px); }
+h1 { font-size: clamp(47px, 7.62vw, 112px); line-height: .98; letter-spacing: -.042em; font-weight: 500; }
+h1 span { display: block; }
+.hero-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-top: clamp(24px, 2.5vw, 36px); }
+.hero-row .lede { max-width: 640px; color: var(--ink); }
+.hero-cta { display: flex; align-items: center; gap: 16px; flex: none; }
+.hero-cta small { font-size: 14px; line-height: 1.35; color: var(--soft); max-width: 23ch; }
+
+/* the stage and the live inbox */
+.stage { background: var(--accent); padding-block: clamp(16px, 2.8vw, 40px) 16px; }
+.mock { position: relative; }
+.win { display: grid; grid-template-columns: 196px minmax(0, 348px) minmax(0, 1fr); height: 572px; background: #fff; border-radius: 12px; overflow: hidden; font-size: 13px; line-height: 1.4; box-shadow: 0 0 0 1px rgba(60, 12, 0, .18), 0 18px 32px -20px rgba(60, 12, 0, .6); cursor: default; user-select: none; }
+.rail { background: var(--paper); border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 20px; }
+.rail .ws { display: flex; align-items: center; gap: 8px; padding: 0 8px; font-weight: 600; font-size: 14px; }
+.rail .ws svg { width: 20px; height: 20px; }
+.rail h4 { padding: 0 8px 4px; font-size: 12px; font-weight: 500; color: var(--soft); }
+.rail li { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 8px; border-radius: 6px; }
+.rail li span:last-child { color: var(--soft); }
+.rail li.on { background: #e9e8e2; font-weight: 500; }
+.rail li.on span:last-child { color: var(--ink); }
+.rail .faces { margin-top: auto; display: flex; gap: 4px; padding: 0 8px; }
+.qlist { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; }
+.q-head { display: flex; align-items: baseline; justify-content: space-between; padding: 16px 16px 12px; border-bottom: 1px solid var(--line); }
+.q-head b { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.q-head span { color: var(--soft); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); transition: background-color .2s ease-out; }
+.row .who { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row time { color: var(--soft); font-size: 12px; }
+.row .sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .own { grid-column: 2; grid-row: 2 / span 2; justify-self: end; align-self: end; }
+.row .own .av { width: 24px; height: 24px; font-size: 10px; }
+.row .due { color: var(--soft); font-size: 12px; }
+.row .due.ok { color: var(--ink); }
+.row.sel { background: var(--tint); }
+.pop { animation: pop .28s var(--ease); }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.conv { display: flex; flex-direction: column; min-width: 0; transition: opacity .2s ease-out; }
+.conv.swap { opacity: 0; }
+.c-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.c-head h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; }
+.c-head p { color: var(--soft); }
+.owner-wrap { position: relative; flex: none; display: flex; align-items: center; gap: 8px; }
+.owner-wrap > span:first-child { color: var(--soft); }
+.owner { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px 0 6px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--line-2); font-weight: 500; transition: transform .12s ease-out, background-color .15s ease-out, box-shadow .15s ease-out; }
+.owner .av { width: 24px; height: 24px; font-size: 10px; }
+.owner svg { width: 16px; height: 16px; color: var(--soft); }
+.owner.press { transform: scale(.97); background: var(--paper); }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 3; width: 248px; padding: 6px; background: #fff; border-radius: var(--r); box-shadow: 0 0 0 1px var(--line-2), 0 12px 24px -12px rgba(18, 19, 17, .28); opacity: 0; transform: translateY(-4px); transition: opacity .16s ease-out, transform .16s var(--ease); pointer-events: none; }
+.menu.open { opacity: 1; transform: none; }
+.menu li { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; height: 40px; padding: 0 8px; border-radius: 5px; transition: background-color .12s ease-out; }
+.menu .av { width: 24px; height: 24px; font-size: 10px; }
+.menu li span:last-child { color: var(--soft); font-size: 12px; }
+.menu li.hov { background: var(--tint); }
+.thread { flex: 1; min-height: 0; overflow: hidden; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.msg { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; }
+.msg .m-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+.msg .m-top b { font-weight: 600; }
+.msg .m-top time { color: var(--soft); font-size: 12px; }
+.msg p { font-size: 14px; line-height: 1.5; }
+.msg.mine p.body { background: var(--paper); padding: 10px 12px; border-radius: 6px; }
+.act { display: flex; align-items: center; gap: 8px; padding-left: 40px; color: var(--soft); }
+.act svg { width: 16px; height: 16px; color: var(--accent); }
+.act b { color: var(--ink); font-weight: 500; }
+.in-up { animation: inUp .28s var(--ease); }
+@keyframes inUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.comp { margin: 0 20px 16px; border-radius: var(--r); box-shadow: inset 0 0 0 1px var(--line-2); }
+.comp .note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); color: var(--soft); font-size: 12px; min-height: 34px; }
+.comp .note b { color: var(--ink); font-weight: 500; }
+.comp .text { min-height: 66px; padding: 10px 12px; font-size: 14px; line-height: 1.5; }
+.comp .text.ph { color: #6d716b; }
+.comp .bar { display: flex; align-items: center; justify-content: flex-end; padding: 0 8px 8px; }
+.comp .send { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 6px; background: var(--paper); color: #6d716b; font-weight: 500; transition: background-color .15s ease-out, color .15s ease-out, transform .12s ease-out; }
+.comp .send.ready { background: var(--accent); color: #fff; }
+.comp .send.press { transform: scale(.96); }
+.caret { display: inline-block; width: 1.5px; height: 1.05em; margin-left: 1px; vertical-align: -2px; background: var(--ink); }
+.cursor { position: absolute; left: 0; top: 0; z-index: 4; display: flex; align-items: flex-start; pointer-events: none; opacity: 0; transition: transform .62s var(--ease), opacity .2s ease-out; will-change: transform; }
+.cursor.on { opacity: 1; }
+.cursor svg { width: 20px; height: 20px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .25)); }
+.cursor span { margin: 14px 0 0 -4px; padding: 2px 6px; border-radius: 4px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 500; }
+.stage-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 32px; margin-top: 12px; color: #fff; font-size: 14px; }
+.stage-foot button { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 6px; color: #fff; font-weight: 500; flex: none; }
+.stage-foot button[hidden] { display: none; }
+.stage-foot button:hover { background: rgba(0, 0, 0, .14); }
+.stage-foot svg { width: 16px; height: 16px; fill: currentColor; }
+.stage :focus-visible { outline-color: #fff; }
+
+/* customers */
+.marks { padding-block: 40px 44px; border-bottom: 1px solid var(--line); }
+.marks p { font-size: 14px; color: var(--soft); margin-bottom: 20px; }
+.marks ul { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 40px; color: #33352f; }
+.wm { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.wm svg { width: 22px; height: 22px; fill: currentColor; }
+.wm-a { font: 700 24px/1 var(--sans); letter-spacing: -.03em; }
+.wm-b { font: italic 500 25px/1 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: -.01em; }
+.wm-c { font: 500 19px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: -.04em; }
+.wm-d { font: 400 18px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; }
+.wm-e { font: 300 28px/1 "Avenir Next", "Segoe UI", sans-serif; letter-spacing: -.02em; }
+.wm-f { font: 800 22px/1 "Avenir Next", "Segoe UI", sans-serif; letter-spacing: -.01em; }
+
+/* feature rows */
+.feat { padding-block: clamp(56px, 7vw, 104px); }
+.feat.tone { background: var(--paper); }
+.feat .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 88px); align-items: center; }
+.feat.flip .wrap { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.feat.flip .copy { order: 2; }
+.copy h2 { font-size: clamp(34px, 3.9vw, 56px); }
+.copy .lede { margin-top: 20px; max-width: 46ch; }
+.copy .try { margin-top: 24px; font-size: 15px; display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.copy .try svg { color: var(--accent); }
+.demo { background: #fff; border-radius: 12px; box-shadow: 0 0 0 1px var(--line); min-width: 0; }
+.feat:not(.tone) .demo { background: var(--paper); box-shadow: none; }
+.d-pad { padding: 24px; }
+.d-case { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.d-case h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; }
+.d-case p { font-size: 14px; color: var(--soft); }
+.d-owner { display: inline-flex; align-items: center; gap: 8px; flex: none; font-size: 14px; font-weight: 500; }
+.d-team { margin-top: 20px; display: grid; gap: 4px; }
+.d-team button { display: grid; grid-template-columns: 32px minmax(0, 1fr) minmax(72px, 150px) 52px; align-items: center; gap: 12px; width: 100%; height: 56px; padding: 0 12px; border-radius: var(--r); text-align: left; background: #fff; box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow .15s ease-out, background-color .15s ease-out; }
+.d-team button:not([aria-disabled="true"]):hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.d-team button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent); background: var(--tint); }
+.d-team button[aria-pressed="true"]:hover { box-shadow: inset 0 0 0 2px var(--accent-deep) !important; }
+.d-team button[aria-disabled="true"] { cursor: not-allowed; background: transparent; }
+.d-team .av { width: 32px; height: 32px; font-size: 12px; }
+.d-team .nm { font-size: 15px; font-weight: 500; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d-team small { display: block; font-size: 13px; font-weight: 400; color: var(--soft); }
+.d-team .meter { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.d-team .meter i { display: block; height: 100%; background: var(--ink); border-radius: 2px; transform-origin: left; transition: transform .25s var(--ease); }
+.d-team button[aria-pressed="true"] .meter { background: #f3cfc2; }
+.d-team button[aria-pressed="true"] .meter i { background: var(--accent); }
+.d-team .cnt { font-size: 14px; text-align: right; color: var(--soft); }
+.d-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.d-foot .btn { height: 40px; padding: 0 14px; font-size: 15px; }
+.d-log { font-size: 14px; color: var(--soft); min-height: 21px; }
+.d-log b { color: var(--ink); font-weight: 500; }
+
+/* snippets */
+.sn-to { display: flex; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--soft); }
+.sn-to b { color: var(--ink); font-weight: 500; }
+.sn-box { position: relative; padding: 16px 20px 0; }
+.sn-box label { display: block; }
+#sn-text { display: block; width: 100%; height: 188px; border: 0; outline: 0; resize: none; background: none; font-size: 16px; line-height: 1.5; }
+#sn-text::placeholder { color: #6d716b; }
+.sn-box:focus-within { outline: 2px solid var(--ink); outline-offset: -6px; border-radius: 10px; }
+.sn-pop { position: absolute; left: 20px; right: 20px; top: 84px; z-index: 3; padding: 6px; background: #fff; border-radius: var(--r); box-shadow: 0 0 0 1px var(--line-2), 0 12px 24px -12px rgba(18, 19, 17, .28); }
+.sn-pop[hidden] { display: none; }
+.sn-pop li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 8px 10px; border-radius: 5px; font-size: 14px; cursor: pointer; }
+.sn-pop li[aria-selected="true"] { background: var(--tint); }
+.sn-pop code { font: 500 13px ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--accent-deep); }
+.sn-pop span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
+.sn-pop .none { display: block; padding: 8px 10px; color: var(--soft); cursor: default; }
+.sn-fills { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 12px 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--soft); min-height: 45px; }
+.sn-fills b { color: var(--ink); font-weight: 500; }
+.sn-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px 16px; flex-wrap: wrap; }
+.sn-try { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--soft); }
+.sn-try button { height: 32px; padding: 0 10px; border-radius: 6px; font: 500 13px ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); transition: box-shadow .15s ease-out; }
+.sn-try button:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.sn-bar .btn { height: 40px; padding: 0 16px; font-size: 15px; }
+.sn-msg { padding: 0 20px 16px; font-size: 14px; color: var(--ink); min-height: 0; }
+.sn-msg:empty { display: none; }
+
+/* response times */
+.ch-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.ch-big { font-size: 40px; line-height: 1; font-weight: 500; letter-spacing: -.03em; }
+.ch-big + p { margin-top: 6px; font-size: 14px; color: var(--soft); }
+.seg { display: inline-flex; padding: 3px; border-radius: var(--r); background: #fff; box-shadow: inset 0 0 0 1px var(--line-2); }
+.seg button { height: 32px; padding: 0 12px; border-radius: 5px; font-size: 14px; color: var(--soft); transition: background-color .15s ease-out, color .15s ease-out; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.plot { position: relative; margin-top: 24px; height: 230px; padding-left: 44px; outline-offset: 6px; border-radius: 2px; }
+.gridl { position: absolute; left: 44px; right: 0; height: 0; border-top: 1px solid var(--line-2); opacity: .55; }
+.gridl.base { opacity: 1; }
+.gridl span { position: absolute; left: -44px; top: -9px; width: 36px; text-align: right; font-size: 12px; color: var(--soft); }
+.bars { position: absolute; left: 44px; right: 0; top: 0; bottom: 0; display: flex; align-items: flex-end; }
+.bars div { position: relative; flex: 1; height: 100%; min-width: 0; display: flex; align-items: flex-end; justify-content: center; padding-inline: 1px; }
+.bars i { display: block; width: min(100%, 14px); height: calc(var(--v) / 120 * 100%); border-radius: 3px 3px 0 0; background: #2c2e29; transition: height .25s var(--ease), background-color .15s ease-out; }
+.bars div.over i { background: var(--accent); }
+.bars div.cur i { opacity: .72; }
+.target { position: absolute; left: 44px; right: 0; height: 0; border-top: 1.5px dashed var(--ink); transition: bottom .2s var(--ease); pointer-events: none; }
+.target span { position: absolute; right: 0; bottom: 4px; padding: 0 6px; background: inherit; font-size: 12px; font-weight: 500; color: var(--ink); background: #fff; border-radius: 3px; box-shadow: 0 0 0 1px var(--line); }
+.tip { position: absolute; bottom: 100%; z-index: 2; width: 176px; padding: 8px 10px; background: var(--ink); color: #fff; border-radius: 6px; font-size: 13px; line-height: 1.35; pointer-events: none; opacity: 0; transition: opacity .12s ease-out; margin-bottom: -40px; }
+.tip.on { opacity: 1; }
+.tip small { display: block; color: var(--night-soft); font-size: 12px; }
+.x-lab { display: flex; justify-content: space-between; padding: 8px 0 0 44px; font-size: 12px; color: var(--soft); }
+.rng { display: grid; grid-template-columns: auto minmax(0, 1fr) 64px; align-items: center; gap: 16px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.rng label { font-weight: 500; }
+.rng output { font-weight: 500; text-align: right; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; background: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--line-2); }
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line-2); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+
+/* the testimonial */
+.say { background: var(--night); color: #fff; padding-block: clamp(64px, 8vw, 120px); }
+.say .wrap { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(32px, 6vw, 88px); align-items: end; }
+.say blockquote.big p { font-size: clamp(30px, 3.9vw, 56px); line-height: 1.08; letter-spacing: -.028em; font-weight: 500; }
+.by { display: flex; align-items: center; gap: 12px; margin-top: 32px; font-size: 15px; line-height: 1.35; }
+.by .av { width: 40px; height: 40px; font-size: 13px; }
+.by small { display: block; color: var(--night-soft); font-size: 14px; }
+.say aside { display: grid; gap: 32px; }
+.say aside blockquote { padding-top: 20px; border-top: 1px solid var(--night-line); font-size: 17px; line-height: 1.45; }
+.say aside .by { margin-top: 16px; }
+.say aside .by .av { width: 32px; height: 32px; font-size: 12px; }
+.say :focus-visible { outline-color: #fff; }
+
+/* pricing */
+.price { padding-block: clamp(64px, 8vw, 120px) clamp(48px, 5vw, 72px); }
+.price-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
+.price-top p { margin-top: 12px; max-width: 44ch; }
+.tog { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; color: var(--soft); }
+.tog .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg label { display: inline-flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 5px; font-size: 14px; color: var(--soft); cursor: pointer; transition: background-color .15s ease-out, color .15s ease-out; }
+.seg label:hover { color: var(--ink); }
+.seg input:checked + label { background: var(--ink); color: #fff; }
+.seg input:focus-visible + label { outline: 2px solid var(--ink); outline-offset: 2px; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line-2); border-radius: 12px; }
+.plan { display: flex; flex-direction: column; padding: 28px; }
+.plan + .plan { border-left: 1px solid var(--line-2); }
+.plan.main { position: relative; box-shadow: 0 0 0 2px var(--accent); border-radius: 12px; border-left-color: transparent; z-index: 1; background: #fff; }
+.plan.main + .plan { border-left-color: transparent; }
+.plan h3 { font-size: 20px; font-weight: 600; letter-spacing: -.015em; }
+.plan .who { margin-top: 4px; font-size: 15px; color: var(--soft); min-height: 45px; }
+.amount { display: flex; align-items: baseline; gap: 6px; margin-top: 20px; }
+.amount b { display: inline-block; font-size: 56px; line-height: 1; font-weight: 500; letter-spacing: -.04em; }
+.amount b.flip { animation: flipIn .24s var(--ease); }
+@keyframes flipIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.amount span { font-size: 15px; color: var(--soft); }
+.billed { margin-top: 6px; font-size: 14px; color: var(--soft); }
+.plan ul { margin-block: 20px 24px; display: grid; gap: 8px; font-size: 15px; }
+.plan li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; line-height: 1.35; }
+.plan li svg { width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }
+.plan .btn { margin-top: auto; }
+.price-more { margin-top: 20px; font-size: 15px; color: var(--soft); }
+.price-more a { color: var(--ink); text-underline-offset: 3px; }
+
+/* FAQ */
+.faq { padding-block: clamp(48px, 5vw, 72px) clamp(64px, 8vw, 120px); }
+.faq .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 88px); align-items: start; }
+.faq .lede { margin-top: 20px; max-width: 36ch; }
+.faq .lede a { color: var(--ink); text-underline-offset: 3px; }
+.qa { border-top: 1px solid var(--line-2); }
+.qa:last-child { border-bottom: 1px solid var(--line-2); }
+.qa h3 { font-size: inherit; font-weight: inherit; }
+.qa button { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: 100%; padding: 20px 0; text-align: left; font-size: 19px; font-weight: 500; letter-spacing: -.012em; line-height: 1.3; }
+.qa .pm { position: relative; flex: none; width: 20px; height: 20px; }
+.qa .pm::before, .qa .pm::after { content: ""; position: absolute; left: 3px; right: 3px; top: 9px; height: 2px; background: currentColor; border-radius: 1px; transition: transform .22s var(--ease); }
+.qa .pm::after { transform: rotate(90deg); }
+.qa button[aria-expanded="true"] .pm::after { transform: rotate(0deg); }
+.qa button:hover { color: var(--accent-deep); }
+.qa .ans { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .24s var(--ease); }
+.js .qa .ans.shut { grid-template-rows: 0fr; }
+.qa .ans > div { overflow: hidden; min-height: 0; }
+.qa .ans p { padding: 0 44px 24px 0; font-size: 17px; line-height: 1.5; color: var(--soft); max-width: 62ch; }
+.js .qa .ans.shut > div { visibility: hidden; transition: visibility 0s .24s; }
+
+/* closing CTA */
+.end { background: var(--accent); color: #fff; padding-block: clamp(64px, 8vw, 112px); }
+.end .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 6vw, 88px); align-items: end; }
+.end h2 { font-size: clamp(44px, 6.4vw, 92px); line-height: .98; letter-spacing: -.04em; }
+.end form { display: grid; gap: 8px; }
+.end label { font-size: 15px; font-weight: 500; }
+.end .pair { display: flex; gap: 8px; }
+.end input { flex: 1 1 auto; min-width: 0; height: 56px; padding: 0 16px; border: 0; border-radius: var(--r); background: #fff; color: var(--ink); font-size: 17px; }
+.end input::placeholder { color: #6d716b; }
+.end input[aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.end input:focus-visible, .end .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.end .btn { height: 56px; padding: 0 22px; font-size: 17px; }
+.end .err { display: flex; align-items: center; gap: 8px; min-height: 24px; font-size: 15px; font-weight: 500; }
+.end .err svg { width: 18px; height: 18px; }
+.end .err:empty { visibility: hidden; }
+.end .note { font-size: 15px; }
+.done { display: flex; align-items: flex-start; gap: 16px; padding: 20px; border-radius: var(--r); background: #fff; color: var(--ink); animation: inUp .28s var(--ease); }
+.done:focus { outline: none; }
+.done svg { width: 24px; height: 24px; color: var(--accent); flex: none; }
+.done b { display: block; font-size: 19px; font-weight: 600; letter-spacing: -.012em; overflow-wrap: anywhere; }
+.done button { margin-top: 4px; font-size: 15px; text-decoration: underline; text-underline-offset: 3px; color: var(--soft); }
+
+/* footer */
+body > footer { background: var(--night); color: #fff; padding-block: 64px 32px; }
+body > footer :focus-visible { outline-color: #fff; }
+.f-top { display: grid; grid-template-columns: minmax(0, 4fr) repeat(4, minmax(0, 2fr)); gap: 32px; }
+.f-about p { margin-top: 12px; max-width: 30ch; font-size: 15px; color: var(--night-soft); }
+.f-col h3 { font-size: 14px; font-weight: 500; color: var(--night-soft); margin-bottom: 12px; }
+.f-col li + li { margin-top: 8px; }
+.f-col a { font-size: 15px; text-decoration: none; }
+.f-col a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.f-bot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--night-line); font-size: 14px; color: var(--night-soft); }
+.f-bot nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.f-bot a { text-decoration: none; }
+.f-bot a:hover { color: #fff; }
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 50; max-width: calc(100% - 32px); padding: 10px 14px; border-radius: var(--r); background: var(--ink); color: #fff; font-size: 14px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); transform: translate(-50%, 8px); opacity: 0; pointer-events: none; transition: opacity .18s ease-out, transform .18s var(--ease); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* narrower */
+@media (max-width: 1180px) {
+  .win { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); }
+  .rail { display: none; }
+  .f-top { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .f-about { grid-column: 1 / -1; }
+  .marks ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 24px; }
+}
+@media (min-width: 600px) and (max-width: 960px) {
+  .plan { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; grid-template-areas: "h ul" "who ul" "amt ul" "bill btn"; column-gap: 32px; align-items: start; }
+  .plan h3 { grid-area: h; } .plan .who { grid-area: who; } .plan .amount { grid-area: amt; } .plan .billed { grid-area: bill; }
+  .plan ul { grid-area: ul; margin: 4px 0 20px !important; }
+  .plan .btn { grid-area: btn; align-self: end; }
+}
+@media (max-width: 960px) {
+  .feat .wrap, .feat.flip .wrap, .faq .wrap, .end .wrap { grid-template-columns: minmax(0, 1fr); }
+  .feat.flip .copy { order: 0; }
+  .copy .lede { max-width: 60ch; }
+  .say .wrap { grid-template-columns: minmax(0, 1fr); }
+  .say aside { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .plan + .plan { border-left: 0; border-top: 1px solid var(--line-2); }
+  .plan.main { border-top-color: transparent; }
+  .plan.main + .plan { border-top-color: transparent; }
+  .plan .who { min-height: 0; }
+  .plan ul { margin-bottom: 24px; }
+  .faq .lede { max-width: 60ch; }
+}
+@media (max-width: 760px) {
+  .nav-links, .nav-right .in-link { display: none; }
+  .nav .wrap { gap: 12px; }
+  .burger { display: grid; }
+  .nav-right { gap: 8px; }
+  .drawer { display: block; border-top: 1px solid var(--line); background: var(--bg); padding: 8px 16px 16px; }
+  .drawer[hidden] { display: none; }
+  .drawer a { display: flex; align-items: center; height: 48px; text-decoration: none; font-size: 17px; border-bottom: 1px solid var(--line); }
+  .drawer a:last-child { border-bottom: 0; }
+  .hero-row { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .hero-cta { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
+  .hero-cta small { max-width: none; }
+  .win { grid-template-columns: minmax(0, 1fr); height: 548px; }
+  .qlist { display: none; }
+  .c-head { flex-direction: column; gap: 10px; padding: 14px 16px; }
+  .owner-wrap { width: 100%; justify-content: space-between; }
+  .menu { left: 0; right: 0; width: auto; }
+  .thread { padding: 16px; }
+  .comp { margin: 0 16px 16px; }
+  .stage-foot span { font-size: 13px; }
+  .marks ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .marks .wm { font-size: 90%; }
+  .d-pad { padding: 16px; }
+  .d-case { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .d-team button { grid-template-columns: 32px minmax(0, 1fr) 52px; }
+  .d-team .meter { display: none; }
+  .sn-to { padding: 12px 16px; flex-direction: column; gap: 0; }
+  .sn-box { padding: 12px 16px 0; }
+  #sn-text { height: 236px; }
+  .sn-pop { left: 16px; right: 16px; top: 72px; }
+  .sn-pop li { grid-template-columns: 76px minmax(0, 1fr); }
+  .sn-fills { padding: 12px 16px; }
+  .sn-bar { padding: 12px 16px 16px; }
+  .sn-msg { padding: 0 16px 16px; }
+  .ch-big { font-size: 34px; }
+  .plot { padding-left: 34px; height: 200px; }
+  .gridl, .target, .bars { left: 34px; }
+  .gridl span { left: -34px; width: 28px; }
+  .x-lab { padding-left: 34px; }
+  .rng { grid-template-columns: minmax(0, 1fr) 64px; gap: 4px 12px; }
+  .rng input { grid-column: 1 / -1; grid-row: 2; }
+  .say aside { grid-template-columns: minmax(0, 1fr); }
+  .qa button { font-size: 17px; padding: 16px 0; }
+  .qa .ans p { padding-right: 0; font-size: 16px; }
+  .end .pair { flex-direction: column; }
+  .f-top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; }
+  .f-bot { margin-top: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .rise { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the page</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5M20 12a8 8 0 0 1-13.7 5.6L4 15M4 20v-5h5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 8v5M12 16.5v.01"/><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" data-go="top" aria-label="Northbeam, back to top">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="3" fill="#db3a0a"/><path d="M9 14.2 21 2v9.5L10.7 16.6z" fill="#db3a0a"/></svg>
+      Northbeam
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#product" data-go="product">Product</a>
+      <a href="#customers" data-go="customers">Customers</a>
+      <a href="#pricing" data-go="pricing">Pricing</a>
+      <a href="#faq" data-go="faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <a class="in-link" href="#" data-demo="Sign in">Sign in</a>
+      <a class="btn solid" href="#start" data-go="start">Start free</a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Open the menu"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+  <nav class="drawer" id="drawer" aria-label="Menu" hidden>
+    <a href="#product" data-go="product">Product</a>
+    <a href="#customers" data-go="customers">Customers</a>
+    <a href="#pricing" data-go="pricing">Pricing</a>
+    <a href="#faq" data-go="faq">FAQ</a>
+    <a href="#" data-demo="Sign in">Sign in</a>
+  </nav>
+</header>
+
+<main id="main">
+<section class="hero" id="top" aria-labelledby="h-hero">
+  <div class="wrap hero-top">
+    <h1 id="h-hero"><span>Nobody replies twice.</span><span>Nobody gets forgotten.</span></h1>
+    <div class="hero-row">
+      <p class="lede">Northbeam turns support@ into one inbox your whole team works from. Every conversation gets an owner, a clock and a full history, and everyone can see who has what.</p>
+      <div class="hero-cta">
+        <a class="btn solid" href="#start" data-go="start">Start free for 14 days</a>
+        <small>No card. Keep the address you already have.</small>
+      </div>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="wrap">
+      <figure class="mock" id="mock" role="img" aria-label="A shared inbox replaying on its own. Priya opens an unassigned billing question, hands it to Mateus because he has the fewest open, and Kenji's draft is set aside so nobody answers twice. Mateus replies within minutes.">
+        <div class="win" aria-hidden="true">
+          <div class="rail">
+            <div class="ws"><svg viewBox="0 0 24 24"><circle cx="5" cy="19" r="3" fill="#db3a0a"/><path d="M9 14.2 21 2v9.5L10.7 16.6z" fill="#db3a0a"/></svg>Support desk</div>
+            <div>
+              <h4>Views</h4>
+              <ul>
+                <li class="on"><span>Unassigned</span><span id="n-un">3</span></li>
+                <li><span>Assigned to me</span><span>4</span></li>
+                <li><span>Waiting on customer</span><span>9</span></li>
+                <li><span>Closed today</span><span>27</span></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Inboxes</h4>
+              <ul>
+                <li><span>support@</span><span>14</span></li>
+                <li><span>billing@</span><span>3</span></li>
+                <li><span>returns@</span><span>6</span></li>
+              </ul>
+            </div>
+            <div class="faces">
+              <span class="av" style="--c:#3d4a3f">PR</span><span class="av" style="--c:#5b4636">MO</span><span class="av" style="--c:#39465a">KW</span><span class="av" style="--c:#5a3e4e">EM</span>
+            </div>
+          </div>
+          <div class="qlist">
+            <div class="q-head"><b>Unassigned</b><span>Oldest first</span></div>
+            <div id="rows">
+              <div class="row sel" data-r="0"><span class="who">Yusra Al-Amin</span><time>4m</time><span class="sub">Charged twice for our March renewal</span><span class="own"><span class="av none"></span></span><span class="due">Reply due in 56m</span></div>
+              <div class="row" data-r="1"><span class="who">Lars Eriksen</span><time>11m</time><span class="sub">Can't add a second warehouse address</span><span class="own"><span class="av none"></span></span><span class="due">Reply due in 49m</span></div>
+              <div class="row" data-r="2"><span class="who">Amara Nwosu</span><time>23m</time><span class="sub">Export stuck at 98% since this morning</span><span class="own"><span class="av none"></span></span><span class="due">Reply due in 37m</span></div>
+              <div class="row"><span class="who">Sun-hee Park</span><time>38m</time><span class="sub">Invoice needs our VAT number on it</span><span class="own"><span class="av" style="--c:#3d4a3f">PR</span></span><span class="due">Priya is replying</span></div>
+              <div class="row"><span class="who">Diego Fuentes</span><time>1h</time><span class="sub">Is there a discount for nonprofits?</span><span class="own"><span class="av" style="--c:#39465a">KW</span></span><span class="due">Replied in 12m</span></div>
+              <div class="row"><span class="who">Miriam Katz</span><time>2h</time><span class="sub">Password reset link says it expired</span><span class="own"><span class="av" style="--c:#5a3e4e">EM</span></span><span class="due">Replied in 8m</span></div>
+            </div>
+          </div>
+          <div class="conv" id="conv">
+            <div class="c-head">
+              <div><h3 id="c-sub">Charged twice for our March renewal</h3><p id="c-from">Yusra Al-Amin · Halden Supply · Team plan</p></div>
+              <div class="owner-wrap">
+                <span>Owner</span>
+                <span class="owner" id="owner"><span class="av none" id="o-av"></span><span id="o-name">Unassigned</span><svg class="i"><use href="#i-down"/></svg></span>
+                <ul class="menu" id="menu">
+                  <li data-p="M"><span class="av" style="--c:#5b4636">MO</span>Mateus Oliveira<span>3 open</span></li>
+                  <li data-p="E"><span class="av" style="--c:#5a3e4e">EM</span>Efua Mensah<span>4 open</span></li>
+                  <li data-p="K"><span class="av" style="--c:#39465a">KW</span>Kenji Watanabe<span>5 open</span></li>
+                  <li data-p="P"><span class="av" style="--c:#3d4a3f">PR</span>Priya Raman<span>6 open</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="thread" id="thread">
+              <div class="msg"><span class="av" style="--c:#7b7d76">YA</span><div><div class="m-top"><b>Yusra Al-Amin</b><time>4 min ago</time></div><p>Hi, we've got two invoices for the same renewal, both for $348 and both paid on the 14th. Can one of them go back on the card? Our finance team closes the month on Friday.</p></div></div>
+            </div>
+            <div class="comp">
+              <div class="note" id="c-note"><span class="av" style="--c:#39465a;width:18px;height:18px;font-size:8px">KW</span><span><b>Kenji</b> started a draft a minute ago</span></div>
+              <div class="text ph" id="c-text">Reply to Yusra…</div>
+              <div class="bar"><span class="send" id="c-send">Send</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cursor" id="cur" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3 19.5 11.5 12.8 13.2 9.6 19.6z" fill="#121311" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg><span>Priya</span></div>
+      </figure>
+      <div class="stage-foot">
+        <span id="pp-cap">A morning at the support desk, replaying on its own.</span>
+        <button id="pp" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" id="pp-ic"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg><span id="pp-t">Pause</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="marks" id="customers" aria-label="Customers">
+  <div class="wrap">
+    <p>Answering customers from one inbox at</p>
+    <ul>
+      <li class="wm wm-a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v18h-7zM3 14h7v7H3z"/></svg>Halden</li>
+      <li class="wm wm-b">Ferro &amp; Sons</li>
+      <li class="wm wm-c">quillon_</li>
+      <li class="wm wm-d">Ottomar</li>
+      <li class="wm wm-e">tidewell</li>
+      <li class="wm wm-f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 5.2 4.8 9.6H7.2z" fill-rule="evenodd"/></svg>Marlo Health</li>
+    </ul>
+  </div>
+</section>
+
+<div id="product">
+<section class="feat" aria-labelledby="h-f1">
+  <div class="wrap">
+    <div class="copy rise">
+      <h2 id="h-f1">One conversation, one owner.</h2>
+      <p class="lede">Hand it to someone by name, or to whoever has the fewest open. The moment it has an owner, everyone else's draft is set aside and the whole team can see who has it.</p>
+    </div>
+    <div class="demo d-pad rise" style="--d:60ms" id="assign">
+      <div class="d-case">
+        <div><h3>Lid cracked in transit, order 48213</h3><p>Noor Haddad · returns@ · waiting 12 min</p></div>
+        <div class="d-owner"><span class="av none" id="as-av"></span><span id="as-own">No owner yet</span></div>
+      </div>
+      <ul class="d-team" id="as-team">
+        <li><button type="button" data-p="M" aria-pressed="false"><span class="av" style="--c:#5b4636">MO</span><span class="nm">Mateus Oliveira<small>Returns</small></span><span class="meter"><i style="transform:scaleX(.3)"></i></span><span class="cnt">3 open</span></button></li>
+        <li><button type="button" data-p="E" aria-pressed="false"><span class="av" style="--c:#5a3e4e">EM</span><span class="nm">Efua Mensah<small>Returns, billing</small></span><span class="meter"><i style="transform:scaleX(.4)"></i></span><span class="cnt">4 open</span></button></li>
+        <li><button type="button" data-p="P" aria-pressed="false"><span class="av" style="--c:#3d4a3f">PR</span><span class="nm">Priya Raman<small>Team lead</small></span><span class="meter"><i style="transform:scaleX(.6)"></i></span><span class="cnt">6 open</span></button></li>
+        <li><button type="button" data-p="L" aria-pressed="false" aria-disabled="true"><span class="av" style="--c:#8a8c85">LO</span><span class="nm">Lucía Ortega<small>Away until Monday</small></span><span class="meter"><i style="transform:scaleX(0)"></i></span><span class="cnt">0 open</span></button></li>
+      </ul>
+      <div class="d-foot">
+        <p class="d-log" id="as-log" role="status">Pick someone, or let Northbeam choose.</p>
+        <button class="btn ink" type="button" id="as-auto">Give it to the least busy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feat tone flip" aria-labelledby="h-f2">
+  <div class="wrap">
+    <div class="copy rise">
+      <h2 id="h-f2">Write it once. Type a slash for the rest.</h2>
+      <p class="lede">Snippets fill in the customer's name, order number and refund amount from the conversation, so the tenth refund of the day still reads like a person wrote it.</p>
+    </div>
+    <div class="demo rise" style="--d:60ms" id="snip">
+      <div class="sn-to"><span>To <b>Noor Haddad</b></span><span>Order <b>48213</b> · $64.00</span></div>
+      <div class="sn-box">
+        <label class="sr" for="sn-text">Reply to Noor. Type a slash to use a snippet.</label>
+        <textarea id="sn-text" spellcheck="false" placeholder="Type / to see your snippets" role="combobox" aria-expanded="false" aria-controls="sn-pop" aria-autocomplete="list" autocomplete="off"></textarea>
+        <ul class="sn-pop" id="sn-pop" role="listbox" aria-label="Snippets" hidden></ul>
+      </div>
+      <p class="sn-fills" id="sn-fills" aria-live="polite">Nothing filled in yet.</p>
+      <div class="sn-bar">
+        <div class="sn-try"><span>Try</span><button type="button" data-s="/refund">/refund</button><button type="button" data-s="/where">/where</button><button type="button" data-s="/thanks">/thanks</button></div>
+        <button class="btn solid" type="button" id="sn-send">Send</button>
+      </div>
+      <p class="sn-msg" id="sn-msg" role="status"></p>
+    </div>
+  </div>
+</section>
+
+<section class="feat" aria-labelledby="h-f3">
+  <div class="wrap">
+    <div class="copy rise">
+      <h2 id="h-f3">See how long people really wait.</h2>
+      <p class="lede">Every first response is timed against the promise you set. When a queue starts slipping you see it on Tuesday, well before the quarterly review.</p>
+    </div>
+    <div class="demo d-pad rise" style="--d:60ms" id="times">
+      <div class="ch-top">
+        <div><p class="ch-big" id="ch-big">20 of 30 days</p><p id="ch-sub">inside your 1 h promise, median first response</p></div>
+        <div class="seg" id="ch-seg" role="group" aria-label="Inbox">
+          <button type="button" data-k="support" aria-pressed="true">support@</button>
+          <button type="button" data-k="billing" aria-pressed="false">billing@</button>
+          <button type="button" data-k="returns" aria-pressed="false">returns@</button>
+        </div>
+      </div>
+      <div class="plot" id="plot" tabindex="0" role="group" aria-label="Median first response by day. Use the left and right arrow keys to read each day.">
+        <div class="gridl" style="bottom:100%"><span>2 h</span></div>
+        <div class="gridl" style="bottom:75%"><span>90m</span></div>
+        <div class="gridl" style="bottom:50%"><span>1 h</span></div>
+        <div class="gridl" style="bottom:25%"><span>30m</span></div>
+        <div class="gridl base" style="bottom:0"><span>0</span></div>
+        <div class="bars" id="bars"><div><i style="--v:72"></i></div><div><i style="--v:68"></i></div><div><i style="--v:81"></i></div><div><i style="--v:58"></i></div><div><i style="--v:55"></i></div><div><i style="--v:94"></i></div><div><i style="--v:99"></i></div><div><i style="--v:62"></i></div><div><i style="--v:54"></i></div><div><i style="--v:51"></i></div><div><i style="--v:49"></i></div><div><i style="--v:47"></i></div><div><i style="--v:88"></i></div><div><i style="--v:76"></i></div><div><i style="--v:52"></i></div><div><i style="--v:49"></i></div><div><i style="--v:45"></i></div><div><i style="--v:44"></i></div><div><i style="--v:41"></i></div><div><i style="--v:72"></i></div><div><i style="--v:66"></i></div><div><i style="--v:40"></i></div><div><i style="--v:38"></i></div><div><i style="--v:39"></i></div><div><i style="--v:36"></i></div><div><i style="--v:34"></i></div><div><i style="--v:58"></i></div><div><i style="--v:54"></i></div><div><i style="--v:32"></i></div><div><i style="--v:29"></i></div></div>
+        <div class="target" id="tgt" style="bottom:50%"><span id="tgt-l">Promise 1 h</span></div>
+        <div class="tip" id="tip" aria-hidden="true"></div>
+      </div>
+      <div class="x-lab"><span>Mon 5 Oct</span><span>Tue 3 Nov</span></div>
+      <p class="sr" id="ch-read" role="status"></p>
+      <div class="rng">
+        <label for="promise">Your promise</label>
+        <input type="range" id="promise" min="0" max="5" step="1" value="3">
+        <output for="promise" id="promise-o">1 h</output>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<section class="say" aria-label="What customers say">
+  <div class="wrap">
+    <blockquote class="big rise">
+      <p>“We used to find out two people had answered the same customer when the customer told us. That stopped in the first week.”</p>
+      <footer class="by"><span class="av" style="--c:#5b4636">TA</span><span>Temitope Adeyemi<small>Head of Support, Tidewell</small></span></footer>
+    </blockquote>
+    <aside>
+      <blockquote class="rise" style="--d:60ms">“Our refund reply went from four minutes of copy-paste to typing /refund.”<footer class="by"><span class="av" style="--c:#39465a">HL</span><span>Hanna Lindqvist<small>Support lead, Ferro &amp; Sons</small></span></footer></blockquote>
+      <blockquote class="rise" style="--d:120ms">“I can tell the board our first-response time without building a spreadsheet the night before.”<footer class="by"><span class="av" style="--c:#5a3e4e">AM</span><span>Arjun Menon<small>COO, Marlo Health</small></span></footer></blockquote>
+    </aside>
+  </div>
+</section>
+
+<section class="price" id="pricing" aria-labelledby="h-price">
+  <div class="wrap">
+    <div class="price-top rise">
+      <div><h2 id="h-price">Priced per person who answers.</h2><p class="lede">Colleagues who only read and leave notes are free, on every plan.</p></div>
+      <div class="tog">
+        <span id="bill-note">Yearly: two months free</span>
+        <div class="seg" role="radiogroup" aria-label="Billing period">
+          <input type="radio" name="bill" id="b-m" value="m" checked><label for="b-m">Monthly</label>
+          <input type="radio" name="bill" id="b-y" value="y"><label for="b-y">Yearly</label>
+        </div>
+      </div>
+    </div>
+    <div class="plans rise" style="--d:60ms">
+      <article class="plan">
+        <h3>Starter</h3><p class="who">One shared address and a small team.</p>
+        <div class="amount"><b data-m="18" data-y="15">$18</b><span>per seat, per month</span></div>
+        <p class="billed" data-m="Billed monthly" data-y="Billed $180 a year per seat">Billed monthly</p>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>1 shared inbox</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Assignment and draft locks</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>25 snippets</li>
+        </ul>
+        <a class="btn line" href="#start" data-go="start">Start with Starter</a>
+      </article>
+      <article class="plan main">
+        <h3>Team</h3><p class="who">What most support teams of 5 to 40 pick.</p>
+        <div class="amount"><b data-m="36" data-y="30">$36</b><span>per seat, per month</span></div>
+        <p class="billed" data-m="Billed monthly" data-y="Billed $360 a year per seat">Billed monthly</p>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Unlimited inboxes and snippets</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Fewest-open auto-assign</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Response-time promises and reports</li>
+        </ul>
+        <a class="btn solid" href="#start" data-go="start">Start with Team</a>
+      </article>
+      <article class="plan">
+        <h3>Business</h3><p class="who">Several teams, audits and single sign-on.</p>
+        <div class="amount"><b data-m="66" data-y="55">$66</b><span>per seat, per month</span></div>
+        <p class="billed" data-m="Billed monthly" data-y="Billed $660 a year per seat">Billed monthly</p>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>SSO, SCIM and an audit log</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Separate teams with their own rules</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>A named person to call</li>
+        </ul>
+        <a class="btn line" href="#" data-demo="Talk to sales">Talk to us</a>
+      </article>
+    </div>
+    <p class="price-more rise">All prices in US dollars, before tax. <a href="#" data-demo="The full plan comparison">Compare every feature</a></p>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="h-faq">
+  <div class="wrap">
+    <div class="rise">
+      <h2 id="h-faq">What people ask on the first call.</h2>
+      <p class="lede">Something else on your mind? <a href="#" data-demo="An email to Efua">Write to Efua</a>, who runs onboarding and answers within a working day.</p>
+    </div>
+    <div class="rise" style="--d:60ms" id="qas">
+      <div class="qa"><h3><button type="button" id="q1" aria-expanded="true" aria-controls="a1"><span>Do we have to change our support address?</span><span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a1" role="region" aria-labelledby="q1"><div><p>No. Forward support@yourcompany.com to Northbeam and keep it. Replies still go out from that address, so customers never see a new one. Setting up the forward takes about five minutes.</p></div></div></div>
+      <div class="qa"><h3><button type="button" id="q2" aria-expanded="true" aria-controls="a2"><span>Can we bring our old conversations with us?</span><span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a2" role="region" aria-labelledby="q2"><div><p>Yes. Connect the mailbox and we import the last 24 months with attachments, on every plan. Older history comes across on Business, or from a mailbox export file.</p></div></div></div>
+      <div class="qa"><h3><button type="button" id="q3" aria-expanded="true" aria-controls="a3"><span>What happens when two people open the same conversation?</span><span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a3" role="region" aria-labelledby="q3"><div><p>Each sees the other's face and whether they're typing. If someone takes ownership, other drafts are saved and set aside with a note saying who has it. Nothing is lost, and a second reply can't go out by accident.</p></div></div></div>
+      <div class="qa"><h3><button type="button" id="q4" aria-expanded="true" aria-controls="a4"><span>How is a free trial different from a paid plan?</span><span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a4" role="region" aria-labelledby="q4"><div><p>It isn't. For 14 days you get everything on Team with up to 10 seats and no card on file. When it ends, your inbox goes read-only until you choose a plan, and nothing is deleted for 60 days.</p></div></div></div>
+      <div class="qa"><h3><button type="button" id="q5" aria-expanded="true" aria-controls="a5"><span>Where is our data kept?</span><span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a5" role="region" aria-labelledby="q5"><div><p>You pick the EU or the US when you create your workspace. Data is encrypted at rest and in transit, and we can send you our SOC 2 Type II report and a data processing agreement before you sign anything.</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="end" id="start" aria-labelledby="h-end">
+  <div class="wrap">
+    <h2 id="h-end" class="rise">Give support@ an owner by Friday.</h2>
+    <div class="rise" style="--d:60ms" id="end-box">
+      <form id="end-form" novalidate>
+        <label for="end-email">Work email</label>
+        <div class="pair">
+          <input id="end-email" type="email" autocomplete="email" placeholder="you@yourcompany.com" aria-describedby="end-err">
+          <button class="btn ink" type="submit">Start free</button>
+        </div>
+        <p class="err" id="end-err" aria-live="polite"></p>
+        <p class="note">Setup takes about 20 minutes: forward one address, invite your team.</p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div class="f-about">
+        <a class="brand" href="#top" data-go="top" aria-label="Northbeam, back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="19" r="3" fill="#fff"/><path d="M9 14.2 21 2v9.5L10.7 16.6z" fill="#fff"/></svg>Northbeam</a>
+        <p>Shared inboxes for support teams. Made by a small team in Bristol and Lisbon.</p>
+      </div>
+      <div class="f-col"><h3>Product</h3><ul>
+        <li><a href="#product" data-go="product">Shared inbox</a></li>
+        <li><a href="#product" data-go="product">Assignment</a></li>
+        <li><a href="#product" data-go="product">Snippets</a></li>
+        <li><a href="#product" data-go="product">Reports</a></li>
+        <li><a href="#pricing" data-go="pricing">Pricing</a></li>
+      </ul></div>
+      <div class="f-col"><h3>Resources</h3><ul>
+        <li><a href="#" data-demo="The help centre">Help centre</a></li>
+        <li><a href="#" data-demo="The migration guide">Migration guide</a></li>
+        <li><a href="#" data-demo="The API docs">API docs</a></li>
+        <li><a href="#" data-demo="The changelog">Changelog</a></li>
+        <li><a href="#" data-demo="The status page">Status</a></li>
+      </ul></div>
+      <div class="f-col"><h3>Company</h3><ul>
+        <li><a href="#" data-demo="The about page">About</a></li>
+        <li><a href="#customers" data-go="customers">Customers</a></li>
+        <li><a href="#" data-demo="The careers page">Careers</a></li>
+        <li><a href="#" data-demo="The contact page">Contact</a></li>
+      </ul></div>
+      <div class="f-col"><h3>Trust</h3><ul>
+        <li><a href="#" data-demo="The security page">Security</a></li>
+        <li><a href="#" data-demo="The privacy policy">Privacy</a></li>
+        <li><a href="#" data-demo="The terms">Terms</a></li>
+        <li><a href="#" data-demo="The data processing agreement">DPA</a></li>
+      </ul></div>
+    </div>
+    <div class="f-bot">
+      <span>© 2026 Northbeam Software Ltd, 9 Ropewalk Yard, Bristol BS1 6XN</span>
+      <nav aria-label="Legal"><a href="#" data-demo="Cookie settings">Cookie settings</a><a href="#" data-demo="The accessibility statement">Accessibility</a><a href="#" data-demo="The status page">All systems normal</a></nav>
+    </div>
+  </div>
+</footer>
+<p class="toast" id="toast" role="status"></p>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+const still = () => reduced.matches;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- page chrome ---------- */
+const nav = $("nav");
+const onScroll = () => nav.classList.toggle("stuck", scrollY > 4);
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+const toastEl = $("toast");
+function toast(t) { toastEl.textContent = t; toastEl.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => toastEl.classList.remove("on"), 2200); }
+
+function closeDrawer() { $("drawer").hidden = true; $("burger").setAttribute("aria-expanded", "false"); $("burger").setAttribute("aria-label", "Open the menu"); $("burger").querySelector("use").setAttribute("href", "#i-menu"); }
+$("burger").addEventListener("click", () => {
+  const open = $("drawer").hidden;
+  if (!open) return closeDrawer();
+  $("drawer").hidden = false; $("burger").setAttribute("aria-expanded", "true"); $("burger").setAttribute("aria-label", "Close the menu"); $("burger").querySelector("use").setAttribute("href", "#i-x");
+});
+addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("drawer").hidden) { closeDrawer(); $("burger").focus(); } });
+document.addEventListener("click", (e) => {
+  if (!$("drawer").hidden && !e.target.closest("#nav")) closeDrawer();
+  const a = e.target.closest("a"); if (!a) return;
+  e.preventDefault();
+  if (a.dataset.go) {
+    closeDrawer();
+    const t = a.dataset.go === "top" ? document.body : $(a.dataset.go);
+    if (a.dataset.go === "top") scrollTo(0, 0); else t.scrollIntoView({ block: "start" });
+    if (a.dataset.go === "start") $("end-email")?.focus({ preventScroll: true });
+  } else if (a.dataset.demo) {
+    closeDrawer(); toast(`${a.dataset.demo} would open here.`);
+  } else if (a.classList.contains("skip")) { $("main").setAttribute("tabindex", "-1"); $("main").focus(); scrollTo(0, 80); }
+});
+
+/* sections rise in. Anything in the top 1920px is already in place: the portrait still shoots it without scrolling */
+const rises = [...document.querySelectorAll(".rise")];
+const riseIO = "IntersectionObserver" in window ? new IntersectionObserver((list) => {
+  for (const en of list) if (en.isIntersecting) { en.target.classList.add("in"); riseIO.unobserve(en.target); }
+}, { rootMargin: "0px 0px -6% 0px" }) : null;
+for (const el of rises) {
+  if (!riseIO || el.getBoundingClientRect().top + scrollY < 1920) el.classList.add("in");
+  else riseIO.observe(el);
+}
+
+/* ---------- the live inbox ---------- */
+const PEOPLE = {
+  M: { n: "Mateus Oliveira", s: "Mateus", i: "MO", c: "#5b4636", load: 3 },
+  E: { n: "Efua Mensah", s: "Efua", i: "EM", c: "#5a3e4e", load: 4 },
+  K: { n: "Kenji Watanabe", s: "Kenji", i: "KW", c: "#39465a", load: 5 },
+  P: { n: "Priya Raman", s: "Priya", i: "PR", c: "#3d4a3f", load: 6 },
+};
+const avs = (p, extra = "") => `<span class="av" style="--c:${PEOPLE[p].c};${extra}">${PEOPLE[p].i}</span>`;
+const STORIES = [
+  { row: 0, who: "Yusra Al-Amin", first: "Yusra", ini: "YA", co: "Halden Supply · Team plan", sub: "Charged twice for our March renewal", ago: "4 min ago",
+    body: "Hi, we've got two invoices for the same renewal, both for $348 and both paid on the 14th. Can one of them go back on the card? Our finance team closes the month on Friday.",
+    draft: "K", to: "M", why: "who has the fewest open", reply: "Hi Yusra, you're right, the second charge is a duplicate. I've refunded the $348 today, so it'll be on your card in 3 to 5 days, ahead of Friday's close.", took: "Replied in 5m" },
+  { row: 1, who: "Lars Eriksen", first: "Lars", ini: "LE", co: "Ferro & Sons · Starter plan", sub: "Can't add a second warehouse address", ago: "11 min ago",
+    body: "We opened a second warehouse in Gothenburg and the address form greys out the Save button. Is that a limit on our plan or a bug? We ship from there on Monday.",
+    draft: "P", to: "E", why: "who looks after plan limits", reply: "Hi Lars, that's a limit on Starter, not a bug. I've lifted it on your account for now, so try saving the Gothenburg address again and you're set for Monday.", took: "Replied in 3m" },
+  { row: 2, who: "Amara Nwosu", first: "Amara", ini: "AN", co: "Quillon · Business plan", sub: "Export stuck at 98% since this morning", ago: "23 min ago",
+    body: "Our quarterly export has been sitting at 98% since about nine. I need the file for an audit this afternoon. Should I cancel it and start again, or will that lose my place?",
+    draft: "E", to: "K", why: "who wrote the export service", reply: "Hi Amara, please don't cancel it. It hit a timeout on our side, and I've restarted it from where it stopped. The file will reach your inbox within ten minutes.", took: "Replied in 4m" },
+];
+const mock = $("mock"), cur = $("cur"), conv = $("conv"), menu = $("menu"), rowsEl = $("rows");
+const menuItem = (p) => menu.querySelector(`[data-p="${p}"]`);
+let liveOn = true, inView = true, unassigned = 3, run = 0;
+
+function sleep(ms) {
+  const mine = run;
+  return new Promise((res, rej) => {
+    let left = ms;
+    const t = setInterval(() => {
+      if (mine !== run) { clearInterval(t); rej(0); return; }
+      if (liveOn && inView && !document.hidden) { left -= 20; if (left <= 0) { clearInterval(t); res(); } }
+    }, 20);
+  });
+}
+function aim(el, dx = .5, dy = .5) {
+  const a = mock.getBoundingClientRect(), b = el.getBoundingClientRect();
+  cur.style.transform = `translate(${b.left - a.left + b.width * dx}px, ${b.top - a.top + b.height * dy}px)`;
+  cur.classList.add("on");
+}
+function paintMenu() { for (const p in PEOPLE) { const li = menuItem(p); li.lastElementChild.textContent = `${PEOPLE[p].load} open`; li.classList.remove("hov"); } }
+function setRowSel(r) { rowsEl.querySelectorAll(".row").forEach((x) => x.classList.toggle("sel", +x.dataset.r === r && x.dataset.r !== undefined)); }
+
+function showStory(s) {
+  $("c-sub").textContent = s.sub; $("c-from").textContent = `${s.who} · ${s.co}`;
+  $("o-av").className = "av none"; $("o-av").removeAttribute("style"); $("o-av").textContent = ""; $("o-name").textContent = "Unassigned";
+  $("thread").innerHTML = `<div class="msg"><span class="av" style="--c:#7b7d76">${s.ini}</span><div><div class="m-top"><b>${s.who}</b><time>${s.ago}</time></div><p>${esc(s.body)}</p></div></div>`;
+  $("c-note").innerHTML = `${avs(s.draft, "width:18px;height:18px;font-size:8px")}<span><b>${PEOPLE[s.draft].s}</b> started a draft a minute ago</span>`;
+  $("c-text").className = "text ph"; $("c-text").textContent = `Reply to ${s.first}…`;
+  $("c-send").className = "send";
+  setRowSel(s.row);
+}
+function assign(s) {
+  const p = PEOPLE[s.to]; p.load++;
+  $("o-av").className = "av pop"; $("o-av").style.setProperty("--c", p.c); $("o-av").textContent = p.i; $("o-name").textContent = p.s;
+  const row = rowsEl.querySelector(`[data-r="${s.row}"]`);
+  row.querySelector(".own").innerHTML = `<span class="av pop" style="--c:${p.c}">${p.i}</span>`;
+  row.querySelector(".due").textContent = `${p.s} is replying`;
+  unassigned--; $("n-un").textContent = unassigned;
+  $("thread").insertAdjacentHTML("beforeend", `<p class="act in-up"><svg class="i"><use href="#i-swap"/></svg><span>Priya gave this to <b>${p.n}</b>, ${s.why}</span></p>`);
+  $("c-note").innerHTML = `${avs(s.to, "width:18px;height:18px;font-size:8px")}<span><b>${p.s}</b> has this. ${PEOPLE[s.draft].s}'s draft was saved and set aside.</span>`;
+  $("c-text").textContent = ""; $("c-text").className = "text";
+}
+function sent(s) {
+  const p = PEOPLE[s.to];
+  $("thread").insertAdjacentHTML("beforeend", `<div class="msg mine in-up">${avs(s.to)}<div><div class="m-top"><b>${p.n}</b><time>just now</time></div><p class="body">${esc(s.reply)}</p></div></div>`);
+  $("c-text").className = "text ph"; $("c-text").textContent = `Reply to ${s.first}…`; $("c-send").className = "send";
+  const row = rowsEl.querySelector(`[data-r="${s.row}"]`);
+  const due = row.querySelector(".due"); due.textContent = s.took; due.classList.add("ok");
+}
+function resetRows() {
+  unassigned = 3; $("n-un").textContent = 3;
+  for (const s of STORIES) {
+    const row = rowsEl.querySelector(`[data-r="${s.row}"]`);
+    row.querySelector(".own").innerHTML = `<span class="av none"></span>`;
+    const due = row.querySelector(".due"); due.classList.remove("ok");
+    due.textContent = ["Reply due in 56m", "Reply due in 49m", "Reply due in 37m"][s.row];
+  }
+  PEOPLE.M.load = 3; PEOPLE.E.load = 4; PEOPLE.K.load = 5; PEOPLE.P.load = 6;
+}
+
+async function story(s) {
+  showStory(s); paintMenu();
+  await sleep(500);
+  aim($("owner"), .55, .62); await sleep(680);
+  $("owner").classList.add("press"); await sleep(120);
+  $("owner").classList.remove("press"); menu.classList.add("open"); await sleep(440);
+  const it = menuItem(s.to);
+  aim(it, .56, .5); await sleep(420); it.classList.add("hov"); await sleep(560);
+  menu.classList.remove("open"); assign(s); await sleep(260);
+  cur.classList.remove("on"); await sleep(700);
+  const box = $("c-text");
+  box.innerHTML = `<span id="c-typed"></span><i class="caret"></i>`;
+  const typed = $("c-typed"); let n = 0;
+  while (n < s.reply.length) { n += 2; typed.textContent = s.reply.slice(0, n); await sleep(20); }
+  $("c-send").classList.add("ready"); await sleep(360);
+  $("c-send").classList.add("press"); await sleep(120);
+  sent(s); await sleep(2600);
+}
+async function loop() {
+  const me = ++run;
+  try {
+    let i = 0;
+    for (;;) {
+      await story(STORIES[i]);
+      i = (i + 1) % STORIES.length;
+      conv.classList.add("swap"); await sleep(220);
+      if (i === 0) resetRows();
+      conv.classList.remove("swap");
+    }
+  } catch { if (me !== run) return; }
+}
+function finalState() {
+  run++; cur.classList.remove("on"); menu.classList.remove("open"); conv.classList.remove("swap");
+  resetRows(); showStory(STORIES[0]); paintMenu(); assign(STORIES[0]); sent(STORIES[0]);
+  $("thread").querySelectorAll(".in-up").forEach((n) => n.classList.remove("in-up"));
+}
+const ppIcons = { pause: '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>', play: '<path d="M7 4.5v15l12-7.5z"/>' };
+$("pp").addEventListener("click", () => {
+  liveOn = !liveOn;
+  $("pp").setAttribute("aria-pressed", String(!liveOn));
+  $("pp-t").textContent = liveOn ? "Pause" : "Play";
+  $("pp-ic").innerHTML = liveOn ? ppIcons.pause : ppIcons.play;
+});
+function startLive() {
+  const calm = still();
+  $("pp").hidden = calm;
+  $("pp-cap").textContent = calm ? "A morning at the support desk: the billing question has its owner." : "A morning at the support desk, replaying on its own.";
+  if (calm) finalState(); else loop();
+}
+if ("IntersectionObserver" in window) new IntersectionObserver((l) => { inView = l[0].isIntersecting; }).observe(mock);
+reduced.addEventListener("change", startLive);
+startLive();
+addEventListener("resize", () => { if (cur.classList.contains("on") && menu.classList.contains("open")) aim($("owner"), .55, .62); });
+
+/* ---------- demo 1: assign a teammate ---------- */
+const team = { M: 3, E: 4, P: 6, L: 0 };
+const NAMES = { M: "Mateus Oliveira", E: "Efua Mensah", P: "Priya Raman", L: "Lucía Ortega" };
+const COL = { M: "#5b4636", E: "#5a3e4e", P: "#3d4a3f" };
+let owner = null;
+const asBtns = [...$("as-team").querySelectorAll("button")];
+function paintTeam() {
+  for (const b of asBtns) {
+    const p = b.dataset.p;
+    b.setAttribute("aria-pressed", String(owner === p));
+    b.querySelector(".meter i").style.transform = `scaleX(${team[p] / 10})`;
+    b.querySelector(".cnt").textContent = `${team[p]} open`;
+  }
+  const av = $("as-av");
+  if (owner) { av.className = "av pop"; av.style.setProperty("--c", COL[owner]); av.textContent = NAMES[owner].split(" ").map((w) => w[0]).join(""); $("as-own").textContent = NAMES[owner]; }
+  else { av.className = "av none"; av.removeAttribute("style"); av.textContent = ""; $("as-own").textContent = "No owner yet"; }
+}
+function giveTo(p, how) {
+  if (p === owner) {
+    team[p]--; owner = null; paintTeam();
+    $("as-log").innerHTML = "Owner cleared. It's back in the unassigned queue.";
+    return;
+  }
+  const was = owner;
+  if (was) team[was]--;
+  team[p]++; owner = p; paintTeam();
+  const first = NAMES[p].split(" ")[0];
+  $("as-log").innerHTML = was
+    ? `Moved from ${NAMES[was].split(" ")[0]} to <b>${first}</b>, with the notes attached.`
+    : how === "auto" ? `<b>${first}</b> had the fewest open, so it's theirs.` : `<b>${first}</b> has it. Anyone else's draft is set aside.`;
+}
+asBtns.forEach((b) => b.addEventListener("click", () => {
+  if (b.getAttribute("aria-disabled") === "true") { $("as-log").innerHTML = "Lucía is away until Monday, so she can't take new work."; return; }
+  giveTo(b.dataset.p);
+}));
+$("as-auto").addEventListener("click", () => {
+  const pick = ["M", "E", "P"].filter((p) => p !== owner).map((p) => [p, team[p] - (p === owner ? 1 : 0)]).sort((a, b) => a[1] - b[1])[0][0];
+  if (owner && team[owner] - 1 <= team[pick]) { $("as-log").innerHTML = `<b>${NAMES[owner].split(" ")[0]}</b> already has the fewest open, so it stays put.`; return; }
+  giveTo(pick, "auto");
+});
+
+/* ---------- demo 2: snippets ---------- */
+const SNIPS = [
+  { k: "refund", d: "Refund for a damaged order", t: "Hi Noor,\n\nI'm so sorry the lid arrived cracked. I've refunded $64.00 for order 48213, and it should reach your card in 3 to 5 working days. There's no need to send anything back.\n\nMateus", f: ["Noor", "48213", "$64.00", "Mateus"] },
+  { k: "replace", d: "Send a free replacement", t: "Hi Noor,\n\nA new lid is on its way for order 48213, at no charge. You'll get tracking by email once it leaves us, usually by tomorrow afternoon.\n\nMateus", f: ["Noor", "48213", "Mateus"] },
+  { k: "where", d: "Where's my order?", t: "Hi Noor,\n\nOrder 48213 is with the courier and due on Thursday. If it hasn't turned up by Friday, reply here and I'll chase it myself.\n\nMateus", f: ["Noor", "48213", "Thursday", "Mateus"] },
+  { k: "thanks", d: "Close the conversation kindly", t: "Thanks for your patience, Noor. I'll close this for now, and a reply to this email opens it again with me.\n\nMateus", f: ["Noor", "Mateus"] },
+];
+const ta = $("sn-text"), pop = $("sn-pop");
+let hits = [], snSel = 0, slashAt = -1, typer = 0, touched = false;
+function slashToken() {
+  const upto = ta.value.slice(0, ta.selectionStart);
+  const m = upto.match(/(^|\s)\/([a-z]*)$/i);
+  if (!m) return null;
+  return { at: upto.length - m[2].length - 1, q: m[2].toLowerCase() };
+}
+function closePop() { pop.hidden = true; ta.setAttribute("aria-expanded", "false"); ta.removeAttribute("aria-activedescendant"); hits = []; slashAt = -1; }
+function paintPop(q) {
+  hits = SNIPS.filter((s) => s.k.startsWith(q));
+  snSel = Math.min(snSel, Math.max(0, hits.length - 1));
+  pop.innerHTML = hits.length
+    ? hits.map((s, i) => `<li role="option" id="sn-${s.k}" data-i="${i}" aria-selected="${i === snSel}"><code>/${s.k}</code><span>${s.d}</span></li>`).join("")
+    : `<li class="none" role="option" aria-disabled="true" aria-selected="false">No snippet called /${esc(q)}. Keep typing, or press Esc.</li>`;
+  pop.hidden = false; ta.setAttribute("aria-expanded", "true");
+  if (hits[snSel]) ta.setAttribute("aria-activedescendant", "sn-" + hits[snSel].k); else ta.removeAttribute("aria-activedescendant");
+}
+function refreshPop() {
+  const t = slashToken();
+  if (!t) return closePop();
+  slashAt = t.at; paintPop(t.q);
+}
+function expand(s, at = slashAt) {
+  const me = ++typer; closePop();
+  const end = ta.selectionStart, head = ta.value.slice(0, at), tail = ta.value.slice(end);
+  $("sn-fills").innerHTML = `Filled in from this conversation: ${s.f.map((x) => `<b>${esc(x)}</b>`).join(" · ")}`;
+  $("sn-msg").textContent = "";
+  if (still()) { ta.value = head + s.t + tail; ta.selectionStart = ta.selectionEnd = (head + s.t).length; return; }
+  let n = 0;
+  const tick = () => {
+    if (me !== typer) return;
+    n = Math.min(s.t.length, n + 4);
+    ta.value = head + s.t.slice(0, n) + tail;
+    ta.selectionStart = ta.selectionEnd = head.length + n;
+    if (ta.scrollHeight > ta.clientHeight) ta.scrollTop = ta.scrollHeight;
+    if (n < s.t.length) setTimeout(tick, 12);
+  };
+  tick();
+}
+ta.addEventListener("input", () => { typer++; touched = true; $("sn-msg").textContent = ""; snSel = 0; refreshPop();
+  if (!ta.value.trim()) $("sn-fills").textContent = "Nothing filled in yet.";
+  const t = ta.value.slice(0, ta.selectionStart).match(/(^|\s)\/([a-z]+)[ \n]$/i);
+  if (t) { const s = SNIPS.find((x) => x.k === t[2].toLowerCase()); if (s) expand(s, ta.selectionStart - t[2].length - 2); }
+});
+ta.addEventListener("keydown", (e) => {
+  if (pop.hidden) return;
+  if (e.key === "ArrowDown" && hits.length) { e.preventDefault(); snSel = (snSel + 1) % hits.length; paintPop(slashToken()?.q ?? ""); }
+  else if (e.key === "ArrowUp" && hits.length) { e.preventDefault(); snSel = (snSel - 1 + hits.length) % hits.length; paintPop(slashToken()?.q ?? ""); }
+  else if ((e.key === "Enter" || e.key === "Tab") && hits.length) { e.preventDefault(); expand(hits[snSel]); }
+  else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePop(); }
+});
+ta.addEventListener("click", () => { touched = true; refreshPop(); });
+ta.addEventListener("focus", () => { touched = true; });
+ta.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== ta) closePop(); }, 120));
+pop.addEventListener("mousedown", (e) => {
+  const li = e.target.closest("li[data-i]"); if (!li) return;
+  e.preventDefault(); expand(hits[+li.dataset.i]);
+});
+document.querySelectorAll(".sn-try button").forEach((b) => b.addEventListener("click", () => {
+  touched = true; typer++;
+  const s = SNIPS.find((x) => "/" + x.k === b.dataset.s);
+  ta.value = ""; ta.selectionStart = ta.selectionEnd = 0;
+  expand(s, 0);
+}));
+$("sn-send").addEventListener("click", () => {
+  typer++;
+  if (!ta.value.trim()) { $("sn-msg").textContent = "There's nothing to send yet. Type / and pick a snippet."; ta.focus(); return; }
+  ta.value = ""; closePop();
+  $("sn-fills").textContent = "Nothing filled in yet.";
+  $("sn-msg").textContent = "Sent to Noor. First reply in 14 minutes, inside your 1 h promise.";
+});
+/* the first time it comes into view it shows itself, unless you've got there first */
+if ("IntersectionObserver" in window && !still()) {
+  const seen = new IntersectionObserver((l) => {
+    if (!l[0].isIntersecting) return;
+    seen.disconnect();
+    const word = "/ref"; let i = 0; const me = ++typer;
+    const step = () => {
+      if (touched || me !== typer) return;
+      if (i < word.length) { i++; ta.value = word.slice(0, i); ta.selectionStart = ta.selectionEnd = i; slashAt = 0; paintPop(word.slice(1, i)); setTimeout(step, 130); }
+      else setTimeout(() => { if (!touched && me === typer) { ta.selectionStart = ta.selectionEnd = ta.value.length; expand(SNIPS[0], 0); } }, 700);
+    };
+    setTimeout(step, 500);
+  }, { threshold: .6 });
+  seen.observe($("snip"));
+}
+
+/* ---------- demo 3: response times ---------- */
+const DAYS = {
+  support: [72, 68, 81, 58, 55, 94, 99, 62, 54, 51, 49, 47, 88, 76, 52, 49, 45, 44, 41, 72, 66, 40, 38, 39, 36, 34, 58, 54, 32, 29],
+  billing: [44, 41, 47, 38, 36, 62, 70, 40, 37, 35, 33, 31, 58, 52, 34, 32, 30, 29, 27, 49, 44, 26, 25, 26, 24, 23, 40, 36, 22, 21],
+  returns: [112, 104, 118, 96, 92, 118, 116, 98, 90, 88, 84, 81, 110, 102, 86, 80, 76, 74, 71, 99, 92, 68, 66, 67, 62, 60, 84, 78, 56, 52],
+};
+const STOPS = [15, 30, 45, 60, 90, 120];
+const fmtM = (m) => m < 60 ? `${m} min` : m % 60 ? `${Math.floor(m / 60)} h ${m % 60}` : `${m / 60} h`;
+const barsEl = $("bars"), dayName = (i) => new Date(Date.UTC(2026, 9, 5 + i)).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).replace(",", "");
+let inbox = "support", promise = 60, curDay = -1;
+function paintChart() {
+  const d = DAYS[inbox];
+  [...barsEl.children].forEach((b, i) => { b.firstElementChild.style.setProperty("--v", d[i]); b.classList.toggle("over", d[i] > promise); });
+  const inside = d.filter((v) => v <= promise).length;
+  $("ch-big").textContent = `${inside} of 30 days`;
+  $("ch-sub").textContent = `inside your ${fmtM(promise)} promise, median first response`;
+  $("tgt").style.bottom = `${promise / 120 * 100}%`;
+  $("tgt-l").textContent = `Promise ${fmtM(promise)}`;
+  $("promise-o").textContent = fmtM(promise);
+  if (curDay >= 0) showDay(curDay);
+}
+function showDay(i) {
+  curDay = i;
+  [...barsEl.children].forEach((b, n) => b.classList.toggle("cur", n === i));
+  const tip = $("tip"), d = DAYS[inbox][i];
+  tip.innerHTML = `${dayName(i)}<small>${fmtM(d)} · ${d <= promise ? "inside" : "over"} the promise</small>`;
+  const plotW = $("plot").clientWidth, left = barsEl.offsetLeft + barsEl.clientWidth * (i + .5) / 30;
+  tip.style.left = `${Math.max(0, Math.min(plotW - 176, left - 88))}px`;
+  tip.style.bottom = `${Math.min(100, d / 120 * 100)}%`;
+  tip.style.marginBottom = "8px";
+  tip.classList.add("on");
+  $("ch-read").textContent = `${dayName(i)}, ${fmtM(d)}, ${d <= promise ? "inside" : "over"} the promise`;
+}
+function hideDay() { curDay = -1; $("tip").classList.remove("on"); [...barsEl.children].forEach((b) => b.classList.remove("cur")); }
+barsEl.addEventListener("pointermove", (e) => { const r = barsEl.getBoundingClientRect(); const i = Math.max(0, Math.min(29, Math.floor((e.clientX - r.left) / r.width * 30))); if (i !== curDay) showDay(i); });
+barsEl.addEventListener("pointerleave", hideDay);
+$("plot").addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); const n = curDay < 0 ? (e.key === "ArrowRight" ? 0 : 29) : curDay + (e.key === "ArrowRight" ? 1 : -1); showDay(Math.max(0, Math.min(29, n))); }
+  if (e.key === "Home") { e.preventDefault(); showDay(0); }
+  if (e.key === "End") { e.preventDefault(); showDay(29); }
+  if (e.key === "Escape") hideDay();
+});
+$("plot").addEventListener("blur", hideDay);
+$("ch-seg").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+  inbox = b.dataset.k;
+  $("ch-seg").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  paintChart();
+}));
+$("promise").addEventListener("input", (e) => { promise = STOPS[+e.target.value]; $("promise").setAttribute("aria-valuetext", fmtM(promise)); paintChart(); });
+$("promise").setAttribute("aria-valuetext", "1 h");
+paintChart();
+
+/* ---------- pricing ---------- */
+function bill(which) {
+  document.querySelectorAll(".amount b").forEach((b) => { const v = `$${b.dataset[which]}`; if (b.textContent === v) return; b.textContent = v; b.classList.remove("flip"); void b.offsetWidth; b.classList.add("flip"); });
+  document.querySelectorAll(".billed").forEach((p) => { p.textContent = p.dataset[which]; });
+  $("bill-note").textContent = which === "y" ? "You're saving two months" : "Yearly: two months free";
+}
+document.querySelectorAll('input[name="bill"]').forEach((r) => r.addEventListener("change", () => bill(r.value)));
+
+/* ---------- FAQ: all open without scripts, only the first with them ---------- */
+document.querySelectorAll(".qa").forEach((q, i) => {
+  const b = q.querySelector("button"), a = q.querySelector(".ans");
+  const set = (open) => { b.setAttribute("aria-expanded", String(open)); a.classList.toggle("shut", !open); };
+  set(i === 0);
+  b.addEventListener("click", () => set(b.getAttribute("aria-expanded") !== "true"));
+});
+
+/* ---------- closing form ---------- */
+function emailError(v) {
+  if (!v) return "Enter your work email to start.";
+  if (/\s/.test(v)) return "Email addresses can't have spaces in them.";
+  if (!v.includes("@")) return "That's missing an @.";
+  const [name, dom, more] = v.split("@");
+  if (more !== undefined) return "That has more than one @ in it.";
+  if (!name) return "Add the part before the @.";
+  if (!dom) return "Add the part after the @, like yourcompany.com.";
+  if (!/^[^.]+(\.[^.]+)*\.[a-z]{2,}$/i.test(dom)) return `“${dom}” doesn't look like a full domain. It should end in something like .com.`;
+  return "";
+}
+const warnIcon = '<svg class="i" aria-hidden="true"><use href="#i-warn"/></svg>';
+function wireForm() {
+  const form = $("end-form"), input = $("end-email"), err = $("end-err");
+  /* the sandboxed frame never fires "submit", so the button's click (which Enter also fires) does the work */
+  const go = (e) => {
+    e.preventDefault();
+    const v = input.value.trim(), m = emailError(v);
+    if (m) { input.setAttribute("aria-invalid", "true"); err.innerHTML = `${warnIcon}<span>${esc(m)}</span>`; input.focus(); return; }
+    const box = $("end-box");
+    box.innerHTML = `<div class="done" tabindex="-1" id="done"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><div><b>Check your inbox, ${esc(v)}.</b><span>The link to your new workspace is on its way.</span><br><button type="button" id="again">Use a different email</button></div></div>`;
+    $("done").focus({ preventScroll: true });
+    $("again").addEventListener("click", () => { box.innerHTML = formHTML; wireForm(); $("end-email").value = v; $("end-email").focus(); });
+  };
+  form.addEventListener("submit", go);
+  form.querySelector("[type=submit]").addEventListener("click", go);
+  input.addEventListener("input", () => { if (input.getAttribute("aria-invalid") === "true" && !emailError(input.value.trim())) { input.removeAttribute("aria-invalid"); err.textContent = ""; } });
+}
+const formHTML = $("end-box").innerHTML;
+wireForm();
+</script>
+</body>
+</html>

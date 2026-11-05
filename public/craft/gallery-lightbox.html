@@ -1,0 +1,794 @@
+<!doctype html>
+<!-- Photo gallery with lightbox — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Justified rows of drawn photographs that reflow when you filter by series. A photo flies from its exact
+     place into a lightbox with arrows, swipe, a filmstrip, pinch and wheel zoom, drag to pan, and an info
+     panel with a real histogram; closing lands it back on its thumbnail. Swap the scenes for your own images. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tidewater — Photographs by Maren Okafor</title>
+<style>
+:root {
+  --bg: #0b0b0a; --raise: #161614; --raise-2: #20201d; --line: #2a2a26; --ink: #ece9e2; --soft: #a5a196; --sand: #dcb88f;
+  --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.2, .75, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--sans); min-height: 100svh; display: flex; flex-direction: column; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--sand); outline-offset: 2px; }
+svg { display: block; }
+.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* page */
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; padding: 24px 24px 20px; }
+h1 { font-size: 20px; font-weight: 600; letter-spacing: -.005em; line-height: 28px; }
+h1 span { color: var(--soft); font-weight: 400; margin-left: 12px; font-size: 14px; letter-spacing: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px 24px; }
+.chip { position: relative; height: 28px; color: var(--soft); font-size: 14px; transition: color .15s; white-space: nowrap; }
+.chip sup { font: 400 10.5px/1 var(--mono); margin-left: 3px; vertical-align: 5px; color: var(--soft); }
+.chip::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--sand); transform: scaleX(0); transform-origin: left; transition: transform .22s var(--ease); }
+.chip:hover { color: var(--ink); }
+.chip[aria-pressed="true"] { color: var(--ink); }
+.chip[aria-pressed="true"]::after { transform: scaleX(1); }
+
+.gal { position: relative; margin: 0 24px; }
+.ph { position: absolute; left: 0; top: 0; display: block; overflow: hidden; background: var(--raise); }
+.ph img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s var(--ease); }
+.ph:hover img { transform: scale(1.015); }
+.ph:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; z-index: 2; }
+.cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 12px 10px; text-align: left; font-size: 13px; line-height: 18px; color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, .8), rgba(0, 0, 0, .5) 55%, transparent); opacity: 0; transition: opacity .18s; pointer-events: none; }
+.cap small { display: block; font-size: 12px; color: #d9d6cd; }
+.ph:hover .cap, .ph:focus-visible .cap { opacity: 1; }
+.foot { margin-top: auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding: 24px; color: var(--soft); font-size: 13px; }
+
+/* lightbox */
+dialog.lb { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; border: 0; background: none; color: var(--ink); overflow: hidden; }
+dialog.lb::backdrop { background: transparent; }
+.lb-bg { position: absolute; inset: 0; background: #070706; opacity: 0; transition: opacity .28s var(--ease); }
+.lb.on .lb-bg { opacity: 1; }
+.lb-grid { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: 56px minmax(0, 1fr) 76px; grid-template-areas: "bar panel" "stage panel" "strip panel"; }
+.lb.noinfo .lb-grid { grid-template-columns: minmax(0, 1fr) 0; }
+.chrome { opacity: 0; transition: opacity .2s var(--ease); }
+.lb.on .chrome { opacity: 1; transition-delay: .08s; }
+.bar { grid-area: bar; display: flex; align-items: center; gap: 4px; padding: 0 12px 0 20px; position: relative; z-index: 3; }
+.pos { font: 400 13px/1 var(--mono); color: var(--soft); }
+.pos b { color: var(--ink); font-weight: 400; }
+.ser { margin-left: 12px; color: var(--soft); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar .sp { flex: 1; }
+.ib { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 6px; color: var(--ink); transition: background .12s, opacity .12s; flex: none; }
+.ib:hover { background: var(--raise-2); }
+.ib:disabled { opacity: .35; cursor: default; background: none; }
+.ib[aria-pressed="true"] { background: var(--raise-2); color: var(--sand); }
+.zoomv { width: 48px; height: 40px; text-align: center; font: 400 12.5px/40px var(--mono); color: var(--soft); border-radius: 6px; }
+.zoomv:hover { background: var(--raise-2); color: var(--ink); }
+.sep { width: 1px; height: 20px; background: var(--line); margin: 0 6px; }
+.stage { grid-area: stage; position: relative; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; cursor: default; }
+.stage.can { cursor: zoom-in; }
+.stage.zoomed { cursor: grab; }
+.stage.drag { cursor: grabbing; }
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.slide { position: absolute; left: 0; top: 0; transform-origin: 0 0; display: block; visibility: hidden; -webkit-user-drag: none; }
+.slide.show { visibility: visible; }
+.tx .slide { transition: transform .3s var(--ease); }
+.zoomtx .slide.cur { transition: transform .22s var(--ease); }
+.navb { position: absolute; top: 50%; width: 44px; height: 64px; margin-top: -32px; display: grid; place-items: center; border-radius: 6px; color: #fff; background: rgba(12, 12, 11, .42); transition: background .12s, opacity .15s; z-index: 2; }
+.navb:hover { background: rgba(12, 12, 11, .78); }
+.navb.p { left: 12px; } .navb.n { right: 12px; }
+.navb[hidden] { display: none; }
+.lb.on .zoomed .navb { opacity: 0; pointer-events: none; }
+.strip { grid-area: strip; display: flex; gap: 4px; align-items: center; padding: 8px 20px 12px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; position: relative; z-index: 3; overscroll-behavior: contain; }
+.strip::-webkit-scrollbar { display: none; }
+.strip button { position: relative; flex: none; height: 52px; opacity: .55; transition: opacity .15s; background: var(--raise); }
+.strip button:hover { opacity: .9; }
+.strip button[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 1px #070706, 0 0 0 2px var(--ink); }
+.strip img { display: block; height: 100%; width: 100%; object-fit: cover; }
+.strip button:focus-visible { outline-offset: 3px; opacity: 1; z-index: 1; }
+
+.panel { grid-area: panel; position: relative; z-index: 4; background: var(--raise); border-left: 1px solid var(--line); overflow-y: auto; overscroll-behavior: contain; padding: 20px 20px 24px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; min-width: 0; }
+.noinfo .panel { display: none; }
+.panelhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.panel h2 { font-size: 20px; line-height: 26px; font-weight: 600; letter-spacing: -.005em; text-wrap: balance; }
+.panel .x { display: none; margin: -8px -8px 0 0; }
+.place { color: var(--soft); margin-top: 4px; }
+.note { margin-top: 12px; line-height: 22px; color: #d8d5cc; text-wrap: pretty; }
+.hist { margin-top: 20px; height: 72px; position: relative; background: #0d0d0c; border: 1px solid var(--line); overflow: hidden; }
+.hist svg { width: 100%; height: 100%; }
+.hist path { mix-blend-mode: screen; }
+dl.meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; margin-top: 12px; }
+.meta div { padding: 10px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.meta .w { grid-column: 1 / -1; }
+.meta dt { font-size: 12px; color: var(--soft); }
+.meta dd { font: 400 13px/20px var(--mono); overflow-wrap: anywhere; }
+.copy { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 40px; margin-top: 16px; border: 1px solid #45453f; border-radius: 6px; font-size: 14px; transition: background .12s, border-color .12s; }
+.copy:hover { background: var(--raise-2); border-color: #65655c; }
+.copy .i { width: 16px; height: 16px; }
+
+@media (max-width: 899px) {
+  .lb-grid, .lb.noinfo .lb-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: 52px minmax(0, 1fr) 68px; grid-template-areas: "bar" "stage" "strip"; }
+  .panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 72%; border-left: 0; border-top: 1px solid var(--line); border-radius: 12px 12px 0 0; animation: rise .24s var(--ease); }
+  .panel .x { display: grid; }
+  .strip { padding: 6px 12px 10px; }
+  .strip button { height: 48px; }
+  .bar { padding: 0 6px 0 16px; }
+}
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } }
+@media (max-width: 640px) {
+  .top { padding: 16px 12px 12px; display: block; }
+  h1 span { display: block; margin: 0; }
+  .chips { margin-top: 8px; gap: 2px 10px; }
+  .chip { font-size: 13px; }
+  .gal { margin: 0 12px; }
+  .foot { padding: 20px 12px; }
+  .ser, .sep, .zoomv { display: none; }
+  .navb { display: none; }
+}
+@media (hover: none) { .cap { display: none; } .ph:hover img { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <h1>Tidewater <span>Photographs by Maren Okafor</span></h1>
+  <div class="chips" id="chips" role="group" aria-label="Filter by series"></div>
+</header>
+<main class="gal" id="gal" aria-label="Photographs"></main>
+<footer class="foot"><span id="footN"></span><span>Editions of 25, printed to order in Rotterdam</span></footer>
+
+<dialog class="lb" id="lb" aria-label="Photo viewer">
+  <div class="lb-bg"></div>
+  <div class="layer" id="layer"></div>
+  <div class="lb-grid">
+    <div class="bar chrome">
+      <p class="pos" id="pos"></p><span class="ser" id="ser"></span>
+      <span class="sp"></span>
+      <button class="ib" id="zOut" aria-label="Zoom out"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button>
+      <button class="zoomv" id="zVal" aria-label="Reset zoom">100%</button>
+      <button class="ib" id="zIn" aria-label="Zoom in"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button>
+      <span class="sep"></span>
+      <button class="ib" id="infoB" aria-label="Photo information" aria-pressed="true"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg></button>
+      <button class="ib" id="closeB" aria-label="Close viewer"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="stage can" id="stage" tabindex="-1">
+      <button class="navb p chrome" id="prevB" aria-label="Previous photo"><svg class="i" aria-hidden="true"><use href="#i-prev"/></svg></button>
+      <button class="navb n chrome" id="nextB" aria-label="Next photo"><svg class="i" aria-hidden="true"><use href="#i-next"/></svg></button>
+    </div>
+    <div class="strip chrome" id="strip" role="group" aria-label="Filmstrip"></div>
+    <aside class="panel chrome" id="panel" aria-label="About this photo"></aside>
+  </div>
+  <p class="sr" id="live" aria-live="polite"></p>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const calm = matchMedia("(prefers-reduced-motion: reduce)");
+const EASE = "cubic-bezier(.2,.75,.2,1)";
+
+/* ---------- a small darkroom: every photograph below is drawn from a seed ---------- */
+const rng = (s) => () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+const lerp = (a, b, t) => a + (b - a) * t;
+const rgb = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+const mix = (a, b, t) => { const A = rgb(a), B = rgb(b); return "#" + A.map((v, i) => Math.round(lerp(v, B[i], t)).toString(16).padStart(2, "0")).join(""); };
+const stops = (st) => st.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ""}/>`).join("");
+const lg = (id, st, x2 = 0, y2 = 1) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops(st)}</linearGradient>`;
+const rg = (id, cx, cy, r, st) => `<radialGradient id="${id}" gradientUnits="userSpaceOnUse" cx="${cx}" cy="${cy}" r="${r}">${stops(st)}</radialGradient>`;
+const blur = (id, d) => `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${d}"/></filter>`;
+const rough = (id, scale, f, seed = 3) => `<filter id="${id}" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="${f}" numOctaves="3" seed="${seed}"/><feDisplacementMap in="SourceGraphic" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+function ridge(r, W, y, amp, ro = .55, it = 8) {
+  let p = [y + (r() - .5) * amp, y + (r() - .5) * amp], a = amp;
+  for (let i = 0; i < it; i++) { const q = []; for (let j = 0; j < p.length - 1; j++) q.push(p[j], (p[j] + p[j + 1]) / 2 + (r() - .5) * a); q.push(p[p.length - 1]); p = q; a *= ro; }
+  return p.map((v, i) => `${(i / (p.length - 1) * W).toFixed(0)},${v.toFixed(1)}`);
+}
+const below = (pts, W, H) => `M0,${H}L${pts.join("L")}L${W},${H}Z`;
+const pct = (W, H, list) => list.map(([x, y]) => `${(x * W).toFixed(1)},${(y * H).toFixed(1)}`).join(" ");
+function trees(r, W, y, hmin, hmax, step, amp = 0) {
+  let d = "";
+  for (let x = -step; x < W + step; x += step * (.6 + r() * .9)) {
+    const h = lerp(hmin, hmax, r()), w = h * (.13 + r() * .07), b = y + Math.sin(x * .004) * amp;
+    d += `M${(x - w).toFixed(0)},${(b + 8).toFixed(0)}L${x.toFixed(0)},${(b - h).toFixed(0)}L${(x + w).toFixed(0)},${(b + 8).toFixed(0)}Z`;
+  }
+  return d;
+}
+
+const SCENES = {
+  dawn(W, H, r) {
+    const hz = H * .6, sx = W * .64; let c = "", g = "", k = "";
+    for (let i = 0; i < 18; i++) { const y = r() * hz * .92; c += `<ellipse cx="${r() * W}" cy="${y}" rx="${140 + r() * 420}" ry="${3 + r() * 11}" fill="${mix("#2d4a66", "#ffc08e", Math.pow(y / hz, 1.3))}" opacity="${.45 + r() * .4}"/>`; }
+    for (let i = 0; i < 220; i++) { const t = Math.pow(r(), 1.5), y = hz + t * (H - hz), sp = 10 + t * 300; g += `<ellipse cx="${sx + (r() - .5) * 2 * sp * r()}" cy="${y}" rx="${5 + t * 62 * r()}" ry="${.6 + t * 2.4}" fill="#ffe6bb" opacity="${(.2 + .75 * (1 - t) * r()).toFixed(2)}"/>`; }
+    for (let i = 0; i < 120; i++) { const t = r(), y = hz + 6 + t * (H - hz); k += `<ellipse cx="${r() * W}" cy="${y}" rx="${16 + t * 170 * r()}" ry="${.6 + t * 2.2}" fill="#07202f" opacity="${(.12 + r() * .24).toFixed(2)}"/>`; }
+    const left = [], right = []; for (let i = 0; i <= 40; i++) { const t = i / 40; left.push(`${(t * W * .42).toFixed(0)},${(hz - Math.pow(1 - t, 1.5) * H * .17 * (.82 + .18 * Math.sin(t * 19) + r() * .06)).toFixed(1)}`); right.push(`${(W - t * W * .22).toFixed(0)},${(hz - Math.pow(1 - t, 1.2) * H * .07 * (.8 + r() * .16)).toFixed(1)}`); }
+    return { defs: lg("s", [[0, "#142c47"], [.34, "#4a6e8c"], [.64, "#d7917a"], [.84, "#f6bf8c"], [1, "#ffdcae"]]) + lg("w", [[0, "#efb68c"], [.1, "#b98771"], [.42, "#396074"], [1, "#0a2636"]]) + rg("u", sx, hz, H * .55, [[0, "#fff4d4", 1], [.08, "#ffe0a6", .85], [.35, "#ffb878", .28], [1, "#ffb878", 0]]) + blur("b", 7) + blur("b1", 1) + rough("q", 26, .02),
+      body: `<rect width="${W}" height="${hz + 1}" fill="url(#s)"/><g filter="url(#b)">${c}</g><rect width="${W}" height="${hz}" fill="url(#u)"/><circle cx="${sx}" cy="${hz - 16}" r="19" fill="#fff6dd"/><rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#w)"/><g filter="url(#b1)">${k}${g}</g>
+        <path d="M${W},${hz}L${right.join("L")}L${W - W * .22},${hz}Z" fill="#40596b"/><path d="M0,${hz + 1}L${left.join("L")}L${W * .42},${hz + 1}Z" fill="#142431"/><path d="M0,${hz}L${left.map((p) => { const [x, y] = p.split(","); return `${x},${2 * hz - y}`; }).join("L")}L${W * .42},${hz}Z" fill="#0d2230" opacity=".62" filter="url(#b)"/>
+        <g filter="url(#q)" fill="#050f16"><ellipse cx="${W * .1}" cy="${H * 1.0}" rx="${W * .26}" ry="${H * .1}"/><ellipse cx="${W * .36}" cy="${H * 1.02}" rx="${W * .13}" ry="${H * .06}"/><ellipse cx="${W * .95}" cy="${H * 1.0}" rx="${W * .16}" ry="${H * .07}"/></g>`,
+    };
+  },
+  stack(W, H, r) {
+    const hz = H * .73; let c = "", m = "";
+    for (let i = 0; i < 16; i++) { const y = r() * hz * .9; c += `<ellipse cx="${r() * W}" cy="${y}" rx="${90 + r() * 330}" ry="${6 + r() * 22}" fill="${mix("#27334f", "#ff9e6d", Math.pow(y / hz, 1.6))}" opacity="${.5 + r() * .4}"/>`; }
+    for (let i = 0; i < 16; i++) { const y = hz + r() * (H - hz) * .9; m += `<ellipse cx="${r() * W}" cy="${y}" rx="${160 + r() * 380}" ry="${10 + r() * 34}" fill="#fff" opacity="${(.1 + r() * .22).toFixed(2)}"/>`; }
+    const P = [[.37, .805], [.39, .66], [.365, .54], [.41, .4], [.395, .3], [.45, .235], [.52, .25], [.545, .36], [.585, .49], [.575, .62], [.61, .805]];
+    return { defs: lg("s", [[0, "#0c2340"], [.3, "#37496f"], [.58, "#b9536b"], [.8, "#f2965b"], [1, "#ffd28d"]]) + lg("w", [[0, "#efbb9f"], [.3, "#a78f9f"], [.65, "#42607b"], [1, "#0f2537"]]) + lg("rk", [[0, "#080d11"], [.55, "#1d1f25"], [.88, "#5a3f3b"], [1, "#a1604a"]], 1, 0) + rough("q", 42, .018) + rough("q2", 18, .05, 8) + blur("b", 14) + blur("b2", 5),
+      body: `<rect width="${W}" height="${hz + 2}" fill="url(#s)"/><g filter="url(#b2)">${c}</g><rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#w)"/><polygon points="${pct(W, H, [[.76, .76], [.775, .62], [.8, .57], [.83, .6], [.85, .76]])}" fill="#4a415f" filter="url(#q2)"/><g filter="url(#q)"><polygon points="${pct(W, H, P)}" fill="url(#rk)"/></g><g filter="url(#b)">${m}<rect x="${-W * .1}" y="${H * .775}" width="${W * 1.2}" height="${H * .075}" fill="#c9c3cf" opacity=".92"/><ellipse cx="${W * .5}" cy="${H * .8}" rx="${W * .4}" ry="${H * .028}" fill="#fff" opacity=".55"/></g><g fill="#060a0e" filter="url(#q)"><ellipse cx="${W * .12}" cy="${H * 1.0}" rx="${W * .36}" ry="${H * .055}"/><ellipse cx="${W * .86}" cy="${H * 1.01}" rx="${W * .3}" ry="${H * .04}"/></g>`,
+    };
+  },
+  pier(W, H, r) {
+    const hz = H * .46, vx = W * .57; let rows = "", refl = "", streak = "";
+    for (let i = 0; i < 40; i++) { const t = r(), y = hz + t * t * (H - hz); streak += `<ellipse cx="${r() * W}" cy="${y}" rx="${60 + t * 460 * r()}" ry="${.8 + t * 5}" fill="${r() > .45 ? "#f6e2c6" : "#25343c"}" opacity="${(.08 + r() * .22).toFixed(2)}"/>`; }
+    const N = 24;
+    for (let i = 0; i < N; i++) {
+      const s = 1 / (.62 + i * .42), base = hz + s * H * .36, top = hz - s * H * .34, w = Math.max(1.3, s * W * .014), sp = s * W * .17;
+      const miss = (i === 2 || i === 6);
+      [-1, 1].forEach((d, k) => {
+        if (miss && k === 1) return;
+        const x = vx + d * sp, lean = (r() - .5) * 6 * s, tp = top + (k === 0 ? 0 : r() * 12 * s);
+        rows = `<path d="M${x - w / 2},${base}L${x - w / 2 + lean},${tp}L${x + w / 2 + lean},${tp}L${x + w / 2},${base}Z" fill="${mix("#0c0e10", "#657580", i / N * .85)}"/>` + rows;
+        refl = `<rect x="${x - w / 2}" y="${base}" width="${w}" height="${base - tp}" fill="${mix("#0c0e10", "#657580", i / N * .85)}" opacity="${.36 - i * .006}"/>` + refl;
+      });
+      if (i > 3) rows = `<path d="M${vx - sp},${top + s * H * .04}L${vx + sp},${top + s * H * .04}" stroke="${mix("#0c0e10", "#657580", i / N * .85)}" stroke-width="${Math.max(1, s * 18)}"/>` + rows;
+    }
+    return { defs: lg("s", [[0, "#7f9ab0"], [.55, "#c8d2d2"], [.88, "#f4dfbf"], [1, "#ffe3b6"]]) + lg("w", [[0, "#f7e0bb"], [.22, "#b8c2c0"], [.6, "#64787f"], [1, "#2a383e"]]) + rg("u", vx, hz, W * .5, [[0, "#fff2d0", .85], [1, "#fff2d0", 0]]) + blur("b", 3) + blur("b2", 2),
+      body: `<rect width="${W}" height="${hz + 1}" fill="url(#s)"/><rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#w)"/><rect width="${W}" height="${H}" fill="url(#u)"/><g filter="url(#b2)">${streak}</g><g filter="url(#b)">${refl}</g>${rows}`,
+    };
+  },
+  surf(W, H, r) {
+    const shore = (y, d = 0) => W * .3 + Math.sin(y / H * 3.1 + .6) * W * .055 + Math.sin(y / H * 9 + d * .01) * W * .012 + d * (1 + .25 * Math.sin(y / H * 5 + d * .02));
+    const line = (d) => { let p = ""; for (let y = -20; y <= H + 20; y += 20) p += `${y < 0 ? "M" : "L"}${shore(y, d).toFixed(1)},${y}`; return p; };
+    let foam = "", dots = "";
+    [[6, 26, .95], [34, 10, .75], [72, 6, .55], [140, 11, .8], [172, 4, .4], [330, 13, .55], [362, 5, .3], [520, 6, .22]].forEach(([d, w, o]) => { foam += `<path d="${line(d)}" fill="none" stroke="#fff" stroke-width="${w}" stroke-dasharray="${d > 300 ? `${220 + r() * 260} ${60 + r() * 180}` : "none"}" opacity="${o}"/>`; });
+    for (let i = 0; i < 16; i++) { const y = H * (.06 + i * .058) + r() * 20, x = shore(y) - 70 - r() * 150, c = ["#e8563a", "#f4c33f", "#f6f1e6", "#1c7ea6"][i % 4]; dots += `<ellipse cx="${x + 9}" cy="${y + 7}" rx="11" ry="9" fill="#6d5a3c" opacity=".55"/><circle cx="${x}" cy="${y}" r="10" fill="${c}"/>`; }
+    for (let i = 0; i < 9; i++) { const y = r() * H, x = shore(y, 60 + r() * 90); dots += `<circle cx="${x}" cy="${y}" r="3" fill="#20303a"/>`; }
+    return { defs: lg("w", [[0, "#8ae8d4"], [.2, "#2cc7c1"], [.46, "#0d97ae"], [.74, "#0a6288"], [1, "#07406a"]], 1, 0) + lg("d", [[0, "#efdcb2"], [1, "#d9bf8d"]], 1, 0) + rough("q", 22, .022) + rough("q2", 34, .008, 9) + blur("b", 3) + blur("b2", 26),
+      body: `<rect width="${W}" height="${H}" fill="url(#d)"/><path d="${line(0)}" fill="none" stroke="#a68a5c" stroke-width="72" opacity=".55" filter="url(#b2)"/><path d="${line(0)}L${W + 30},${H + 20}L${W + 30},-20Z" fill="url(#w)" filter="url(#q2)"/><path d="${line(250)}" fill="none" stroke="#7fe6d6" stroke-width="150" opacity=".4" filter="url(#b2)"/><path d="${line(620)}" fill="none" stroke="#04395e" stroke-width="240" opacity=".5" filter="url(#b2)"/><g filter="url(#q)">${foam}</g>${dots}`,
+    };
+  },
+  light(W, H, r) {
+    const hz = H * .74, tx = W * .55; let st = "", gl = "";
+    for (let i = 0; i < 130; i++) st += `<circle cx="${r() * W}" cy="${r() * hz * .72}" r="${(.8 + r() * 1.5).toFixed(1)}" fill="#fff" opacity="${(.2 + r() * .7).toFixed(2)}"/>`;
+    for (let i = 0; i < 80; i++) { const t = r(); gl += `<ellipse cx="${tx + (r() - .5) * (24 + t * 150)}" cy="${hz + 20 + t * (H - hz)}" rx="${4 + t * 34 * r()}" ry="${.8 + t * 2}" fill="#ffe7ae" opacity="${(.1 + r() * .45 * (1 - t)).toFixed(2)}"/>`; }
+    const rock = []; for (let i = 0; i <= 40; i++) { const t = i / 40; rock.push(`${(W * .12 + t * W * .84).toFixed(0)},${(hz - Math.sin(t * Math.PI) * Math.pow(Math.sin(t * Math.PI), .4) * H * .15 - r() * H * .01).toFixed(1)}`); }
+    const ty = hz - H * .142, th = H * .2, tb = W * .036, tt = W * .024, ly = ty - th;
+    return { defs: lg("s", [[0, "#061229"], [.42, "#0e2c52"], [.76, "#2f6290"], [.93, "#d89b7c"], [1, "#f6c28d"]]) + lg("w", [[0, "#caa18e"], [.08, "#3f6d8f"], [.5, "#123558"], [1, "#050f20"]]) + lg("t", [[0, "#8895a6"], [.45, "#e7ecef"], [1, "#6d7c92"]], 1, 0) + lg("bm", [[0, "#fff3c7", 0], [1, "#fff3c7", .62]], 1, 0) + rg("gl", tx, ly - 12, H * .15, [[0, "#ffedb5", .95], [.2, "#ffd77f", .42], [1, "#ffd77f", 0]]) + blur("b", 4) + blur("b1", 1) + rough("q", 16, .03),
+      body: `<rect width="${W}" height="${hz + 2}" fill="url(#s)"/>${st}<rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#w)"/><polygon points="${tx - 8},${ly - 12} ${-W * .06},${ly - H * .19} ${-W * .06},${ly + H * .05} ${tx - 8},${ly - 8}" fill="url(#bm)" filter="url(#b)"/><g filter="url(#b1)">${gl}</g><path d="M${W * .12},${hz + 2}L${rock.join("L")}L${W * .96},${hz + 2}Z" fill="#040a14" filter="url(#q)"/><polygon points="${tx - tb},${ty} ${tx - tt},${ly} ${tx + tt},${ly} ${tx + tb},${ty}" fill="url(#t)"/><polygon points="${tx - tb * .9},${ty - th * .34} ${tx - tb * .82},${ty - th * .5} ${tx + tb * .82},${ty - th * .5} ${tx + tb * .9},${ty - th * .34}" fill="#a32d2d"/><rect x="${tx - tt * 1.3}" y="${ly - 4}" width="${tt * 2.6}" height="5" fill="#141d29"/><rect x="${tx - tt * .68}" y="${ly - 28}" width="${tt * 1.36}" height="24" fill="#fff3c7"/><path d="M${tx - tt * .86},${ly - 28}L${tx},${ly - 44}L${tx + tt * .86},${ly - 28}Z" fill="#141d29"/><rect width="${W}" height="${H}" fill="url(#gl)"/>`,
+    };
+  },
+  marsh(W, H, r) {
+    const paths = [];
+    function creek(x, y, a, len, w, depth) {
+      let d = `M${x.toFixed(0)},${y.toFixed(0)}`, off = r() * 9, n = Math.round(len / 18);
+      for (let i = 0; i < n; i++) {
+        a += Math.sin(i * .36 + off) * .28 + (r() - .5) * .34; x += Math.cos(a) * 18; y += Math.sin(a) * 18; d += `L${x.toFixed(0)},${y.toFixed(0)}`;
+        if (depth < 3 && r() < .1 + depth * .04) creek(x, y, a + (r() > .5 ? 1 : -1) * (.7 + r() * .7), len * (.3 + r() * .28), w * (.4 + r() * .2), depth + 1);
+      }
+      paths.push({ d, w });
+    }
+    creek(W * .08, -30, 1.15, H * 1.15, 62, 0); creek(W * 1.04, H * .24, 2.7, W * .9, 30, 1); creek(W * .02, H * .78, .1, W * .6, 24, 1);
+    const sorted = paths.sort((a, b) => b.w - a.w);
+    return { defs: lg("g", [[0, "#ffe29c"], [.35, "#f7ad55"], [.7, "#e7743a"], [1, "#a8432f"]], .5, 1) + lg("gr", [[0, "#183f28"], [.6, "#0e2f22"], [1, "#0a231f"]], 1, 1) + `<filter id="tx" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".011 .016" numOctaves="5" seed="12"/><feColorMatrix values=".26 0 0 0 .02 .75 0 0 0 .03 .22 0 0 0 .01 0 0 0 0 1"/></filter>` + rough("q", 12, .03),
+      body: `<rect width="${W}" height="${H}" fill="url(#gr)"/><rect width="${W}" height="${H}" filter="url(#tx)" opacity=".62" style="mix-blend-mode:hard-light"/><g filter="url(#q)" fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#2b2316" opacity=".78">${sorted.map((p) => `<path d="${p.d}" stroke-width="${(p.w * 1.34 + 6).toFixed(1)}"/>`).join("")}</g><g stroke="url(#g)">${sorted.map((p) => `<path d="${p.d}" stroke-width="${p.w.toFixed(1)}"/>`).join("")}</g></g>`,
+    };
+  },
+  ridges(W, H, r) {
+    const N = 8; let b = "", d = "";
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1), y = lerp(H * .4, H * .94, Math.pow(t, .92)), col = mix("#e5b98f", "#0a2530", Math.pow(t, 1.05));
+      b += `<path d="${below(ridge(r, W, y, H * lerp(.14, .22, t), .53, 8), W, H)}" fill="${col}"/>`;
+      if (i < N - 1) { d += lg("f" + i, [[0, "#f6d2a6", 0], [1, "#f6d2a6", .46 * (1 - t) + .05]]); b += `<rect y="${y}" width="${W}" height="${H * .16}" fill="url(#f${i})"/>`; }
+    }
+    return { defs: lg("s", [[0, "#7eaab2"], [.3, "#b9c6b1"], [.48, "#f5cf9c"], [.6, "#ffd9a8"]]) + rg("u", W * .32, H * .42, H * .7, [[0, "#fff4d6", 1], [.1, "#ffe7b4", .78], [.5, "#ffcb8e", .22], [1, "#ffcb8e", 0]]) + d,
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><rect width="${W}" height="${H}" fill="url(#u)"/>${b}`,
+    };
+  },
+  larch(W, H, r) {
+    const layer = (y, col, hm, hx, st, amp = 12) => `<path d="${below(ridge(r, W, y, 50, .5, 6), W, H)}" fill="${col}"/><path d="${trees(r, W, y, hm, hx, st, amp)}" fill="${col}"/>`;
+    const amber = (y, hm, hx, st) => { let a = "", b = ""; for (let i = 0; i < 2; i++) { const d = trees(r, W, y + i * 8, hm, hx, st * 1.6, 10); if (i) a = d; else b = d; } return `<path d="${b}" fill="#10291f"/><path d="${a}" fill="#e39a2c"/>`; };
+    return { defs: lg("s", [[0, "#c4cdc4"], [.5, "#e7e2c9"], [1, "#f6e6c4"]]) + lg("f", [[0, "#f7ebd2", 0], [1, "#f7ebd2", .85]]) + rg("u", W * .72, H * .1, H * .9, [[0, "#fff7dd", .9], [1, "#fff7dd", 0]]) + blur("b", 9) + rough("q", 6, .05),
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><rect width="${W}" height="${H}" fill="url(#u)"/><path d="${below(ridge(r, W, H * .24, H * .28, .56), W, H)}" fill="#b6c1bc"/><rect y="${H * .22}" width="${W}" height="${H * .2}" fill="url(#f)"/>${layer(H * .42, "#90a39a", 30, 60, 13)}<rect y="${H * .34}" width="${W}" height="${H * .16}" fill="url(#f)"/><g filter="url(#q)">${layer(H * .56, "#57766b", 50, 100, 20)}<rect y="${H * .47}" width="${W}" height="${H * .15}" fill="url(#f)" opacity=".75"/>${layer(H * .7, "#2a4c41", 80, 150, 28)}<rect y="${H * .62}" width="${W}" height="${H * .12}" fill="url(#f)" opacity=".42"/>${amber(H * .84, 130, 240, 40)}<path d="${below(ridge(r, W, H * .9, 40, .5, 6), W, H)}" fill="#0c211b"/>${amber(H * 1.0, 190, 340, 74)}</g>`,
+    };
+  },
+  night(W, H, r) {
+    let st = "", dn = "", dust = "";
+    const a = -.95, cx = W * .55, cy = H * .36;
+    for (let i = 0; i < 620; i++) st += `<circle cx="${(r() * W).toFixed(0)}" cy="${(r() * H * .86).toFixed(0)}" r="${(.5 + Math.pow(r(), 5) * 2.8).toFixed(1)}" fill="${["#fff", "#cfe0ff", "#ffe3c4"][i % 3]}" opacity="${(.2 + r() * .75).toFixed(2)}"/>`;
+    for (let i = 0; i < 1000; i++) { const u = (r() - .5) * H * 1.7, v = (r() + r() + r() - 1.5) * W * .13; dn += `<circle cx="${(cx + Math.cos(a) * u - Math.sin(a) * v).toFixed(0)}" cy="${(cy + Math.sin(a) * u + Math.cos(a) * v).toFixed(0)}" r="${(.5 + r() * .9).toFixed(1)}" fill="#fff" opacity="${(.2 + r() * .6).toFixed(2)}"/>`; }
+    for (let i = 0; i < 26; i++) { const u = (r() - .5) * H * 1.5, v = (r() - .5) * W * .08; dust += `<ellipse cx="${cx + Math.cos(a) * u - Math.sin(a) * v}" cy="${cy + Math.sin(a) * u + Math.cos(a) * v}" rx="${40 + r() * 80}" ry="${10 + r() * 24}" transform="rotate(${a * 57.3} ${cx + Math.cos(a) * u - Math.sin(a) * v} ${cy + Math.sin(a) * u + Math.cos(a) * v})" fill="#050a1c" opacity="${(.3 + r() * .4).toFixed(2)}"/>`; }
+    const tx = W * .3, ty = H * .845;
+    return { defs: lg("s", [[0, "#040818"], [.5, "#0a1b36"], [.78, "#1c4258"], [.92, "#3c6b6e"], [1, "#6a8a76"]]) + rg("mw", 0, 0, 1, [[0, "#d8c4a4", .78], [.35, "#8ea0c0", .46], [1, "#4c6390", 0]]) + rg("gl", tx, ty, H * .1, [[0, "#ffb565", .9], [.25, "#ff9b45", .3], [1, "#ff9b45", 0]]) + blur("b", 12) + blur("b2", 34),
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><ellipse cx="0" cy="0" rx="1" ry="1" fill="url(#mw)" transform="translate(${cx} ${cy}) rotate(${a * 57.3}) scale(${H * .84} ${W * .22})" filter="url(#b)"/><g filter="url(#b2)">${dust}</g>${st}${dn}<path d="${below(ridge(r, W, H * .79, H * .13, .56), W, H)}" fill="#0f2430"/><path d="${below(ridge(r, W, H * .87, H * .09, .56), W, H)}" fill="#050c13"/><path d="M${tx - 15},${ty + 11}L${tx},${ty - 11}L${tx + 15},${ty + 11}Z" fill="#ffb565"/><rect width="${W}" height="${H}" fill="url(#gl)"/>`,
+    };
+  },
+  alpen(W, H, r) {
+    const hz = H * .66; let couloir = "", snow = "", sh = "";
+    const base = pct(W, H, [[-.02, .66], [.1, .55], [.15, .58], [.23, .44], [.28, .47], [.35, .32], [.39, .35], [.45, .19], [.48, .22], [.53, .08], [.56, .14], [.6, .12], [.65, .27], [.69, .25], [.75, .4], [.8, .38], [.88, .53], [.93, .51], [1.02, .66]]);
+    const lit = pct(W, H, [[.53, .08], [.505, .2], [.55, .32], [.5, .44], [.56, .56], [.52, .68], [-.02, .68], [-.02, .66], [.1, .55], [.15, .58], [.23, .44], [.28, .47], [.35, .32], [.39, .35], [.45, .19], [.48, .22]]);
+    // long gullies and snowfields follow the fall line instead of scattering shards
+    const gully = (x, y, n, fill, op) => { let d = `M${x},${y}`, l = x, R = x; const seg = 4 + r() * 4 | 0; let yy = y; for (let k = 0; k < seg; k++) { yy += n * (.6 + r() * .8); l += -14 - r() * 34; R += -2 - r() * 26; d += `L${l},${yy}`; } for (let k = seg; k > 0; k--) { yy -= n; R += 8 + r() * 22; d += `L${R},${yy}`; } return `<path d="${d}Z" fill="${fill}" opacity="${op.toFixed(2)}"/>`; };
+    for (let i = 0; i < 26; i++) couloir += gully(lerp(W * .16, W * .54, r()), lerp(H * .2, H * .52, r()), H * (.02 + r() * .03), "#7b3a55", .16 + r() * .3);
+    for (let i = 0; i < 16; i++) snow += gully(lerp(W * .34, W * .55, r()), lerp(H * .1, H * .36, r()), H * (.012 + r() * .02), "#ffe6cf", .4 + r() * .45);
+    for (let i = 0; i < 30; i++) sh += gully(lerp(W * .58, W * .92, r()), lerp(H * .16, H * .56, r()), H * (.02 + r() * .03), mix("#172a49", "#86a3c9", r() * .75), .2 + r() * .4);
+    const tree = trees(r, W, hz - 2, 22, 56, 14);
+    const scene = `<path d="${below(ridge(r, W, H * .44, 90, .55, 7), W, hz)}" fill="#a9bccd" opacity=".55"/><polygon points="${base}" fill="#2f4c74"/><clipPath id="cl"><polygon points="${base}"/></clipPath><g clip-path="url(#cl)"><polygon points="${lit}" fill="url(#lf)"/>${couloir}${snow}${sh}</g><path d="${below(ridge(r, W, hz - 12, 16, .5, 6), W, hz + 2)}" fill="#0c2029"/><path d="${tree}" fill="#0c2029"/>`;
+    return { defs: lg("s", [[0, "#6d9dc4"], [.5, "#c7d3d6"], [.66, "#f5d6bd"]]) + lg("w", [[0, "#7a8ca0"], [.5, "#2f4963"], [1, "#0d1e2e"]]) + lg("lf", [[0, "#ffd1ab"], [.45, "#f4946f"], [1, "#a8526a"]], .4, 1) + blur("b", 2.5) + rough("q", 16, .026),
+      body: `<rect width="${W}" height="${hz + 2}" fill="url(#s)"/><g filter="url(#q)">${scene}</g><rect y="${hz}" width="${W}" height="${H - hz}" fill="#14283b"/><g transform="translate(0 ${2 * hz}) scale(1 -1)" filter="url(#b)" opacity=".82">${`<rect width="${W}" height="${hz + 2}" fill="url(#s)"/>` + scene.replace('id="cl"', 'id="cl2"').replace("url(#cl)", "url(#cl2)")}</g><rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#w)" opacity=".55"/><rect y="${hz + H * .1}" width="${W}" height="2" fill="#dfe8ea" opacity=".14"/><rect y="${hz + H * .18}" width="${W}" height="3" fill="#dfe8ea" opacity=".1"/>`,
+    };
+  },
+  wall(W, H, r) {
+    const fy = H * .82; let st = "", n = 9, sw = W * .056, sh = H * .058, x = W * .05, y = fy;
+    for (let i = 0; i < n; i++) { st += `<rect x="${x}" y="${y - sh}" width="${sw}" height="${sh}" fill="#b89a86"/><rect x="${x}" y="${y - sh}" width="${W}" height="${6}" fill="#f4e8da"/>`; x += sw; y -= sh; }
+    const stairBody = `<path d="M${W * .05},${fy}${Array.from({ length: n }, (_, i) => `V${fy - (i + 1) * sh}H${W * .05 + (i + 1) * sw}`).join("")}V${fy}Z" fill="#d6c0ad"/>`;
+    return { defs: lg("s", [[0, "#114f97"], [1, "#4ba0dd"]]) + lg("p", [[0, "#ee6b8f"], [1, "#e0456f"]]) + lg("o", [[0, "#f6ad3a"], [1, "#e98a23"]]) + lg("f", [[0, "#d39e6a"], [1, "#9c6b45"]]),
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><rect x="${W * .1}" y="${H * .16}" width="${W * .58}" height="${fy}" fill="url(#p)"/><rect x="${W * .68}" y="${H * .34}" width="${W * .32}" height="${fy}" fill="url(#o)"/><polygon points="${W * .68},${H * .34} ${W},${H * .34} ${W},${H * .46} ${W * .68},${H * .62}" fill="#b5601b" opacity=".62"/><polygon points="0,${H * .3} ${W * .1},${H * .3} ${W * .1},${fy} 0,${fy}" fill="#ca3a63"/><polygon points="${W * .1},${H * .16} ${W * .68},${H * .16} ${W * .68},${H * .24} ${W * .1},${H * .52}" fill="#a12c55" opacity=".6"/><rect x="${W * .47}" y="${H * .22}" width="${W * .12}" height="${H * .2}" fill="#14233d"/><polygon points="${W * .47},${H * .22} ${W * .59},${H * .22} ${W * .59},${H * .27} ${W * .47},${H * .33}" fill="#07101f"/><rect x="${W * .47}" y="${H * .42}" width="${W * .12}" height="4" fill="#ffc1d1"/><rect y="${fy}" width="${W}" height="${H - fy}" fill="url(#f)"/><polygon points="${W * .68},${fy} ${W},${fy} ${W},${H} ${W * .44},${H}" fill="#6d3f24" opacity=".5"/><polygon points="${W * .05},${fy} ${W * .55},${fy} ${W * .3},${H} 0,${H} 0,${fy + H * .06}" fill="#6d3f24" opacity=".34"/>${stairBody}${st}`,
+    };
+  },
+  arcade(W, H, r) {
+    const vx = W * .5, vy = H * .56; let out = "";
+    const N = 11, S = (i) => 1 / (.7 + i * .46);
+    const hole = (s) => { const hw = s * W * .36, b = vy + s * H * .46, t = vy - s * H * .1, rr = hw; return `M${vx - hw},${b}V${t}A${rr},${rr} 0 0 1 ${vx + hw},${t}V${b}Z`; };
+    for (let i = N - 1; i >= 0; i--) {
+      const s = S(i), s2 = S(i + 1), d = i / (N - 1), b = vy + s * H * .46, b2 = vy + s2 * H * .46, hw = s * W * .36, hw2 = s2 * W * .36;
+      const lightBay = i % 2 === 1;
+      out += `<polygon points="${vx - hw},${b} ${vx + hw},${b} ${vx + hw2},${b2} ${vx - hw2},${b2}" fill="${lightBay ? mix("#ffd9a2", "#f3a769", d) : mix("#55230f", "#a14d26", d)}"/>`;
+      out += `<polygon points="${vx + hw},${b} ${vx + hw2},${b2} ${vx + hw2},${vy - s2 * H * .9} ${vx + hw},${vy - s * H * .9}" fill="${lightBay ? mix("#d0693a", "#eb9b5e", d) : mix("#5a2412", "#a8532b", d)}"/><polygon points="${vx - hw},${b} ${vx - hw2},${b2} ${vx - hw2},${vy - s2 * H * .9} ${vx - hw},${vy - s * H * .9}" fill="${lightBay ? mix("#8f3f1e", "#d87f49", d) : mix("#3d170b", "#90441f", d)}"/>`;
+      out += `<path d="M${-W},${-H}H${2 * W}V${2 * H}H${-W}Z${hole(s)}" fill-rule="evenodd" fill="${mix("#6f2c15", "#e08a52", Math.pow(d, .75))}"/>`;
+      out += `<path d="${hole(s)}" fill="none" stroke="${mix("#a14a23", "#f6bb82", d)}" stroke-width="${Math.max(1, s * 9)}"/>`;
+    }
+    return { defs: rg("sky", vx, vy - H * .03, W * .22, [[0, "#fffbe6"], [.6, "#ffe6b3"], [1, "#ffc98c"]]),
+      body: `<rect width="${W}" height="${H}" fill="url(#sky)"/>${out}`,
+    };
+  },
+  block(W, H, r) {
+    const cols = 15, rows = 15, cw = W / cols, rh = H / rows; let b = "";
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const px = x * cw, py = y * rh, base = mix("#28303e", "#3c4556", r()), lit = r(), m = 6;
+      b += `<rect x="${px}" y="${py}" width="${cw + .5}" height="${rh + .5}" fill="${base}"/>`;
+      let w, glow = "";
+      if (lit < .62) { w = mix("#0e1826", "#20395a", r()); } else if (lit < .85) { w = mix("#ffb65a", "#ffe0a0", r()); glow = "1"; } else if (lit < .95) { w = mix("#ff9040", "#ffc26c", r()); glow = "1"; } else { w = "#7cc9d9"; glow = "1"; }
+      b += `<rect x="${px + m}" y="${py + m}" width="${cw * .62}" height="${rh * .62}" fill="${w}"/><rect x="${px + m + cw * .62 + 4}" y="${py + m}" width="${cw * .2}" height="${rh * .62}" fill="${glow && r() > .4 ? mix(w, "#ffffff", .15) : mix("#0e1826", "#20395a", r())}"/>`;
+      if (glow && r() > .5) b += `<rect x="${px + m}" y="${py + m}" width="${cw * .62 * (.2 + r() * .4)}" height="${rh * .62}" fill="#2b2118" opacity=".7"/>`;
+      b += `<rect x="${px}" y="${py + rh * .76}" width="${cw}" height="${rh * .07}" fill="#5d6778"/><rect x="${px}" y="${py + rh * .83}" width="${cw}" height="${rh * .17}" fill="#161c28"/><rect x="${px + cw - 2}" y="${py}" width="2" height="${rh}" fill="#141923"/>`;
+    }
+    return { defs: lg("t", [[0, "#3b5f95", .22], [1, "#c76f53", .16]]), body: `${b}<rect width="${W}" height="${H}" fill="url(#t)"/>` };
+  },
+  stair(W, H, r) {
+    const cx = W * .53, cy = H * .47, k = .096, R0 = W * .95; let q = "";
+    const P = (th, R) => `${(cx + Math.cos(th) * R).toFixed(1)},${(cy + Math.sin(th) * R).toFixed(1)}`;
+    const STEP = .085, MAX = 2 * Math.PI * 4.6;
+    for (let t = 0; t < MAX; t += STEP) {
+      const R = R0 * Math.exp(-k * t), R2 = R0 * Math.exp(-k * (t + STEP)), band = 1 - Math.exp(-k * 2 * Math.PI), th = t + .7, th2 = th + STEP;
+      const inner = R * (1 - band * .96), inner2 = R2 * (1 - band * .96), dep = t / MAX;
+      const lightDir = (Math.cos(th - .9) + 1) / 2, tread = (Math.floor(t / STEP) % 3 === 0) ? .84 : 1;
+      const col = mix("#2a211b", mix("#b5a08a", "#f4ece0", dep), Math.min(1, (.12 + .78 * lightDir * lightDir) * (.55 + dep * .8)) * tread);
+      q += `<polygon points="${P(th, R)} ${P(th2 + .012, R2)} ${P(th2 + .012, inner2)} ${P(th, inner)}" fill="${col}"/>`;
+    }
+    let rail = "M"; for (let t = 0; t < MAX; t += .05) { rail += `${t ? "L" : ""}${P(t + .7, R0 * Math.exp(-k * t))}`; }
+    return { defs: rg("o", cx, cy, W * .18, [[0, "#ffffff"], [.18, "#eaf5f8"], [.5, "#b7cfd4", .7], [1, "#b7cfd4", 0]]),
+      body: `<rect width="${W}" height="${H}" fill="#14100d"/>${q}<path d="${rail}" fill="none" stroke="#0d0a08" stroke-width="10"/><circle cx="${cx}" cy="${cy}" r="${R0 * Math.exp(-k * MAX) * .94}" fill="#f7fbfb"/><rect width="${W}" height="${H}" fill="url(#o)"/>`,
+    };
+  },
+  silos(W, H, r) {
+    const g = H * .84; let s = "";
+    [.08, .21, .34, .47, .6, .73].forEach((x, i) => {
+      const w = W * .124, cx = W * x, t = H * (.2 + (i % 2) * .018), ry = w * .13;
+      s += `<rect x="${cx}" y="${t}" width="${w}" height="${g - t}" fill="url(#cyl)"/><ellipse cx="${cx + w / 2}" cy="${t}" rx="${w / 2}" ry="${ry}" fill="#e0b184"/>`;
+      for (let k = 1; k < 8; k++) s += `<path d="M${cx},${t + k * (g - t) / 8}a${w / 2},${ry} 0 0 0 ${w},0" fill="none" stroke="#2c1d1a" stroke-width="1.5" opacity=".28"/>`;
+    });
+    return { defs: lg("s", [[0, "#1d2c50"], [.36, "#7e4470"], [.64, "#ee7d52"], [.86, "#fdc074"], [1, "#ffe0a4"]]) + lg("cyl", [[0, "#2f2224"], [.3, "#5a3a39"], [.72, "#c98a64"], [.92, "#f3bd8b"], [1, "#d59469"]], 1, 0) + lg("g", [[0, "#3a221a"], [1, "#100b0b"]]) + blur("b", 9),
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><g filter="url(#b)" fill="#fbb07c" opacity=".55"><ellipse cx="${W * .84}" cy="${H * .22}" rx="${W * .22}" ry="9"/><ellipse cx="${W * .2}" cy="${H * .13}" rx="${W * .24}" ry="7"/><ellipse cx="${W * .7}" cy="${H * .44}" rx="${W * .3}" ry="11"/></g>${s}<rect x="${W * .94 - W * .04}" y="${H * .46}" width="${W * .05}" height="${g - H * .46}" fill="#231a1d"/><path d="M${W * .08},${H * .155}H${W * .85}" stroke="#1b1417" stroke-width="10"/><rect x="${W * .852}" y="${H * .12}" width="${W * .03}" height="${H * .72}" fill="#1b1417"/><rect y="${g}" width="${W}" height="${H - g}" fill="url(#g)"/><path d="M0,${H * .91}H${W}" stroke="#5c4032" stroke-width="3"/><path d="M0,${H * .935}H${W}" stroke="#5c4032" stroke-width="4"/>`,
+    };
+  },
+  dune(W, H, r) {
+    const crest = `M0,${H * .66}C${W * .16},${H * .55} ${W * .33},${H * .42} ${W * .47},${H * .28}C${W * .55},${H * .34} ${W * .6},${H * .47} ${W * .7},${H * .54}C${W * .82},${H * .6} ${W * .92},${H * .6} ${W},${H * .57}`;
+    let ri = "";
+    for (let i = 0; i < 60; i++) { const y = H * .36 + i * H * .012 + r() * 8, x0 = W * (.0 + r() * .1), a = 5 + r() * 9; let d = `M${x0},${y}`; for (let x = x0; x < W * .6; x += 60) d += `Q${x + 30},${y + (x / W) * H * .08 - a} ${x + 60},${y + (x / W) * H * .08}`; ri += `<path d="${d}" fill="none" stroke="#8a3b12" stroke-width="${(1 + r() * 2).toFixed(1)}" opacity="${(.1 + r() * .2).toFixed(2)}"/>`; }
+    const fx = W * .405, fy = H * .34;
+    return { defs: lg("s", [[0, "#17609f"], [.6, "#63aede"], [1, "#c4e4ee"]]) + lg("l", [[0, "#ffc37d"], [.4, "#f4934a"], [1, "#d35f25"]], .2, 1) + lg("d", [[0, "#6e2a1c"], [1, "#2c1014"]], .7, 1) + lg("b", [[0, "#e88f4e"], [1, "#b4562a"]]) + lg("fg", [[0, "#d66c2d"], [1, "#7f3218"]]) + blur("b1", 1.4) + `<clipPath id="lt"><path d="${crest}V${H}H0Z"/></clipPath>`,
+      body: `<rect width="${W}" height="${H}" fill="url(#s)"/><path d="M0,${H * .5}C${W * .3},${H * .4} ${W * .6},${H * .52} ${W},${H * .36}V${H}H0Z" fill="url(#b)" opacity=".85"/><path d="${crest}V${H}H0Z" fill="url(#l)"/><g clip-path="url(#lt)"><g filter="url(#b1)">${ri}</g><path d="M${W * .47},${H * .28}C${W * .5},${H * .46} ${W * .47},${H * .7} ${W * .63},${H}H${W}V${H * .57}C${W * .92},${H * .6} ${W * .82},${H * .6} ${W * .7},${H * .54}C${W * .6},${H * .47} ${W * .55},${H * .34} ${W * .47},${H * .28}Z" fill="url(#d)"/></g><path d="M0,${H}V${H * .9}C${W * .25},${H * .78} ${W * .55},${H * .98} ${W},${H * .84}V${H}Z" fill="url(#fg)"/><path d="M${fx},${fy + 2}l${-74},${16}" stroke="#70260f" stroke-width="3" stroke-linecap="round" opacity=".6"/><rect x="${fx - 2}" y="${fy - 17}" width="4" height="19" rx="2" fill="#1a0d0a"/><circle cx="${fx}" cy="${fy - 20}" r="3" fill="#1a0d0a"/>`,
+    };
+  },
+  salt(W, H, r) {
+    const hz = H * .46, vx = W * .52; let hex = "", ref = "";
+    for (let row = 0; row < 40; row++) for (let col = -44; col < 44; col++) {
+      const z = 1 + row * .23, offs = row % 2 ? .5 : 0, wx = (col + offs) * 1.25, s = (H - hz) * 1.05 / z;
+      const pts = [[-.62, 0], [-.3, -.48], [.3, -.48], [.62, 0], [.3, .48], [-.3, .48]].map(([ax, az]) => { const zz = z + az * .23, ss = (H - hz) * 1.05 / zz; return `${(vx + (wx + ax) * ss * .78 + (r() - .5) * 1.5 / z).toFixed(1)},${(hz + ss).toFixed(1)}`; });
+      const px = vx + wx * s * .78; if (px < -200 || px > W + 200) continue;
+      hex += `<polygon points="${pts.join(" ")}" fill="${mix("#f6dad0", "#ffffff", r())}" fill-opacity="${(.1 + r() * .2).toFixed(2)}" stroke="#a97f7f" stroke-opacity="${Math.min(.82, .96 / z + .08).toFixed(2)}" stroke-width="${Math.max(.6, 3.2 / z).toFixed(1)}"/>`;
+    }
+    return { defs: lg("s", [[0, "#3b7fb5"], [.5, "#a7c8d8"], [.82, "#f6d5c6"], [1, "#ffc2ad"]]) + lg("g", [[0, "#ffcfbb"], [.2, "#f7dfd5"], [1, "#c9b1b1"]]) + blur("b", 6) + rough("q", 8, .03),
+      body: `<rect width="${W}" height="${hz + 2}" fill="url(#s)"/><g filter="url(#b)" fill="#fff" opacity=".6"><ellipse cx="${W * .2}" cy="${H * .13}" rx="${W * .2}" ry="10"/><ellipse cx="${W * .7}" cy="${H * .24}" rx="${W * .26}" ry="13"/><ellipse cx="${W * .42}" cy="${H * .32}" rx="${W * .18}" ry="6"/></g><path d="${below(ridge(r, W, hz - H * .03, H * .06, .55, 7), W, hz + 2)}" fill="#7d7fa4" filter="url(#q)"/><rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#g)"/>${hex}`,
+    };
+  },
+  mesa(W, H, r) {
+    const hz = H * .6, vx = W * .46; let sc = "", ms = "", cl = "";
+    const M = [[.0, .3, .36, "#9a4a33"], [.56, .96, .24, "#b9593c"], [.27, .52, .46, "#c56a48"]];
+    M.forEach(([a, b, top, col], i) => {
+      const y = H * top, p = `${a * W - W * .05},${hz + 2} ${a * W + W * .035},${y + H * .1} ${a * W + W * .05},${y} ${b * W - W * .05},${y} ${b * W - W * .035},${y + H * .1} ${b * W + W * .05},${hz + 2}`;
+      cl += `<clipPath id="m${i}"><polygon points="${p}"/></clipPath>`;
+      let b2 = ""; for (let yy = y; yy < hz; yy += 10 + r() * 22) b2 += `<rect x="0" y="${yy}" width="${W}" height="${4 + r() * 10}" fill="${mix(col, r() > .5 ? "#f1ba8b" : "#57231b", .2 + r() * .4)}" opacity=".7"/>`;
+      ms += `<polygon points="${p}" fill="${col}" filter="url(#q)"/><g clip-path="url(#m${i})"><g filter="url(#q)">${b2}</g><rect x="${(a + b) / 2 * W}" y="0" width="${W}" height="${H}" fill="#2a0f1d" opacity=".3"/></g>`;
+    });
+    for (let i = 0; i < 140; i++) { const t = Math.pow(r(), 1.8), y = hz + 4 + t * (H - hz), s = .12 + t * 1.5, x = r() * W; if (Math.abs(x - vx) < (y - hz) * .62) continue; sc += `<ellipse cx="${x + 12 * s}" cy="${y + 3 * s}" rx="${15 * s}" ry="${3 * s}" fill="#4e1f12" opacity=".5"/><ellipse cx="${x}" cy="${y}" rx="${9 * s}" ry="${6 * s}" fill="${mix("#59623b", "#2c3a25", r())}"/>`; }
+    let dash = ""; for (let i = 0; i < 12; i++) { const z = 1 / (1 + i * .55), y = hz + z * (H - hz), y2 = hz + (1 / (1 + (i + .4) * .55)) * (H - hz), w = z * W * .009; dash += `<polygon points="${vx - w},${y} ${vx + w},${y} ${vx + w * .75},${y2} ${vx - w * .75},${y2}" fill="#f2d68a"/>`; }
+    return { defs: lg("s", [[0, "#1e6b82"], [.5, "#7cb7b0"], [.86, "#f6d09c"], [1, "#ffc98f"]]) + lg("g", [[0, "#e8a26b"], [.35, "#c6683a"], [1, "#7c3119"]]) + lg("rd", [[0, "#8b7d78"], [1, "#2c2a2c"]]) + cl + rough("q", 9, .025) + blur("b", 8),
+      body: `<rect width="${W}" height="${hz + 2}" fill="url(#s)"/><g filter="url(#b)" fill="#fff4dc" opacity=".55"><ellipse cx="${W * .7}" cy="${H * .13}" rx="${W * .24}" ry="10"/><ellipse cx="${W * .25}" cy="${H * .2}" rx="${W * .2}" ry="7"/></g><path d="${below(ridge(r, W, hz - H * .05, H * .05, .55, 7), W, hz + 2)}" fill="#c98a74"/>${ms}<rect y="${hz}" width="${W}" height="${H - hz}" fill="url(#g)"/>${sc}<polygon points="${vx - 2},${hz} ${vx + 2},${hz} ${vx + (H - hz) * .62},${H} ${vx - (H - hz) * .62},${H}" fill="url(#rd)"/>${dash}`,
+    };
+  },
+};
+function develop(p, seed) {
+  const { w: W, h: H } = p, { defs, body } = SCENES[p.scene](W, H, rng(seed));
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"><defs>${defs}
+    <filter id="gr" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="${seed}"/><feColorMatrix values="1.7 0 0 0 -.35 1.7 0 0 0 -.35 1.7 0 0 0 -.35 0 0 0 0 1"/></filter>
+    <filter id="mo" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".0035" numOctaves="4" seed="${seed + 7}"/><feColorMatrix values="1.8 0 0 0 -.4 1.8 0 0 0 -.4 1.8 0 0 0 -.4 0 0 0 0 1"/></filter>
+    <radialGradient id="vg" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient></defs>
+    ${body}<rect width="${W}" height="${H}" filter="url(#mo)" opacity=".26" style="mix-blend-mode:soft-light"/><rect width="${W}" height="${H}" fill="url(#vg)"/><rect width="${W}" height="${H}" filter="url(#gr)" opacity=".2" style="mix-blend-mode:overlay"/></svg>`;
+}
+
+/* ---------- the portfolio ---------- */
+const SERIES = { tide: "Tidelines", high: "High ground", conc: "Concrete", dry: "Dry country" };
+const P = [
+  { scene: "ridges", w: 2000, h: 1000, s: "high", t: "Seven ridges, before the sun", at: "Maramureș, Romania", xy: "47.71° N, 24.02° E", cam: "Medium format digital", lens: "150 mm", ap: "f/8", sh: "1/60 s", iso: 100, d: "14 Sep 2024", alt: "Layers of forested ridges fading into warm morning haze", n: "I climbed in the dark for this. Twenty minutes later the haze burned off, and the ridges were just hills again." },
+  { scene: "wall", w: 1200, h: 1500, s: "conc", t: "Pink wall, noon", at: "Guanajuato, Mexico", xy: "21.02° N, 101.26° W", cam: "6×7 film rangefinder", lens: "65 mm", ap: "f/11", sh: "1/250 s", iso: 160, d: "2 Mar 2023", alt: "A saturated pink wall and orange wall under a deep blue sky with a concrete stair", n: "The shadow crosses the courtyard in about forty minutes. The caretaker told me that's how he knows when lunch is." },
+  { scene: "stack", w: 1000, h: 1500, s: "tide", t: "Stack, ten-minute exposure", at: "Duncansby Head, Scotland", xy: "58.63° N, 3.02° W", cam: "4×5 field camera", lens: "210 mm", ap: "f/22", sh: "10 min", iso: 50, d: "21 Oct 2022", alt: "A sea stack at dusk, its base lost in a long-exposure mist of water", n: "Ten minutes turned a rough North Sea into fog. I was the only one on the cliff, and very cold." },
+  { scene: "block", w: 1500, h: 1500, s: "conc", t: "Block 14, nine at night", at: "Novi Beograd, Serbia", xy: "44.81° N, 20.41° E", cam: "Medium format digital", lens: "110 mm", ap: "f/8", sh: "4 s", iso: 200, d: "9 Jan 2025", alt: "The full-frame facade of a housing block at night with scattered lit windows", n: "One hundred and eighty windows. I stood in a car park for an hour waiting for the right number of them to be lit." },
+  { scene: "dawn", w: 1500, h: 1000, s: "tide", t: "Slack water, first light", at: "Nungwi, Zanzibar", xy: "5.72° S, 39.29° E", cam: "Full-frame mirrorless", lens: "50 mm", ap: "f/5.6", sh: "1/125 s", iso: 200, d: "11 Jun 2023", alt: "The sun rising low over a still sea with a dark headland on the left", n: "For a few minutes at the turn of the tide the water stops doing anything at all. The dhows hadn't yet gone out." },
+  { scene: "dune", w: 1500, h: 1000, s: "dry", t: "Walker on the crest", at: "Erg Chebbi, Morocco", xy: "31.15° N, 3.98° W", cam: "Full-frame mirrorless", lens: "200 mm", ap: "f/9", sh: "1/500 s", iso: 100, d: "27 Nov 2021", alt: "A knife-edge orange dune half in shadow, a tiny figure walking along its crest", n: "My guide, Youssef, walking back for the water I forgot. It's the only photograph of him he has ever approved of." },
+  { scene: "alpen", w: 1500, h: 1125, s: "high", t: "Last light on the north face", at: "Laguna Torre, Argentina", xy: "49.33° S, 72.99° W", cam: "Medium format digital", lens: "80 mm", ap: "f/11", sh: "1/15 s", iso: 100, d: "4 Feb 2020", alt: "A sharp mountain glowing pink at sunset, mirrored in a dark lake", n: "The wind dropped for the first time in a week, so the lake could finally hold a reflection. It lasted six frames." },
+  { scene: "surf", w: 1200, h: 1500, s: "tide", t: "Second sandbar", at: "Praia do Forte, Brazil", xy: "12.58° S, 38.00° W", cam: "Aerial, one-inch sensor", lens: "24 mm", ap: "f/4", sh: "1/1000 s", iso: 100, d: "18 Jan 2026", alt: "An aerial view of surf lines breaking over turquoise water beside a beach of umbrellas", n: "From up here the sandbars show as two pale stripes. Every swimmer in the frame is on the safe side of them, so somebody knows." },
+  { scene: "arcade", w: 1500, h: 1000, s: "conc", t: "Arcade, three o'clock", at: "Kairouan, Tunisia", xy: "35.68° N, 10.10° E", cam: "6×7 film rangefinder", lens: "43 mm", ap: "f/16", sh: "1/8 s", iso: 160, d: "6 Apr 2024", alt: "A receding corridor of terracotta arches with bands of sunlight on the floor", n: "Sunlight comes in sideways at this hour and cuts the floor into bars. A boy on a bicycle ruined the first roll, and improved the second." },
+  { scene: "night", w: 1200, h: 1500, s: "high", t: "Over the col, 2 a.m.", at: "Ladakh, India", xy: "34.02° N, 77.71° E", cam: "Full-frame mirrorless", lens: "20 mm", ap: "f/1.8", sh: "20 s", iso: 3200, d: "8 Aug 2019", alt: "The Milky Way rising over dark ridges with a single lit tent", n: "That's our tent, with Tenzin inside reading by a headlamp. I asked him to keep it on. He fell asleep, which helped." },
+  { scene: "salt", w: 2000, h: 1000, s: "dry", t: "Salt pan after rain", at: "Salar de Uyuni, Bolivia", xy: "20.13° S, 67.49° W", cam: "Medium format digital", lens: "35 mm", ap: "f/16", sh: "1/30 s", iso: 100, d: "23 Mar 2025", alt: "A vast white salt flat cracked into hexagons running to pale mountains under a pink sky", n: "The crust forms these hexagons by itself as it dries. Nobody I asked could quite explain why, and they all tried." },
+  { scene: "marsh", w: 1200, h: 1500, s: "tide", t: "Creek at the turn of the tide", at: "Wadden Sea, Netherlands", xy: "53.40° N, 5.70° E", cam: "Aerial, one-inch sensor", lens: "28 mm", ap: "f/5.6", sh: "1/400 s", iso: 200, d: "30 Sep 2025", alt: "An aerial view of gold tidal creeks branching through dark green marsh at sunset", n: "An hour later all of this is under water. The creeks only catch the sky like this as the tide goes out." },
+  { scene: "stair", w: 1200, h: 1200, s: "conc", t: "Stairwell, looking up", at: "Porto, Portugal", xy: "41.15° N, 8.61° W", cam: "Full-frame mirrorless", lens: "16 mm", ap: "f/8", sh: "1/4 s", iso: 400, d: "12 May 2022", alt: "A concrete spiral stair seen from below winding to a bright skylight", n: "Six flights, and a skylight the size of a dinner plate. I lay on the floor, and a neighbour stepped over me without comment." },
+  { scene: "silos", w: 1800, h: 1000, s: "conc", t: "Grain silos, harvest week", at: "Saskatchewan, Canada", xy: "50.60° N, 105.50° W", cam: "Medium format digital", lens: "110 mm", ap: "f/11", sh: "1/30 s", iso: 100, d: "19 Sep 2023", alt: "A row of tall concrete silos lit from the right against an orange and blue dusk", n: "The elevators here run all night during harvest. I shot this at ten past eight, with the dust still hanging in the sky." },
+  { scene: "light", w: 1200, h: 1600, s: "tide", t: "Keeper's light, blue hour", at: "Cape Erimo, Japan", xy: "41.93° N, 143.25° E", cam: "Full-frame mirrorless", lens: "85 mm", ap: "f/4", sh: "8 s", iso: 400, d: "2 Dec 2021", alt: "A small white lighthouse on a dark rock at blue hour with its beam crossing the sky", n: "The beam is automated now, but Mrs. Sato still walks up every evening to check. She made me tea and told me the good spot." },
+  { scene: "larch", w: 1500, h: 1000, s: "high", t: "Larches in October", at: "Val d'Anniviers, Switzerland", xy: "46.20° N, 7.60° E", cam: "Medium format digital", lens: "250 mm", ap: "f/8", sh: "1/125 s", iso: 200, d: "17 Oct 2024", alt: "Misty slopes of dark conifers with amber larches in the foreground", n: "Larches are the only conifers here that turn and drop their needles. You get about ten days of this each year." },
+  { scene: "pier", w: 1600, h: 900, s: "tide", t: "The old pier at low tide", at: "Mandvi, Gujarat, India", xy: "22.83° N, 69.35° E", cam: "Full-frame mirrorless", lens: "35 mm", ap: "f/11", sh: "1/2 s", iso: 100, d: "25 Feb 2026", alt: "Rows of weathered timber piles running to the horizon across wet shining sand", n: "The deck went in a cyclone before I was born. The piles are still there, and the fishermen still tie up to them." },
+  { scene: "mesa", w: 1500, h: 1000, s: "dry", t: "Road south of the plateau", at: "Naukluft, Namibia", xy: "24.30° S, 16.20° E", cam: "6×7 film rangefinder", lens: "90 mm", ap: "f/16", sh: "1/125 s", iso: 160, d: "15 Jul 2020", alt: "An empty desert road running to layered red mesas under a teal sky", n: "We saw one other car in four hours. The driver stopped to ask if we were lost, and we were." },
+];
+P.forEach((p, i) => { p.id = i; p.r = p.w / p.h; p.src = "data:image/svg+xml," + encodeURIComponent(develop(p, 7 + i * 13)); });
+
+/* ---------- justified rows: the partition with the least height error ---------- */
+function rows(items, W, gap, target) {
+  const n = items.length, best = new Array(n + 1).fill(Infinity), from = new Array(n + 1).fill(0); best[0] = 0;
+  for (let i = 1; i <= n; i++) {
+    let sum = 0;
+    for (let j = i - 1; j >= 0; j--) {
+      sum += items[j].r;
+      const h = (W - gap * (i - j - 1)) / sum;
+      if (h < target * .55) break;
+      let c = Math.pow((h - target) / target, 2);
+      if (i === n && h > target) c = Math.pow((h - target) / target, 2) * .4; /* a short last row may stay short */
+      if (best[j] + c < best[i]) { best[i] = best[j] + c; from[i] = j; }
+    }
+  }
+  const out = []; for (let i = n; i > 0; i = from[i]) out.unshift(items.slice(from[i], i));
+  let y = 0;
+  const pos = new Map();
+  out.forEach((row, k) => {
+    const sum = row.reduce((a, b) => a + b.r, 0); let h = (W - gap * (row.length - 1)) / sum, x = 0;
+    if (k === out.length - 1 && h > target * 1.3) h = target * 1.3;
+    row.forEach((p, m) => { const w = p.r * h, full = m === row.length - 1 && k < out.length && Math.abs(x + w - W) < 3; pos.set(p.id, { x: Math.round(x), y: Math.round(y), w: full ? Math.round(W - x) : Math.round(x + w) - Math.round(x), h: Math.round(h) }); x += w + gap; });
+    y += Math.round(h) + gap;
+  });
+  return { pos, height: y - gap };
+}
+
+/* ---------- the gallery ---------- */
+const gal = $("gal");
+let filter = "all", view = P.slice(), laid = new Map();
+const cells = new Map();
+P.forEach((p) => {
+  const b = document.createElement("button"); b.className = "ph"; b.dataset.id = p.id; b.setAttribute("aria-label", `Open ${p.t}, ${p.at}`);
+  b.innerHTML = `<img alt="${p.alt}" src="${p.src}" decoding="sync" draggable="false"><span class="cap" aria-hidden="true">${p.t}<small>${p.at}</small></span>`;
+  gal.appendChild(b); cells.set(p.id, b);
+  b.addEventListener("click", () => openBox(p.id));
+});
+function layoutGallery(animate) {
+  const W = gal.clientWidth, small = W < 640, gap = small ? 4 : 6, few = view.length <= 6 ? 1.45 : 1, target = (small ? Math.max(118, W * .36) : W < 900 ? 190 : 248) * few;
+  const { pos, height } = rows(view, W, gap, target);
+  const moves = [];
+  P.forEach((p) => {
+    const el = cells.get(p.id), to = pos.get(p.id), was = laid.get(p.id);
+    if (!to) {
+      if (was && animate && !calm.matches) { const a = el.animate({ opacity: [1, 0], transform: ["scale(1)", "scale(.98)"].map((s) => `translate(${was.x}px,${was.y}px) ${s}`) }, { duration: 150, easing: "ease-out", fill: "forwards" }); a.onfinish = () => { a.cancel(); if (!view.includes(p)) el.style.display = "none"; }; }
+      else el.style.display = "none";
+      el.tabIndex = -1; return;
+    }
+    el.tabIndex = 0; el.style.display = "block"; el.style.width = to.w + "px"; el.style.height = to.h + "px"; el.style.transform = `translate(${to.x}px,${to.y}px)`;
+    if (!animate) return;
+    if (calm.matches) { el.animate({ opacity: [0, 1] }, { duration: 160 }); return; }
+    if (was && el.dataset.on === "1") moves.push(el.animate({ transform: [`translate(${was.x}px,${was.y}px) scale(${was.w / to.w},${was.h / to.h})`, `translate(${to.x}px,${to.y}px)`], transformOrigin: ["0 0", "0 0"] }, { duration: 320, easing: EASE }));
+    else moves.push(el.animate({ opacity: [0, 1], transform: [`translate(${to.x}px,${to.y + 8}px)`, `translate(${to.x}px,${to.y}px)`] }, { duration: 260, delay: 60, easing: EASE, fill: "backwards" }));
+  });
+  P.forEach((p) => cells.get(p.id).dataset.on = pos.has(p.id) ? "1" : "0");
+  gal.style.height = height + "px"; laid = pos;
+}
+const CH = [["all", "All"], ...Object.entries(SERIES)];
+$("chips").innerHTML = CH.map(([k, l]) => `<button class="chip" data-s="${k}" aria-pressed="${k === "all"}">${l}<sup>${k === "all" ? P.length : P.filter((p) => p.s === k).length}</sup></button>`).join("");
+$("chips").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-s]"); if (!b || b.dataset.s === filter) return;
+  filter = b.dataset.s; view = filter === "all" ? P.slice() : P.filter((p) => p.s === filter);
+  document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c === b)));
+  layoutGallery(true); footLine();
+  if (!calm.matches) document.querySelector(".foot").animate({ opacity: [0, 1] }, { duration: 200, delay: 180, easing: "ease-out", fill: "backwards" });
+});
+function footLine() { $("footN").textContent = `${view.length} photographs${filter === "all" ? ", 2019–2026" : ` in ${SERIES[filter]}`}`; }
+let rz; addEventListener("resize", () => { clearTimeout(rz); layoutGallery(false); if (L.open) { fitAll(); drawSlides(); clipLayer(); } });
+
+/* ---------- the lightbox ---------- */
+const lb = $("lb"), stage = $("stage"), layer = $("layer"), strip = $("strip");
+const L = { open: false, closing: false, i: 0, list: [], s: 1, x: 0, y: 0, sw: 0, sd: 0, info: innerWidth >= 900 };
+const slides = [0, 1, 2].map(() => { const im = document.createElement("img"); im.className = "slide"; im.alt = ""; im.draggable = false; layer.appendChild(im); return im; });
+const curS = () => slides[1];
+const at = (d) => L.list[(L.i + d + L.list.length) % L.list.length];
+const sheet = () => innerWidth < 900;
+let fits = [];
+function fit(p) {
+  const r = stage.getBoundingClientRect(), pad = innerWidth < 640 ? 0 : 16, aw = r.width - pad * 2, ah = r.height - pad, k = Math.min(aw / p.w, ah / p.h), w = p.w * k, h = p.h * k;
+  return { w, h, x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, r };
+}
+function fitAll() { fits = [-1, 0, 1].map((d) => fit(at(d))); }
+function clamp() {
+  const f = fits[1], w = f.w * L.s, h = f.h * L.s, r = f.r;
+  const lim = (size, room, start, base) => { if (size <= room) return (start + (room - size) / 2) - base; const min = start + room - size - base, max = start - base; return null || [min, max]; };
+  const X = lim(w, r.width, r.left, f.x), Y = lim(h, r.height, r.top, f.y);
+  L.x = Array.isArray(X) ? Math.max(X[0], Math.min(X[1], L.x)) : X;
+  L.y = Array.isArray(Y) ? Math.max(Y[0], Math.min(Y[1], L.y)) : Y;
+}
+const WIDE = () => innerWidth + 40;
+function drawSlides() {
+  slides.forEach((im, k) => {
+    const f = fits[k], d = k - 1, sc = d === 0 ? L.s : 1, x = f.x + (d === 0 ? L.x : 0) + d * WIDE() + L.sw, y = f.y + (d === 0 ? L.y : 0) + (d === 0 ? L.sd : 0);
+    im.style.width = f.w + "px"; im.style.height = f.h + "px"; im.style.transform = `translate(${x}px,${y}px) scale(${sc})`;
+  });
+  const v = Math.round(L.s * 100);
+  $("zVal").textContent = v + "%"; $("zOut").disabled = L.s <= 1; $("zIn").disabled = L.s >= MAXZ;
+  stage.classList.toggle("zoomed", L.s > 1.001); stage.classList.toggle("can", L.s <= 1.001);
+}
+function clipLayer(off) {
+  if (off) { layer.style.clipPath = ""; return; }
+  const r = stage.getBoundingClientRect(); layer.style.clipPath = `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px)`;
+}
+function loadSlides() {
+  [-1, 0, 1].forEach((d, k) => { const p = at(d); if (slides[k].dataset.id !== String(p.id)) { slides[k].src = p.src; slides[k].dataset.id = p.id; } slides[k].alt = d === 0 ? p.alt : ""; });
+  const many = L.list.length > 1;
+  slides[0].classList.toggle("show", many); slides[2].classList.toggle("show", many); slides[1].classList.add("show");
+  $("prevB").hidden = !many; $("nextB").hidden = !many;
+}
+function fillInfo() {
+  const p = at(0);
+  $("pos").innerHTML = `<b>${L.i + 1}</b> of ${L.list.length}`; $("ser").textContent = SERIES[p.s];
+  $("live").textContent = `Photo ${L.i + 1} of ${L.list.length}: ${p.t}, ${p.at}`;
+  $("panel").innerHTML = `<div class="panelhead"><h2>${p.t}</h2><button class="ib x" id="sheetX" aria-label="Close information"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <p class="place">${p.at}</p><p class="note">${p.n}</p>
+    <div class="hist" id="hist" aria-hidden="true"></div>
+    <dl class="meta"><div class="w"><dt>Camera</dt><dd>${p.cam}</dd></div><div><dt>Lens</dt><dd>${p.lens}</dd></div><div><dt>Aperture</dt><dd>${p.ap}</dd></div><div><dt>Shutter</dt><dd>${p.sh}</dd></div><div><dt>ISO</dt><dd>${p.iso}</dd></div><div><dt>Taken</dt><dd>${p.d}</dd></div><div><dt>Frame</dt><dd>${p.w > p.h ? "Landscape" : p.w < p.h ? "Portrait" : "Square"}</dd></div><div class="w"><dt>Position</dt><dd>${p.xy}</dd></div></dl>
+    <button class="copy" id="copyB"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg><span>Copy link to this photo</span></button>`;
+  const x = $("sheetX"); if (x) x.addEventListener("click", () => setInfo(false));
+  $("copyB").addEventListener("click", copyLink);
+  [...strip.children].forEach((b, k) => { const on = k === L.i; b.setAttribute("aria-current", String(on)); if (on) centreStrip(b); });
+  histogram(p);
+}
+function centreStrip(b) { const left = b.offsetLeft - strip.clientWidth / 2 + b.offsetWidth / 2; strip.scrollTo({ left, behavior: calm.matches || !L.open ? "auto" : "smooth" }); }
+async function copyLink() {
+  const p = at(0); try { await navigator.clipboard.writeText(`https://tidewater.example/p/${p.id + 101}`); } catch (e) { /* the frame may refuse: the state still shows */ }
+  const b = $("copyB"); if (!b) return; b.querySelector("use").setAttribute("href", "#i-check"); b.querySelector("span").textContent = "Link copied";
+  clearTimeout(copyLink.t); copyLink.t = setTimeout(() => { const c = $("copyB"); if (c) { c.querySelector("use").setAttribute("href", "#i-link"); c.querySelector("span").textContent = "Copy link to this photo"; } }, 1800);
+}
+/* the histogram is read from the picture itself */
+const histCache = new Map();
+function histogram(p) {
+  const box = $("hist"); if (!box) return;
+  box.dataset.p = p.id; /* the panel may have moved on by the time this picture decodes */
+  const paint = (d) => { const h = $("hist"); if (h && h.dataset.p === String(p.id)) h.innerHTML = d; };
+  if (histCache.has(p.id)) return paint(histCache.get(p.id));
+  const im = new Image();
+  im.onload = () => {
+    try {
+      const W = 140, H = Math.round(140 / p.r), c = document.createElement("canvas"); c.width = W; c.height = H;
+      const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, W, H);
+      const a = x.getImageData(0, 0, W, H).data, B = 64, bins = [new Array(B).fill(0), new Array(B).fill(0), new Array(B).fill(0)];
+      for (let i = 0; i < a.length; i += 4) for (let k = 0; k < 3; k++) bins[k][a[i + k] * B >> 8]++;
+      const smooth = bins.map((b) => b.map((v, i) => ((b[i - 1] ?? v) + v * 2 + (b[i + 1] ?? v)) / 4));
+      const sorted = smooth.flat().sort((m, n) => m - n), top = sorted[Math.floor(sorted.length * .985)] || 1;
+      const path = (b) => `M0,72L${b.map((v, i) => `${(i / (B - 1) * 256).toFixed(1)},${(72 - Math.min(1, v / top) * 66).toFixed(1)}`).join("L")}L256,72Z`;
+      const svg = `<svg viewBox="0 0 256 72" preserveAspectRatio="none">${["#d9584f", "#4fae74", "#4a84d9"].map((col, k) => `<path d="${path(smooth[k])}" fill="${col}" opacity=".85"/>`).join("")}</svg>`;
+      histCache.set(p.id, svg); paint(svg);
+    } catch (e) { const h = $("hist"); if (h) h.style.display = "none"; }
+  };
+  im.src = p.src;
+}
+function buildStrip() {
+  strip.innerHTML = L.list.map((p, k) => `<button data-k="${k}" style="width:${Math.round(52 * Math.min(1.6, Math.max(.72, p.r)))}px" aria-label="${p.t}"><img alt="" src="${p.src}" draggable="false"></button>`).join("");
+}
+function setInfo(on) {
+  L.info = on; lb.classList.toggle("noinfo", !on); $("infoB").setAttribute("aria-pressed", String(on));
+  if (!L.open) return;
+  fitAll(); clamp();
+  if (!calm.matches) { lb.classList.add("zoomtx"); clearTimeout(setInfo.t); setInfo.t = setTimeout(() => lb.classList.remove("zoomtx"), 240); }
+  drawSlides(); clipLayer();
+  if (!on) $("infoB").focus({ preventScroll: true });
+}
+const thumb = (p) => cells.get(p.id);
+let hiddenThumb = null;
+function hideThumb(p) { if (hiddenThumb) hiddenThumb.style.visibility = ""; hiddenThumb = thumb(p); hiddenThumb.style.visibility = "hidden"; }
+
+function openBox(id) {
+  if (L.open) return;
+  const el = cells.get(id); L.list = view.slice(); L.i = L.list.findIndex((p) => p.id === id);
+  L.s = 1; L.x = L.y = L.sw = L.sd = 0; L.open = true; L.closing = false;
+  buildStrip(); loadSlides();
+  const r = el.getBoundingClientRect();
+  lb.showModal(); lb.classList.toggle("noinfo", !L.info); $("infoB").setAttribute("aria-pressed", String(L.info)); stage.focus({ preventScroll: true });
+  fillInfo(); fitAll(); drawSlides(); clipLayer(true);
+  hideThumb(at(0));
+  void lb.offsetWidth; lb.classList.add("on");
+  const f = fits[1], cur = curS();
+  if (calm.matches) { lb.animate({ opacity: [0, 1] }, { duration: 180, easing: "ease-out" }); clipLayer(); return; }
+  [slides[0], slides[2]].forEach((s) => s.animate({ opacity: [0, 1] }, { duration: 340 }));
+  const a = cur.animate({ transform: [`translate(${r.left}px,${r.top}px) scale(${r.width / f.w})`, `translate(${f.x}px,${f.y}px) scale(1)`] }, { duration: 360, easing: EASE });
+  a.onfinish = () => { if (L.open && !L.closing) clipLayer(); };
+}
+function closeBox() {
+  if (!L.open || L.closing) return;
+  L.closing = true; endNav();
+  const p = at(0), el = thumb(p), cur = curS();
+  /* make sure the photo has somewhere to land */
+  el.style.visibility = "hidden"; el.scrollIntoView({ block: "nearest" });
+  const r = el.getBoundingClientRect(), f = fits[1];
+  clipLayer(true); lb.classList.remove("on");
+  slides[0].classList.remove("show"); slides[2].classList.remove("show");
+  const finish = () => {
+    if (hiddenThumb) hiddenThumb.style.visibility = ""; hiddenThumb = null;
+    L.open = false; L.closing = false; slides.forEach((s) => s.classList.remove("show"));
+    lb.close(); el.focus({ preventScroll: true });
+  };
+  if (calm.matches) { const a = lb.animate({ opacity: [1, 0] }, { duration: 160, easing: "ease-out", fill: "forwards" }); a.onfinish = () => { finish(); a.cancel(); }; return; }
+  const a = cur.animate({ transform: [cur.style.transform, `translate(${r.left}px,${r.top}px) scale(${r.width / f.w})`] }, { duration: 300, easing: EASE, fill: "forwards" });
+  a.onfinish = () => { finish(); a.cancel(); };
+}
+lb.addEventListener("cancel", (e) => { e.preventDefault(); if (sheet() && L.info) { setInfo(false); return; } closeBox(); });
+
+/* prev / next: a transition you can interrupt with another press */
+let navT = null, navEnd = null;
+function endNav() { if (navEnd) { const f = navEnd; navEnd = null; clearTimeout(navT); f(); } }
+function go(d) {
+  if (!L.open || L.closing || L.list.length < 2) return;
+  endNav(); resetZoom();
+  const commit = () => {
+    if (d > 0) slides.push(slides.shift()); else slides.unshift(slides.pop());
+    L.i = (L.i + d + L.list.length) % L.list.length; L.sw = 0;
+    lb.classList.remove("tx"); loadSlides(); fitAll(); drawSlides(); hideThumb(at(0));
+    void layer.offsetWidth;
+  };
+  if (calm.matches) { commit(); fillInfo(); curS().animate({ opacity: [0, 1] }, { duration: 160, easing: "ease-out" }); return; }
+  L.sw = -d * WIDE(); lb.classList.add("tx"); drawSlides(); navEnd = commit;
+  const i = (L.i + d + L.list.length) % L.list.length; L.i = i; fillInfo(); L.i = (i - d + L.list.length) % L.list.length;
+  navT = setTimeout(endNav, 310);
+}
+function jump(k) {
+  if (k === L.i) return;
+  endNav(); resetZoom();
+  const d = k > L.i ? 1 : -1; L.i = (k - d + L.list.length) % L.list.length;
+  /* the neighbour slot takes the photo you asked for, so it slides in from the correct side */
+  const mid = slides[1]; loadSlides(); slides[1] = mid; L.i = (k - d + L.list.length) % L.list.length;
+  const p = L.list[k], im = slides[d > 0 ? 2 : 0]; im.src = p.src; im.dataset.id = p.id; fits[d > 0 ? 2 : 0] = fit(p);
+  go(d);
+}
+function resetZoom() { L.s = 1; L.x = L.y = 0; }
+
+/* zoom */
+const MAXZ = 6;
+let zoomIdle;
+function promote() { curS().style.willChange = "transform"; clearTimeout(zoomIdle); zoomIdle = setTimeout(() => { curS().style.willChange = ""; }, 180); }
+function zoomAt(ns, cx, cy, smooth) {
+  ns = Math.max(1, Math.min(MAXZ, ns)); const f = fits[1], k = ns / L.s;
+  L.x = cx - f.x - (cx - f.x - L.x) * k; L.y = cy - f.y - (cy - f.y - L.y) * k; L.s = ns; clamp();
+  if (smooth && !calm.matches) { lb.classList.add("zoomtx"); clearTimeout(zoomAt.t); zoomAt.t = setTimeout(() => lb.classList.remove("zoomtx"), 240); }
+  else lb.classList.remove("zoomtx");
+  promote(); drawSlides();
+}
+const mid = () => { const r = fits[1].r; return [r.left + r.width / 2, r.top + r.height / 2]; };
+$("zIn").addEventListener("click", () => zoomAt(L.s * 1.6, ...mid(), true));
+$("zOut").addEventListener("click", () => zoomAt(L.s / 1.6, ...mid(), true));
+$("zVal").addEventListener("click", () => zoomAt(1, ...mid(), true));
+stage.addEventListener("wheel", (e) => { e.preventDefault(); if (!L.closing) zoomAt(L.s * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0028)), e.clientX, e.clientY, false); }, { passive: false });
+lb.addEventListener("wheel", (e) => { if (!e.target.closest(".panel, .strip")) e.preventDefault(); }, { passive: false });
+
+/* pointers: one finger pans or swipes, two fingers pinch, a double tap zooms */
+const pts = new Map();
+let gest = null, lastTap = 0;
+stage.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".navb") || L.closing || (e.button && e.pointerType === "mouse")) return;
+  stage.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (navEnd) endNav();
+  if (pts.size === 1) gest = { mode: "", sx: e.clientX, sy: e.clientY, ox: L.x, oy: L.y, t: performance.now(), moved: false };
+  if (pts.size === 2) { const [a, b] = [...pts.values()]; gest = { mode: "pinch", d: Math.hypot(a.x - b.x, a.y - b.y), s: L.s, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, moved: true }; L.sw = L.sd = 0; }
+  lb.classList.remove("zoomtx", "tx");
+});
+stage.addEventListener("pointermove", (e) => {
+  if (!pts.has(e.pointerId) || !gest) return;
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (gest.mode === "pinch") {
+    if (pts.size < 2) return;
+    const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+    const ns = Math.max(1, Math.min(MAXZ, gest.s * d / gest.d)); L.x += cx - gest.cx; L.y += cy - gest.cy; gest.cx = cx; gest.cy = cy; gest.s = ns; gest.d = d; zoomAt(ns, cx, cy, false); return;
+  }
+  const dx = e.clientX - gest.sx, dy = e.clientY - gest.sy;
+  if (!gest.moved && Math.hypot(dx, dy) > 6) { gest.moved = true; gest.mode = L.s > 1.001 ? "pan" : Math.abs(dx) >= Math.abs(dy) ? "swipe" : "down"; stage.classList.add("drag"); promote(); }
+  if (gest.mode === "pan") { L.x = gest.ox + dx; L.y = gest.oy + dy; clamp(); promote(); drawSlides(); }
+  else if (gest.mode === "swipe") { L.sw = L.list.length > 1 ? dx : dx * .25; drawSlides(); }
+  else if (gest.mode === "down") { L.sd = dy; drawSlides(); bg.style.opacity = String(Math.max(.25, 1 - Math.abs(dy) / 420)); }
+});
+const bg = document.querySelector(".lb-bg");
+function pointerUp(e) {
+  if (!pts.has(e.pointerId)) return;
+  pts.delete(e.pointerId); stage.classList.remove("drag");
+  if (!gest) return;
+  if (gest.mode === "pinch") { if (pts.size === 0) gest = null; else { const [a] = [...pts.values()]; gest = { mode: "pan", sx: a.x, sy: a.y, ox: L.x, oy: L.y, moved: true }; } return; }
+  const g = gest; gest = null;
+  if (!g.moved) {
+    const now = performance.now(), f = fits[1];
+    const onImage = e.clientX >= f.x + L.x && e.clientX <= f.x + L.x + f.w * L.s && e.clientY >= f.y + L.y && e.clientY <= f.y + L.y + f.h * L.s;
+    if (now - lastTap < 300) { lastTap = 0; clearTimeout(pointerUp.t); zoomAt(L.s > 1.001 ? 1 : 2.5, e.clientX, e.clientY, true); return; }
+    lastTap = now;
+    if (!onImage) { clearTimeout(pointerUp.t); pointerUp.t = setTimeout(closeBox, 240); }
+    return;
+  }
+  if (g.mode === "swipe") {
+    const dx = e.clientX - g.sx, far = Math.abs(dx) > Math.min(120, innerWidth * .2) || (Math.abs(dx) > 30 && performance.now() - g.t < 240);
+    if (far && L.list.length > 1) { const w = dx < 0 ? 1 : -1; go(w); return; }
+    L.sw = 0; lb.classList.add("tx"); drawSlides(); setTimeout(() => lb.classList.remove("tx"), 310);
+  } else if (g.mode === "down") {
+    bg.style.opacity = "";
+    if (Math.abs(e.clientY - g.sy) > 120) { closeBox(); L.sd = 0; return; }
+    L.sd = 0; lb.classList.add("tx"); drawSlides(); setTimeout(() => lb.classList.remove("tx"), 310);
+  }
+}
+stage.addEventListener("pointerup", pointerUp);
+stage.addEventListener("pointercancel", pointerUp);
+
+/* buttons and keys */
+$("prevB").addEventListener("click", () => go(-1));
+$("nextB").addEventListener("click", () => go(1));
+$("closeB").addEventListener("click", closeBox);
+$("infoB").addEventListener("click", () => setInfo(!L.info));
+strip.addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (b) jump(+b.dataset.k); });
+lb.addEventListener("keydown", (e) => {
+  if (!L.open || L.closing || e.metaKey || e.ctrlKey || e.altKey) return;
+  const zoomed = L.s > 1.001, pan = (x, y) => { L.x += x; L.y += y; clamp(); lb.classList.add("zoomtx"); clearTimeout(zoomAt.t); zoomAt.t = setTimeout(() => lb.classList.remove("zoomtx"), 240); drawSlides(); };
+  switch (e.key) {
+    case "ArrowLeft": e.preventDefault(); zoomed ? pan(80, 0) : go(-1); break;
+    case "ArrowRight": e.preventDefault(); zoomed ? pan(-80, 0) : go(1); break;
+    case "ArrowUp": if (zoomed) { e.preventDefault(); pan(0, 80); } break;
+    case "ArrowDown": if (zoomed) { e.preventDefault(); pan(0, -80); } break;
+    case "+": case "=": e.preventDefault(); zoomAt(L.s * 1.6, ...mid(), true); break;
+    case "-": case "_": e.preventDefault(); zoomAt(L.s / 1.6, ...mid(), true); break;
+    case "0": e.preventDefault(); zoomAt(1, ...mid(), true); break;
+    case "i": case "I": e.preventDefault(); setInfo(!L.info); break;
+    case "Home": e.preventDefault(); jump(0); break;
+    case "End": e.preventDefault(); jump(L.list.length - 1); break;
+  }
+});
+
+/* start */
+layoutGallery(false); footLine();
+</script>
+</body>
+</html>

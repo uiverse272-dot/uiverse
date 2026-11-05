@@ -1,0 +1,559 @@
+<!doctype html>
+<!-- FAQ accordion — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A telehealth help-centre FAQ: live search that marks the matched words in questions and answers,
+     topic tabs whose counts follow the search, answers that open smoothly, a copy-link and a
+     "Was this helpful?" on every answer, and a way to reach a person when nothing matches. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Juniper Care — Help centre</title>
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --sunk: #efede7; --line: #e2dfd7; --line-2: #d3cfc4;
+  --ink: #17211f; --text: #34403d; --soft: #5b6764; --teal: #0d5c57; --teal-ink: #0a4a46; --teal-wash: #e4efec;
+  --mark: #f6df98; --ok: #1d6b45;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --hum: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button, input { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 40px; }
+
+/* top bar */
+.bar { display: flex; align-items: center; gap: 16px; height: 64px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 16px/1 var(--hum); letter-spacing: -.005em; text-decoration: none; }
+.brand svg { width: 28px; height: 28px; }
+.brand span { padding-left: 12px; margin-left: 2px; border-left: 1px solid var(--line-2); color: var(--soft); font-weight: 500; }
+.urgent { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--soft); font-size: 13px; }
+.urgent .sm { display: none; }
+.urgent b { color: var(--ink); font-weight: 600; }
+.urgent svg { width: 18px; height: 18px; color: #9a4b1c; }
+
+/* layout */
+.main { display: grid; grid-template-columns: 284px minmax(0, 1fr); gap: 48px; padding: 40px 0 56px; align-items: start; }
+.side { position: sticky; top: 24px; display: grid; gap: 24px; }
+h1 { font: 600 32px/1.12 var(--hum); letter-spacing: -.02em; text-wrap: balance; }
+.lede { margin-top: 8px; color: var(--soft); font-size: 15px; }
+
+.search { position: relative; }
+.search svg.i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--soft); pointer-events: none; }
+.search input { width: 100%; height: 48px; padding: 0 76px 0 44px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; font-size: 15px; outline: none; transition: border-color .15s ease-out, box-shadow .15s ease-out; }
+.search input::placeholder { color: #6c7673; }
+.search input:hover { border-color: #bdb8ab; }
+.search input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13, 92, 87, .14); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search kbd, .search .clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.search kbd { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; font: 500 12px var(--sans); color: var(--soft); background: var(--bg); }
+.search .clear { display: none; align-items: center; gap: 4px; height: 30px; padding: 0 8px; border-radius: 6px; color: var(--soft); font-size: 13px; }
+.search .clear:hover { background: var(--sunk); color: var(--ink); }
+.search .clear svg.i { position: static; transform: none; width: 16px; height: 16px; }
+.search.has kbd { display: none; }
+.search.has .clear { display: flex; }
+
+/* topic tabs */
+.tabs, .tl { display: grid; gap: 2px; }
+.tabs .lbl { padding: 0 12px 8px; font-size: 13px; color: var(--soft); }
+.tab { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 12px; border-radius: 8px; text-align: left; color: var(--text); font-size: 15px; transition: background-color .15s ease-out, color .15s ease-out; }
+.tab:hover { background: var(--sunk); color: var(--ink); }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--teal-ink); font-weight: 600; box-shadow: 0 0 0 1px var(--line), 0 1px 2px rgba(23, 33, 31, .05); }
+.tab .n { min-width: 28px; height: 22px; padding: 0 7px; border-radius: 11px; display: grid; place-items: center; font-size: 12.5px; font-weight: 500; color: var(--soft); background: var(--sunk); transition: background-color .15s, color .15s; }
+.tab[aria-selected="true"] .n { background: var(--teal-wash); color: var(--teal-ink); }
+.tab .n.zero { color: var(--soft); background: transparent; }
+
+.nudge { padding: 16px 0 0 12px; border-top: 1px solid var(--line); font-size: 14px; color: var(--soft); }
+.nudge b { display: block; color: var(--ink); font-weight: 600; }
+.nudge a { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; color: var(--teal-ink); font-weight: 600; text-decoration: none; }
+.nudge a svg.i { width: 16px; height: 16px; transition: transform .2s var(--ease); }
+.nudge a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.nudge a:hover svg.i { transform: translateX(3px); }
+
+/* list */
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 16px; }
+.head h2 { font: 600 20px/1.3 var(--hum); letter-spacing: -.01em; }
+.head p { color: var(--soft); font-size: 13px; text-align: right; }
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.item:not(.first) { border-top: 1px solid var(--line); }
+.item[hidden] { display: none; }
+.item h3 { font-size: inherit; font-weight: inherit; }
+.trig { display: grid; grid-template-columns: minmax(0, 1fr) 28px; align-items: center; gap: 16px; width: 100%; padding: 16px 20px; text-align: left; font-size: 16px; font-weight: 600; line-height: 1.4; color: var(--ink); border-radius: 0; }
+.item.first .trig { border-radius: 12px 12px 0 0; }
+.item.last:not(.open) .trig { border-radius: 0 0 12px 12px; }
+.trig:hover .pm { border-color: var(--teal); color: var(--teal); }
+.trig:focus-visible { outline-offset: -2px; border-radius: 10px; }
+.pm { position: relative; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line-2); color: var(--soft); transition: border-color .2s ease-out, color .2s ease-out, background-color .2s ease-out; }
+.pm::before, .pm::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.6px; margin: -.8px 0 0 -6px; border-radius: 1px; background: currentColor; transition: transform .28s var(--ease), opacity .28s var(--ease); }
+.pm::after { transform: rotate(90deg); }
+.open .pm { background: var(--teal); border-color: var(--teal); color: #fff; }
+.open .pm::after { transform: rotate(180deg); opacity: 0; }
+
+.panel { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .3s var(--ease), visibility 0s linear .3s; }
+.open .panel { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .3s var(--ease), visibility 0s; }
+.inner { overflow: hidden; min-height: 0; }
+.ans { padding: 0 64px 0 20px; color: var(--text); opacity: 0; transform: translateY(-4px); transition: opacity .2s ease-out, transform .25s var(--ease); }
+.open .ans { opacity: 1; transform: none; transition-delay: .06s; }
+.ans p + p { margin-top: 10px; }
+.ans b.ui { font-weight: 600; color: var(--ink); white-space: nowrap; }
+mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; margin: 0 -1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin: 16px 20px 0; padding: 12px 0 16px; border-top: 1px dashed var(--line); font-size: 13.5px; color: var(--soft); }
+.vote { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 32px; }
+.vote > span { margin-right: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 500; transition: border-color .15s ease-out, background-color .15s ease-out, color .15s ease-out; }
+.chip:hover { border-color: var(--teal); color: var(--teal-ink); }
+.chip svg.i { width: 16px; height: 16px; }
+.said { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); font-weight: 500; }
+.said svg.i { width: 18px; height: 18px; }
+.said:focus { outline: none; }
+.ask { color: var(--text); font-weight: 500; margin-right: 4px; }
+.copy { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; margin-right: -10px; border-radius: 8px; color: var(--soft); font-size: 13.5px; font-weight: 500; transition: background-color .15s ease-out, color .15s ease-out; }
+.copy:hover { background: var(--sunk); color: var(--ink); }
+.copy svg.i { width: 16px; height: 16px; }
+.copy.done { color: var(--ok); }
+
+/* not here, and nowhere */
+.miss { display: none; padding: 32px 32px 36px; text-align: center; }
+.miss.on { display: block; }
+.miss svg.big { width: 40px; height: 40px; color: var(--teal); fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.miss h3 { margin-top: 12px; font: 600 18px/1.35 var(--hum); }
+.miss p { margin: 6px auto 0; max-width: 42ch; color: var(--soft); }
+.miss .acts { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 8px; font-size: 14.5px; font-weight: 600; transition: background-color .15s ease-out, border-color .15s ease-out, color .15s ease-out; }
+.btn svg.i { width: 18px; height: 18px; }
+.btn.solid { background: var(--teal); color: #fff; }
+.btn.solid:hover { background: var(--teal-ink); }
+.btn.line { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); }
+.btn.line:hover { border-color: var(--teal); color: var(--teal-ink); }
+.btn[aria-disabled="true"] { cursor: default; opacity: .85; }
+
+/* still have questions */
+.help { padding: 40px 0 56px; border-top: 1px solid var(--line); }
+.help h2 { font: 600 24px/1.25 var(--hum); letter-spacing: -.015em; }
+.help > p { margin-top: 4px; color: var(--soft); }
+.ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.way { display: flex; flex-direction: column; gap: 4px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.way .ic { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 12px; border-radius: 10px; background: var(--teal-wash); color: var(--teal); }
+.way h3 { font-size: 16px; font-weight: 600; }
+.way .big { font-size: 17px; font-weight: 600; letter-spacing: .005em; color: var(--ink); }
+.way p { color: var(--soft); font-size: 14px; }
+.way .live { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); font-weight: 500; }
+.way .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #2f8a5b; }
+.way .btn { margin-top: auto; align-self: flex-start; }
+.way .gap { flex: 1; min-height: 16px; }
+.small { margin-top: 24px; color: var(--soft); font-size: 13px; }
+
+@media (max-width: 860px) {
+  .wrap { padding: 0 24px; }
+  .main { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 32px; }
+  .side { position: static; }
+  .nudge { display: none; }
+  .tl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tabs .lbl { padding-bottom: 4px; }
+  .tab { box-shadow: 0 0 0 1px var(--line); background: var(--surface); }
+  .tab[aria-selected="true"] { box-shadow: 0 0 0 1.5px var(--teal); }
+  .ways { grid-template-columns: minmax(0, 1fr); }
+  .way { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 16px; }
+  .way .ic { grid-row: 1 / span 4; margin: 0; }
+  .way .gap { display: none; }
+  .way .btn { margin-top: 12px; grid-column: 2; }
+}
+@media (max-width: 560px) {
+  .wrap { padding: 0 16px; }
+  .urgent .lg { display: none; }
+  .urgent .sm { display: inline; }
+  .brand span { display: none; }
+  h1 { font-size: 28px; }
+  .tab { grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; padding: 0 10px; font-size: 14px; height: 48px; line-height: 1.2; }
+  .tab svg.i { width: 18px; height: 18px; }
+  .head { flex-direction: column; gap: 2px; }
+  .head p { text-align: left; }
+  .trig { padding: 16px; gap: 12px; font-size: 15.5px; }
+  .ans { padding: 0 16px; }
+  .foot { margin: 16px 16px 0; }
+  .miss { padding: 28px 16px 32px; }
+}
+@media (max-width: 560px) {
+  .search kbd { display: none; }
+}
+@media (max-width: 400px) {
+  .tab { grid-template-columns: minmax(0, 1fr) auto; padding: 0 8px 0 12px; }
+  .tab svg.i { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h4"/></symbol>
+  <symbol id="i-pill" viewBox="0 0 24 24"><rect x="3.2" y="8.2" width="17.6" height="7.6" rx="3.8" transform="rotate(-45 12 12)"/><path d="M9.3 9.3l5.4 5.4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 10.5v9H4.5v-9zM7 19.5h9.6a2 2 0 0 0 2-1.6l1.2-6a2 2 0 0 0-2-2.4H14l.8-3.6a1.8 1.8 0 0 0-3.3-1.3L7 10.5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M7 13.5v-9H4.5v9zM7 4.5h9.6a2 2 0 0 1 2 1.6l1.2 6a2 2 0 0 1-2 2.4H14l.8 3.6a1.8 1.8 0 0 1-3.3 1.3L7 13.5"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4 3.5v-3.5h0.5a2 2 0 0 1-2-2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.8l2.3-.3 1.6 4-1.9 1.4a11 11 0 0 0 6.5 6.5l1.4-1.9 4 1.6-.3 2.3a2 2 0 0 1-2.1 1.7A16 16 0 0 1 4.9 5.9a2 2 0 0 1 1.7-2.1z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4 7l8 6 8-6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.1"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-find" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M19.5 19.5l-4.7-4.7M8.5 8.5l4 4M12.5 8.5l-4 4"/></symbol>
+</svg>
+
+<header class="wrap">
+  <div class="bar">
+    <a class="brand" href="#" id="home"><svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="#0d5c57"/><circle cx="10.4" cy="16.6" r="3.4" fill="#f6f5f1"/><circle cx="17.6" cy="16.6" r="3.4" fill="#cfe3de"/><circle cx="14" cy="10.4" r="3.4" fill="#9cc7be"/></svg>Juniper Care<span>Help centre</span></a>
+    <p class="urgent"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><span class="lg">In an emergency, call</span><span class="sm">Emergency</span> <b>911</b></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="main">
+    <aside class="side">
+      <div>
+        <h1>Help with your care</h1>
+        <p class="lede">The questions patients ask us most, answered by our care team and checked by our clinicians.</p>
+      </div>
+      <div class="search" id="search">
+        <label class="sr" for="q">Search questions</label>
+        <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="q" type="search" placeholder="Try “refill” or “copay”" autocomplete="off" spellcheck="false" aria-describedby="status">
+        <kbd aria-hidden="true">/</kbd>
+        <button class="clear" id="clear" type="button" aria-label="Clear search"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg>Clear</button>
+      </div>
+      <div class="tabs"><p class="lbl" id="topics">Topics</p><div class="tl" id="tabs" role="tablist" aria-orientation="vertical" aria-labelledby="topics"></div></div>
+      <div class="nudge"><p><b>Can’t find what you need?</b> A nurse is online now and usually replies in about two minutes.</p><a href="#help" id="to-help">Ask the care team<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+    </aside>
+
+    <section aria-labelledby="cat-title">
+      <div class="head">
+        <h2 id="cat-title">Appointments</h2>
+        <p id="status" aria-live="polite">6 questions</p>
+      </div>
+      <div class="list" id="list" role="tabpanel" aria-labelledby="cat-title">
+        <div class="miss" id="miss"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="help" id="help" aria-labelledby="help-title">
+    <h2 id="help-title">Still have questions?</h2>
+    <p>Our care team is made up of nurses and patient advocates, not a call centre.</p>
+    <div class="ways">
+      <article class="way">
+        <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg></span>
+        <h3>Chat with us</h3>
+        <p class="live" id="chat-state">Online now · replies in about 2 min</p>
+        <p>Best for quick questions about a visit or your account.</p>
+        <span class="gap"></span>
+        <button class="btn solid" id="chat" type="button">Start a chat</button>
+      </article>
+      <article class="way">
+        <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></span>
+        <h3>Call the care team</h3>
+        <p class="big">(800) 555-0142</p>
+        <p>Every day, 7am to 11pm Eastern. TTY 711.</p>
+        <span class="gap"></span>
+        <button class="btn line" id="call" type="button" data-copy="(800) 555-0142" data-done="Number copied">Copy number</button>
+      </article>
+      <article class="way">
+        <span class="ic"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span>
+        <h3>Send us an email</h3>
+        <p class="big">care@juniper.example</p>
+        <p>We reply within one business day. Please don't send photos of symptoms here.</p>
+        <span class="gap"></span>
+        <button class="btn line" id="mail" type="button" data-copy="care@juniper.example" data-done="Address copied">Copy address</button>
+      </article>
+    </div>
+    <p class="small">Juniper Care is not for emergencies. If you have chest pain, trouble breathing or thoughts of harming yourself, call 911 or 988.</p>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+
+const CATS = [
+  { id: "appt", name: "Appointments", icon: "i-cal", by: "Reviewed by Dr. Amara Okafor · 14 Oct 2026" },
+  { id: "bill", name: "Billing & insurance", icon: "i-card", by: "Reviewed by Lucas Ferreira, billing lead · 2 Oct 2026" },
+  { id: "rx", name: "Prescriptions", icon: "i-pill", by: "Reviewed by Hana Sato, PharmD · 21 Oct 2026" },
+  { id: "priv", name: "Privacy", icon: "i-lock", by: "Reviewed by Rohan Iyer, privacy officer · 9 Sep 2026" },
+];
+
+/* [Text in brackets] is an app path, shown in bold. */
+const FAQ = [
+  { id: "book-video-visit", cat: "appt", q: "How do I book a video visit?", a: [
+    "Open the app and choose [Book a visit], pick the reason you need care, then a time that suits you. For urgent and primary care, most visits are available within two hours, from 7am to 11pm every day.",
+    "You'll get a confirmation by email and a text 15 minutes before the visit, with a link straight to the waiting room." ] },
+  { id: "video-visit-setup", cat: "appt", q: "What do I need for a video visit?", a: [
+    "A phone, tablet or computer with a camera, and a connection of at least 1.5 Mbps. Nothing needs installing on a computer; on a phone, the app gives the clearest picture.",
+    "Join from somewhere private and well lit. [Test my setup] on the visit page checks your camera, microphone and connection in about 20 seconds." ] },
+  { id: "reschedule-cancel", cat: "appt", q: "Can I reschedule or cancel?", a: [
+    "Yes, free of charge up to two hours before the visit, from [Visits › Upcoming]. Later than that, or if you miss the visit, there's a $25 late-cancellation fee. We waive it once a year, no questions asked." ] },
+  { id: "clinician-late", cat: "appt", q: "What happens if my clinician is running late?", a: [
+    "The waiting room shows a live wait time. If you've waited more than 15 minutes past your start time, you can switch to the next available clinician in one tap, or rebook and the visit is free." ] },
+  { id: "same-clinician", cat: "appt", q: "Can I see the same clinician each time?", a: [
+    "Yes. After a visit, choose [Add to my care team]. When you book, that clinician's openings are shown first. Therapy sessions are always booked with the same therapist unless you ask to change." ] },
+  { id: "family-join", cat: "appt", q: "Can a family member join my visit?", a: [
+    "You can invite up to two people from the waiting room by sending them a link. They join with video or audio only, and you can remove them at any time.",
+    "For patients under 18, a parent or guardian needs to be present for the whole visit." ] },
+
+  { id: "insurance-accepted", cat: "bill", q: "Which insurance plans do you accept?", a: [
+    "We're in network with most major PPO and HMO plans in all 50 states, and with Medicare Part B. Add your member ID under [Account › Insurance] and we'll confirm your coverage and copay before you book." ] },
+  { id: "cost-without-insurance", cat: "bill", q: "How much does a visit cost without insurance?", a: [
+    "$79 for an urgent or primary care video visit, $129 for a first therapy session and $99 for each one after. You see the price before you book, and you're only charged once the visit is over." ] },
+  { id: "hsa-fsa", cat: "bill", q: "Can I pay with my HSA or FSA card?", a: [
+    "Yes. Visits and prescriptions are qualified medical expenses. Add the card under [Account › Payment], and download an itemized receipt from [Billing] for your records." ] },
+  { id: "charged-after-visit", cat: "bill", q: "Why was I charged after my visit?", a: [
+    "Your plan sometimes settles the claim after the visit. If it pays less than estimated, we charge the difference to your card within 30 days and email you the explanation of benefits.",
+    "If a charge looks wrong, choose [Ask for a review] next to it in [Billing › Charges]. We pause collection while we look into it." ] },
+  { id: "payment-plan", cat: "bill", q: "Do you offer payment plans?", a: [
+    "For balances over $200 you can split the amount into three or six monthly payments, with no interest or fees. Choose [Set up a plan] next to the balance." ] },
+
+  { id: "prescribe", cat: "rx", q: "Can my clinician prescribe medication?", a: [
+    "Yes, when it's clinically appropriate. Prescriptions go electronically to the pharmacy you choose, usually before the visit ends.",
+    "We don't prescribe controlled substances, such as opioids, stimulants or benzodiazepines, over video." ] },
+  { id: "request-refill", cat: "rx", q: "How do I request a refill?", a: [
+    "Go to [Medications], choose the prescription and select [Request refill]. A clinician reviews it within one business day.",
+    "Some medicines need a short check-in first, for example blood pressure medication after 12 months, so we can make sure the dose is still right for you." ] },
+  { id: "change-pharmacy", cat: "rx", q: "Can I change my pharmacy?", a: [
+    "Yes, under [Account › Pharmacy]. Prescriptions already sent stay at the old pharmacy. Ask them to transfer it, or message us and we'll resend it to the new one at no charge." ] },
+  { id: "pharmacy-not-received", cat: "rx", q: "My pharmacy says it hasn't received my prescription", a: [
+    "Electronic prescriptions usually arrive within minutes. Check the pharmacy address on your visit summary first. If it's right, message us from the visit and we'll call the pharmacy for you." ] },
+  { id: "mail-order", cat: "rx", q: "Can my medication be delivered?", a: [
+    "Yes, for medicines you take regularly. Choose [Juniper Pharmacy by mail] and we'll send a 90-day supply in plain packaging, free, in two to four business days." ] },
+
+  { id: "who-sees-records", cat: "priv", q: "Who can see my health records?", a: [
+    "Only the clinicians caring for you and the staff who need to, such as a pharmacist checking a prescription. Every time someone opens your record it's logged, and you can see that log under [Account › Privacy].",
+    "We never sell your data or share it with advertisers or your employer." ] },
+  { id: "visits-recorded", cat: "priv", q: "Are video visits recorded?", a: [
+    "No. Video visits are encrypted and never recorded. Your clinician writes notes into your record, and you can read them under [Visits] after each appointment." ] },
+  { id: "download-delete", cat: "priv", q: "How do I download or delete my data?", a: [
+    "Under [Account › Privacy], choose [Download my records] for a PDF and a machine-readable copy, ready within 48 hours.",
+    "You can also close your account and ask us to delete your data. By law we keep medical records for seven years, then delete them." ] },
+  { id: "share-records", cat: "priv", q: "Can I share my records with another doctor?", a: [
+    "Yes. From any visit summary choose [Share], enter the practice's secure email or fax number, and we'll send it. You can also add your regular doctor so every visit summary goes to them automatically." ] },
+];
+
+const ICON = (id) => `<svg class="i" aria-hidden="true"><use href="#${id}"/></svg>`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const plain = (s) => s.replace(/[\[\]]/g, "");
+const fold = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+let active = "appt", terms = [], rx = null, saved = null;
+const list = $("list"), miss = $("miss"), input = $("q");
+
+/* tabs */
+$("tabs").innerHTML = CATS.map((c) =>
+  `<button class="tab" role="tab" type="button" id="tab-${c.id}" data-c="${c.id}" aria-selected="${c.id === active}" aria-controls="list" tabindex="${c.id === active ? 0 : -1}">${ICON(c.icon)}<span>${esc(c.name)}</span><span class="n" id="n-${c.id}"></span></button>`).join("");
+const tabs = [...document.querySelectorAll(".tab")];
+
+/* items */
+const items = FAQ.map((f) => {
+  const el = document.createElement("div");
+  el.className = "item"; el.id = f.id; el.dataset.c = f.cat;
+  el.innerHTML = `<h3><button class="trig" type="button" id="t-${f.id}" aria-expanded="false" aria-controls="p-${f.id}"><span class="qt"></span><span class="pm" aria-hidden="true"></span></button></h3>
+  <div class="panel" id="p-${f.id}" role="region" aria-labelledby="t-${f.id}"><div class="inner"><div class="ans"></div>
+  <div class="foot"><div class="vote" role="group" aria-label="Was this answer helpful?"><span>Was this helpful?</span><button class="chip" type="button" data-v="yes">${ICON("i-up")}Yes</button><button class="chip" type="button" data-v="no">${ICON("i-down")}No</button></div>
+  <button class="copy" type="button" aria-label="Copy link to this question">${ICON("i-link")}<span>Copy link</span></button></div></div></div>`;
+  list.insertBefore(el, miss);
+  const it = { ...f, el, trig: el.querySelector(".trig"), qt: el.querySelector(".qt"), ans: el.querySelector(".ans"),
+    hayQ: fold(f.q), hayA: fold(plain(f.a.join(" "))), open: false };
+  it.trig.addEventListener("click", () => setOpen(it, !it.open));
+  return it;
+});
+
+function setOpen(it, v) {
+  it.open = v;
+  it.el.classList.toggle("open", v);
+  it.trig.setAttribute("aria-expanded", String(v));
+}
+
+/* highlight every search term inside a piece of text */
+function hl(s) {
+  if (!rx) return esc(s);
+  let out = "", last = 0;
+  const f = fold(s);
+  rx.lastIndex = 0;
+  for (let m; (m = rx.exec(f)); ) {
+    if (!m[0]) { rx.lastIndex++; continue; }
+    out += esc(s.slice(last, m.index)) + "<mark>" + esc(s.slice(m.index, m.index + m[0].length)) + "</mark>";
+    last = m.index + m[0].length;
+  }
+  return out + esc(s.slice(last));
+}
+const para = (s) => "<p>" + s.split(/\[([^\]]+)\]/).map((part, i) => (i % 2 ? `<b class="ui">${hl(part)}</b>` : hl(part))).join("") + "</p>";
+function paint(it) { it.qt.innerHTML = hl(it.q); it.ans.innerHTML = it.a.map(para).join(""); }
+
+const matches = (it) => terms.every((t) => it.hayQ.includes(t) || it.hayA.includes(t));
+const inAnswer = (it) => terms.some((t) => it.hayA.includes(t));
+const cat = (id) => CATS.find((c) => c.id === id);
+const quote = () => `“${input.value.trim()}”`;
+
+function render() {
+  const counts = {};
+  for (const c of CATS) counts[c.id] = 0;
+  let shown = 0;
+  for (const it of items) {
+    const ok = matches(it);
+    if (ok) counts[it.cat]++;
+    const vis = ok && it.cat === active;
+    it.el.hidden = !vis;
+    if (vis) { shown++; paint(it); }
+  }
+  const vis = items.filter((i) => !i.el.hidden);
+  for (const it of items) { it.el.classList.toggle("first", it === vis[0]); it.el.classList.toggle("last", it === vis[vis.length - 1]); }
+  for (const c of CATS) {
+    const n = $("n-" + c.id);
+    n.textContent = counts[c.id];
+    n.classList.toggle("zero", terms.length > 0 && counts[c.id] === 0);
+    $("tab-" + c.id).setAttribute("aria-label", `${c.name}, ${counts[c.id]} ${terms.length ? "matching " : ""}question${counts[c.id] === 1 ? "" : "s"}`);
+  }
+  const C = cat(active), total = FAQ.filter((f) => f.cat === active).length;
+  $("cat-title").textContent = C.name;
+  const st = $("status");
+  if (!terms.length) st.textContent = C.by;
+  else if (shown) st.textContent = `${shown} of ${total} match ${quote()}`;
+  else st.textContent = `No matches in ${C.name}`;
+
+  const elsewhere = CATS.filter((c) => c.id !== active && counts[c.id] > 0);
+  if (terms.length && !shown) {
+    miss.classList.add("on");
+    if (elsewhere.length) {
+      miss.innerHTML = `<svg class="big" aria-hidden="true"><use href="#i-search"/></svg><h3>Nothing about ${esc(quote())} in ${esc(C.name)}</h3>
+        <p>We found ${elsewhere.map((c) => `${counts[c.id]} in ${esc(c.name)}`).join(" and ")}.</p>
+        <div class="acts">${elsewhere.map((c, i) => `<button class="btn ${i ? "line" : "solid"}" type="button" data-go="${c.id}">Show ${esc(c.name)}</button>`).join("")}</div>`;
+    } else {
+      miss.innerHTML = `<svg class="big" aria-hidden="true"><use href="#i-find"/></svg><h3>We couldn't find an answer for ${esc(quote())}</h3>
+        <p>Try a shorter word, or ask the care team. A nurse or patient advocate is online now and usually replies in about two minutes.</p>
+        <div class="acts"><button class="btn solid" type="button" data-act="chat">${ICON("i-chat")}Start a chat</button><button class="btn line" type="button" data-act="clear">Clear search</button></div>`;
+    }
+  } else miss.classList.remove("on");
+  list.style.borderStyle = terms.length && !shown ? "dashed" : "";
+}
+
+/* search */
+let sayT = 0;
+function search() {
+  const raw = input.value;
+  $("search").classList.toggle("has", raw.length > 0);
+  const next = [...new Set(fold(raw).split(/\s+/).filter((t) => t.length > 0))].sort((a, b) => b.length - a.length);
+  const was = terms.length;
+  terms = next;
+  rx = terms.length ? new RegExp(terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g") : null;
+  if (terms.length && !was) saved = new Set(items.filter((i) => i.open).map((i) => i.id));
+  if (terms.length) for (const it of items) setOpen(it, matches(it) && (inAnswer(it) || saved.has(it.id)));
+  else if (was && saved) { for (const it of items) setOpen(it, saved.has(it.id)); saved = null; }
+  render();
+}
+input.addEventListener("input", search);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { if (input.value) { e.preventDefault(); input.value = ""; search(); } else input.blur(); }
+  if (e.key === "Enter") { e.preventDefault(); const first = items.find((i) => !i.el.hidden); if (first) first.trig.focus(); }
+});
+$("clear").addEventListener("click", () => { input.value = ""; search(); input.focus(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && !e.metaKey && !e.ctrlKey && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) { e.preventDefault(); input.focus(); input.select(); return; }
+  /* type anywhere to search: a printable key outside a field goes to the search box */
+  const el = document.activeElement;
+  if (e.key.length === 1 && e.key !== " " && !e.metaKey && !e.ctrlKey && !e.altKey && !/^(INPUT|TEXTAREA)$/.test(el.tagName)) input.focus();
+});
+
+/* tabs: arrows move and select */
+function pick(id, focus) {
+  active = id;
+  for (const t of tabs) { const on = t.dataset.c === id; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); }
+  list.setAttribute("aria-labelledby", "tab-" + id);
+  render();
+}
+tabs.forEach((t, i) => {
+  t.addEventListener("click", () => pick(t.dataset.c));
+  t.addEventListener("keydown", (e) => {
+    const k = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    let j = k ? (i + k + tabs.length) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+    if (j < 0) return;
+    e.preventDefault(); pick(tabs[j].dataset.c, true);
+  });
+});
+
+/* answer footers: helpful votes and copy link */
+const said = (html) => { const s = document.createElement("span"); s.className = "said"; s.tabIndex = -1; s.innerHTML = ICON("i-check") + html; return s; };
+list.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const vote = b.closest(".vote");
+  if (b.dataset.v === "yes") { const s = said("Thanks, glad it helped."); vote.replaceChildren(s); s.focus(); }
+  else if (b.dataset.v === "no") {
+    vote.innerHTML = `<span class="ask">What was missing?</span>` + ["Not clear", "Didn't answer my question", "Out of date"].map((t) => `<button class="chip" type="button" data-why>${t}</button>`).join("");
+    vote.querySelector("[data-why]").focus();
+  } else if (b.hasAttribute("data-why")) { const s = said("Thanks. Our clinical writers review every answer flagged like this."); vote.replaceChildren(s); s.focus(); }
+  else if (b.classList.contains("copy")) {
+    const id = b.closest(".item").id;
+    const base = /^https?:/.test(location.href) ? location.href.split("#")[0] : "https://help.juniper.example/faq";
+    await copy(`${base}#${id}`);
+    flash(b, "Link copied", "i-check", "i-link", "Copy link");
+  } else if (b.dataset.go) pick(b.dataset.go);
+  else if (b.dataset.act === "clear") { input.value = ""; search(); input.focus(); }
+  else if (b.dataset.act === "chat") startChat(true);
+});
+
+async function copy(text) { try { await navigator.clipboard.writeText(text); } catch (err) { /* the frame may not allow it; still show the copied state */ } }
+function flash(b, done, icon, back, label) {
+  clearTimeout(b._t);
+  b.classList.add("done");
+  b.innerHTML = ICON(icon) + `<span>${done}</span>`;
+  b._t = setTimeout(() => { b.classList.remove("done"); b.innerHTML = ICON(back) + `<span>${label}</span>`; }, 1800);
+}
+
+/* still have questions */
+for (const id of ["call", "mail"]) {
+  const b = $(id), label = b.textContent;
+  b.addEventListener("click", async () => {
+    await copy(b.dataset.copy);
+    clearTimeout(b._t); b.textContent = b.dataset.done;
+    b._t = setTimeout(() => (b.textContent = label), 1800);
+  });
+}
+let chatting = false;
+function startChat(fromEmpty, onlyGo) {
+  const b = $("chat");
+  if (fromEmpty) { $("help").scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "start" }); b.focus({ preventScroll: true }); }
+  if (chatting || onlyGo) return;
+  chatting = true;
+  b.setAttribute("aria-disabled", "true"); b.textContent = "Connecting…";
+  setTimeout(() => {
+    b.textContent = "Chat open";
+    $("chat-state").textContent = "Nadia, RN, is joining · you're next";
+  }, 900);
+}
+$("chat").addEventListener("click", () => startChat(false));
+$("to-help").addEventListener("click", (e) => { e.preventDefault(); startChat(true, true); });
+$("home").addEventListener("click", (e) => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce.matches ? "auto" : "smooth" }); });
+
+/* deep links: #request-refill opens that answer in its topic */
+function follow() {
+  const it = items.find((i) => "#" + i.id === location.hash);
+  if (!it) return false;
+  if (input.value) { input.value = ""; search(); }
+  pick(it.cat); setOpen(it, true); it.el.scrollIntoView({ block: "start" });
+  return true;
+}
+addEventListener("hashchange", follow);
+
+if (!follow()) { setOpen(items[0], true); render(); }
+</script>
+</body>
+</html>

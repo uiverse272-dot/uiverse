@@ -1,0 +1,953 @@
+<!doctype html>
+<!-- Split sign-in page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A complete sign-in for a design-ops tool: email first, then a password step with the address as an
+     editable chip, a passkey scan, SSO, a mailed link with a resend countdown, and a welcome at the end.
+     Beside it, a product canvas draws itself in line while customer quotes turn over. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in — Tessellate</title>
+<style>
+  :root {
+    --paper: #f6f1e7; --field: #fffdf8; --ink: #17211d; --soft: #5a5f55; --faint: #6e6f62; --line: #ddd5c4; --line-2: #c9c0ad;
+    --green: #12352c; --green-2: #0c2820; --green-3: #1d4a3d; --sage: #cfe0d3; --moss: #93b3a4; --brass: #dfbb6b; --err: #a02b18; --ok: #1f6b4f;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  [tabindex="-1"]:focus { outline: none; }
+  .sr { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100svh; }
+
+  /* the form side */
+  .pane { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 100svh; padding: 0 48px; overflow-x: clip; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 88px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 500 21px/1 var(--serif); letter-spacing: -.005em; }
+  .brand svg { width: 26px; height: 26px; flex: none; }
+  .new { font-size: 14px; color: var(--soft); }
+  .link { color: var(--green); font-weight: 600; text-decoration: underline; text-decoration-color: rgba(18, 53, 44, .32); text-underline-offset: 3px; transition: text-decoration-color .15s; border-radius: 2px; }
+  .link:hover { text-decoration-color: currentColor; }
+  .middle { display: grid; align-content: center; justify-items: center; padding: 8px 0 24px; min-width: 0; }
+  .stage { position: relative; width: 100%; max-width: 400px; }
+  .step { width: 100%; }
+  h1 { font: 400 36px/1.12 var(--serif); letter-spacing: -.012em; }
+  .lede { margin-top: 8px; color: var(--soft); font-size: 15.5px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; height: 28px; margin: 0 0 16px -2px; padding-right: 6px; font-size: 14px; font-weight: 500; color: var(--soft); border-radius: 4px; transition: color .15s; }
+  .back:hover { color: var(--ink); }
+  .back svg { width: 16px; height: 16px; transition: transform .15s var(--ease); }
+  .back:hover svg { transform: translateX(-2px); }
+
+  form { margin-top: 24px; }
+  .lab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+  .lab .link { font-size: 13.5px; font-weight: 500; }
+  .inp { display: block; width: 100%; height: 48px; padding: 0 14px; background: var(--field); border: 1px solid var(--line-2); border-radius: 8px; font-size: 16px; outline: 0; transition: border-color .15s, box-shadow .15s; }
+  .inp::placeholder { color: #767163; }
+  .inp:hover { border-color: #ab9f87; }
+  .inp:focus { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+  .inp[aria-invalid="true"] { border-color: var(--err); }
+  .inp[aria-invalid="true"]:focus { box-shadow: 0 0 0 1px var(--err); }
+  .pw { position: relative; }
+  .pw .inp { padding-right: 52px; }
+  .eye { position: absolute; top: 4px; right: 4px; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 6px; color: var(--soft); transition: color .15s, background .15s; }
+  .eye:hover { color: var(--ink); background: rgba(23, 33, 29, .05); }
+  .err { display: flex; gap: 6px; margin-top: 8px; color: var(--err); font-size: 14px; line-height: 1.4; }
+  .err svg { width: 16px; height: 16px; margin-top: 2px; }
+  .err button { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; text-align: left; }
+  .note { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 14px; color: #6e5312; }
+  .note svg { width: 16px; height: 16px; }
+
+  .btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 48px; padding: 0 16px; border-radius: 8px; font-weight: 600; font-size: 15.5px; transition: background .15s, border-color .15s, color .15s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn.pri { background: var(--green); color: #f8f4ea; }
+  .btn.pri:hover { background: var(--green-2); }
+  .btn.sec { background: transparent; border: 1px solid var(--line-2); color: var(--ink); }
+  .btn.sec:hover:not(:disabled) { border-color: #ab9f87; background: var(--field); }
+  .btn:disabled { cursor: default; }
+  .btn.sec:disabled { color: var(--soft); border-color: var(--line); }
+  .btn svg { width: 18px; height: 18px; transition: transform .15s var(--ease); }
+  .btn.pri:hover svg { transform: translateX(2px); }
+  .btn .lbl { transition: opacity .15s; }
+  .btn.busy .lbl, .btn.busy svg { opacity: 0; }
+  .btn.busy { pointer-events: none; }
+  .btn.busy::after, .opt.busy .tail::after { content: ""; position: absolute; width: 18px; height: 18px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .mt { margin-top: 16px; }
+  .mt8 { margin-top: 8px; }
+
+  .alt { display: block; margin: 16px auto 0; font-size: 14.5px; }
+  .or { display: flex; align-items: center; gap: 12px; margin: 24px 0 16px; color: var(--faint); font-size: 13px; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .opts { background: var(--field); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .opt { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 48px; padding: 0 14px; text-align: left; font-size: 15px; font-weight: 500; transition: background .15s; }
+  .opt + .opt { border-top: 1px solid var(--line); }
+  .opt:hover { background: #f8f3e8; }
+  .opt:focus-visible { outline-offset: -3px; border-radius: 8px; }
+  .opt > span:not(.tail) { flex: 1; min-width: 0; }
+  .opt .tail { display: grid; place-items: center; width: 18px; height: 18px; position: relative; }
+  .opt .tail svg { width: 16px; height: 16px; color: var(--faint); transition: transform .15s var(--ease), opacity .15s; }
+  .opt:hover .tail svg { transform: translateX(2px); color: var(--ink); }
+  .opt.busy .tail svg { opacity: 0; }
+  .opts.wait .opt:not(.busy) { opacity: .5; pointer-events: none; }
+
+  /* the address as a chip */
+  .chip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; height: 36px; margin-top: 16px; padding: 0 12px 0 4px; background: var(--field); border: 1px solid var(--line-2); border-radius: 18px; font-size: 14.5px; transition: border-color .15s, background .15s; }
+  .chip:hover { border-color: #ab9f87; }
+  .chip .ini { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #f8f4ea; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+  .chip .addr { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip svg { width: 15px; height: 15px; color: var(--soft); }
+  .chip-edit { margin-top: 16px; }
+  .chip-edit .inp { height: 40px; font-size: 15px; border-radius: 20px; padding: 0 16px; }
+  .chip-edit small { display: block; margin: 6px 0 0 16px; font-size: 13px; color: var(--soft); }
+
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 14.5px; cursor: pointer; width: fit-content; }
+  .check input { appearance: none; width: 18px; height: 18px; margin: 0; flex: none; border: 1px solid var(--line-2); border-radius: 4px; background: var(--field); cursor: pointer; display: grid; place-items: center; transition: background .15s, border-color .15s; }
+  .check input:hover { border-color: #ab9f87; }
+  .check input:checked { background: var(--green); border-color: var(--green); }
+  .check input:checked::after { content: ""; width: 9px; height: 5px; margin-top: -2px; border: solid #f8f4ea; border-width: 0 0 1.5px 1.5px; transform: rotate(-45deg); }
+  .twin { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 20px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14.5px; }
+
+  /* passkey */
+  .scan { position: relative; width: 136px; height: 136px; margin: 32px auto 16px; }
+  .scan svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .scan .plate { fill: var(--field); stroke: var(--line); stroke-width: .5; }
+  .scan .ridge { stroke: var(--line-2); stroke-width: 1.1; }
+  .scan .read { stroke: var(--green); stroke-width: 1.1; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .scan.on .read { transition: stroke-dashoffset 1.3s var(--ease); stroke-dashoffset: 0; }
+  .scan .bar { position: absolute; left: 22px; right: 22px; top: 22px; height: 2px; background: var(--green); opacity: 0; border-radius: 1px; }
+  .scan.on .bar { animation: sweep 1.3s ease-in-out both; }
+  @keyframes sweep { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: .85; } 88% { opacity: .85; } 100% { transform: translateY(92px); opacity: 0; } }
+  .scan .tick { opacity: 0; transform: scale(.8); transform-origin: center; transition: opacity .2s, transform .25s var(--ease); }
+  .scan .tick circle { fill: var(--green); stroke: none; }
+  .scan .tick path { stroke: #f8f4ea; stroke-width: 2; }
+  .scan.done .tick { opacity: 1; transform: none; }
+  .scan.done .read, .scan.done .ridge { opacity: 0; transition: opacity .2s; }
+  .scan-say { text-align: center; color: var(--soft); min-height: 24px; font-size: 15px; }
+
+  /* the inbox */
+  .glyph { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 24px; background: var(--field); border: 1px solid var(--line); border-radius: 8px; color: var(--green); }
+  .glyph svg { width: 26px; height: 26px; }
+  .lede b { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+  .sent-note { margin-top: 16px; font-size: 14px; color: var(--soft); min-height: 21px; }
+
+  /* signing in */
+  .prog { height: 2px; margin-top: 24px; background: var(--line); overflow: hidden; }
+  .prog i { display: block; height: 100%; background: var(--green); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--ease); }
+  .prog-say { margin-top: 12px; color: var(--soft); font-size: 14.5px; }
+
+  /* welcome */
+  .tiles { display: block; width: 56px; height: 56px; margin-bottom: 24px; }
+  .tiles path { opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s var(--ease); }
+  .tiles.on path { opacity: 1; transform: none; }
+  .tiles.on path:nth-child(2) { transition-delay: .07s; }
+  .tiles.on path:nth-child(3) { transition-delay: .14s; }
+  .since { margin-top: 24px; border-top: 1px solid var(--line); list-style: none; }
+  .since li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .since .av { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #e8e1d0; font-size: 12px; font-weight: 600; color: var(--green); }
+  .since span:last-child { min-width: 0; }
+  .since b { font-weight: 600; }
+  .welcome-out { display: block; margin: 16px auto 0; font-size: 14.5px; }
+  .end-note { margin-top: 12px; text-align: center; font-size: 14px; color: var(--soft); }
+
+  /* what's new, when the screen has the height for it */
+  .news { display: none; width: 100%; max-width: 400px; margin-top: 88px; }
+  .news h2 { font: 400 22px/1.2 var(--serif); margin-bottom: 12px; }
+  .news ul { list-style: none; border-top: 1px solid var(--line); }
+  .news li { display: grid; grid-template-columns: 64px 1fr; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  .news time { color: var(--soft); }
+
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 8px; min-height: 64px; padding: 12px 0; font-size: 13.5px; color: var(--faint); text-align: center; }
+  .foot code { font: 500 12.5px var(--mono); color: var(--soft); }
+  .foot .link { font-size: 13.5px; font-weight: 500; }
+
+  /* the art */
+  .art { position: sticky; top: 0; height: 100svh; min-width: 0; overflow: hidden; background: var(--green); color: #f4efe3; }
+  .canvas { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; }
+  .canvas .bgp { fill: url(#tess); }
+  .canvas .gh, .canvas .d, .canvas .br, .canvas .dim { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.2; }
+  .canvas .gh { stroke: #2f5a4d; stroke-width: 1; opacity: .55; }
+  .canvas .d { stroke: var(--sage); }
+  .canvas .dim { stroke: #5f8878; }
+  .canvas .br { stroke: var(--brass); }
+  .canvas .ink { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw var(--d) cubic-bezier(.4, .1, .3, 1) var(--t) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .canvas text { font: 400 12px var(--sans); fill: var(--moss); opacity: 0; animation: fade .5s ease-out var(--t) forwards; }
+  .canvas text.m { font: 400 10.5px var(--mono); }
+  .canvas text.b { fill: var(--brass); }
+  .canvas text.w { fill: #eef2e8; }
+  .canvas text.s { font: 400 19px var(--serif); fill: #eef2e8; }
+  .canvas .fade { opacity: 0; animation: fade .6s ease-out var(--t) forwards; }
+  @keyframes fade { to { opacity: 1; } }
+  .canvas .tile { fill: var(--sage); opacity: 0; transition: opacity .9s ease-out; }
+  .canvas .tile.on { opacity: .2; }
+  .canvas .tile.hot { fill: var(--brass); }
+  .canvas .tile.hot.on { opacity: .55; }
+  .cur { opacity: 0; animation: fade .4s ease-out var(--t) forwards; }
+  .cur > g { animation: drift var(--c, 11s) ease-in-out var(--t) infinite alternate; }
+  @keyframes drift { to { transform: translate(var(--x, 18px), var(--y, -10px)); } }
+  .cur .flag { font: 600 11px var(--sans); fill: #10251f; opacity: 1; animation: none; }
+
+  .say { position: absolute; left: 0; right: 0; bottom: 0; padding: 104px 56px 48px; background: linear-gradient(to bottom, rgba(18, 53, 44, 0), var(--green) 64px); }
+  .quotes { display: grid; }
+  .q { grid-area: 1 / 1; opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .35s ease-out, transform .35s var(--ease), visibility 0s .35s; }
+  .q.on { opacity: 1; visibility: visible; transform: none; transition: opacity .35s ease-out .1s, transform .35s var(--ease) .1s, visibility 0s; }
+  .q p { font: 400 24px/1.32 var(--serif); letter-spacing: -.005em; color: #f6f1e4; }
+  .q footer { margin-top: 16px; font-size: 14.5px; line-height: 1.4; }
+  .q footer b { display: block; font-weight: 600; }
+  .q footer span { color: var(--moss); }
+  .pager { display: flex; gap: 4px; margin: 20px 0 0 -4px; }
+  .pager button { width: 40px; height: 24px; padding: 0 4px; display: grid; align-items: center; border-radius: 3px; }
+  .pager button i { display: block; height: 2px; background: rgba(207, 224, 211, .28); overflow: hidden; border-radius: 1px; transition: background .15s; }
+  .pager button:hover i { background: rgba(207, 224, 211, .5); }
+  .pager button i b { display: block; height: 100%; background: var(--sage); transform: scaleX(0); transform-origin: left; }
+  .pager button[aria-current="true"] i b { transform: scaleX(1); }
+  .pager button:focus-visible, .art :focus-visible { outline-color: var(--sage); }
+
+  /* taller screens: more to read on the left, a little more presence */
+  @media (min-height: 1240px) and (min-width: 900px) {
+    .news { display: block; }
+    .middle { grid-template-rows: 1fr auto 1fr auto; align-content: stretch; padding-bottom: 24px; }
+    .stage { grid-row: 2; }
+    .news { grid-row: 4; margin-top: 0; }
+    h1 { font-size: 44px; }
+    .lede { font-size: 17px; }
+    .stage, .news { max-width: 440px; }
+    .q p { font-size: 30px; }
+    .say { padding-bottom: 64px; }
+  }
+  @media (max-width: 1100px) {
+    .q p { font-size: 21px; }
+    .say { padding: 88px 40px 32px; }
+    .pane { padding: 0 32px; }
+  }
+  @media (max-width: 899.98px) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    .art { display: none; }
+    .middle { align-content: center; padding-bottom: 48px; }
+  }
+  @media (max-width: 520px) {
+    .pane { padding: 0 20px; }
+    .top { height: 72px; }
+    .new span { display: none; }
+    h1 { font-size: 32px; }
+    .middle { align-content: start; padding-top: 16px; padding-bottom: 24px; }
+    .foot { justify-content: flex-start; text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+    .canvas .ink, .canvas text, .canvas .fade, .cur, .cur > g, .scan.on .bar { animation: none !important; }
+    .canvas .ink { stroke-dashoffset: 0; }
+    .canvas text, .canvas .fade, .cur { opacity: 1; }
+    .btn.busy::after, .opt.busy .tail::after { animation-duration: 2.4s; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <main class="pane">
+    <header class="top">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.500 21.100 6.750 12 12 2.900 6.750Z" fill="#12352c"/><path d="M2.900 6.750 12 12v10.500L2.900 17.250Z" fill="#3b6b5b"/><path d="M21.100 6.750 12 12v10.500l9.100-5.250Z" fill="#c9a24e"/></svg>
+        Tessellate
+      </div>
+      <p class="new"><span>New to Tessellate? </span><button class="link" type="button" id="to-invite">Request an invite</button></p>
+    </header>
+
+    <div class="middle">
+      <div class="stage" id="stage">
+
+        <section class="step" data-step="email" aria-labelledby="h-email">
+          <h1 id="h-email" tabindex="-1">Sign in to Tessellate</h1>
+          <p class="lede">Your tiles, tokens and open reviews are where you left them.</p>
+          <form id="f-email" novalidate>
+            <label class="lab" for="email">Work email</label>
+            <input class="inp" id="email" type="email" name="username" autocomplete="username" inputmode="email" spellcheck="false" autocapitalize="off" placeholder="you@company.com" aria-describedby="e-email">
+            <div id="e-email" aria-live="polite"></div>
+            <button class="btn pri mt" type="button" data-submit><span class="lbl">Continue</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <button class="link alt" type="button" id="link-a">Email me a sign-in link</button>
+          </form>
+          <div class="or" aria-hidden="true">or</div>
+          <div class="opts" id="opts" role="group" aria-label="Other ways to sign in">
+            <button class="opt" type="button" data-provider="Google"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.700 9.200A4.600 4.600 0 1 0 16.600 12.600H12.200"/></svg><span>Continue with Google</span><span class="tail"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button>
+            <button class="opt" type="button" data-provider="GitHub"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.500" cy="5" r="2.250"/><circle cx="6.500" cy="19" r="2.250"/><circle cx="17.500" cy="7.500" r="2.250"/><path d="M6.500 7.250v9.500M17.500 9.750c0 3.500-3.500 4.750-11 5.250"/></svg><span>Continue with GitHub</span><span class="tail"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button>
+            <button class="opt" type="button" id="passkey-a"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v2.500c0 2.800-.5 4.900-1.500 7"/><path d="M8.500 11.500a3.500 3.500 0 0 1 7 0V14c0 2.100-.2 3.800-.7 5.500"/><path d="M5.500 15.500c.3-1.200.4-2.500.4-4a6.100 6.100 0 0 1 12.200 0v2.300c0 .9-.1 1.700-.2 2.500"/><path d="M4 8.300A9 9 0 0 1 12 3a9 9 0 0 1 8 5.300"/></svg><span>Use a passkey</span><span class="tail"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button>
+            <button class="opt" type="button" id="sso-a"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.500 21V5.500L12 3v18M12 9l7.500 2v10M2.500 21h19M8 8.500h.5M8 12.500h.5M8 16.500h.5M15.500 14h.5M15.500 17.500h.5"/></svg><span>Continue with SAML SSO</span><span class="tail"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span></button>
+          </div>
+        </section>
+
+        <section class="step" data-step="password" aria-labelledby="h-pass" hidden>
+          <button class="back" type="button" data-back><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>All sign-in options</button>
+          <h1 id="h-pass" tabindex="-1">Enter your password</h1>
+          <button class="chip" type="button" id="chip" aria-label="Change email"><span class="ini" id="chip-ini" aria-hidden="true">a</span><span class="addr" id="chip-addr"></span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19.500 8.500l-4-4L4 16v4ZM13.500 6.500l4 4"/></svg></button>
+          <div class="chip-edit" id="chip-edit" hidden>
+            <input class="inp" id="chip-in" type="email" spellcheck="false" autocapitalize="off" aria-label="Email" aria-describedby="e-chip">
+            <small>Enter to confirm, Esc to cancel</small>
+            <div id="e-chip" aria-live="polite"></div>
+          </div>
+          <form id="f-pass" novalidate>
+            <div class="lab"><label for="pass">Password</label><button class="link" type="button" id="forgot">Forgot password?</button></div>
+            <div class="pw">
+              <input class="inp" id="pass" type="password" name="password" autocomplete="current-password" spellcheck="false" aria-describedby="e-pass caps">
+              <button class="eye" type="button" id="eye" aria-label="Show password" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path id="eye-p" d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12Z"/><circle id="eye-c" cx="12" cy="12" r="3"/><path id="eye-x" d="M4 4l16 16" hidden/></svg></button>
+            </div>
+            <p class="note" id="caps" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l7 8h-4v4H9v-4H5l7-8ZM9 20h6"/></svg>Caps Lock is on</p>
+            <div id="e-pass" aria-live="polite"></div>
+            <label class="check"><input type="checkbox" id="keep" checked>Keep me signed in for 30 days</label>
+            <button class="btn pri mt" type="button" data-submit id="signin"><span class="lbl">Sign in</span></button>
+          </form>
+          <div class="twin">
+            <button class="link" type="button" id="link-b">Email me a sign-in link</button>
+            <button class="link" type="button" id="passkey-b">Use a passkey</button>
+          </div>
+        </section>
+
+        <section class="step" data-step="passkey" aria-labelledby="h-key" hidden>
+          <h1 id="h-key" tabindex="-1">Use your passkey</h1>
+          <p class="lede">Touch the sensor, or unlock this device the way you normally do.</p>
+          <div class="scan" id="scan" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <circle class="plate" cx="32" cy="32" r="31.500"/>
+              <g class="ridge">
+                <path d="M15 28.500C16.500 20 23 14.500 32 14.500S47.500 20 49 28.500"/><path d="M17.500 44c1.500-4 1.800-8 1.800-12 0-7 5.700-12 12.700-12 7.300 0 12.800 5.200 12.800 12.200 0 4.300-.3 8-1.300 11.800"/><path d="M23.500 50c1.500-5 2-10 2-17.500 0-3.700 2.800-6.700 6.500-6.700s6.500 3 6.500 6.700c0 6.800-.5 13-2.300 19"/><path d="M29.500 54c1.700-6 2.500-12.500 2.500-20.500"/>
+              </g>
+              <g class="read">
+                <path pathLength="1" d="M29.500 54c1.700-6 2.500-12.500 2.500-20.500"/><path pathLength="1" d="M23.500 50c1.500-5 2-10 2-17.500 0-3.700 2.800-6.700 6.500-6.700s6.500 3 6.500 6.700c0 6.800-.5 13-2.300 19"/><path pathLength="1" d="M17.500 44c1.500-4 1.800-8 1.800-12 0-7 5.700-12 12.700-12 7.300 0 12.800 5.200 12.800 12.200 0 4.300-.3 8-1.300 11.800"/><path pathLength="1" d="M15 28.500C16.500 20 23 14.500 32 14.500S47.500 20 49 28.500"/>
+              </g>
+              <g class="tick"><circle cx="32" cy="32" r="14"/><path d="m25.500 32.500 4.500 4.500 8.500-9.500"/></g>
+            </svg>
+            <div class="bar"></div>
+          </div>
+          <p class="scan-say" id="scan-say" role="status">Waiting for your device</p>
+          <button class="btn sec mt" type="button" data-back>Cancel</button>
+        </section>
+
+        <section class="step" data-step="sent" aria-labelledby="h-sent" hidden>
+          <div class="glyph"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.500" width="18" height="13" rx="2"/><path d="m3.800 7.500 8.200 6 8.200-6"/></svg></div>
+          <h1 id="h-sent" tabindex="-1">Check your inbox</h1>
+          <p class="lede" id="sent-say"></p>
+          <button class="btn sec mt" style="margin-top:24px" type="button" id="resend" disabled><span class="lbl" id="resend-l">Resend in 0:30</span></button>
+          <button class="btn pri mt8" type="button" id="open-link"><span class="lbl">Open the link (demo)</span></button>
+          <p class="sent-note" id="sent-note" role="status"></p>
+          <button class="back" style="margin:4px 0 0 -2px" type="button" data-back><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Use a different email</button>
+        </section>
+
+        <section class="step" data-step="sso" aria-labelledby="h-sso" hidden>
+          <button class="back" type="button" data-back><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>All sign-in options</button>
+          <h1 id="h-sso" tabindex="-1">Single sign-on</h1>
+          <p class="lede">Enter your work email and we'll hand you to your company's identity provider.</p>
+          <form id="f-sso" novalidate>
+            <label class="lab" for="sso-in">Work email</label>
+            <input class="inp" id="sso-in" type="email" spellcheck="false" autocapitalize="off" placeholder="you@company.com" aria-describedby="e-sso">
+            <div id="e-sso" aria-live="polite"></div>
+            <button class="btn pri mt" type="button" data-submit><span class="lbl">Continue with SAML SSO</span></button>
+          </form>
+        </section>
+
+        <section class="step" data-step="invite" aria-labelledby="h-inv" hidden>
+          <button class="back" type="button" data-back><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Back to sign in</button>
+          <h1 id="h-inv" tabindex="-1">Request an invite</h1>
+          <p class="lede" id="inv-say">Workspaces are invite-only. Tell us where you work and we'll ask your admins to add you.</p>
+          <form id="f-inv" novalidate>
+            <label class="lab" for="inv-in">Work email</label>
+            <input class="inp" id="inv-in" type="email" spellcheck="false" autocapitalize="off" placeholder="you@company.com" aria-describedby="e-inv">
+            <div id="e-inv" aria-live="polite"></div>
+            <button class="btn pri mt" type="button" data-submit><span class="lbl">Send request</span></button>
+          </form>
+        </section>
+
+        <section class="step" data-step="progress" aria-labelledby="h-prog" hidden>
+          <h1 id="h-prog" tabindex="-1">Signing you in</h1>
+          <div class="prog" role="progressbar" aria-label="Signing in" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="prog"><i id="prog-i"></i></div>
+          <p class="prog-say" id="prog-say" role="status"></p>
+        </section>
+
+        <section class="step" data-step="welcome" aria-labelledby="h-wel" hidden>
+          <svg class="tiles" id="tiles" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.500 21.100 6.750 12 12 2.900 6.750Z" fill="#12352c"/><path d="M2.900 6.750 12 12v10.500L2.900 17.250Z" fill="#3b6b5b"/><path d="M21.100 6.750 12 12v10.500l9.100-5.250Z" fill="#c9a24e"/></svg>
+          <h1 id="h-wel" tabindex="-1">Welcome back, Amara.</h1>
+          <p class="lede" id="wel-say"></p>
+          <ul class="since">
+            <li><span class="av" aria-hidden="true">HT</span><span><b>Hiro Tanaka</b> approved Checkout tiles v4.2</span></li>
+            <li><span class="av" aria-hidden="true">NO</span><span><b>Ngozi Okafor</b> commented on Button / Hover</span></li>
+            <li><span class="av" aria-hidden="true">LS</span><span><b>Lucía Serrano</b> flagged 2 drifted tokens</span></li>
+          </ul>
+          <button class="btn pri" style="margin-top:24px" type="button" id="open-ws"><span class="lbl">Open workspace</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <p class="end-note" id="end-note" role="status" hidden>That's as far as this demo goes.</p>
+          <button class="link welcome-out" type="button" id="signout">Sign out</button>
+        </section>
+      </div>
+
+      <section class="news" aria-labelledby="news-h">
+        <h2 id="news-h">New in Tessellate</h2>
+        <ul>
+          <li><time datetime="2026-10-28">28 Oct</time><span>Drift alerts when a tile leaves its token</span></li>
+          <li><time datetime="2026-10-14">14 Oct</time><span>SAML group sync for larger workspaces</span></li>
+          <li><time datetime="2026-10-02">2 Oct</time><span>Side-by-side diffs in branch reviews</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <footer class="foot" id="foot">
+      <span>Demo: <code>amara@northpier.co</code> / <code>tiles-2026</code></span>
+      <button class="link" type="button" id="fill">Fill it in</button>
+    </footer>
+  </main>
+
+  <aside class="art" aria-label="What customers say">
+    <svg class="canvas" id="canvas" viewBox="0 0 720 1720" role="img" aria-label="A product canvas drawing itself: a card design with its tokens, button variants, a release train and a wall of tiles."></svg>
+    <div class="say">
+      <div class="quotes" id="quotes"></div>
+      <div class="pager" id="pager" role="group" aria-label="Choose a quote"></div>
+    </div>
+  </aside>
+</div>
+<p class="sr" id="sr" role="status"></p>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const EASE = "cubic-bezier(.2,.7,.2,1)";
+
+  /* ---------- steps ---------- */
+  const stage = $("stage");
+  const steps = Object.fromEntries([...stage.querySelectorAll(".step")].map((s) => [s.dataset.step, s]));
+  const ROOT = "email";
+  let current = ROOT, timers = [], clock = null, emailAddr = "", guard = false;
+  const after = (ms, fn) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+  const clearAll = () => { timers.forEach(clearTimeout); timers = []; guard = false; };
+  const say = (text) => { $("sr").textContent = ""; requestAnimationFrame(() => { $("sr").textContent = text; }); };
+
+  function go(next, dir = 1, focusId) {
+    if (next === current) return;
+    clearAll();
+    const from = steps[current], to = steps[next];
+    Object.values(steps).forEach((s) => { s.getAnimations().forEach((a) => a.cancel()); if (s !== from) s.hidden = true; s.style.cssText = ""; });
+    stage.getAnimations().forEach((a) => a.cancel());
+    const startH = stage.offsetHeight;
+    from.hidden = true; to.hidden = false;
+    const endH = stage.offsetHeight;
+    current = next;
+    if (!reduce()) {
+      const opts = { duration: 280, easing: EASE };
+      stage.animate([{ height: startH + "px" }, { height: endH + "px" }], opts);
+      to.animate([{ opacity: 0, transform: `translateX(${24 * dir}px)` }, { opacity: 1, transform: "none" }], opts);
+      from.hidden = false;
+      from.style.cssText = "position:absolute;left:0;top:0;pointer-events:none";
+      from.setAttribute("aria-hidden", "true");
+      const out = from.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateX(${-24 * dir}px)` }], { duration: 180, easing: "ease-out", fill: "forwards" });
+      const clean = () => { from.hidden = true; from.style.cssText = ""; from.removeAttribute("aria-hidden"); };
+      out.onfinish = () => { clean(); out.cancel(); };
+      out.oncancel = clean;
+    }
+    $("fill").hidden = !["email", "password"].includes(next);
+    $("foot").style.visibility = ["progress", "welcome"].includes(next) ? "hidden" : "";
+    const target = (focusId && $(focusId)) || to.querySelector("h1");
+    target.focus({ preventScroll: true });
+    say(to.querySelector("h1").textContent);
+  }
+  const nudge = (el) => { if (!reduce()) el.animate([{ transform: "translateX(0)" }, { transform: "translateX(-5px)" }, { transform: "translateX(4px)" }, { transform: "translateX(-2px)" }, { transform: "translateX(1px)" }, { transform: "translateX(0)" }], { duration: 280, easing: "ease-out" }); };
+
+  /* the frame is sandboxed without allow-forms, so a real submit never fires: Enter and the button call it directly */
+  function onSubmit(form, fn) {
+    form.addEventListener("submit", (e) => e.preventDefault());
+    form.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches("input") && !e.isComposing) { e.preventDefault(); fn(); } });
+    form.querySelectorAll("[data-submit]").forEach((b) => b.addEventListener("click", fn));
+  }
+
+  /* ---------- messages ---------- */
+  const ALERT = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.500v5.500M12 16.500v.01"/></svg>';
+  function setError(input, boxId, html, shake = true) {
+    const box = $(boxId);
+    box.innerHTML = html ? `<p class="err">${ALERT}<span>${html}</span></p>` : "";
+    if (input) { if (html) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid"); }
+    if (html && shake) nudge(input.closest(".pw") || input);
+  }
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const TYPOS = { "gmial.com": "gmail.com", "gamil.com": "gmail.com", "gmai.com": "gmail.com", "gmail.co": "gmail.com", "gmail.con": "gmail.com", "hotmial.com": "hotmail.com", "outlok.com": "outlook.com", "yaho.com": "yahoo.com", "icloud.co": "icloud.com" };
+  const PERSONAL = new Set(["gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com", "proton.me", "live.com", "aol.com"]);
+
+  function checkEmail(raw, input, boxId, emptyMsg) {
+    const v = raw.trim();
+    if (!v) { setError(input, boxId, emptyMsg); return null; }
+    if (!OK.test(v)) {
+      const why = !v.includes("@") ? "That address is missing an @." : /@[^.]*$/.test(v) ? "That address is missing its domain, like <b>.com</b>." : "That doesn't look like an email address.";
+      setError(input, boxId, why); return null;
+    }
+    const dom = v.split("@")[1].toLowerCase();
+    if (TYPOS[dom]) {
+      const fixed = v.split("@")[0] + "@" + TYPOS[dom];
+      setError(input, boxId, `Did you mean <button type="button" data-fix="${esc(fixed)}">${esc(fixed)}</button>?`);
+      return null;
+    }
+    setError(input, boxId, "");
+    return v;
+  }
+  stage.addEventListener("click", (e) => {
+    const fix = e.target.closest("[data-fix]");
+    if (!fix) return;
+    const box = fix.closest("[id^=e-]");
+    const input = $({ "e-email": "email", "e-sso": "sso-in", "e-inv": "inv-in", "e-chip": "chip-in" }[box.id]);
+    input.value = fix.dataset.fix;
+    setError(input, box.id, "");
+    input.focus();
+  });
+  for (const [input, box] of [["email", "e-email"], ["sso-in", "e-sso"], ["inv-in", "e-inv"], ["chip-in", "e-chip"], ["pass", "e-pass"]])
+    $(input).addEventListener("input", () => { if ($(input).getAttribute("aria-invalid")) setError($(input), box, ""); });
+
+  /* ---------- who is signing in ---------- */
+  const DEMO = "amara@northpier.co", PASS = "tiles-2026";
+  const firstName = (addr) => { const w = addr.split("@")[0].split(/[._\-+0-9]/).find(Boolean); return w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""; };
+  const company = (addr) => { const d = (addr.split("@")[1] || "").toLowerCase(); if (!d || PERSONAL.has(d)) return ""; const w = d.split(".")[0]; return w[0].toUpperCase() + w.slice(1); };
+  function setAddr(v) {
+    emailAddr = v;
+    $("chip-addr").textContent = v;
+    $("chip-ini").textContent = v[0] || "";
+    $("email").value = v;
+  }
+
+  /* ---------- email ---------- */
+  onSubmit($("f-email"), () => {
+    const v = checkEmail($("email").value, $("email"), "e-email", "Enter your work email to continue.");
+    if (!v) { $("email").focus(); return; }
+    setAddr(v);
+    resetPass();
+    go("password", 1, "pass");
+  });
+  function askLink(input, boxId) {
+    const raw = input ? input.value : emailAddr;
+    const v = input ? checkEmail(raw, input, boxId, "Enter your work email and we'll send the link there.") : raw;
+    if (!v) { if (input) input.focus(); return; }
+    setAddr(v);
+    openSent(v, "link");
+  }
+  $("link-a").addEventListener("click", () => askLink($("email"), "e-email"));
+  $("link-b").addEventListener("click", () => askLink());
+  $("forgot").addEventListener("click", () => openSent(emailAddr, "reset"));
+
+  /* ---------- password ---------- */
+  let tries = 0;
+  function resetPass() {
+    tries = 0; $("pass").value = ""; setError($("pass"), "e-pass", ""); $("caps").hidden = true; showPw(false);
+    closeChip(false);
+    const b = $("signin"); b.classList.remove("busy");
+  }
+  function showPw(on) {
+    $("pass").type = on ? "text" : "password";
+    $("eye").setAttribute("aria-pressed", on);
+    $("eye").setAttribute("aria-label", on ? "Hide password" : "Show password");
+    $("eye-x").hidden = !on;
+  }
+  $("eye").addEventListener("click", () => {
+    const input = $("pass"), at = input.selectionStart;
+    showPw(input.type === "password");
+    input.focus(); try { input.setSelectionRange(at, at); } catch (_) {}
+  });
+  const caps = (e) => { if (e.getModifierState) $("caps").hidden = !e.getModifierState("CapsLock"); };
+  $("pass").addEventListener("keydown", caps);
+  $("pass").addEventListener("keyup", caps);
+  $("pass").addEventListener("blur", () => { $("caps").hidden = true; });
+
+  onSubmit($("f-pass"), () => {
+    if (guard) return;
+    if (!$("chip-edit").hidden && !commitChip()) return;
+    const input = $("pass"), v = input.value;
+    if (!v) { setError(input, "e-pass", "Enter your password."); input.focus(); return; }
+    guard = true;
+    const b = $("signin"); b.classList.add("busy");
+    setError(input, "e-pass", "", false);
+    after(reduce() ? 300 : 700, () => {
+      guard = false; b.classList.remove("busy");
+      if (v === PASS) { session(); return; }
+      tries++;
+      const msg = tries === 1 ? "That password doesn't match this account."
+        : tries === 2 ? "Still not a match. Passwords are case sensitive."
+        : "Three misses. A sign-in link will get you in without it.";
+      setError(input, "e-pass", msg);
+      input.focus(); input.select();
+    });
+  });
+
+  /* the chip edits in place */
+  const chip = $("chip"), chipEdit = $("chip-edit"), chipIn = $("chip-in");
+  function openChip() { chipIn.value = emailAddr; chip.hidden = true; chipEdit.hidden = false; chipIn.focus(); chipIn.select(); }
+  function closeChip(refocus = true) { chipEdit.hidden = true; chip.hidden = false; setError(chipIn, "e-chip", ""); if (refocus) chip.focus(); }
+  function commitChip() {
+    const v = checkEmail(chipIn.value, chipIn, "e-chip", "Enter the address you sign in with.");
+    if (!v) { chipIn.focus(); return false; }
+    if (v !== emailAddr) { setAddr(v); tries = 0; $("pass").value = ""; setError($("pass"), "e-pass", ""); }
+    closeChip(false);
+    $("pass").focus();
+    return true;
+  }
+  chip.addEventListener("click", openChip);
+  chipIn.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); commitChip(); }
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeChip(); }
+  });
+  chipIn.addEventListener("blur", (e) => {
+    /* leaving with a good address keeps it; leaving with a bad one keeps the message up */
+    if (chipEdit.hidden || chipIn.value.trim() === emailAddr) { if (!chipEdit.hidden && !e.relatedTarget) closeChip(false); return; }
+    if (OK.test(chipIn.value.trim())) { setAddr(chipIn.value.trim()); closeChip(false); }
+  });
+
+  /* ---------- passkey ---------- */
+  function passkey() {
+    go("passkey", 1);
+    const s = $("scan"); s.classList.remove("on", "done");
+    $("scan-say").textContent = "Waiting for your device";
+    if (reduce()) {
+      after(700, () => { s.classList.add("done"); $("scan-say").textContent = "Verified"; after(500, session); });
+      return;
+    }
+    after(560, () => {
+      void s.offsetWidth; s.classList.add("on");
+      s.querySelectorAll(".read path").forEach((p, i) => { p.style.transitionDelay = i * 110 + "ms"; });
+      $("scan-say").textContent = "Reading your fingerprint";
+      after(1500, () => { s.classList.add("done"); $("scan-say").textContent = "Verified"; after(620, session); });
+    });
+  }
+  $("passkey-a").addEventListener("click", passkey);
+  $("passkey-b").addEventListener("click", passkey);
+
+  /* ---------- the link ---------- */
+  let resendAt = 0, sentTo = "";
+  function tick() {
+    const left = Math.max(0, Math.ceil((resendAt - Date.now()) / 1000));
+    const b = $("resend");
+    b.disabled = left > 0;
+    $("resend-l").textContent = left > 0 ? `Resend in 0:${String(left).padStart(2, "0")}` : "Resend the link";
+    if (!left) { clearInterval(clock); clock = null; }
+  }
+  function startClock() { clearInterval(clock); clock = setInterval(tick, 250); tick(); }
+  function openSent(addr, kind) {
+    const same = sentTo === addr && Date.now() < resendAt;
+    $("h-sent").textContent = "Check your inbox";
+    $("sent-say").innerHTML = kind === "reset"
+      ? `We sent a password reset link to <b>${esc(addr)}</b>. It works once and expires in 15 minutes.`
+      : `We sent a sign-in link to <b>${esc(addr)}</b>. It works once and expires in 15 minutes.`;
+    $("sent-note").textContent = same ? "A link is already on its way, so we didn't send another." : "";
+    if (!same) { resendAt = Date.now() + 30000; sentTo = addr; }
+    go("sent", 1);
+    startClock();
+  }
+  $("resend").addEventListener("click", () => {
+    resendAt = Date.now() + 30000;
+    $("sent-note").textContent = "Sent again. Give it a minute and check your spam folder.";
+    startClock();
+    $("resend-l").focus();
+    $("h-sent").focus({ preventScroll: true });
+  });
+  $("open-link").addEventListener("click", () => session("link"));
+
+  /* ---------- sso ---------- */
+  $("sso-a").addEventListener("click", () => { $("sso-in").value = $("email").value.trim(); setError($("sso-in"), "e-sso", ""); go("sso", 1, "sso-in"); });
+  onSubmit($("f-sso"), () => {
+    const input = $("sso-in");
+    const v = checkEmail(input.value, input, "e-sso", "Enter your work email so we can find your provider.");
+    if (!v) { input.focus(); return; }
+    const dom = v.split("@")[1].toLowerCase();
+    if (PERSONAL.has(dom)) { setError(input, "e-sso", `<b>${esc(dom)}</b> is a personal address, so it has no single sign-on. Try your work email.`); input.focus(); return; }
+    setAddr(v);
+    session("sso");
+  });
+
+  /* ---------- invite ---------- */
+  $("to-invite").addEventListener("click", () => {
+    if (current === "invite") return;
+    $("inv-in").value = $("email").value.trim();
+    $("f-inv").hidden = false;
+    setError($("inv-in"), "e-inv", "");
+    $("h-inv").textContent = "Request an invite";
+    $("inv-say").textContent = "Workspaces are invite-only. Tell us where you work and we'll ask your admins to add you.";
+    go("invite", 1, "inv-in");
+  });
+  onSubmit($("f-inv"), () => {
+    const input = $("inv-in");
+    const v = checkEmail(input.value, input, "e-inv", "Enter your work email so we know who to ask.");
+    if (!v) { input.focus(); return; }
+    const c = company(v);
+    $("h-inv").textContent = "Request sent";
+    $("inv-say").innerHTML = c ? `We've asked the admins at ${esc(c)} to add <b>${esc(v)}</b>. You'll hear back by email.` : `We'll write to <b>${esc(v)}</b> when a workspace has room for you.`;
+    $("f-inv").hidden = true;
+    $("h-inv").focus({ preventScroll: true });
+    say($("inv-say").textContent);
+  });
+
+  /* ---------- signing in, and the welcome ---------- */
+  function session(via) {
+    const who = emailAddr && OK.test(emailAddr) ? emailAddr : ($("email").value.trim() && OK.test($("email").value.trim()) ? $("email").value.trim() : DEMO);
+    const c = company(who);
+    const lines = [
+      via === "sso" ? `Asking ${c ? c + "'s" : "your"} identity provider` : via === "link" ? "Checking your link" : "Checking your credentials",
+      "Starting a session on this device",
+      c ? `Opening the ${c} workspace` : "Opening your workspace",
+    ];
+    go("progress", 1);
+    const bar = $("prog-i"), box = $("prog");
+    bar.style.transition = "none"; bar.style.transform = "scaleX(0)"; void bar.offsetWidth; bar.style.transition = "";
+    const stops = [[0, .34], [520, .68], [1040, 1]];
+    stops.forEach(([at, v], i) => after(at + 30, () => { bar.style.transform = `scaleX(${v})`; box.setAttribute("aria-valuenow", Math.round(v * 100)); $("prog-say").textContent = lines[i]; }));
+    after(1640, () => {
+      const name = firstName(who);
+      $("h-wel").textContent = name ? `Welcome back, ${name}.` : "Welcome back.";
+      $("wel-say").textContent = c ? `You're in the ${c} workspace. Since Thursday:` : "You're in your workspace. Since Thursday:";
+      $("end-note").hidden = true;
+      $("tiles").classList.remove("on");
+      go("welcome", 1);
+      requestAnimationFrame(() => requestAnimationFrame(() => $("tiles").classList.add("on")));
+    });
+  }
+  $("open-ws").addEventListener("click", () => {
+    const b = $("open-ws");
+    if (b.classList.contains("busy")) return;
+    b.classList.add("busy");
+    after(800, () => { b.classList.remove("busy"); $("end-note").hidden = false; });
+  });
+  $("signout").addEventListener("click", () => { $("open-ws").classList.remove("busy"); resetPass(); go(ROOT, -1, "email"); });
+
+  /* ---------- providers ---------- */
+  document.querySelectorAll("[data-provider]").forEach((b) => b.addEventListener("click", () => {
+    if (guard) return;
+    guard = true;
+    b.classList.add("busy"); b.setAttribute("aria-busy", "true"); $("opts").classList.add("wait");
+    say(`Connecting to ${b.dataset.provider}`);
+    after(reduce() ? 300 : 900, () => {
+      guard = false; b.classList.remove("busy"); b.removeAttribute("aria-busy"); $("opts").classList.remove("wait");
+      session();
+    });
+  }));
+
+  /* ---------- back, Esc and the demo hint ---------- */
+  stage.addEventListener("click", (e) => { if (e.target.closest("[data-back]")) back(); });
+  function back() {
+    clearInterval(clock); clock = null;
+    const b = stage.querySelector(".opt.busy"); if (b) b.classList.remove("busy");
+    go(ROOT, -1, "email");
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && ["password", "passkey", "sent", "sso", "invite"].includes(current)) back();
+  });
+  $("fill").addEventListener("click", () => {
+    if (current === "email") { $("email").value = DEMO; setError($("email"), "e-email", ""); $("f-email").querySelector(".btn").focus(); }
+    else if (current === "password") { $("pass").value = PASS; setError($("pass"), "e-pass", ""); $("signin").focus(); }
+  });
+
+  /* ---------- the canvas draws itself ---------- */
+  const rr = (x, y, w, h, r = 0) => r ? `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + h - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + h - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z` : `M${x} ${y}H${x + w}V${y + h}H${x}Z`;
+  const ci = (x, y, r) => `M${x - r} ${y}A${r} ${r} 0 1 1 ${x + r} ${y}A${r} ${r} 0 1 1 ${x - r} ${y}Z`;
+  const li = (a, b, c, d) => `M${a} ${b}L${c} ${d}`;
+  const SP = .66; /* the whole drawing takes about six seconds */
+  const ink = [], words = [], extras = [];
+  const add = (t, cls, d, dur = .9) => ink.push({ t, cls, d, dur });
+  const word = (t, x, y, s, cls = "", anchor = "") => words.push({ t, x, y, s, cls, anchor });
+
+  /* the app bar */
+  add(0, "d", rr(48, 40, 624, 48, 8), 1.5);
+  const hex = (cx, cy, s) => { const a = s * Math.sqrt(3) / 2; return [`M${cx} ${cy - s}L${cx + a} ${cy - s / 2}L${cx + a} ${cy + s / 2}L${cx} ${cy + s}L${cx - a} ${cy + s / 2}L${cx - a} ${cy - s / 2}Z`, `M${cx} ${cy}L${cx} ${cy + s}`, `M${cx} ${cy}L${cx + a} ${cy - s / 2}`, `M${cx} ${cy}L${cx - a} ${cy - s / 2}`]; };
+  hex(74, 64, 11).forEach((d, i) => add(.3 + i * .08, "d", d, .4));
+  word(.6, 96, 68, "Checkout tiles", "w");
+  word(.75, 188, 68, "v4.2", "m");
+  [[rr(300, 57, 14, 14, 2)], [`M332 56l4 15 2.500-6 6-2.500Z`], [`M360 71l2-5 8-8 3 3-8 8Z`], [rr(388, 57, 16, 11, 3), `M393 68v4l4-4`]].flat().forEach((d, i) => add(.5 + i * .08, "dim", d, .4));
+  add(.7, "d", ci(549, 64, 11), .5); add(.8, "d", ci(576, 64, 11), .5);
+  word(.9, 549, 68, "NO", "m", "middle"); word(.95, 576, 68, "HT", "m", "middle");
+  add(.9, "br", rr(598, 52, 62, 24, 5), .6);
+  word(1.1, 629, 68, "Review", "b", "middle");
+
+  /* the main frame */
+  word(.8, 48, 118, "Card / Plan", "w");
+  word(.9, 420, 118, "372 × 320", "m", "end");
+  add(.7, "d", rr(48, 128, 372, 320, 3), 1.6);
+  add(1.3, "d", rr(72, 152, 324, 272, 10), 1.3);
+  add(1.7, "dim", rr(88, 168, 292, 104, 6), .9);
+  word(2.3, 88, 304, "Studio", "s");
+  word(2.4, 380, 304, "$48 / seat", "w", "end");
+  add(2.4, "dim", li(88, 322, 368, 322), .6);
+  add(2.5, "dim", li(88, 338, 308, 338), .5);
+  add(2.8, "d", rr(88, 360, 120, 36, 6), .7);
+  word(3.2, 148, 382, "Choose plan", "w", "middle");
+
+  /* the selection */
+  add(3.7, "br", rr(82, 354, 132, 48, 1), .7);
+  [[82, 354], [214, 354], [82, 402], [214, 402]].forEach(([x, y], i) => add(4.1 + i * .05, "br", rr(x - 3, y - 3, 6, 6), .2));
+  word(4.3, 82, 417, "120 × 34", "m b");
+
+  /* the tokens */
+  add(1.8, "d", rr(444, 128, 228, 320, 8), 1.5);
+  word(2.3, 460, 154, "Tokens", "w");
+  word(2.4, 656, 154, "6 of 148", "m", "end");
+  add(2.3, "dim", li(444, 168, 672, 168), .5);
+  const TOKS = [["surface.raised", "F6F1E7"], ["ink.primary", "12352C"], ["space.4", "16 px"], ["radius.2", "6 px"], ["button.height", "36 px"], ["tile.stroke", "1.25"]];
+  TOKS.forEach(([n, v], i) => {
+    const y = 192 + i * 42, hot = i === 4;
+    add(2.5 + i * .16, hot ? "br" : "d", i < 2 ? ci(470, y, 8) : rr(462, y - 8, 16, 16, i === 3 ? 6 : 2), .4);
+    word(2.7 + i * .16, 490, y + 4, n, hot ? "b" : "w");
+    word(2.8 + i * .16, 656, y + 4, v, hot ? "m b" : "m", "end");
+    if (i < 5) add(2.7 + i * .16, "dim", li(460, y + 21, 656, y + 21), .3);
+  });
+
+  /* the connector and the note */
+  add(4.5, "br", "M217 378C318 378 352 360 448 360", 1);
+  add(5.1, "br", "M452 356l4 4-4 4-4-4Z", .25);
+
+  /* button variants */
+  word(4.3, 48, 486, "Button / variants", "w");
+  word(4.4, 672, 486, "3 of 4 reviewed", "m", "end");
+  ["Default", "Hover", "Pressed", "Disabled"].forEach((n, i) => {
+    const x = 48 + i * 156, t = 4.4 + i * .3;
+    add(t, i === 3 ? "dim" : "d", rr(x, 498, 144, 112, 3), 1);
+    add(t + .4, i === 3 ? "dim" : i === 1 ? "br" : "d", rr(x + 28, 524, 88, 30, 6), .5);
+    word(t + .6, x + 72, 544, "Save", i === 3 ? "" : "w", "middle");
+    word(t + .7, x + 12, 594, n, "");
+    if (i < 3) add(t + .7, "br", `M${x + 122} 590l4 4 8-8`, .3);
+  });
+
+  /* below the first screen: the release train */
+  word(5.4, 48, 664, "Release train", "w");
+  add(5.4, "d", li(48, 720, 672, 720), 1.2);
+  [84, 192, 300, 408, 516, 636].forEach((x, i) => add(5.7 + i * .1, i === 5 ? "br" : "d", ci(x, 720, 6), .3));
+  add(6, "d", "M192 720C228 720 228 772 264 772L444 772C480 772 480 720 516 720", 1);
+  [300, 408].forEach((x, i) => add(6.4 + i * .1, "d", ci(x, 772, 6), .3));
+  [["v4.0", 84], ["v4.1", 300], ["v4.1.1", 516]].forEach(([s, x], i) => word(6.2 + i * .1, x, 702, s, "m", "middle"));
+  word(6.6, 636, 702, "v4.2", "m b", "middle");
+  word(6.6, 354, 796, "card-plan-review", "m", "middle");
+
+  /* breakpoints */
+  word(6.5, 48, 848, "Breakpoints", "w");
+  add(6.5, "d", rr(48, 860, 168, 330, 18), 1.2);
+  add(6.9, "dim", li(112, 874, 152, 874), .3);
+  add(6.9, "dim", rr(62, 892, 140, 88, 6), .6);
+  [1000, 1016, 1032].forEach((y, i) => add(7 + i * .06, "dim", li(62, y, [186, 170, 140][i], y), .3));
+  add(7.2, "d", rr(62, 1060, 140, 34, 6), .4);
+  add(7.2, "dim", rr(62, 1102, 140, 34, 6), .4);
+  add(6.7, "d", rr(232, 860, 288, 330, 10), 1.2);
+  add(7.1, "dim", rr(248, 876, 256, 124, 6), .6);
+  [1024, 1040, 1056, 1072].forEach((y, i) => add(7.2 + i * .06, "dim", li(248, y, [460, 496, 420, 470][i], y), .3));
+  add(7.4, "d", rr(248, 1108, 116, 34, 6), .4);
+  add(7.4, "dim", rr(372, 1108, 88, 34, 6), .4);
+  add(6.9, "d", rr(536, 860, 136, 330, 6), 1.2);
+  word(7.3, 550, 884, "Adoption", "w");
+  [["Web", .92], ["iOS", .74], ["Android", .66], ["Email", .41], ["Docs", .83]].forEach(([n, v], i) => {
+    const y = 926 + i * 50;
+    word(7.4 + i * .08, 550, y, n);
+    word(7.45 + i * .08, 658, y, Math.round(v * 100) + "%", "m", "end");
+    add(7.5 + i * .08, "dim", li(550, y + 12, 658, y + 12), .3);
+    add(7.7 + i * .08, i === 3 ? "br" : "d", li(550, y + 12, 550 + 108 * v, y + 12), .4);
+  });
+
+  /* the wall of tiles */
+  word(7.8, 48, 1234, "Tile library", "w");
+  word(7.9, 672, 1234, "212 tiles · 9 teams", "m", "end");
+  add(7.8, "d", rr(48, 1246, 624, 430, 3), 1.4);
+
+  function tessellate(x0, y0, w, h, s, clipId, onRow) {
+    const a = s * Math.sqrt(3) / 2, rows = Math.ceil(h / (1.5 * s)) + 2, cols = Math.ceil(w / (2 * a)) + 2;
+    const out = [], tiles = [];
+    for (let r = 0; r < rows; r++) {
+      let d = "";
+      for (let c = -1; c < cols; c++) {
+        const cx = x0 + c * 2 * a + (r % 2 ? a : 0), cy = y0 + r * 1.5 * s;
+        d += hex(cx, cy, s).join("");
+        const rh = [
+          `M${cx} ${cy}L${cx + a} ${cy - s / 2}L${cx} ${cy - s}L${cx - a} ${cy - s / 2}Z`,
+          `M${cx} ${cy}L${cx} ${cy + s}L${cx - a} ${cy + s / 2}L${cx - a} ${cy - s / 2}Z`,
+          `M${cx} ${cy}L${cx + a} ${cy - s / 2}L${cx + a} ${cy + s / 2}L${cx} ${cy + s}Z`,
+        ];
+        rh.forEach((p) => tiles.push({ p, r, c }));
+      }
+      out.push(d);
+    }
+    return { rows: out, tiles };
+  }
+  /* a small seeded generator, so the first paint is always the same picture */
+  let seed = 7193;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  const thumb = tessellate(88, 168, 292, 104, 18);
+  const wall = tessellate(48, 1246, 624, 430, 28);
+  const pickTiles = (list, every) => list.filter(() => rand() < every);
+  const thumbTiles = pickTiles(thumb.tiles, .2), wallTiles = pickTiles(wall.tiles, .2);
+
+  let html = `<defs>
+    <clipPath id="cl-thumb"><path d="${rr(88, 168, 292, 104, 6)}"/></clipPath>
+    <clipPath id="cl-wall"><rect x="48" y="1246" width="624" height="430"/></clipPath>
+  </defs>`;
+  html += `<path class="gh" d="${ink.map((p) => p.d).join("")}"/>`;
+  const tileG = (list, id, hotEvery) => `<g clip-path="url(#${id})">` + list.map((t, i) => `<path class="tile${i % hotEvery === 0 ? " hot" : ""}" d="${t.p}"/>`).join("") + "</g>";
+  html += tileG(thumbTiles, "cl-thumb", 7);
+  html += `<g clip-path="url(#cl-thumb)">` + thumb.rows.map((d, i) => `<path class="dim fade" style="--t:${((1.9 + i * .12) * SP).toFixed(2)}s" d="${d}"/>`).join("") + "</g>";
+  html += tileG(wallTiles, "cl-wall", 6);
+  html += `<g clip-path="url(#cl-wall)">` + wall.rows.map((d, i) => `<path class="dim fade" style="--t:${((8 + i * .07) * SP).toFixed(2)}s" d="${d}"/>`).join("") + "</g>";
+  html += ink.map((p) => `<path class="${p.cls} ink" pathLength="1" style="--t:${(p.t * SP).toFixed(2)}s;--d:${(p.dur * .85).toFixed(2)}s" d="${p.d}"/>`).join("");
+  html += words.map((w) => `<text class="${w.cls}" x="${w.x}" y="${w.y}"${w.anchor ? ` text-anchor="${w.anchor}"` : ""} style="--t:${(w.t * SP).toFixed(2)}s">${w.s}</text>`).join("");
+
+  /* a teammate's comment, and two cursors */
+  html += `<g class="fade" style="--t:3.6s"><path d="M236 414h188a6 6 0 0 1 6 6v20a6 6 0 0 1-6 6h-178l-8 8v-8h-2a6 6 0 0 1-6-6v-20a6 6 0 0 1 6-6Z" fill="#12352c" stroke="#dfbb6b" stroke-width="1.2"/><text class="w" x="242" y="434" style="--t:3.7s;font-size:12px">34 px, the token says 36</text></g>`;
+  const cursor = (x, y, name, fill, t, dx, dy, c) => `<g class="cur" style="--t:${(t * SP).toFixed(2)}s"><g style="--x:${dx}px;--y:${dy}px;--c:${c}s"><path d="M${x} ${y}l13.500 5.500-5.500 2-2 5.500Z" fill="${fill}" stroke="#12352c" stroke-width="1"/><rect x="${x + 11}" y="${y + 13}" rx="3" width="${name.length * 6.6 + 12}" height="18" fill="${fill}"/><text class="flag" x="${x + 17}" y="${y + 26}">${name}</text></g></g>`;
+  html += cursor(436, 436, "Ngozi", "#dfbb6b", 5.8, -14, 6, 9);
+  html += cursor(292, 544, "Hiro", "#cfe0d3", 3.4, -16, 8, 13);
+  $("canvas").innerHTML = html;
+
+  /* once drawn, a tile now and then takes its colour, as tokens get applied */
+  if (!reduce()) {
+    const live = [...$("canvas").querySelectorAll(".tile")];
+    setTimeout(() => { live.forEach((t, i) => { if (i % 2 === 0) t.classList.add("on"); }); }, 2400);
+    setInterval(() => { if (!document.hidden && live.length) live[Math.floor(Math.random() * live.length)].classList.toggle("on"); }, 700);
+  } else {
+    $("canvas").querySelectorAll(".tile").forEach((t, i) => { if (i % 2 === 0) t.classList.add("on"); });
+  }
+
+  /* ---------- the quotes ---------- */
+  const QUOTES = [
+    ["We stopped arguing about which button was the real one. Tessellate shows us, and shows who drifted from it.", "Thandiwe Mokoena", "Design systems lead, Halden Rail"],
+    ["Our review queue went from a shared spreadsheet to something engineers actually open before they ship.", "Kenji Arakawa", "Head of design operations, Ondo Health"],
+    ["Nine product teams, one set of tokens, and nobody has asked me for the latest file in months.", "Marisol Vega", "Principal designer, Brightwater Transit"],
+    ["When a token changes I can see every screen it touches before I press publish. That alone paid for it.", "Yusuf Demir", "VP product design, Kilim Bank"],
+  ];
+  const qBox = $("quotes"), pager = $("pager");
+  qBox.innerHTML = QUOTES.map(([q, n, r], i) => `<blockquote class="q${i ? "" : " on"}"${i ? ' aria-hidden="true"' : ""}><p>${q}</p><footer><b>${n}</b><span>${r}</span></footer></blockquote>`).join("");
+  pager.innerHTML = QUOTES.map((q, i) => `<button type="button" aria-label="Quote ${i + 1} of ${QUOTES.length}, ${q[1]}"${i ? "" : ' aria-current="true"'}><i><b></b></i></button>`).join("");
+  const qEls = [...qBox.children], pEls = [...pager.children];
+  let qAt = 0, qRun = null, paused = false;
+  const HOLD = 8600;
+  function showQuote(i) {
+    qEls.forEach((el, k) => { el.classList.toggle("on", k === i); if (k === i) el.removeAttribute("aria-hidden"); else el.setAttribute("aria-hidden", "true"); });
+    pEls.forEach((b, k) => { if (k === i) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current"); });
+    qAt = i;
+    runFill();
+  }
+  function runFill() {
+    if (qRun) { qRun.cancel(); qRun = null; }
+    if (reduce() || getComputedStyle($("canvas").parentElement).display === "none") return;
+    const fill = pEls[qAt].querySelector("b");
+    qRun = fill.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: HOLD, easing: "linear" });
+    if (paused) qRun.pause();
+    qRun.onfinish = () => showQuote((qAt + 1) % QUOTES.length);
+  }
+  pEls.forEach((b, i) => b.addEventListener("click", () => showQuote(i)));
+  pager.addEventListener("keydown", (e) => {
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    const n = (qAt + d + QUOTES.length) % QUOTES.length;
+    showQuote(n); pEls[n].focus();
+  });
+  const art = document.querySelector(".art");
+  const hold = (on) => { paused = on; if (qRun) on ? qRun.pause() : qRun.play(); };
+  art.addEventListener("pointerenter", () => hold(true));
+  art.addEventListener("pointerleave", () => hold(false));
+  art.addEventListener("focusin", () => hold(true));
+  art.addEventListener("focusout", () => hold(false));
+  runFill();
+</script>
+</body>
+</html>

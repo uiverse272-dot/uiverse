@@ -358,5 +358,389 @@
   "aboutAr": "لوحة أوامر ⌘K فوق تطبيق معتّم: بحث تقريبي تُبرز فيه الحروف المطابقة، ونتائج في مجموعات، وتنقّل بالأسهم ومفتاح الإدخال، وحالة فارغة تقترح بديلاً.",
   "palette": { "bg": "#f6f6f8", "surface": "#ffffff", "text": "#16161a", "muted": "#6b6b76", "accent": "#2b59ff", "dark": false },
   "poster": { "type": "inv", "wait": 500 }, "days": 0, "weight": 4400
+ },
+ {
+  "slug": "signin-split", "kind": "screen", "archetype": "auth", "category": "auth", "industry": "saas", "style": "light",
+  "title": "Split sign-in page", "titleAr": "صفحة تسجيل دخول بشاشة مقسومة",
+  "about": "A split sign-in page for a design-ops tool: email first, then a password step with the address as an editable chip, a passkey scan, SSO and a mailed link with a resend countdown, beside a product canvas that draws itself in line.",
+  "aboutAr": "صفحة تسجيل دخول من قسمين لأداة تُدير أنظمة التصميم: تبدأ بالبريد الإلكتروني ثم خطوة كلمة المرور ويظهر فيها العنوان في شريحة قابلة للتعديل، ومعها الدخول بمفتاح المرور ومسح البصمة، والدخول الموحّد، ورابط يصل إلى البريد مع عدّ تنازلي لإعادة الإرسال، وإلى جانبها لوحة تصميم ترسم نفسها خطاً خطاً.",
+  "palette": { "bg": "#f6f1e7", "surface": "#fffdf8", "text": "#17211d", "muted": "#5a5f55", "accent": "#12352c", "dark": false },
+  "poster": { "wait": 6000 }, "days": 0, "weight": 4850
+ },
+ {
+  "slug": "analytics-overview", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "saas", "style": "minimal",
+  "title": "Analytics overview", "titleAr": "لوحة تحليلات الموقع",
+  "about": "A web-analytics dashboard in charcoal and one signal orange. Switch the date range or site and every number counts and every chart morphs to the new data; hover the chart to compare periods, or click any row to filter the screen by it.",
+  "aboutAr": "لوحة تحليلات لموقع إلكتروني بلون الفحم ولون برتقالي واحد. غيّر الفترة أو الموقع فتعدّ الأرقام وتتشكّل الرسوم من جديد على البيانات الجديدة، ومرّر المؤشر على الرسم لتقارن بالفترة السابقة، وانقر أي صف لتصفية الشاشة كلها به.",
+  "palette": { "bg": "#fbfbf9", "surface": "#ffffff", "text": "#1c1d1f", "muted": "#57595d", "accent": "#f0500c", "dark": false },
+  "poster": { "wait": 1600, "hover": "#plot" }, "days": 0, "weight": 4800
+ },
+ {
+  "slug": "docs-reference", "kind": "screen", "archetype": "docs", "category": "docs", "industry": "saas", "style": "dark",
+  "title": "Developer docs page", "titleAr": "صفحة توثيق للمطورين",
+  "about": "A dark developer docs page built around a backoff visualizer: drag base delay, multiplier, attempts and jitter and the retry timeline redraws, while package-manager and language tabs stay in step across every code block and / opens search.",
+  "aboutAr": "صفحة توثيق داكنة للمطورين تتمحور حول أداة تُظهر التباعد بين محاولات إعادة التشغيل: حرّك التأخير الأساسي والمُضاعِف وعدد المحاولات ونسبة العشوائية فيُعاد رسم الخط الزمني فوراً، وتبقى تبويبات مدير الحزم ولغة البرمجة متزامنة في كل مقاطع الشيفرة، ويفتح مفتاح / البحث.",
+  "palette": { "bg": "#0d0f0e", "surface": "#131614", "text": "#eef1ea", "muted": "#a2a99f", "accent": "#d6f24f", "dark": true },
+  "poster": { "wait": 3200, "hover": ".row[data-i='4'] .tr" }, "days": 0, "weight": 4750
+ },
+ {
+  "slug": "saas-landing-full", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "saas", "style": "light",
+  "title": "SaaS landing page", "titleAr": "صفحة هبوط لخدمة سحابية",
+  "about": "A full landing page for a shared support inbox: in the hero a conversation gets its owner while you watch, and further down you can assign a ticket, expand a snippet with a slash and slide a response-time promise across a chart.",
+  "aboutAr": "صفحة هبوط كاملة لصندوق بريد مشترك تعمل منه فرق الدعم: في واجهتها تُسنَد محادثة إلى أحد أعضاء الفريق أمام عينيك، وفي الأسفل يمكنك أن توكل تذكرة إلى زميل، وأن تستدعي ردًّا جاهزًا بشرطة مائلة، وأن تحرّك هدف زمن الرد على رسم بياني.",
+  "palette": { "bg": "#ffffff", "surface": "#f5f4f0", "text": "#121311", "muted": "#565a55", "accent": "#db3a0a", "dark": false },
+  "poster": { "wait": 2150 }, "days": 0, "weight": 4900
+ },
+ {
+  "slug": "data-table", "kind": "component", "componentType": "table", "category": "dashboard", "industry": "saas", "style": "minimal",
+  "title": "Data table", "titleAr": "جدول بيانات",
+  "about": "A customers table for a billing product: search, filter by status with live counts, sort any column, shift-click a range of rows, change a status inline, and delete in bulk with an Undo that brings the rows back.",
+  "aboutAr": "جدول عملاء لمنتج فوترة: ابحث وصفِّ حسب الحالة مع عدد كل منها، ورتّب أي عمود، وحدّد صفوفاً متتالية بالنقر مع Shift، وغيّر الحالة من مكانها، واحذف عدة صفوف معاً ثم استعدها بزر التراجع.",
+  "palette": { "bg": "#ffffff", "surface": "#f7f6f3", "text": "#141413", "muted": "#63625c", "accent": "#cf3a17", "dark": false },
+  "poster": { "wait": 500, "click": "#fStatus", "viewport": [1200, 760] }, "days": 0, "weight": 4700
+ },
+ {
+  "slug": "shop-filters", "kind": "component", "componentType": "filters", "category": "ecommerce", "industry": "fashion", "style": "minimal",
+  "title": "Shop filters", "titleAr": "فلاتر متجر الملابس",
+  "about": "A clothing shop's category page whose filters really filter: drag the two price handles over a live histogram, tick sizes, colours and materials, and the drawn garments reflow while every count updates and dead-end options switch themselves off.",
+  "aboutAr": "صفحة قسم في متجر ملابس تعمل فيها الفلاتر فعلاً: اسحب طرفَي نطاق السعر فوق مخطط حيّ لتوزّع الأسعار، واختر المقاس واللون والخامة، فتعيد القطع المرسومة ترتيب نفسها وتتحدّث الأعداد كلها، وتتعطّل وحدها الخيارات التي لن تُظهر شيئاً.",
+  "palette": { "bg": "#f5f3ed", "surface": "#fbfaf6", "text": "#1d1b18", "muted": "#625e55", "accent": "#a62f1f", "dark": false },
+  "poster": { "wait": 800, "viewport": [1280, 820] }, "days": 0, "weight": 4750
+ },
+ {
+  "slug": "bento-features", "kind": "component", "componentType": "cards", "category": "landing-page", "industry": "ai", "style": "dark",
+  "title": "Features bento grid", "titleAr": "شبكة مزايا بتصميم بينتو",
+  "about": "Six hairline tiles for a code-review product, each running its own demo: a review comment writes itself and its fix applies, a chart grows, switches change a pull request, pulses run through a service graph, and J, K, A and U really work.",
+  "aboutAr": "ست خانات بحدود رفيعة لمنتج يراجع الشيفرة، في كل منها عرض حيّ: تعليق مراجعة يكتب نفسه ثم يُطبَّق إصلاحه، ورسم بياني ينمو، ومفاتيح تبدّل حالة طلب الدمج، ونبضات تسري في شبكة الخدمات، واختصارات J وK وA وU تعمل فعلاً.",
+  "palette": { "bg": "#0b0c0b", "surface": "#101210", "text": "#eceee8", "muted": "#a0a79f", "accent": "#a9dcc3", "dark": true },
+  "poster": { "wait": 2600, "viewport": [1280, 820] }, "days": 0, "weight": 4800
+ },
+ {
+  "slug": "arabic-admin", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "ecommerce", "style": "corporate", "dir": "rtl",
+  "title": "Arabic store admin", "titleAr": "لوحة إدارة متجر بالعربية",
+  "about": "A right-to-left Arabic dashboard for a perfume shop: flip between ١٢٣ and 123 and every figure on the page redraws, read a sales chart whose months run right to left, and filter orders and open one to ship or cancel it.",
+  "aboutAr": "لوحة تحكم عربية من اليمين إلى اليسار لمتجر عطور: بدّل بين ١٢٣ و123 فيُعاد رسم كل رقم في الصفحة، وتابع المبيعات على رسم تسير أشهره من اليمين إلى اليسار، وصفِّ الطلبات وافتح أيّاً منها لتشحنه أو تلغيه، والتاريخ ظاهر بالهجري والميلادي معاً.",
+  "palette": { "bg": "#f5f3ef", "surface": "#ffffff", "text": "#1d1820", "muted": "#6a6370", "accent": "#74295a", "dark": false },
+  "poster": { "wait": 1200, "hover": ".bar[data-i='11']" }, "days": 0, "weight": 4500
+ },
+ {
+  "slug": "blog-index", "kind": "screen", "archetype": "editorial", "category": "blog", "industry": "education", "style": "editorial",
+  "title": "Editorial blog index", "titleAr": "فهرس مدوّنة تحريرية",
+  "about": "A broadsheet-style index for a design journal in newsprint, ink and one red: a drawn cover story, category chips and a live search that glide the grid into place, a most-read rail, a newsletter signup that checks the address, and load more.",
+  "aboutAr": "فهرس لمجلة تصميم على طراز الصحف الورقية، بلون ورق الجرائد والحبر الأسود ولون أحمر واحد: قصة غلاف مرسومة، وتصنيفات وبحث فوري تنساب البطاقات معها إلى أماكنها الجديدة، وقائمة بالأكثر قراءة، واشتراك في النشرة يتحقق من صحة البريد، وزر يعرض مزيداً من المقالات.",
+  "palette": { "bg": "#f0eee8", "surface": "#e4e1d8", "text": "#121212", "muted": "#66645d", "accent": "#c4231b", "dark": false },
+  "poster": { "wait": 2200 }, "days": 0, "weight": 4537
+ },
+ {
+  "slug": "date-range-picker", "kind": "component", "componentType": "inputs", "category": "checkout", "industry": "travel", "style": "light",
+  "title": "Date range picker", "titleAr": "منتقي فترة الإقامة",
+  "about": "A stay picker for a holiday cottage: two months with each night's price, booked nights struck through and a two-night minimum. Point or arrow through the days to preview the stay and its total, then set how flexible you are.",
+  "aboutAr": "منتقي مواعيد لحجز كوخ عطلات: شهران متجاوران يظهر تحت كل يوم سعر ليلته، والليالي المحجوزة مشطوبة، والحد الأدنى ليلتان. مرّر المؤشر أو تنقّل بالأسهم بين الأيام لترى مدة الإقامة وتكلفتها قبل أن تختار، ثم حدّد مدى مرونة مواعيدك.",
+  "palette": { "bg": "#eef3f2", "surface": "#ffffff", "text": "#102a33", "muted": "#4b6168", "accent": "#1f6f78", "dark": false },
+  "poster": { "wait": 500, "viewport": [880,620] }, "days": 0, "weight": 4574
+ },
+ {
+  "slug": "empty-states", "kind": "component", "componentType": "empty-state", "category": "dashboard", "industry": "productivity", "style": "playful",
+  "title": "Empty states", "titleAr": "حالات الشاشات الفارغة",
+  "about": "Six empty states inside a small team app, each with a drawing that drifts and leans toward the pointer: create the first project, fix a search that found nothing, reconnect when offline, request access, or retry a failed upload.",
+  "aboutAr": "ست حالات فارغة داخل تطبيق صغير لفرق العمل، لكل منها رسم يتهادى ويميل نحو المؤشر: أنشئ أول مشروع، وأصلح بحثًا لم يجد شيئًا، وأعد الاتصال حين ينقطع، واطلب صلاحية الوصول، أو أعد رفع ملف تعثّر.",
+  "palette": { "bg": "#e9e5dc", "surface": "#fbfaf7", "text": "#22201d", "muted": "#55504a", "accent": "#ec8143", "dark": false },
+  "poster": { "wait": 700, "click": "#t1", "viewport": [1000,680] }, "days": 0, "weight": 4611
+ },
+ {
+  "slug": "faq-accordion", "kind": "component", "componentType": "faq", "category": "landing-page", "industry": "healthcare", "style": "light",
+  "title": "FAQ accordion", "titleAr": "الأسئلة الشائعة",
+  "about": "A calm help-centre FAQ for a telehealth service: search marks the matching words in questions and answers while topic counts follow along, answers open smoothly, and each one has a copy-link, a helpful vote and a way to reach a nurse.",
+  "aboutAr": "صفحة أسئلة شائعة هادئة لخدمة رعاية صحية عن بُعد: يميّز البحث الكلمات المطابقة في الأسئلة والإجابات وتتغيّر أعداد الأقسام معه، وتنفتح الإجابات بانسياب، ولكل إجابة رابط للنسخ وتقييم لفائدتها وطريق للتواصل مع ممرضة.",
+  "palette": { "bg": "#f6f5f1", "surface": "#ffffff", "text": "#17211f", "muted": "#5b6764", "accent": "#0d5c57", "dark": false },
+  "poster": { "wait": 900, "click": "#tab-rx", "type": "pharmacy", "viewport": [960,720] }, "days": 0, "weight": 4648
+ },
+ {
+  "slug": "kanban-board", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "productivity", "style": "brutalist",
+  "title": "Kanban board", "titleAr": "لوحة كانبان",
+  "about": "A brutalist sprint board in hard borders and flat colour. Drag cards with mouse or touch, or carry them by keyboard; In progress warns past its WIP limit, avatars filter the board, cards dropped in Done get stamped and the burndown follows.",
+  "aboutAr": "لوحة مهام بأسلوب حادّ: حدود سوداء عريضة وألوان مسطحة. اسحب البطاقات بالفأرة أو باللمس أو انقلها بلوحة المفاتيح، فينبّهك عمود «قيد التنفيذ» إذا تجاوز حدّه، وتصفّي الصورُ الرمزية اللوحة، وتُختم البطاقات المنجزة ويتحرك مخطط الإنجاز معها.",
+  "palette": { "bg": "#e6e5df", "surface": "#ffffff", "text": "#111111", "muted": "#3f3f3f", "accent": "#ffd23f", "dark": false },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4685
+ },
+ {
+  "slug": "mail-inbox", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "productivity", "style": "minimal",
+  "title": "Email inbox", "titleAr": "صندوق بريد إلكتروني",
+  "about": "A three-pane email client run from the keyboard: J and K move, E archives and H snoozes with an Undo, X selects in bulk, slash searches with highlights, and compose opens in a corner window that minimises and keeps its draft.",
+  "aboutAr": "برنامج بريد إلكتروني من ثلاثة أعمدة يُدار من لوحة المفاتيح: J وK للتنقّل، وE للأرشفة وH للتأجيل مع زر تراجع، وX لتحديد عدة رسائل معاً، والشرطة المائلة للبحث مع إبراز الكلمات، ونافذة كتابة في الزاوية تُصغَّر وتحفظ مسودتها.",
+  "palette": { "bg": "#fffefb", "surface": "#f4f3ee", "text": "#1c1b18", "muted": "#5f5d55", "accent": "#c5351c", "dark": false },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4722
+ },
+ {
+  "slug": "mega-nav", "kind": "component", "componentType": "navbar", "category": "landing-page", "industry": "saas", "style": "light",
+  "title": "Mega menu navbar", "titleAr": "شريط تنقّل بقوائم كبيرة",
+  "about": "A navbar for a shipping API whose dropdown is a single panel that reshapes itself as you move between menus, sliding its contents sideways with a notch that follows you, with full arrow-key control and a drawer on phones.",
+  "aboutAr": "شريط تنقّل لواجهة برمجية للشحن، قائمته المنسدلة لوحة واحدة تغيّر عرضها وارتفاعها وموضعها كلما انتقلت من قائمة إلى أخرى، وينزلق محتواها جانباً وتتبعك علامة صغيرة، ويعمل كله بالأسهم، ويتحوّل على الهاتف إلى درج جانبي بأقسام قابلة للطي.",
+  "palette": { "bg": "#ffffff", "surface": "#f4f5f6", "text": "#11151a", "muted": "#4f5863", "accent": "#ffcf1f", "dark": false },
+  "poster": { "wait": 700, "hover": "#t-product", "viewport": [1280,720] }, "days": 0, "weight": 4759
+ },
+ {
+  "slug": "notification-center", "kind": "component", "componentType": "notification", "category": "dashboard", "industry": "saas", "style": "dark",
+  "title": "Notification center", "titleAr": "مركز الإشعارات",
+  "about": "A dark notification panel for a team workspace: reply to a mention in place, approve or decline a payment, open a failed deploy's logs and retry it, snooze from a hover menu, and watch new items slide in as the bell bumps.",
+  "aboutAr": "لوحة إشعارات داكنة لمساحة عمل فريق: ردّ على إشارة إليك من مكانها، ووافق على دفعة أو ارفضها، وافتح سجلّ نشر فاشل ثم أعد تشغيله، وأجّل أي إشعار من قائمة تظهر عند المرور عليه، وشاهد الإشعارات الجديدة تنزلق إلى أعلى القائمة بينما يهتزّ الجرس.",
+  "palette": { "bg": "#0d1013", "surface": "#151a1f", "text": "#e9edf1", "muted": "#a3adb8", "accent": "#57c4f5", "dark": true },
+  "poster": { "wait": 800, "viewport": [900,640] }, "days": 0, "weight": 4796
+ },
+ {
+  "slug": "portfolio-folio", "kind": "screen", "archetype": "portfolio", "category": "portfolio", "industry": "saas", "style": "dark",
+  "title": "Designer portfolio", "titleAr": "معرض أعمال مصممة",
+  "about": "A dark, typographic portfolio for an independent designer: hover a project and its picture trails the pointer with a slight tilt while the other rows dim, filter the work, open a row for the case study, and copy the email.",
+  "aboutAr": "معرض أعمال داكن تقوده الطباعة لمصممة مستقلة: مرّر المؤشر على مشروع فتتبعه صورته بميل خفيف وتخفت بقية الصفوف، ثم صفِّ الأعمال حسب النوع، وافتح أي صف لتقرأ دراسة الحالة، وانسخ البريد بنقرة.",
+  "palette": { "bg": "#121110", "surface": "#1b1a18", "text": "#f0ece3", "muted": "#a5a094", "accent": "#ff5a3c", "dark": true },
+  "poster": { "wait": 900, "hover": ".item:nth-child(2) .row" }, "days": 0, "weight": 4833
+ },
+ {
+  "slug": "pricing-plans", "kind": "screen", "archetype": "pricing", "category": "pricing", "industry": "saas", "style": "corporate",
+  "title": "Pricing page", "titleAr": "صفحة الأسعار",
+  "about": "A navy corporate pricing page for a meeting-notes product: switch monthly or yearly, pick one of five currencies and slide the seat count, and every plan reprices with volume tiers and rolling digits above a comparison table whose plan header sticks.",
+  "aboutAr": "صفحة أسعار بطابع مؤسسي كحلي لتطبيق يدوّن الاجتماعات وقراراتها: اختر الفوترة الشهرية أو السنوية، وواحدة من خمس عملات، وحرّك عدد المقاعد لتتغيّر أسعار كل الباقات مع خصومات الكميات وأرقام تدور، وتحتها جدول مقارنة يبقى رأسه ثابتاً أثناء التمرير.",
+  "palette": { "bg": "#ffffff", "surface": "#f4f6f9", "text": "#172a44", "muted": "#536179", "accent": "#0a7a63", "dark": false },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4870
+ },
+ {
+  "slug": "product-detail", "kind": "screen", "archetype": "ecommerce", "category": "ecommerce", "industry": "ecommerce", "style": "minimal",
+  "title": "Furniture product page", "titleAr": "صفحة منتج لمتجر أثاث",
+  "about": "A lounge chair's product page where the chair is modelled in code: drag it round, choose a wood and a cloth and every view, price and delivery date changes, then add it and watch it fly into a mini-cart.",
+  "aboutAr": "صفحة منتج لكرسي استرخاء مرسوم بالكود من كل زاوية: أدِره بالسحب، واختر نوع الخشب والقماش فتتغيّر كل الصور والسعر وموعد التسليم، ثم أضفه إلى السلة لتراه يطير إليها وتنفتح سلة صغيرة بجانب الصفحة.",
+  "palette": { "bg": "#f3eee6", "surface": "#fbf8f3", "text": "#1f1b16", "muted": "#675e54", "accent": "#2d4535", "dark": false },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4507
+ },
+ {
+  "slug": "testimonial-wall", "kind": "component", "componentType": "testimonials", "category": "landing-page", "industry": "saas", "style": "dark",
+  "title": "Testimonial wall", "titleAr": "جدار آراء العملاء",
+  "about": "A dark wall of quotes from engineers about build times, flaky tests and review apps, in columns that loop up and down in turn; hover a column to stop it and lift a card, or filter by who is talking.",
+  "aboutAr": "جدار داكن من شهادات مهندسين يتحدثون عن زمن البناء والاختبارات المتقلّبة وبيئات المعاينة، في أعمدة تنساب صعودًا ونزولًا بالتناوب؛ مرّر المؤشر فوق عمود ليتوقف وترتفع البطاقة، أو اختر من تريد أن تسمع رأيه.",
+  "palette": { "bg": "#0a1113", "surface": "#101a1d", "text": "#edf2f2", "muted": "#93a6a9", "accent": "#ffb547", "dark": true },
+  "poster": { "wait": 1500, "viewport": [1200,760] }, "days": 0, "weight": 4544
+ },
+ {
+  "slug": "ai-chat", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "ai", "style": "light",
+  "title": "AI chat", "titleAr": "محادثة مع مساعد ذكي",
+  "about": "An AI assistant's chat screen in cool white and deep ink. Replies render lists, tables and highlighted code you can copy; send a message to watch it think and stream, stop it midway, attach files, switch models, and rate or regenerate answers.",
+  "aboutAr": "شاشة محادثة لمساعد ذكي بالأبيض البارد والحبر الداكن. تظهر الردود بقوائم وجداول وشيفرة ملوّنة قابلة للنسخ، وحين ترسل رسالة تراه يفكّر ثم يكتب الرد كلمةً كلمة، ويمكنك إيقافه في منتصفه وإرفاق الملفات وتبديل النموذج وتقييم الإجابة أو إعادة توليدها.",
+  "palette": { "bg": "#fbfcfe", "surface": "#ffffff", "text": "#0e1626", "muted": "#5a6476", "accent": "#c8f051", "dark": false },
+  "poster": { "wait": 800 }, "days": 0, "weight": 4500
+ },
+ {
+  "slug": "arabic-phone-signin", "kind": "screen", "device": "mobile", "archetype": "mobile-onboarding", "category": "auth", "industry": "travel", "style": "minimal", "dir": "rtl",
+  "title": "Arabic phone sign-in", "titleAr": "تسجيل الدخول برقم الجوال",
+  "about": "A right-to-left Arabic sign-in for a transport app on a phone: pick a country from a searchable sheet, watch the number format and validate as you type, then enter a six-box code with paste and a resend timer, and add your name.",
+  "aboutAr": "تسجيل دخول عربي من اليمين إلى اليسار لتطبيق نقل على الجوال: اختر دولتك من قائمة قابلة للبحث، ويُنسَّق رقمك ويُتحقَّق منه أثناء الكتابة، ثم أدخل رمز التحقق في ست خانات تقبل اللصق مع عدّاد لإعادة الإرسال، وأخيرًا اكتب اسمك.",
+  "palette": { "bg": "#0e2240", "surface": "#ffffff", "text": "#0f1a2b", "muted": "#556074", "accent": "#ffb22e", "dark": false },
+  "poster": { "wait": 900, "click": "#tel", "type": "501234567" }, "days": 0, "weight": 4537
+ },
+ {
+  "slug": "calendar-week", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "productivity", "style": "light",
+  "title": "Week calendar", "titleAr": "تقويم الأسبوع",
+  "about": "A week-view calendar on warm paper with a moving now-line. Drag across the grid to make an event and name it in place, drag events to move them, open one for guests and a call link, and switch calendars on and off.",
+  "aboutAr": "تقويم أسبوعي على ورق دافئ يتقدّم فيه خط الوقت الحالي. اسحب على الشبكة لتنشئ موعداً وتسمّيه في مكانه، واسحب المواعيد لتنقلها، وافتح أيّاً منها لترى الحضور ورابط المكالمة، وأظهر التقاويم أو أخفها.",
+  "palette": { "bg": "#f6f4ef", "surface": "#fffdf9", "text": "#1d1b18", "muted": "#6a655c", "accent": "#c2412d", "dark": false },
+  "poster": { "wait": 900, "click": ".ev[data-id=\"e-crit\"]" }, "days": 0, "weight": 4574
+ },
+ {
+  "slug": "checkout-onepage", "kind": "screen", "archetype": "checkout", "category": "checkout", "industry": "ecommerce", "style": "light",
+  "title": "One-page checkout", "titleAr": "صفحة الدفع الموحّدة",
+  "about": "A warm one-page checkout for a stationery shop: steps tick off as you fill the address, the country reshapes the postal field, delivery dates count from today, the card flips for its code, and WELCOME10 takes ten percent off totals that count.",
+  "aboutAr": "صفحة دفع واحدة دافئة لمتجر قرطاسية: تكتمل الخطوات مع تعبئة العنوان، ويتغيّر حقل الرمز البريدي بحسب الدولة، وتُحسب مواعيد التوصيل من اليوم، وتنقلب البطاقة لتُظهر رمزها الخلفي، ويخصم الرمز WELCOME10 عشرة بالمئة من مجموع يتحرّك أمامك.",
+  "palette": { "bg": "#fbf8f3", "surface": "#f3ede4", "text": "#2b221c", "muted": "#6c5f55", "accent": "#a8471f", "dark": false },
+  "poster": { "wait": 900, "click": "#fillDemo" }, "days": 0, "weight": 4611
+ },
+ {
+  "slug": "clinic-booking", "kind": "screen", "archetype": "dashboard", "category": "onboarding", "industry": "healthcare", "style": "light",
+  "title": "Clinic appointment booking", "titleAr": "حجز موعد في العيادة",
+  "about": "A calm, large-type booking page for a family clinic: choose a reason, a doctor and a free time while a summary and the cost fill in beside you, and if your time is taken it kindly offers the two nearest.",
+  "aboutAr": "صفحة حجز هادئة بخط كبير لعيادة عائلية: تختار سبب الزيارة والطبيب والوقت المتاح، فيكتمل ملخص الموعد والتكلفة بجانبك أولًا بأول، وإن حجز أحدٌ وقتك قبلك تخبرك بلطف وتقترح أقرب موعدين.",
+  "palette": { "bg": "#f2f5f3", "surface": "#ffffff", "text": "#13201d", "muted": "#45534f", "accent": "#0c6553", "dark": false },
+  "poster": { "wait": 800, "click": "label[for=r-cough]" }, "days": 0, "weight": 4648
+ },
+ {
+  "slug": "health-onboarding", "kind": "screen", "device": "mobile", "archetype": "mobile-onboarding", "category": "onboarding", "industry": "healthcare", "style": "playful",
+  "title": "Sleep app onboarding", "titleAr": "تهيئة تطبيق للنوم والعادات",
+  "about": "A five-step phone onboarding for a sleep and habits app: pick up to three goals, drag bedtime and wake-up around a 24-hour dial that judges the night as you go, answer a notification prompt, and get a first-week plan built from your choices.",
+  "aboutAr": "رحلة تهيئة من خمس خطوات لتطبيق جوال يُعنى بالنوم والعادات: اختر حتى ثلاثة أهداف، واسحب وقتَي النوم والاستيقاظ حول قرص من أربع وعشرين ساعة يقيّم ليلتك أثناء السحب، ثم أجب عن طلب الإشعارات، لتحصل على خطة لأسبوعك الأول مبنية على اختياراتك.",
+  "palette": { "bg": "#11141d", "surface": "#181c28", "text": "#f4f1ea", "muted": "#b4b6c4", "accent": "#8fe3c4", "dark": true },
+  "poster": { "wait": 1000, "click": ".seg[data-go='2']" }, "days": 0, "weight": 4685
+ },
+ {
+  "slug": "revenue-chart", "kind": "component", "componentType": "charts", "category": "dashboard", "industry": "fintech", "style": "light",
+  "title": "Revenue chart", "titleAr": "مخطط الإيرادات",
+  "about": "A sales card for a small business: totals count up, metric tabs and a bars-or-line toggle morph the chart, a dashed line shows the previous period, and a snapping tooltip, a sale annotation and arrow keys read every point.",
+  "aboutAr": "بطاقة مبيعات لمتجر صغير: تتصاعد الأرقام الإجمالية حتى قيمتها، وتتحوّل الأعمدة إلى خطّ مع تبديل المقياس أو نوع المخطط، ويرسم خطّ متقطّع الفترة السابقة. تلميح يلتقط أقرب نقطة، وعلامة تشرح قفزة التخفيضات، وأسهم لوحة المفاتيح تقرأ كل نقطة بصوت مسموع.",
+  "palette": { "bg": "#edf0ec", "surface": "#fbfcfa", "text": "#17201d", "muted": "#4d5954", "accent": "#2e6b5e", "dark": false },
+  "poster": { "wait": 1000, "hover": "#hits [data-i=\"19\"]", "viewport": [1000,640] }, "days": 0, "weight": 4722
+ },
+ {
+  "slug": "settings-account", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "productivity", "style": "minimal",
+  "title": "Account settings", "titleAr": "إعدادات الحساب",
+  "about": "A calm settings page for a notes app: check a new username as you type, set notifications by channel, preview light, dark and accent colours across the whole page, turn on two-factor sign-in, sign out old sessions and save or discard from one bar.",
+  "aboutAr": "صفحة إعدادات هادئة لتطبيق ملاحظات: تحقّق من توفّر اسم المستخدم أثناء الكتابة، واضبط التنبيهات لكل قناة، وجرّب الوضع الفاتح والداكن وألوان التمييز على الصفحة كلها، وفعّل التحقق بخطوتين، وأنهِ الجلسات القديمة، ثم احفظ تغييراتك أو تراجع عنها من شريط واحد.",
+  "palette": { "bg": "#ffffff", "surface": "#f6f6f4", "text": "#1b1b1f", "muted": "#5f5f67", "accent": "#2b5fd9", "dark": false },
+  "poster": { "wait": 700, "click": "#avBtn" }, "days": 0, "weight": 4759
+ },
+ {
+  "slug": "share-dialog", "kind": "component", "componentType": "modal", "category": "dashboard", "industry": "productivity", "style": "minimal",
+  "title": "Share dialog", "titleAr": "نافذة المشاركة",
+  "about": "A share dialog over a dimmed document: type names or emails and they turn into chips, with teammate suggestions you can arrow through. Change or remove anyone's access, resend a pending invite, choose who can open the link, and copy it.",
+  "aboutAr": "نافذة مشاركة فوق مستند معتم في الخلفية: اكتب اسمًا أو بريدًا إلكترونيًا فيتحوّل إلى بطاقة صغيرة، مع اقتراحات من زملاء الفريق تتنقّل بينها بالأسهم. عدّل صلاحية أي شخص أو احذفه، وأعد إرسال دعوة معلّقة، وحدّد من يستطيع فتح الرابط، ثم انسخه.",
+  "palette": { "bg": "#f3f1ec", "surface": "#ffffff", "text": "#1c1b19", "muted": "#5f5b53", "accent": "#1f3b8f", "dark": false },
+  "poster": { "wait": 500, "type": "ma", "viewport": [900,640] }, "days": 0, "weight": 4796
+ },
+ {
+  "slug": "sidebar-nav", "kind": "component", "componentType": "sidebar", "category": "dashboard", "industry": "saas", "style": "dark",
+  "title": "App sidebar", "titleAr": "شريط تنقّل جانبي",
+  "about": "A dark app sidebar with a workspace switcher, counts and a sliding active marker, folding Projects and Favorites, and a status picker; collapse it to a 64px icon rail with tooltips and flyouts, or open it as a drawer on a phone.",
+  "aboutAr": "شريط جانبي داكن لتطبيق عمل، فيه مبدّل لمساحات العمل وعدّادات ومؤشّر ينزلق إلى الصفحة الحالية، وقسما المشاريع والمفضّلة ينطويان ويتفتّحان، واختيار لحالتك. اطوِه إلى شريط أيقونات بعرض 64 بكسل تظهر فيه التلميحات والقوائم المنبثقة، أو افتحه درجاً على الهاتف.",
+  "palette": { "bg": "#f6f5f1", "surface": "#141413", "text": "#1b1a17", "muted": "#67645c", "accent": "#f0b44c", "dark": false },
+  "poster": { "wait": 800, "click": "#ws", "viewport": [1100,720] }, "days": 0, "weight": 4833
+ },
+ {
+  "slug": "site-footer", "kind": "component", "componentType": "footer", "category": "landing-page", "industry": "ecommerce", "style": "editorial",
+  "title": "Site footer", "titleAr": "تذييل الموقع",
+  "about": "An editorial footer for a homeware shop: a newsletter that checks the address and folds into a thank-you, a country picker that reprices the page, link columns that fold up on phones, and a giant wordmark whose letters rise under the pointer.",
+  "aboutAr": "تذييل بطابع مجلّة لمتجر أدوات منزلية: نشرة بريدية تتحقق من العنوان ثم تتحول إلى رسالة شكر، واختيار للبلد يعيد تسعير الصفحة بعملته، وأعمدة روابط تنطوي على الهاتف، واسم المتجر بحروف ضخمة ترتفع واحدًا تلو الآخر تحت المؤشر.",
+  "palette": { "bg": "#2a1412", "surface": "#351b18", "text": "#f3e9d7", "muted": "#c7b49e", "accent": "#f0b54a", "dark": true },
+  "poster": { "wait": 900, "hover": "#mark", "viewport": [1280,720] }, "days": 0, "weight": 4870
+ },
+ {
+  "slug": "signup-wizard", "kind": "component", "componentType": "signup", "category": "onboarding", "industry": "fintech", "style": "light",
+  "title": "Signup wizard", "titleAr": "معالج إنشاء الحساب",
+  "about": "A four-step signup for an invoicing app, with a password meter that says what's missing, a live address check and invite chips, while a preview of the workspace and its first invoice fills in beside you.",
+  "aboutAr": "تسجيل من أربع خطوات لتطبيق فواتير: مقياس لقوة كلمة المرور يخبرك بما ينقصها، وفحص فوري لتوفّر عنوان مساحة العمل، ودعوات تتحوّل فيها العناوين إلى شارات، وبجانبك معاينة لمساحة العمل وأول فاتورة تكتمل مع كل إجابة.",
+  "palette": { "bg": "#f5f2ea", "surface": "#fbf9f4", "text": "#1b1a17", "muted": "#67635a", "accent": "#c4452b", "dark": false },
+  "poster": { "wait": 600, "click": "#pw", "type": "harbour7", "viewport": [1100,720] }, "days": 0, "weight": 4500
+ },
+ {
+  "slug": "invoice-builder", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "fintech", "style": "minimal",
+  "title": "Invoice builder", "titleAr": "محرّر الفواتير",
+  "about": "An invoice editor beside a live printed page for a design studio: pick or add a client, let the due date follow the terms, drag line items into order, switch currency, send it with an email preview and stamp it paid.",
+  "aboutAr": "محرّر فواتير لاستوديو تصميم، تظهر بجانبه الصفحة المطبوعة وتتحدّث مع كل حرف. اختر عميلًا أو أضف عميلًا جديدًا، ودع تاريخ الاستحقاق يتبع شروط الدفع، ورتّب البنود بالسحب، وبدّل العملة، ثم أرسلها بعد معاينة الرسالة واختمها بختم «مدفوعة».",
+  "palette": { "bg": "#e6e6e1", "surface": "#ffffff", "text": "#17181a", "muted": "#5e6067", "accent": "#1f3c88", "dark": false },
+  "poster": { "wait": 900, "click": "#pickBtn" }, "days": 0, "weight": 4500
+ },
+ {
+  "slug": "permissions-matrix", "kind": "component", "componentType": "table", "category": "dashboard", "industry": "saas", "style": "minimal",
+  "title": "Permissions matrix", "titleAr": "مصفوفة الصلاحيات",
+  "about": "A roles and permissions editor for an internal admin: tick whole rows, areas or columns, watch Delete pull in Edit and View and say why, search, move by arrow keys, then review every added and removed permission before saving.",
+  "aboutAr": "محرّر للأدوار والصلاحيات في لوحة إدارة داخلية: حدّد صفًا كاملًا أو قسمًا أو عمودًا دفعة واحدة، ولاحظ كيف يستدعي الحذف صلاحيتي التعديل والعرض مع توضيح السبب. ابحث وتنقّل بالأسهم، وراجع كل صلاحية أضفتها أو أزلتها قبل الحفظ.",
+  "palette": { "bg": "#f6f5f0", "surface": "#ffffff", "text": "#1c1d1a", "muted": "#5e6058", "accent": "#24573d", "dark": false },
+  "poster": { "wait": 350, "click": "[data-cell=\"methods:delete\"]", "viewport": [1200,760] }, "days": 0, "weight": 4537
+ },
+ {
+  "slug": "changelog-page", "kind": "screen", "archetype": "docs", "category": "blog", "industry": "saas", "style": "light",
+  "title": "Changelog page", "titleAr": "صفحة سجل التحديثات",
+  "about": "A changelog for an analytics tool, set like a reference book: drawn product vignettes, New, Improved and Fixed notes, a type filter and month index that follow your scroll, search that highlights, subscribe, and a rail marking what's new since your last visit.",
+  "aboutAr": "سجل تحديثات لأداة تحليلات، منسّق كأنه كتاب مرجعي: رسوم صغيرة من واجهة المنتج، وملاحظات مقسّمة إلى جديد ومُحسَّن ومُصلَح، وتصفية حسب النوع وفهرس للأشهر يتابعان موضعك في الصفحة، وبحث يبرز ما يجده، واشتراك بالبريد، وخطّ زمني يُظهر ما استجدّ منذ آخر زيارة لك.",
+  "palette": { "bg": "#ffffff", "surface": "#f4f5f6", "text": "#111315", "muted": "#565b62", "accent": "#c93c0a", "dark": false },
+  "poster": { "wait": 400 }, "days": 0, "weight": 4574
+ },
+ {
+  "slug": "cookie-consent", "kind": "component", "componentType": "modal", "category": "landing-page", "industry": "food", "style": "editorial",
+  "title": "Cookie consent", "titleAr": "الموافقة على ملفات تعريف الارتباط",
+  "about": "A cookie banner for a recipe site that treats Accept and Reject alike: Choose lists every cookie in plain words with its purpose and lifespan, a Privacy button reopens your choices, and those choices really change the page behind.",
+  "aboutAr": "شريط موافقة على ملفات تعريف الارتباط لموقع وصفات، يمنح القبول والرفض الوزن نفسه. يعرض خيار «اختيار» كل ملف بلغة واضحة مع غرضه ومدة بقائه، ويعيد زرّ الخصوصية فتح اختياراتك متى شئت، وتغيّر هذه الاختيارات سلوك الصفحة خلفها فعلًا.",
+  "palette": { "bg": "#f6eedf", "surface": "#fffaf1", "text": "#2a1f14", "muted": "#66573f", "accent": "#9c3a17", "dark": false },
+  "poster": { "wait": 500, "viewport": [1000,680] }, "days": 0, "weight": 4611
+ },
+ {
+  "slug": "property-listings", "kind": "screen", "archetype": "ecommerce", "category": "marketplace", "industry": "real-estate", "style": "light",
+  "title": "Property search", "titleAr": "البحث عن عقار",
+  "about": "A home search beside a hand-drawn city map: listings and price pins answer each other on hover, a pin opens a small card, filters and sorting reflow both, and dragging the map searches where you look, or folds into a full-screen map on phones.",
+  "aboutAr": "شاشة للبحث عن منزل إلى جانب خريطة مرسومة لمدينة، تتجاوب فيها البطاقات ودبابيس الأسعار عند مرور المؤشر، ويفتح الدبوس بطاقة صغيرة، وتعيد الفلاتر والترتيب تنظيم الاثنين معاً، ويبحث سحب الخريطة في المنطقة التي تراها، وعلى الهاتف تصبح الخريطة شاشة كاملة.",
+  "palette": { "bg": "#f6f3ec", "surface": "#ffffff", "text": "#1d2320", "muted": "#5c625d", "accent": "#b4462a", "dark": false },
+  "poster": { "wait": 800, "click": ".pin[data-id=\"4\"]" }, "days": 0, "weight": 4648
+ },
+ {
+  "slug": "job-board", "kind": "screen", "archetype": "saas-landing", "category": "marketplace", "industry": "productivity", "style": "editorial",
+  "title": "Job board", "titleAr": "لوحة وظائف",
+  "about": "A jobs board set like a newspaper's classifieds: search and filter with live counts and a salary range, read a full posting with its salary band, apply with a validated form and CV upload, save roles, and move with J and K.",
+  "aboutAr": "لوحة وظائف بروح صفحات الإعلانات المبوّبة في الصحف: ابحث وصفِّ النتائج بأعداد تتحدّث فوراً ونطاق للراتب، واقرأ الإعلان كاملاً مع موقع راتبه من السوق، وقدّم عبر نموذج يتحقق من بياناتك ويرفع سيرتك الذاتية، واحفظ ما يهمك، وتنقّل بمفتاحي J وK.",
+  "palette": { "bg": "#f7f4ee", "surface": "#fffdf9", "text": "#111110", "muted": "#55524a", "accent": "#cf3413", "dark": false },
+  "poster": { "wait": 500 }, "days": 0, "weight": 4685
+ },
+ {
+  "slug": "gallery-lightbox", "kind": "component", "componentType": "cards", "category": "portfolio", "industry": "travel", "style": "dark",
+  "title": "Photo gallery with lightbox", "titleAr": "معرض صور بعارض مكبّر",
+  "about": "A dark portfolio of justified photo rows that reflow when you filter by series. A photo flies from its exact spot into a lightbox with arrows, swipe, a filmstrip, pinch and wheel zoom, drag to pan, shooting details and a real histogram.",
+  "aboutAr": "معرض داكن لأعمال مصوّر، صفوف صوره متساوية العرض ويُعاد ترتيبها عند التصفية حسب السلسلة. تنتقل الصورة من مكانها نفسه إلى عارض مكبّر فيه أسهم وسحب وشريط مصغّرات، وتكبير بالقرص أو عجلة الفأرة مع التحريك بالسحب، وبيانات التصوير ومخطط توزيع ألوان يُقرأ من الصورة ذاتها.",
+  "palette": { "bg": "#0b0b0a", "surface": "#161614", "text": "#ece9e2", "muted": "#a5a196", "accent": "#dcb88f", "dark": true },
+  "poster": { "wait": 700, "hover": ".ph:nth-of-type(6)", "viewport": [1200,800] }, "days": 0, "weight": 4722
+ },
+ {
+  "slug": "not-found", "kind": "screen", "archetype": "saas-landing", "category": "landing-page", "industry": "travel", "style": "playful",
+  "title": "404 page", "titleAr": "صفحة الخطأ 404",
+  "about": "A not-found page for a travel site: a fold-out paper chart whose dotted route ends in the sea, shifting in layers under the pointer, with live search over popular pages, useful links, a way home, and a boat that sails on when clicked.",
+  "aboutAr": "صفحة «غير موجودة» لموقع سفر، تتوسطها خريطة ورقية مطوية ينتهي مسارها المنقّط في عرض البحر، وتتحرك طبقاتها برفق مع المؤشر. فيها بحث فوري في أكثر الصفحات زيارة، وروابط مفيدة، وزر للعودة إلى الرئيسية، وقارب صغير يبحر إلى وجهة جديدة كلما نقرت عليه.",
+  "palette": { "bg": "#14302d", "surface": "#1c3d39", "text": "#f6efdf", "muted": "#b4c6bc", "accent": "#ef6a43", "dark": true },
+  "poster": { "wait": 1500 }, "days": 0, "weight": 4759
+ },
+ {
+  "slug": "file-manager", "kind": "screen", "archetype": "dashboard", "category": "dashboard", "industry": "productivity", "style": "minimal",
+  "title": "File manager", "titleAr": "مدير الملفات",
+  "about": "A team file manager with drawn thumbnails for every file type: band-select or shift-click files, drag a stack onto a folder, rename inline, delete with Undo, watch uploads fill their rings, and read each file's details beside the grid.",
+  "aboutAr": "مدير ملفات لفريق عمل، لكل نوع ملف فيه صورة مصغّرة مرسومة: حدّد الملفات بسحب إطار حولها أو بالنقر مع Shift، واسحب مجموعة منها إلى مجلد، وأعد التسمية في مكانها، واحذف مع إمكانية التراجع، وتابع حلقات تقدّم الرفع، واقرأ تفاصيل كل ملف بجانب الشبكة.",
+  "palette": { "bg": "#f2f0eb", "surface": "#fbfaf7", "text": "#1c1a17", "muted": "#5f5a52", "accent": "#8b2c3c", "dark": false },
+  "poster": { "wait": 900, "click": "#upBtn" }, "days": 0, "weight": 4796
+ },
+ {
+  "slug": "rich-text-editor", "kind": "component", "componentType": "inputs", "category": "docs", "industry": "productivity", "style": "editorial",
+  "title": "Rich text editor", "titleAr": "محرّر نصوص",
+  "about": "A quiet, book-like document editor: select text for a floating toolbar with links and highlights, type a slash on an empty line for blocks, use markdown shortcuts, tick checklists, and follow a live outline, word count and reading time.",
+  "aboutAr": "محرّر مستندات هادئ أقرب إلى صفحات الكتاب: حدّد نصًا لتظهر فوقه أدوات التنسيق مع الروابط والتظليل، واكتب شرطة مائلة في سطر فارغ لإدراج الكتل، واستخدم اختصارات ماركداون، وعلّم بنود القوائم، وتابع فهرسًا حيًا وعدد الكلمات ومدة القراءة.",
+  "palette": { "bg": "#fafaf7", "surface": "#f0f1ed", "text": "#23262a", "muted": "#5a6068", "accent": "#1b5f6c", "dark": false },
+  "poster": { "wait": 900, "viewport": [1100,760] }, "days": 0, "weight": 4833
+ },
+ {
+  "slug": "habit-heatmap", "kind": "component", "componentType": "stats", "category": "dashboard", "industry": "productivity", "style": "light",
+  "title": "Habit heatmap", "titleAr": "خريطة العادات اليومية",
+  "about": "A year of a habit drawn one square a day: switch habit to sweep in a new colour ramp, hover a day for its note, log or edit it in place, and watch streaks and monthly bars recount.",
+  "aboutAr": "سنة كاملة من عادة واحدة، لكل يوم مربّع: بدّل العادة فتنساب الألوان الجديدة عبر الشبكة، ومرّر المؤشر على أي يوم لتقرأ ملاحظته، وسجّله أو عدّله في مكانه، فتتحدّث السلاسل وأعمدة الأشهر فورًا.",
+  "palette": { "bg": "#131518", "surface": "#1b1e22", "text": "#eceef0", "muted": "#a0a7af", "accent": "#ffae78", "dark": true },
+  "poster": { "wait": 900, "hover": "[data-date=\"2026-10-04\"]", "viewport": [1000,640] }, "days": 0, "weight": 4870
+ },
+ {
+  "slug": "course-player", "kind": "screen", "archetype": "dashboard", "category": "feed", "industry": "education", "style": "light",
+  "title": "Course player", "titleAr": "مشغّل الدروس",
+  "about": "A warm lesson screen for an online course: a drawn video with chapters, captions and speed, a curriculum whose progress rings recount as you finish lessons, timestamped notes that jump the video, threaded questions, and a next-lesson countdown.",
+  "aboutAr": "شاشة درس دافئة لدورة عبر الإنترنت: فيديو مرسوم بفصول وترجمة نصية وسرعات تشغيل، ومنهج تتحدّث حلقات تقدّمه كلما أنهيت درسًا، وملاحظات مؤقّتة تعيدك إلى لحظتها في الفيديو، وأسئلة بردود متسلسلة، وعدّ تنازلي للدرس التالي.",
+  "palette": { "bg": "#f4eee3", "surface": "#fbf8f2", "text": "#2a211b", "muted": "#6a5d51", "accent": "#a8432a", "dark": false },
+  "poster": { "wait": 900, "click": "#play" }, "days": 0, "weight": 4507
+ },
+ {
+  "slug": "order-tracking", "kind": "component", "componentType": "cards", "category": "ecommerce", "industry": "ecommerce", "style": "light",
+  "title": "Parcel tracking", "titleAr": "تتبّع الشحنة",
+  "about": "A parcel tracking card in one bold green: copy the tracking number, watch the van drive a drawn route as the stages fill, open every scan, choose a neighbour, safe place or new day, and step it through to a photo at the door.",
+  "aboutAr": "بطاقة لتتبّع طرد بلون أخضر واحد جريء: انسخ رقم التتبّع، وتابع الشاحنة وهي تقطع طريقًا مرسومًا بينما تمتلئ مراحل الشحن، وافتح سجلّ المسح كاملًا، واختر جارًا أو مكانًا آمنًا أو يومًا آخر للتسليم، ثم تقدّم بالشحنة حتى تصلك صورة لها عند الباب.",
+  "palette": { "bg": "#e9ebe4", "surface": "#ffffff", "text": "#14201a", "muted": "#5a665f", "accent": "#08694a", "dark": false },
+  "poster": { "wait": 1800, "viewport": [1000,700] }, "days": 0, "weight": 4544
+ },
+ {
+  "slug": "support-chat", "kind": "component", "componentType": "modal", "category": "dashboard", "industry": "fintech", "style": "light",
+  "title": "Support chat", "titleAr": "دردشة الدعم",
+  "about": "A bank's help widget springing open over its own page: start from a chip, freeze a lost card right inside the thread, get handed from the assistant to a person, attach a file, minimise it mid-reply, and rate the chat at the end.",
+  "aboutAr": "نافذة مساعدة لبنك تنبثق فوق صفحته: ابدأ من اقتراح جاهز، وجمّد بطاقة مفقودة من داخل المحادثة نفسها، وانتقل من المساعد الآلي إلى موظف حقيقي، وأرفق ملفًا، وصغّر النافذة أثناء انتظار الردّ، ثم قيّم المحادثة في ختامها.",
+  "palette": { "bg": "#f3f1ec", "surface": "#ffffff", "text": "#18212c", "muted": "#5d6570", "accent": "#1d5a92", "dark": false },
+  "poster": { "wait": 3800, "click": "[data-start=\"lost\"]", "viewport": [900,700] }, "days": 0, "weight": 4581
+ },
+ {
+  "slug": "travel-itinerary", "kind": "screen", "device": "mobile", "archetype": "mobile-profile", "category": "dashboard", "industry": "travel", "style": "playful",
+  "title": "Trip itinerary", "titleAr": "برنامج الرحلة",
+  "about": "A phone itinerary for five days in a hillside port: swipe between days, drag stops into a new order and watch every time and walk recompute, open one for notes and bookings, pull the numbered map up, and add a stop from search.",
+  "aboutAr": "برنامج رحلة على الهاتف لخمسة أيام في مدينة ساحلية على التلال: تنقّل بين الأيام بالسحب، وأعد ترتيب المحطات لتُحسب الأوقات والمسافات من جديد، وافتح أي محطة لترى ملاحظاتها وحجزها، واسحب الخريطة بدبابيسها المرقّمة إلى الأعلى، وأضف محطة من البحث.",
+  "palette": { "bg": "#f5f8f3", "surface": "#ffffff", "text": "#0d2c35", "muted": "#4b666d", "accent": "#ffc629", "dark": false },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4618
+ },
+ {
+  "slug": "arabic-restaurant-menu", "kind": "screen", "device": "mobile", "archetype": "mobile-feed", "category": "ecommerce", "industry": "food", "style": "light", "dir": "rtl",
+  "title": "Arabic restaurant menu", "titleAr": "قائمة مطعم شامي",
+  "about": "A right-to-left ordering screen for a Levantine kitchen: tabs follow you down a menu of drawn dishes, each dish opens a sheet of sizes, extras and notes, a dot flies to the basket, and the basket edits down to a confirmed order.",
+  "aboutAr": "شاشة طلب من اليمين إلى اليسار لمطبخ شامي: تتبعك الأقسام وأنت تنزل في قائمة أطباق مرسومة، ويفتح كل طبق لوحة تختار فيها الحجم والإضافات وتكتب ملاحظاتك، ثم تطير نقطة إلى السلة، حيث تعدّل الكميات وتؤكد طلبك. ويمكنك عرض الأرقام هندية من الإعدادات.",
+  "palette": { "bg": "#f8f1e3", "surface": "#fffbf2", "text": "#2a2213", "muted": "#665b45", "accent": "#a5411d", "dark": false },
+  "poster": { "wait": 900 }, "days": 0, "weight": 4655
  }
 ]

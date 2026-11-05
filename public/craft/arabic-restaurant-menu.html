@@ -1,0 +1,863 @@
+<!doctype html>
+<!-- Arabic restaurant menu — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A right-to-left ordering screen for a phone: category tabs follow you down the menu, each dish opens a sheet
+     with sizes, extras, notes and a quantity, a dot flies to the basket bar, and the basket edits down to a confirmed order. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>بيت الزعتر — قائمة الطعام</title>
+<style>
+  :root {
+    --cream: #f8f1e3; --paper: #fffbf2; --tile: #efe4cb; --line: #e4d9c1; --line-2: #cfc2a4;
+    --ink: #2a2213; --soft: #665b45; --olive: #47521f; --olive-d: #333b15; --olive-soft: #e7e6c8; --on-olive: #d9dbb3;
+    --terra: #a5411d; --terra-d: #8b3515; --terra-soft: #f6e0d2;
+    --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --top: 44px; --tabs: 49px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--cream); color: var(--ink); font: 400 15px/1.5 var(--ar); font-variant-numeric: tabular-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  ul { list-style: none; }
+  svg { display: block; }
+  svg.i { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  :focus-visible { outline: 2px solid var(--terra); outline-offset: 2px; border-radius: 6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  [hidden] { display: none !important; }
+
+  .phone { position: relative; height: 100%; max-width: 430px; margin: 0 auto; overflow: hidden; overflow: clip; background: var(--cream); }
+  @media (min-width: 431px) { .phone { box-shadow: 0 0 0 1px var(--line); } }
+
+  .status { position: absolute; inset: 0 0 auto; height: var(--top); z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 6px 24px 0; background: var(--olive-d); color: #fbf6e6; font-size: 15px; font-weight: 600; pointer-events: none; }
+  .status .sig { display: flex; align-items: center; gap: 6px; direction: ltr; }
+  .status svg { fill: currentColor; }
+  .status time { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+
+  .menu { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
+  .menu::-webkit-scrollbar { display: none; }
+
+  /* ---------- header ---------- */
+  .hero { position: relative; background: var(--olive-d); color: #fbf6e6; padding: calc(var(--top) + 12px) 16px 56px; min-height: 244px; overflow: hidden; }
+  .hero .tilework { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero .arches { position: absolute; left: 12px; bottom: 44px; width: 168px; height: auto; }
+  .hero-copy { position: relative; width: calc(100% - 172px); }
+  h1 { font-size: 30px; line-height: 40px; font-weight: 800; letter-spacing: 0; white-space: nowrap; }
+  .tagline { font-size: 13.5px; line-height: 20px; color: var(--on-olive); margin-top: 2px; }
+  .hero-tools { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
+  .seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; flex: none; width: 134px; height: 36px; padding: 2px; background: rgba(255, 251, 242, .14); border-radius: 10px; }
+  .seg::before { content: ""; position: absolute; inset: 2px auto 2px 2px; width: calc(50% - 2px); background: var(--paper); border-radius: 8px; transform: translateX(100%); transition: transform .22s var(--ease); }
+  .seg[data-mode="pickup"]::before { transform: none; }
+  .seg button { position: relative; font-size: 13.5px; font-weight: 600; color: #fbf6e6; border-radius: 8px; transition: color .18s ease-out; }
+  .seg button[aria-pressed="true"] { color: var(--ink); }
+  .hero :focus-visible { outline-color: #fbf6e6; }
+  .gear { width: 36px; height: 36px; flex: none; border-radius: 10px; background: rgba(255, 251, 242, .14); display: grid; place-items: center; transition: background .15s ease-out; }
+  .gear:hover { background: rgba(255, 251, 242, .24); }
+  .gear svg.i { width: 20px; height: 20px; }
+
+  .facts { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1.15fr 1fr; margin: -36px 16px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+  .facts div { padding: 10px 8px 10px; text-align: center; min-width: 0; }
+  .facts div + div { border-inline-start: 1px solid var(--line); }
+  .facts b { display: flex; justify-content: center; align-items: center; gap: 4px; font-size: 16px; line-height: 22px; font-weight: 700; white-space: nowrap; }
+  .facts small { display: block; font-size: 12px; line-height: 16px; color: var(--soft); white-space: nowrap; }
+  .facts svg { width: 14px; height: 14px; fill: var(--terra); }
+
+  /* ---------- category tabs ---------- */
+  .tabs-wrap { position: sticky; top: var(--top); z-index: 4; background: var(--cream); margin-top: 8px; border-bottom: 1px solid var(--line); }
+  .tabs { position: relative; display: flex; gap: 4px; height: calc(var(--tabs) - 1px); padding: 0 12px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; padding: 0 10px; font-size: 15px; font-weight: 600; color: var(--soft); transition: color .18s ease-out; white-space: nowrap; }
+  .tab[aria-current="true"] { color: var(--ink); font-weight: 700; }
+  .tab:focus-visible { outline-offset: -4px; }
+  @media (hover: hover) {
+    .tab:hover { color: var(--ink); }
+    .dish:hover .mark:not(.on) { background: var(--olive); color: var(--paper); box-shadow: 0 0 0 1px var(--olive); }
+    .edit:hover, .where button:hover { color: var(--terra-d); }
+  }
+  .ink { position: absolute; bottom: 0; left: 0; height: 3px; width: 40px; border-radius: 3px 3px 0 0; background: var(--terra); pointer-events: none; }
+  .ready .ink { transition: transform .26s var(--ease), width .26s var(--ease); }
+
+  /* ---------- dishes ---------- */
+  .sec { padding: 20px 16px 4px; }
+  .sec h2 { font-size: 20px; line-height: 28px; font-weight: 800; }
+  .dish { display: grid; grid-template-columns: 1fr 92px; gap: 12px; width: 100%; padding: 12px 0 16px; text-align: start; align-items: start; transition: opacity .15s ease-out; }
+  .sec li + li { border-top: 1px solid var(--line); }
+  .sec li + li .dish { padding-top: 16px; }
+  .dish:active { opacity: .72; }
+  .dish:focus-visible { outline-offset: 2px; }
+  .dish .t { min-width: 0; display: block; }
+  .dish b { display: block; font-size: 16px; line-height: 24px; font-weight: 700; }
+  .dish small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13px; line-height: 20px; color: var(--soft); margin-top: 2px; }
+  .dish .p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 6px; font-size: 15px; line-height: 20px; font-weight: 700; color: var(--terra); }
+  .dish .p em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--olive); }
+  .art { position: relative; display: block; width: 92px; height: 92px; border-radius: 14px; background: var(--tile); }
+  .art svg { width: 100%; height: 100%; }
+  .mark { position: absolute; left: -4px; bottom: -4px; width: 28px; height: 28px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 1px var(--line-2); display: grid; place-items: center; font-size: 13px; font-weight: 700; font-style: normal; color: var(--olive); transition: background .18s ease-out, color .18s ease-out; }
+  .mark svg.i { width: 16px; height: 16px; stroke-width: 2.25; }
+  .mark.on { background: var(--terra); color: #fff; box-shadow: 0 0 0 2px var(--cream); }
+
+  .colophon { margin: 12px 0 0; padding: 16px 0 124px; border-top: 1px solid var(--line); font-size: 13px; line-height: 21px; color: var(--soft); }
+  .colophon b { display: block; color: var(--ink); font-weight: 700; margin-top: 8px; }
+  .colophon b:first-child { margin-top: 0; }
+  .sec:last-of-type { min-height: calc(100vh - var(--top) - var(--tabs)); }
+
+  /* ---------- basket bar ---------- */
+  .bar { position: absolute; inset: auto 16px 20px; z-index: 5; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; height: 60px; padding: 0 12px 0 16px; background: var(--terra); color: #fff; border-radius: 16px; text-align: start; box-shadow: 0 8px 18px -10px rgba(70, 26, 8, .65); transition: transform .26s var(--ease), opacity .18s ease-out, background .15s ease-out; }
+  .bar:hover { background: var(--terra-d); }
+  .bar.off { transform: translateY(90px); opacity: 0; pointer-events: none; visibility: hidden; }
+  .bar:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 16px; }
+  .bar .n { min-width: 36px; height: 36px; padding: 0 8px; border-radius: 10px; background: rgba(255, 255, 255, .18); display: grid; place-items: center; font-size: 16px; font-weight: 700; }
+  .bar .l { font-size: 16px; font-weight: 700; }
+  .bar .tot { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; }
+  .bar .tot svg.i { width: 20px; height: 20px; }
+
+  .fly { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--terra); box-shadow: 0 0 0 2px var(--paper); z-index: 20; pointer-events: none; }
+
+  /* ---------- sheets ---------- */
+  .scrim { position: absolute; inset: 0; z-index: 7; background: rgba(38, 30, 12, .5); opacity: 0; pointer-events: none; transition: opacity .22s ease-out; }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .sheet { position: absolute; inset: auto 0 0; z-index: 8; display: flex; flex-direction: column; max-height: calc(100% - var(--top) - 8px); background: var(--paper); border-radius: 20px 20px 0 0; transform: translateY(102%); visibility: hidden; transition: transform .3s var(--ease), visibility 0s .3s; }
+  .sheet.on { transform: none; visibility: visible; transition: transform .3s var(--ease), visibility 0s; }
+  .sheet.drag { transition: none; }
+  .grab { flex: none; height: 24px; display: grid; place-items: center; touch-action: none; cursor: grab; }
+  .grab::after { content: ""; width: 40px; height: 4px; border-radius: 2px; background: var(--line-2); }
+  .x { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; transition: background .15s ease-out; }
+  .x:hover { background: #f2e9d6; }
+  .x svg.i { width: 20px; height: 20px; }
+
+  /* dish sheet */
+  .dsheet .x { position: absolute; left: 24px; top: 32px; background: var(--paper); box-shadow: 0 0 0 1px var(--line); z-index: 1; }
+  .scrolly { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .scrolly::-webkit-scrollbar { display: none; }
+  .banner { display: grid; place-items: center; height: 128px; margin: 0 16px; border-radius: 16px; background: var(--tile); }
+  .banner svg { width: 112px; height: 112px; }
+  .dhead { padding: 16px 16px 4px; }
+  .dhead h3 { font-size: 22px; line-height: 30px; font-weight: 800; }
+  .dhead p { font-size: 14px; line-height: 22px; color: var(--soft); }
+  fieldset { border: 0; padding: 0 16px; margin-top: 16px; min-width: 0; }
+  legend { display: flex; justify-content: space-between; align-items: baseline; width: 100%; padding: 0 0 4px; font-size: 15px; font-weight: 700; }
+  legend small { font-size: 12.5px; font-weight: 400; color: var(--soft); }
+  .opt { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 0; cursor: pointer; }
+  .opt + .opt { border-top: 1px solid var(--line); }
+  .opt input { appearance: none; -webkit-appearance: none; flex: none; width: 22px; height: 22px; border: 1.5px solid var(--line-2); background: var(--paper); display: grid; place-items: center; cursor: pointer; transition: background .15s ease-out, border-color .15s ease-out; }
+  .opt input[type="radio"] { border-radius: 50%; }
+  .opt input[type="checkbox"] { border-radius: 6px; }
+  .opt input:checked { background: var(--olive); border-color: var(--olive); }
+  .opt input[type="radio"]:checked::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--paper); }
+  .opt input[type="checkbox"]:checked::after { content: ""; width: 10px; height: 5px; margin-top: -3px; border: solid var(--paper); border-width: 0 0 2px 2px; transform: rotate(-45deg); }
+  .opt span { flex: 1; font-size: 15px; }
+  .opt em { font-style: normal; font-size: 14px; color: var(--soft); white-space: nowrap; }
+  .notes { display: block; padding: 16px 16px 16px; }
+  .notes > span { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 700; }
+  .notes small { font-size: 12.5px; font-weight: 400; color: var(--soft); }
+  .notes textarea { display: block; width: 100%; height: 72px; margin-top: 8px; padding: 10px 12px; resize: none; border: 1px solid var(--line-2); border-radius: 12px; background: #fffdf8; font-size: 14px; line-height: 22px; transition: border-color .15s ease-out; }
+  .notes textarea::placeholder { color: #736850; }
+  .notes textarea:focus { outline: none; border-color: var(--olive); box-shadow: 0 0 0 1px var(--olive); }
+  .sfoot { flex: none; display: flex; gap: 12px; padding: 12px 16px 20px; border-top: 1px solid var(--line); background: var(--paper); }
+  .stepper { display: flex; align-items: center; flex: none; }
+  .stepper button { width: 44px; height: 48px; display: grid; place-items: center; border-radius: 12px; background: #f2e9d6; transition: background .15s ease-out, opacity .15s ease-out; }
+  .stepper button:hover:not(:disabled) { background: #e9dec6; }
+  .stepper button:disabled { opacity: .4; cursor: default; }
+  .stepper svg.i { width: 18px; height: 18px; stroke-width: 2.25; }
+  .stepper output { min-width: 36px; text-align: center; font-size: 17px; font-weight: 700; }
+  .cta { flex: 1; min-width: 0; height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-radius: 12px; background: var(--terra); color: #fff; font-size: 15.5px; font-weight: 700; white-space: nowrap; transition: background .15s ease-out; }
+  .cta:hover:not(:disabled) { background: var(--terra-d); }
+  .cta:disabled { background: #d8cdb6; color: #5e5440; cursor: not-allowed; }
+  .cta:focus-visible { outline-color: var(--ink); }
+
+  /* basket */
+  .bsheet { height: calc(100% - var(--top) - 8px); }
+  .bhead { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 8px 12px; }
+  .bhead h3 { font-size: 22px; line-height: 30px; font-weight: 800; }
+  .where { display: flex; align-items: flex-start; gap: 8px; margin: 0 16px; padding: 10px 12px; background: var(--olive-soft); border-radius: 12px; font-size: 13.5px; line-height: 20px; }
+  .where svg.i { width: 20px; height: 20px; color: var(--olive); }
+  .where div { flex: 1; min-width: 0; }
+  .where b { display: block; font-weight: 700; }
+  .where button { flex: none; align-self: center; min-height: 36px; padding: 0 8px; color: var(--olive-d); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; border-radius: 8px; }
+  .lines { padding: 8px 16px 0; }
+  .line { display: grid; grid-template-columns: 56px 1fr; gap: 12px; padding: 12px 0; }
+  .line + .line { border-top: 1px solid var(--line); }
+  .line .thumb { width: 56px; height: 56px; border-radius: 10px; background: var(--tile); }
+  .line .thumb svg { width: 100%; height: 100%; }
+  .line .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .line b { font-size: 15px; line-height: 22px; font-weight: 700; min-width: 0; }
+  .line .lp { flex: none; font-size: 15px; font-weight: 700; }
+  .line p { font-size: 12.5px; line-height: 18px; color: var(--soft); margin-top: 2px; overflow-wrap: anywhere; }
+  .line .ctl { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .mini { display: flex; align-items: center; border: 1px solid var(--line-2); border-radius: 10px; }
+  .mini button { width: 36px; height: 34px; display: grid; place-items: center; border-radius: 9px; transition: background .15s ease-out; }
+  .mini button:hover:not(:disabled) { background: #f2e9d6; }
+  .mini button:disabled { opacity: .35; cursor: default; }
+  .mini svg.i { width: 16px; height: 16px; stroke-width: 2.25; }
+  .mini .del { color: var(--terra); }
+  .mini output { min-width: 26px; text-align: center; font-weight: 700; font-size: 15px; }
+  .edit { min-height: 34px; padding: 0 4px; font-size: 13px; font-weight: 700; color: var(--olive-d); text-decoration: underline; text-underline-offset: 3px; border-radius: 6px; }
+  .more { display: flex; align-items: center; gap: 8px; margin: 0 16px; min-height: 44px; font-size: 14px; font-weight: 700; color: var(--terra); border-radius: 8px; }
+  .more svg.i { width: 18px; height: 18px; stroke-width: 2; }
+  .sums { margin: 8px 16px 0; padding: 12px 0 16px; border-top: 1px solid var(--line); font-size: 14px; }
+  .sums div { display: flex; justify-content: space-between; line-height: 28px; }
+  .sums dt { color: var(--soft); }
+  .sums dd { font-weight: 600; }
+  .sums .free { color: var(--olive); font-weight: 700; }
+  .meter { margin-top: 8px; font-size: 12.5px; line-height: 18px; color: var(--soft); }
+  .meter i { display: block; height: 4px; margin-bottom: 6px; border-radius: 2px; background: var(--line); overflow: hidden; }
+  .meter i b { display: block; height: 100%; width: 100%; background: var(--olive); border-radius: 2px; transform-origin: 100% 50%; transition: transform .3s var(--ease); }
+  .bfoot { flex: none; padding: 12px 16px 20px; border-top: 1px solid var(--line); background: var(--paper); }
+  .bfoot .tl { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-size: 16px; font-weight: 800; }
+  .bfoot .tl small { font-size: 12px; font-weight: 400; color: var(--soft); margin-inline-start: 6px; }
+  .bfoot .warn { font-size: 13px; line-height: 20px; color: var(--terra-d); margin-bottom: 8px; }
+  .bfoot .cta { width: 100%; justify-content: center; }
+  .blank, .done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px 32px 56px; }
+  .blank svg.art-b { width: 120px; height: 120px; margin-bottom: 12px; }
+  .blank h4, .done h4 { font-size: 20px; line-height: 28px; font-weight: 800; }
+  .blank p, .done p { color: var(--soft); font-size: 14px; line-height: 22px; margin-top: 4px; }
+  .pill-btn { margin-top: 16px; height: 44px; padding: 0 20px; border-radius: 12px; background: #f2e9d6; font-size: 14.5px; font-weight: 700; transition: background .15s ease-out; }
+  .pill-btn:hover { background: #e9dec6; }
+  .seal { width: 72px; height: 72px; margin-bottom: 16px; border-radius: 50%; background: var(--olive); color: #fffbf2; display: grid; place-items: center; animation: seal .34s var(--ease); }
+  .seal svg.i { width: 34px; height: 34px; stroke-width: 2.25; }
+  @keyframes seal { from { transform: scale(.7); opacity: 0; } }
+  .done dl { width: 100%; margin-top: 20px; padding: 4px 16px; background: var(--cream); border-radius: 14px; text-align: start; }
+  .done dl div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; font-size: 14px; line-height: 20px; }
+  .done dl div + div { border-top: 1px solid var(--line); }
+  .done dt { color: var(--soft); }
+  .done dd { font-weight: 700; }
+
+  /* settings */
+  .ssheet .bhead { padding-bottom: 4px; }
+  .ssheet p.hint { padding: 0 16px; font-size: 14px; color: var(--soft); }
+  .numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 28px; }
+  .numbers label { display: block; padding: 12px; border: 1px solid var(--line-2); border-radius: 12px; cursor: pointer; transition: border-color .15s ease-out, background .15s ease-out; }
+  .numbers label b { display: block; font-size: 20px; line-height: 28px; font-weight: 700; }
+  .numbers label small { font-size: 12.5px; color: var(--soft); }
+  .numbers label:has(input:checked) { border-color: var(--olive); box-shadow: inset 0 0 0 1px var(--olive); background: #f6f4e2; }
+  .numbers label:has(input:focus-visible) { outline: 2px solid var(--terra); outline-offset: 2px; }
+
+  .toast { position: absolute; inset: auto 16px 96px; z-index: 12; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 6px 16px 6px 8px; background: var(--ink); color: #fbf6e6; border-radius: 12px; font-size: 14px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s ease-out, transform .2s var(--ease); }
+  .toast.on { opacity: 1; transform: none; pointer-events: auto; }
+  .toast span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toast button { flex: none; height: 32px; padding: 0 8px; font-weight: 700; color: #f3c9a8; border-radius: 8px; }
+  .toast button:focus-visible { outline-color: #f3c9a8; }
+
+  @media (max-width: 374px) {
+    h1 { font-size: 26px; }
+    .hero .arches { width: 146px; }
+    .hero-copy { width: calc(100% - 152px); }
+    .seg { width: 118px; }
+    .facts small { font-size: 11.5px; }
+    .tagline { font-size: 13px; }
+    .cta { padding: 0 12px; gap: 4px; font-size: 15px; }
+    .stepper button { width: 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.500h5V7M6.500 7l1 13h9l1-13M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.100 7-11.500a7 7 0 0 0-14 0C5 14.900 12 21 12 21Z"/><circle cx="12" cy="9.500" r="2.500"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M4.500 10v10h15V10M3 10l2-6h14l2 6M3 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M10 20v-5h4v5"/></symbol>
+  </defs>
+</svg>
+
+<div class="phone" id="phone">
+  <div class="status" aria-hidden="true" data-raw>
+    <time>9:41</time>
+    <span class="sig">
+      <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="5" y="5.500" width="3" height="6.500" rx=".8"/><rect x="10" y="3" width="3" height="9" rx=".8"/><rect x="15" y="0" width="3" height="12" rx=".8"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" style="fill:none;stroke:currentColor;stroke-width:1.700;stroke-linecap:round"><path d="M1.500 4.200a10 10 0 0 1 14 0M4 6.900a6.500 6.500 0 0 1 9 0M6.500 9.500a3 3 0 0 1 4 0"/></svg>
+      <svg width="27" height="12" viewBox="0 0 27 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="16" height="8" rx="1.600"/><path d="M24 4v4c.8-.3 1.500-1.100 1.500-2S24.800 4.300 24 4Z" opacity=".6"/></svg>
+    </span>
+  </div>
+
+  <main class="menu" id="menu">
+    <header class="hero">
+      <svg class="tilework" aria-hidden="true"><defs><pattern id="star" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M22 4l5.300 12.700L40 22l-12.700 5.300L22 40l-5.300-12.700L4 22l12.700-5.300ZM22 10.500l-8.100 3.400L10.500 22l3.400 8.100L22 33.500l8.100-3.400 3.400-8.100-3.400-8.100Z" fill="none" stroke="#fffbf2" stroke-opacity=".075" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#star)"/></svg>
+      <svg class="arches" id="arches" viewBox="0 0 168 150" aria-hidden="true"></svg>
+      <div class="hero-copy">
+        <h1>بيت الزعتر</h1>
+        <p class="tagline">مطبخ شامي منزلي<br>جدة، حي الروضة</p>
+        <div class="hero-tools">
+          <div class="seg" id="seg" role="group" aria-label="طريقة الاستلام" data-mode="delivery">
+            <button type="button" data-mode="delivery" aria-pressed="true">توصيل</button>
+            <button type="button" data-mode="pickup" aria-pressed="false">استلام</button>
+          </div>
+          <button class="gear" id="gear" type="button" aria-label="الإعدادات"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
+        </div>
+      </div>
+    </header>
+    <div class="facts" aria-live="polite">
+      <div><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.700 5.800 6.300.8-4.600 4.400 1.200 6.300L12 17.200l-5.600 3.100 1.200-6.300L3 9.600l6.300-.8Z"/></svg>4.8</b><small>2,140 تقييمًا</small></div>
+      <div><b id="fTime">30 إلى 40</b><small id="fTimeL">دقيقة للتوصيل</small></div>
+      <div><b id="fFee">9 ر.س</b><small id="fFeeL">رسوم التوصيل</small></div>
+    </div>
+    <div class="tabs-wrap">
+      <nav class="tabs" id="tabs" aria-label="أقسام القائمة"><span class="ink" id="ink"></span></nav>
+    </div>
+    <div id="sections"></div>
+  </main>
+
+  <button class="bar off" id="bar" type="button">
+    <span class="n" id="barN">0</span>
+    <span class="l">عرض السلة</span>
+    <span class="tot"><span id="barT">0 ر.س</span><svg class="i" aria-hidden="true"><use href="#i-left"/></svg></span>
+  </button>
+
+  <div class="scrim" id="scrim"></div>
+
+  <section class="sheet dsheet" id="dsheet" role="dialog" aria-modal="true" aria-labelledby="dName" inert>
+    <div class="grab" aria-hidden="true"></div>
+    <button class="x" id="dClose" type="button" aria-label="إغلاق"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+    <form id="dForm" class="scrolly" novalidate></form>
+    <div class="sfoot">
+      <div class="stepper" role="group" aria-label="الكمية">
+        <button type="button" id="qMinus" aria-label="أنقص الكمية"><svg class="i" aria-hidden="true"><use href="#i-minus"/></svg></button>
+        <output id="qNum" aria-live="polite">1</output>
+        <button type="button" id="qPlus" aria-label="زد الكمية"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></button>
+      </div>
+      <button class="cta" id="dAdd" type="button"><span id="dAddL">أضف إلى السلة</span><span id="dAddT"></span></button>
+    </div>
+  </section>
+
+  <section class="sheet bsheet" id="bsheet" role="dialog" aria-modal="true" aria-labelledby="bTitle" inert>
+    <div class="grab" aria-hidden="true"></div>
+    <div class="bhead"><h3 id="bTitle">سلتك</h3><button class="x" id="bClose" type="button" aria-label="إغلاق السلة"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <div id="bBody" class="scrolly" style="display:flex;flex-direction:column"></div>
+    <div id="bFoot" class="bfoot"></div>
+  </section>
+
+  <section class="sheet ssheet" id="ssheet" role="dialog" aria-modal="true" aria-labelledby="sTitle" inert>
+    <div class="grab" aria-hidden="true"></div>
+    <div class="bhead"><h3 id="sTitle">الإعدادات</h3><button class="x" id="sClose" type="button" aria-label="إغلاق"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <p class="hint" id="numHint">كيف تفضّل أن تظهر الأرقام والأسعار؟</p>
+    <div class="numbers" role="radiogroup" aria-labelledby="numHint" data-raw>
+      <label><input class="sr" type="radio" name="digits" value="w" checked><b>1 2 3</b><small>أرقام غربية</small></label>
+      <label><input class="sr" type="radio" name="digits" value="a"><b>١ ٢ ٣</b><small>أرقام هندية</small></label>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status"><span id="toastM"></span><button id="toastU" type="button">تراجع</button></div>
+  <div class="sr" id="live" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var calm = matchMedia('(prefers-reduced-motion: reduce)');
+  var ic = function (n) { return '<svg class="i" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var SAR = function (n) { return String(n).replace(/\B(?=(\d{3})+$)/g, ',') + ' ر.س'; };
+  var plus = function (n) { return n ? '<bdi dir="ltr">+' + n + '</bdi> ر.س' : 'مجانًا'; };
+
+  /* ---------- drawn dishes: everything seen from above, on a 96 grid ---------- */
+  var C = function (x, y, r, f, s) { return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + f + '"' + (s ? ' ' + s : '') + '/>'; };
+  var E = function (x, y, a, b, rot, f, s) { return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + a + '" ry="' + b + '" fill="' + f + '"' + (rot ? ' transform="rotate(' + rot + ' ' + x + ' ' + y + ')"' : '') + (s ? ' ' + s : '') + '/>'; };
+  var R = function (x, y, w, h, r, rot, f, s) { return '<rect x="' + (x - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="' + r + '" fill="' + f + '"' + (rot ? ' transform="rotate(' + rot + ' ' + x + ' ' + y + ')"' : '') + (s ? ' ' + s : '') + '/>'; };
+  var P = function (d, f, s) { return '<path d="' + d + '" fill="' + (f || 'none') + '"' + (s ? ' ' + s : '') + '/>'; };
+  var ST = function (c, w) { return 'stroke="' + c + '" stroke-width="' + (w || 1.5) + '" stroke-linecap="round" stroke-linejoin="round"'; };
+  var plate = function () { return C(48, 48, 42, '#fffaf0', ST('#d9c9a6', 1)) + C(48, 48, 34.5, 'none', ST('#ebe0c7', 1)); };
+  var rng = function (seed) { return function () { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; };
+  function specks(seed, n, rad, cols, r0, r1, cx, cy) {
+    var r = rng(seed), o = ''; cx = cx || 48; cy = cy || 48;
+    for (var i = 0; i < n; i++) {
+      var a = r() * 6.283, d = Math.sqrt(r()) * rad, c = cols[Math.floor(r() * cols.length)];
+      o += C((cx + Math.cos(a) * d).toFixed(1), (cy + Math.sin(a) * d).toFixed(1), (r0 + r() * (r1 - r0)).toFixed(1), c);
+    }
+    return o;
+  }
+  var leaf = function (x, y, rot, f, l) { l = l || 7; return '<path transform="translate(' + x + ' ' + y + ') rotate(' + rot + ')" d="M0 0C' + l * .35 + ' ' + -l * .45 + ' ' + l * .8 + ' ' + -l * .35 + ' ' + l + ' 0C' + l * .8 + ' ' + l * .35 + ' ' + l * .35 + ' ' + l * .45 + ' 0 0Z" fill="' + (f || '#5f7a2a') + '"/>'; };
+  var lemon = function (x, y, rot) { return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ')"><path d="M-9 0A9 9 0 0 0 9 0Z" fill="#efc73f"/><path d="M-6.800 .8A6.800 6.800 0 0 0 6.800 .8Z" fill="#fbeaa0"/><path d="M0 .8V7M0 .8 -4.400 5.400M0 .8 4.400 5.400" stroke="#efc73f" stroke-width="1"/></g>'; };
+  var bread = function (f, e) { return C(48, 48, 40, e || '#c98f47') + C(48, 48, 37, '#e4b872') + (f ? C(48, 48, 31, f) : ''); };
+  var cube = function (x, y, rot, f) { return R(x, y, 13, 13, 3.5, rot, f || '#dd9c45') + P('M' + (x - 4) + ' ' + (y - 3) + 'l8 6M' + (x - 4) + ' ' + (y + 2) + 'l5 4', '', ST('#8a5518', 1.4)); };
+  var kofta = function (x, y, rot, l) { return '<g transform="rotate(' + rot + ' ' + x + ' ' + y + ')">' + R(x, y, l || 46, 11, 5.5, 0, '#7a4320') + P('M' + (x - 13) + ' ' + (y - 4) + 'v8M' + (x - 4) + ' ' + (y - 4) + 'v8M' + (x + 5) + ' ' + (y - 4) + 'v8M' + (x + 14) + ' ' + (y - 4) + 'v8', '', ST('#4b2811', 1.4)) + '</g>'; };
+  var chop = function (x, y, rot, s) { return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ') scale(' + (s || 1) + ')"><path d="M-2-5h24" stroke="#f4ead3" stroke-width="4" stroke-linecap="round"/><path d="M-20-4C-20-14-6-15 2-9 7-5 7 2 2 6-7 13-20 8-20-4Z" fill="#8a4a26"/><path d="M-14-6l10 7M-10-10l10 7" stroke="#5a2d13" stroke-width="1.500" stroke-linecap="round"/></g>'; };
+  var ART = {
+    hummus: function () { return plate() + C(48, 48, 29, '#e6c992') + P('M48 25a23 23 0 1 1-23 23 17 17 0 1 1 17 17', '', ST('#cda867', 2.2)) + C(48, 47, 9.5, '#b4a828') + C(45, 44, 2.3, '#d6cb56') + specks(3, 5, 5, ['#efddb0'], 2.6, 3) + specks(4, 16, 25, ['#a5411d'], .6, 1); },
+    mutabbal: function () { return plate() + C(48, 48, 29, '#c8a67c') + P('M26 47c5-14 19-20 30-14 9 5 12 16 7 24-6 8-18 9-24 3', '', ST('#a98457', 2.2)) + C(50, 48, 7, '#a59a28') + specks(9, 12, 24, ['#a12a39', '#b93b49'], 1.5, 2.1) + leaf(40, 52, 30) + leaf(58, 38, 160); },
+    warak: function () { var o = plate(), xy = [[33, 34, 20], [49, 31, 12], [64, 36, 24], [31, 50, 16], [47, 47, 20], [62, 52, 14], [38, 65, 22]]; xy.forEach(function (p) { o += R(p[0], p[1], 19, 11, 5.5, p[2], '#5d6a26') + P('M' + (p[0] - 7) + ' ' + p[1] + 'h14M' + (p[0] - 3) + ' ' + (p[1] - 5) + 'v10M' + (p[0] + 3) + ' ' + (p[1] - 5) + 'v10', '', ST('#434e18', 1) + ' transform="rotate(' + p[2] + ' ' + p[0] + ' ' + p[1] + ')"'); }); return o + lemon(62, 66, -28); },
+    kibbeh: function () { var o = plate(); [[35, 37, -30], [60, 34, 22], [33, 60, 28], [57, 58, -18]].forEach(function (p) { o += '<g transform="rotate(' + p[2] + ' ' + p[0] + ' ' + p[1] + ')"><path d="M' + (p[0] - 15) + ' ' + p[1] + 'C' + (p[0] - 8) + ' ' + (p[1] - 11) + ' ' + (p[0] + 8) + ' ' + (p[1] - 11) + ' ' + (p[0] + 15) + ' ' + p[1] + 'C' + (p[0] + 8) + ' ' + (p[1] + 11) + ' ' + (p[0] - 8) + ' ' + (p[1] + 11) + ' ' + (p[0] - 15) + ' ' + p[1] + 'Z" fill="#8b5122"/><path d="M' + (p[0] - 8) + ' ' + (p[1] - 3) + 'c5-4 11-4 15-1" stroke="#b47a3d" stroke-width="1.800" fill="none" stroke-linecap="round"/></g>'; }); return o + lemon(49, 76, 0) + leaf(44, 47, 20); },
+    zaatar: function () { return bread('#6c7430') + specks(21, 90, 30, ['#48501c', '#8c9345', '#565e23', '#a5411d'], .7, 1.5) + specks(5, 7, 38, ['#c98f47'], 1.4, 2.2); },
+    cheese: function () { return bread('#f7e7b8') + E(40, 42, 13, 9, 20, '#eecf85') + E(58, 56, 12, 9, -30, '#eecf85') + E(60, 34, 7, 5, 0, '#f2d995') + specks(12, 36, 28, ['#2a2213'], .6, 1); },
+    fatayer: function () { var o = plate(); [[37, 40, 0], [61, 42, 60], [48, 63, 120]].forEach(function (p) { o += '<g transform="rotate(' + p[2] + ' ' + p[0] + ' ' + p[1] + ')"><path d="M' + p[0] + ' ' + (p[1] - 16) + 'L' + (p[0] + 15) + ' ' + (p[1] + 10) + 'Q' + p[0] + ' ' + (p[1] + 14) + ' ' + (p[0] - 15) + ' ' + (p[1] + 10) + 'Z" fill="#dcab63" stroke="#c28d43" stroke-width="1.400" stroke-linejoin="round"/><path d="M' + p[0] + ' ' + (p[1] - 8) + 'V' + (p[1] + 9) + 'M' + p[0] + ' ' + (p[1] + 1) + 'L' + (p[0] - 8) + ' ' + (p[1] + 8) + 'M' + p[0] + ' ' + (p[1] + 1) + 'L' + (p[0] + 8) + ' ' + (p[1] + 8) + '" stroke="#b47e37" stroke-width="1.200" fill="none"/></g>'; }); return o; },
+    lahm: function () { return bread('#9d4b27') + specks(31, 44, 29, ['#6e2f15', '#b8622f', '#7f3b1c'], 1, 2) + specks(7, 8, 26, ['#f2e6c6'], 1.2, 1.7) + leaf(40, 44, 40, '#5f7a2a', 8) + leaf(58, 56, 200, '#5f7a2a', 8) + leaf(58, 36, 120, '#6d8a32', 6); },
+    taouk: function () { var o = plate() + P('M20 72 72 24', '', ST('#a98d60', 2)); [[30, 63], [40, 53.500], [50, 44.500], [60, 35]].forEach(function (p) { o += cube(p[0], p[1], -42); }); return o + C(66, 66, 11, '#fbf6e8', ST('#e3d7bb', 1)) + C(66, 66, 7, '#fdfbf2') + leaf(26, 34, 30) + leaf(34, 28, 60, '#6d8a32'); },
+    kofta: function () { return plate() + kofta(44, 37, -14) + kofta(48, 53, -14) + P('M60 69a7 7 0 1 1-1-.2M61 66a4 4 0 1 1-.5-.1', '', ST('#a1567a', 1.5)) + leaf(30, 68, 40) + leaf(38, 72, 10, '#6d8a32'); },
+    chops: function () { return plate() + chop(36, 34, 14) + chop(38, 52, -6) + chop(38, 70, -24, .85) + lemon(70, 42, 70); },
+    mixed: function () { return '<rect x="6" y="14" width="84" height="68" rx="20" fill="#fffaf0" stroke="#d9c9a6"/>' + cube(26, 34, -10) + cube(40, 30, 8) + cube(54, 34, -6) + kofta(44, 53, -3, 50) + chop(34, 69, 2, .75) + lemon(72, 32, 80) + leaf(70, 60, 30) + leaf(74, 66, 80, '#6d8a32') + C(68, 72, 5, '#fbf6e8', ST('#e3d7bb', 1)); },
+    fattoush: function () { var o = C(48, 48, 41, '#a5411d') + C(48, 48, 37, '#f6ecd6') + C(48, 48, 34, '#86a03f'), r = rng(44); for (var i = 0; i < 8; i++) { var a = i * .78, d = 14 + r() * 13; o += E((48 + Math.cos(a) * d).toFixed(1), (48 + Math.sin(a) * d).toFixed(1), 9, 6, Math.round(r() * 180), i % 2 ? '#a8bc57' : '#6f8a30'); } [[38, 36], [60, 58], [42, 62]].forEach(function (p) { o += C(p[0], p[1], 6.500, '#c7402b') + C(p[0], p[1], 3.500, '#e36f54'); }); [[60, 36], [33, 50]].forEach(function (p) { o += C(p[0], p[1], 6, '#dfe9b5', ST('#7c9a38', 1.2)); }); [[50, 48, 20], [66, 46, 70], [50, 30, 130], [32, 66, 10]].forEach(function (p) { o += P('M' + (p[0] - 6) + ' ' + (p[1] + 5) + 'L' + p[0] + ' ' + (p[1] - 6) + 'L' + (p[0] + 7) + ' ' + (p[1] + 4) + 'Z', '#dcab63', 'stroke="#b47e37" transform="rotate(' + p[2] + ' ' + p[0] + ' ' + p[1] + ')"'); }); return o + specks(8, 16, 30, ['#7d2a1a'], .6, 1); },
+    tabbouleh: function () { return C(48, 48, 41, '#47521f') + C(48, 48, 37, '#f6ecd6') + C(48, 48, 34, '#567025') + specks(17, 120, 33, ['#7f9a3a', '#3f561a', '#9ab34f', '#6a8530'], .9, 1.8) + specks(6, 14, 28, ['#c7402b', '#e0a84a'], 1.6, 2.6) + '<g transform="translate(64 34)">' + lemon(0, 0, -40) + '</g>'; },
+    beet: function () { var o = plate(); [[36, 40], [56, 34], [64, 52], [34, 60]].forEach(function (p, i) { o += C(p[0], p[1], 12.500, '#8a2a4c') + C(p[0], p[1], 8.500, 'none', ST('#a84a6a', 1.2)) + C(p[0], p[1], 4, 'none', ST('#a84a6a', 1)); }); return o + P('M42 58c-2-7 6-12 12-9s10 10 4 14-14 2-16-5Z', '#fdf9ec') + specks(14, 6, 7, ['#9a7040'], 1.4, 2, 50, 56) + leaf(48, 72, -20); },
+    knafeh: function () { var o = plate() + C(48, 48, 31, '#dc7f24'), r = rng(52); for (var i = 0; i < 44; i++) { var a = r() * 6.283, d = 6 + r() * 23, x = 48 + Math.cos(a) * d, y = 48 + Math.sin(a) * d; o += P('M' + x.toFixed(1) + ' ' + y.toFixed(1) + 'q' + (3 - r() * 6).toFixed(1) + ' ' + (3 - r() * 6).toFixed(1) + ' ' + (6 - r() * 12).toFixed(1) + ' ' + (2 - r() * 4).toFixed(1), '', ST(r() > .5 ? '#bb6010' : '#ef9d3f', 1.2)); } return o + specks(23, 26, 12, ['#7b9a35', '#94b04b', '#5f7a2a'], 1, 1.8); },
+    baklava: function () { var o = plate(); [[33, 37], [63, 37], [48, 28], [48, 48], [33, 59], [63, 59], [48, 69]].forEach(function (p) { if (p[1] === 69 || p[1] === 28) p[1] = p[1] === 28 ? 26 : 70; o += P('M' + p[0] + ' ' + (p[1] - 11) + 'L' + (p[0] + 14) + ' ' + p[1] + 'L' + p[0] + ' ' + (p[1] + 11) + 'L' + (p[0] - 14) + ' ' + p[1] + 'Z', '#d69c44', ST('#a97324', 1)) + P('M' + (p[0] - 8) + ' ' + p[1] + 'h16M' + (p[0] - 5) + ' ' + (p[1] - 3) + 'h10M' + (p[0] - 5) + ' ' + (p[1] + 3) + 'h10', '', ST('#b98331', .9)) + C(p[0], p[1], 2.2, '#6f8f32'); }); return o; },
+    mahalabia: function () { return C(48, 48, 40, '#a5411d') + C(48, 48, 36, '#c25d35') + C(48, 48, 32, '#fbf5e4') + C(48, 48, 15, '#d98b8f') + C(46, 46, 9, '#e3a6a6') + specks(33, 22, 13, ['#7b9a35', '#94b04b'], .8, 1.5) + leaf(62, 30, 40, '#6d8a32', 6); },
+    lemonade: function () { return C(48, 48, 36, '#f1eeb5', ST('#c2bd76', 2)) + R(36, 36, 14, 14, 3, 12, '#fbfad8', ST('#d9d48c', 1)) + R(62, 62, 13, 13, 3, 24, '#fbfad8', ST('#d9d48c', 1)) + C(58, 38, 12, '#efc73f') + C(58, 38, 9.500, '#fbeaa0') + P('M58 29v18M49 38h18M52 32l12 12M64 32 52 44', '', ST('#efc73f', 1)) + leaf(36, 58, 10, '#567025', 12) + leaf(36, 58, 70, '#6d8a32', 11) + leaf(36, 58, 130, '#567025', 10); },
+    tea: function () { return C(48, 48, 41, '#fffaf0', ST('#d9c9a6', 1)) + C(48, 48, 28, '#fffdf6', ST('#c9b78f', 1.5)) + C(48, 48, 24, '#a9561c') + C(44, 44, 12, '#bd6b2a', 'opacity=".6"') + leaf(46, 50, -30, '#567025', 12) + leaf(46, 50, 30, '#6d8a32', 11) + leaf(46, 50, 90, '#567025', 9) + P('M75 52h9', '', ST('#c9b78f', 3)); },
+    coffee: function () { return C(48, 48, 41, '#c79a4f') + C(48, 48, 37.500, '#dcb878') + C(33, 41, 13, '#fffaf0', ST('#a5411d', 1.5)) + C(33, 41, 9.500, '#5b3512') + C(63, 58, 13, '#fffaf0', ST('#a5411d', 1.5)) + C(63, 58, 9.500, '#5b3512') + E(60, 30, 4.500, 2.800, 30, '#7f9a3a') + E(68, 36, 4.500, 2.800, -20, '#6d8a32') + E(32, 66, 4.500, 2.800, 60, '#7f9a3a'); },
+    ayran: function () { return C(48, 48, 36, '#b9702f', ST('#8e5119', 2)) + C(48, 48, 31, '#fdfaf0') + E(42, 42, 12, 8, 30, '#f5efdc') + E(58, 56, 9, 6, -10, '#f5efdc') + specks(41, 18, 26, ['#5f7a2a', '#7f9a3a'], .7, 1.3) + leaf(58, 36, 200, '#567025', 10) + leaf(58, 36, 250, '#6d8a32', 9); }
+  };
+  var art = function (k) { return '<svg viewBox="0 0 96 96" aria-hidden="true">' + ART[k]() + '</svg>'; };
+
+  /* the three-arched window of an old Levantine house, with its hillside */
+  (function arches() {
+    var clip = 'M2 150V60C2 40 14 30 24 22 34 30 46 40 46 60V150ZM52 150V46C52 22 72 10 84 0 96 10 116 22 116 46V150ZM122 150V60C122 40 134 30 144 22 154 30 166 40 166 60V150Z';
+    var r = rng(19), trees = '';
+    [[28, 88, 16], [84, 78, 13], [142, 92, 18], [108, 96, 11], [60, 100, 11]].forEach(function (t) {
+      trees += '<path d="M' + t[0] + ' ' + (t[1] + t[2]) + 'v12" stroke="#4f3b1c" stroke-width="3" stroke-linecap="round"/>';
+      for (var i = 0; i < 5; i++) trees += C((t[0] + (r() - .5) * t[2] * 1.3).toFixed(1), (t[1] + (r() - .5) * t[2]).toFixed(1), (t[2] * (.42 + r() * .2)).toFixed(1), i % 2 ? '#5d6c2b' : '#6e7e35');
+    });
+    $('arches').innerHTML = '<defs><clipPath id="win"><path d="' + clip + '"/></clipPath></defs>' +
+      '<g clip-path="url(#win)"><rect width="168" height="150" fill="#f4dcaa"/>' + C(112, 40, 21, '#c9542a') +
+      '<path d="M0 74c28-16 52-14 80-4 28 10 56 6 88-12v92H0Z" fill="#a9ad62"/><path d="M0 102c34-14 62-8 92 0 30 8 52 2 76-10v58H0Z" fill="#7f8c3c"/>' + trees +
+      '<path d="M0 126c40-10 92-8 168-2v26H0Z" fill="#47521f"/></g>' +
+      '<path d="' + clip + '" fill="none" stroke="#f8f1e3" stroke-width="3" stroke-linejoin="round"/>' +
+      '<rect x="0" y="146" width="168" height="4" rx="2" fill="#f8f1e3"/>' +
+      '<path d="M84 0v18" stroke="#f8f1e3" stroke-width="1.500"/><path d="M78 18h12l2 10-8 7-8-7Z" fill="#c9542a" stroke="#f8f1e3" stroke-width="1.500" stroke-linejoin="round"/>';
+  })();
+
+  /* ---------- the menu ---------- */
+  var CATS = [
+    { id: 'mezze', name: 'مقبلات', sizes: [['للفرد', 0], ['للمشاركة', 10]], extras: [['خبز صاج طازج', 3], ['زيت زيتون بكر إضافي', 2], ['صنوبر محمّص', 6]], items: [
+      { id: 'hummus', name: 'حمّص بيروتي', desc: 'حمّص بالطحينة وزيت الزيتون والكمّون، يُقدّم دافئًا', price: 18, top: 1 },
+      { id: 'mutabbal', name: 'متبّل باذنجان', desc: 'باذنجان مشوي على الفحم مع طحينة ودبس رمّان', price: 20 },
+      { id: 'warak', name: 'ورق عنب', desc: 'ملفوف باليد بالأرز والليمون، ست حبّات', price: 24 },
+      { id: 'kibbeh', name: 'كبّة مقلية', desc: 'برغل ولحم وصنوبر، أربع قطع مع ليمون', price: 28 }
+    ] },
+    { id: 'manaqish', name: 'مناقيش', sizes: [['عادية', 0], ['عائلية', 8]], extras: [['طماطم ونعناع', 3], ['زيتون أسود', 3], ['جبنة عكاوي إضافية', 5]], items: [
+      { id: 'zaatar', name: 'منقوشة زعتر', desc: 'زعتر بلدي وسمّاق وزيت زيتون على عجينة الفرن', price: 12, top: 1 },
+      { id: 'cheese', name: 'منقوشة جبنة', desc: 'عكاوي وموزاريلا مع حبّة البركة', price: 16 },
+      { id: 'lahm', name: 'لحم بعجين', desc: 'لحم مفروم وطماطم ودبس رمّان وصنوبر', price: 19 },
+      { id: 'fatayer', name: 'فطاير سبانخ', desc: 'سبانخ وبصل وسمّاق، ثلاث قطع', price: 15 }
+    ] },
+    { id: 'grill', name: 'مشاوي', sizes: [['حصة فرد', 0], ['حصة مضاعفة', 30]], extras: [['ثومية', 3], ['بطاطا مقلية', 8], ['مخلّلات مشكّلة', 4], ['خبز على الفحم', 2]], items: [
+      { id: 'taouk', name: 'شيش طاووق', desc: 'دجاج متبّل باللبن والثوم، يُقدّم مع الثومية', price: 42, top: 1 },
+      { id: 'kofta', name: 'كفتة مشوية', desc: 'لحم بقري وبقدونس وبصل على أسياخ الفحم', price: 46 },
+      { id: 'chops', name: 'ريش غنم', desc: 'أربع قطع على الفحم مع بهارات البيت', price: 78 },
+      { id: 'mixed', name: 'مشاوي مشكّلة', desc: 'طاووق وكفتة وريش تكفي شخصين', price: 125 }
+    ] },
+    { id: 'salad', name: 'سلطات', sizes: [['صغير', 0], ['كبير', 8]], extras: [['حلّوم مشوي', 10], ['دجاج مشوي', 12], ['الصلصة على جنب', 0]], items: [
+      { id: 'fattoush', name: 'فتّوش', desc: 'خضار طازجة وخبز محمّص وسمّاق ودبس رمّان', price: 22 },
+      { id: 'tabbouleh', name: 'تبّولة', desc: 'بقدونس مفروم باليد وبرغل وطماطم وليمون', price: 22 },
+      { id: 'beet', name: 'شمندر باللبنة', desc: 'شرائح شمندر مشوي مع لبنة وجوز', price: 24 }
+    ] },
+    { id: 'sweet', name: 'حلويات', sizes: [['حصة فرد', 0], ['للمشاركة', 14]], extras: [['قشطة بلدية', 6], ['بوظة بالمستكة', 8], ['فستق إضافي', 5]], items: [
+      { id: 'knafeh', name: 'كنافة نابلسية', desc: 'جبنة وقطر وفستق حلبي، تصلك ساخنة', price: 26, top: 1 },
+      { id: 'baklava', name: 'بقلاوة', desc: 'سبع قطع محشوة بالفستق والجوز', price: 24 },
+      { id: 'mahalabia', name: 'مهلّبية', desc: 'حليب بماء الورد وفستق مطحون', price: 16 }
+    ] },
+    { id: 'drink', name: 'مشروبات', sizes: [['كوب', 0], ['إبريق', 15]], extras: [['نعناع زيادة', 0], ['بلا سكر', 0], ['عسل بدل السكر', 3]], items: [
+      { id: 'lemonade', name: 'ليموناضة بالنعناع', desc: 'ليمون معصور الآن ونعناع وقليل من السكر', price: 14 },
+      { id: 'tea', name: 'شاي بالنعناع', desc: 'شاي أسود مغلي على مهل مع نعناع طازج', price: 9 },
+      { id: 'coffee', name: 'قهوة عربية', desc: 'بالهيل، تكفي شخصين', price: 15 },
+      { id: 'ayran', name: 'عيران', desc: 'لبن بارد مخفوق بالنعناع المجفّف', price: 8 }
+    ] }
+  ];
+  var DISH = {}, CAT_OF = {};
+  CATS.forEach(function (c) { c.items.forEach(function (d) { DISH[d.id] = d; CAT_OF[d.id] = c; }); });
+
+  /* ---------- state ---------- */
+  var cart = [], mode = 'delivery', orderNo = 4821, FEE = 9, FREE_AT = 150, MIN_ORDER = 30;
+  var lineKey = function (l) { return [l.dish, l.size, l.extras.slice().sort().join('+'), l.note].join('|'); };
+  var unit = function (l) { var c = CAT_OF[l.dish]; return DISH[l.dish].price + c.sizes[l.size][1] + l.extras.reduce(function (s, e) { return s + c.extras[e][1]; }, 0); };
+  var subtotal = function () { return cart.reduce(function (s, l) { return s + unit(l) * l.qty; }, 0); };
+  var count = function () { return cart.reduce(function (s, l) { return s + l.qty; }, 0); };
+  var fee = function () { return mode === 'pickup' || subtotal() >= FREE_AT ? 0 : FEE; };
+  var etaText = function () { return mode === 'pickup' ? '15 إلى 20 دقيقة' : '30 إلى 40 دقيقة'; };
+  cart.push({ dish: 'hummus', size: 0, extras: [], note: '', qty: 1 }, { dish: 'zaatar', size: 0, extras: [], note: '', qty: 2 });
+
+  /* ---------- rendering the menu ---------- */
+  var secs = [], tabEls = [];
+  CATS.forEach(function (c, i) {
+    var t = document.createElement('button');
+    t.className = 'tab'; t.type = 'button'; t.textContent = c.name; t.dataset.i = i;
+    $('tabs').appendChild(t); tabEls.push(t);
+    var s = document.createElement('section');
+    s.className = 'sec'; s.id = 'sec-' + c.id; s.setAttribute('aria-labelledby', 'h-' + c.id);
+    s.innerHTML = '<h2 id="h-' + c.id + '">' + c.name + '</h2><ul>' + c.items.map(function (d) {
+      return '<li><button class="dish" type="button" data-dish="' + d.id + '"><span class="t"><b>' + d.name + '</b><small>' + d.desc + '</small><span class="p">' + SAR(d.price) + (d.top ? '<em>الأكثر طلبًا</em>' : '') + '</span></span><span class="art">' + art(d.id) + '<i class="mark" aria-hidden="true"></i></span></button></li>';
+    }).join('') + '</ul>' + (i === CATS.length - 1 ? '<div class="colophon"><b>إن كانت لديك حساسية</b>تحتوي أطباقنا على السمسم والقمح والمكسّرات ومنتجات الألبان. اكتب لنا في ملاحظات الطبق وسنهتم بالأمر.<b>ساعات العمل</b>يوميًا من 11 صباحًا حتى 1 بعد منتصف الليل. الأسعار شاملة ضريبة القيمة المضافة.</div>' : '');
+    $('sections').appendChild(s); secs.push(s);
+  });
+
+  function paintMarks() {
+    [].forEach.call(document.querySelectorAll('.dish'), function (b) {
+      var d = DISH[b.dataset.dish], n = cart.reduce(function (s, l) { return s + (l.dish === d.id ? l.qty : 0); }, 0), m = b.querySelector('.mark');
+      m.classList.toggle('on', n > 0);
+      m.innerHTML = n ? n : ic('plus');
+      b.setAttribute('aria-label', d.name + '، ' + SAR(d.price) + '. ' + d.desc + (n ? '. في سلتك ' + n : ''));
+    });
+  }
+  function paintBar(bump) {
+    var n = count(), bar = $('bar');
+    $('barN').textContent = n; $('barT').textContent = SAR(subtotal());
+    bar.classList.toggle('off', n === 0);
+    bar.setAttribute('aria-label', 'عرض السلة، ' + n + ' أصناف، المجموع ' + SAR(subtotal()));
+    if (bump && !calm.matches && bar.animate) bar.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }, { transform: 'scale(1)' }], { duration: 240, easing: 'ease-out' });
+  }
+  function paintMode() {
+    var p = mode === 'pickup';
+    $('seg').dataset.mode = mode;
+    [].forEach.call($('seg').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+    $('fTime').textContent = p ? '15 إلى 20' : '30 إلى 40';
+    $('fTimeL').textContent = p ? 'دقيقة حتى يجهز' : 'دقيقة للتوصيل';
+    $('fFee').textContent = p ? 'بلا رسوم' : SAR(FEE);
+    $('fFeeL').textContent = p ? 'استلام من المطعم' : 'رسوم التوصيل';
+  }
+
+  /* ---------- tabs and scroll-spy ---------- */
+  var menu = $('menu'), tabsEl = $('tabs'), current = -1, spyLock = 0;
+  function setActive(i, smooth) {
+    if (i === current) return;
+    current = i;
+    tabEls.forEach(function (t, k) { if (k === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); });
+    placeInk();
+    var t = tabEls[i], left = t.offsetLeft - (tabsEl.clientWidth - t.offsetWidth) / 2;
+    tabsEl.scrollTo({ left: left, behavior: smooth && !calm.matches ? 'smooth' : 'auto' });
+  }
+  function placeInk() {
+    if (current < 0) return;
+    var t = tabEls[current];
+    $('ink').style.width = (t.offsetWidth - 12) + 'px';
+    $('ink').style.transform = 'translateX(' + (t.offsetLeft + 6) + 'px)';
+  }
+  function spyLine() { return document.querySelector('.tabs-wrap').offsetHeight + 44 + 12; }
+  function spy() {
+    if (spyLock) return;
+    var y = menu.scrollTop + spyLine(), i = 0;
+    secs.forEach(function (s, k) { if (s.offsetTop <= y) i = k; });
+    if (menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 2) i = secs.length - 1;
+    setActive(i, true);
+  }
+  var ticking = false;
+  menu.addEventListener('scroll', function () {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(function () { ticking = false; spy(); });
+  }, { passive: true });
+  function goTo(i) {
+    setActive(i, true);
+    clearTimeout(spyLock);
+    spyLock = setTimeout(function () { spyLock = 0; spy(); }, calm.matches ? 60 : 620);
+    menu.scrollTo({ top: secs[i].offsetTop - spyLine() + 12, behavior: calm.matches ? 'auto' : 'smooth' });
+  }
+  tabsEl.addEventListener('click', function (e) { var t = e.target.closest('.tab'); if (t) goTo(+t.dataset.i); });
+  tabsEl.addEventListener('keydown', function (e) {
+    var d = { ArrowLeft: 1, ArrowRight: -1 }[e.key], i;
+    if (e.key === 'Home') i = 0; else if (e.key === 'End') i = tabEls.length - 1; else if (d) i = (tabEls.indexOf(document.activeElement) + d + tabEls.length) % tabEls.length; else return;
+    e.preventDefault(); tabEls[i].focus({ preventScroll: true }); goTo(i);
+  });
+
+  /* ---------- sheets ---------- */
+  var openEl = null, returnTo = null;
+  var backdrop = [$('menu'), $('bar')];
+  function showSheet(el, from, focusEl) {
+    if (openEl && openEl !== el) hideSheet(openEl, true);
+    openEl = el; returnTo = from || returnTo;
+    el.inert = false; el.style.transform = '';
+    el.classList.add('on'); $('scrim').classList.add('on');
+    backdrop.forEach(function (b) { b.inert = true; });
+    setTimeout(function () { (focusEl || el.querySelector('.x')).focus({ preventScroll: true }); }, calm.matches ? 0 : 40);
+  }
+  function hideSheet(el, keep) {
+    el.classList.remove('on'); el.inert = true; el.style.transform = '';
+    if (keep) return;
+    openEl = null;
+    $('scrim').classList.remove('on');
+    backdrop.forEach(function (b) { b.inert = false; });
+    var r = returnTo; returnTo = null;
+    if (r && r.isConnected && !r.closest('[inert]') && !r.classList.contains('off')) r.focus({ preventScroll: true });
+    else if (count()) $('bar').focus({ preventScroll: true });
+    else document.querySelector('.dish').focus({ preventScroll: true });
+  }
+  function closeOpen() {
+    if (!openEl) return;
+    if (openEl === $('dsheet') && editing) { var b = editing; editing = null; backToBasket(b); return; }
+    if (openEl === $('bsheet') && confirmed) { finishOrder(); return; }
+    hideSheet(openEl);
+  }
+  $('scrim').addEventListener('click', closeOpen);
+  ['dClose', 'bClose', 'sClose'].forEach(function (id) { $(id).addEventListener('click', closeOpen); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openEl) { e.preventDefault(); closeOpen(); return; }
+    if (e.key !== 'Tab' || !openEl) return;
+    var f = [].filter.call(openEl.querySelectorAll('button,input,textarea'), function (x) { return !x.disabled && (x.offsetParent !== null || x.classList.contains('sr')) && x.tabIndex >= 0; });
+    if (!f.length) return;
+    if (f.indexOf(document.activeElement) < 0) { e.preventDefault(); f[0].focus(); return; }
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+
+  /* pull a sheet down by its handle */
+  var gd = null;
+  document.addEventListener('pointerdown', function (e) {
+    var g = e.target.closest && e.target.closest('.grab');
+    if (!g || e.button) return;
+    var sh = g.parentNode;
+    gd = { sh: sh, y: e.clientY, id: e.pointerId, dy: 0, t: e.timeStamp };
+    sh.classList.add('drag');
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!gd || e.pointerId !== gd.id) return;
+    gd.dy = Math.max(0, e.clientY - gd.y);
+    gd.sh.style.transform = 'translateY(' + gd.dy + 'px)';
+  });
+  function endGrab(e) {
+    if (!gd || e.pointerId !== gd.id) return;
+    var g = gd; gd = null;
+    g.sh.classList.remove('drag'); g.sh.style.transform = '';
+    if (g.dy > 96 || (g.dy > 24 && g.dy / Math.max(1, e.timeStamp - g.t) > .6)) closeOpen();
+  }
+  document.addEventListener('pointerup', endGrab);
+  document.addEventListener('pointercancel', endGrab);
+
+  /* ---------- the dish sheet ---------- */
+  var active = null, editing = null, qty = 1;
+  function openDish(id, from, line) {
+    var d = DISH[id], c = CAT_OF[id], f = $('dForm');
+    active = id; qty = line ? line.qty : 1;
+    f.innerHTML =
+      '<div class="banner">' + art(id) + '</div>' +
+      '<div class="dhead"><h3 id="dName">' + d.name + '</h3><p>' + d.desc + '</p></div>' +
+      '<fieldset><legend>الحجم <small>اختر واحدًا</small></legend>' + c.sizes.map(function (s, i) {
+        return '<label class="opt"><input type="radio" name="size" value="' + i + '"' + ((line ? line.size === i : !i) ? ' checked' : '') + '><span>' + s[0] + '</span><em>' + (s[1] ? plus(s[1]) : SAR(d.price)) + '</em></label>';
+      }).join('') + '</fieldset>' +
+      '<fieldset><legend>إضافات <small>اختياري</small></legend>' + c.extras.map(function (x, i) {
+        return '<label class="opt"><input type="checkbox" name="extra" value="' + i + '"' + (line && line.extras.indexOf(i) >= 0 ? ' checked' : '') + '><span>' + x[0] + '</span><em>' + plus(x[1]) + '</em></label>';
+      }).join('') + '</fieldset>' +
+      '<label class="notes"><span>ملاحظات للمطبخ <small id="nCount">0 من 120</small></span><textarea id="note" maxlength="120" placeholder="مثلًا: بدون بصل، والطحينة على جنب"></textarea></label>';
+    f.scrollTop = 0;
+    if (line) $('note').value = line.note;
+    $('dAddL').textContent = line ? 'حفظ التعديل' : 'أضف إلى السلة';
+    paintDish();
+    showSheet($('dsheet'), from);
+  }
+  function readDish() {
+    var f = $('dForm');
+    return {
+      dish: active,
+      size: +f.querySelector('[name=size]:checked').value,
+      extras: [].map.call(f.querySelectorAll('[name=extra]:checked'), function (x) { return +x.value; }),
+      note: $('note').value.trim(),
+      qty: qty
+    };
+  }
+  function paintDish() {
+    var l = readDish();
+    $('qNum').textContent = qty;
+    $('qMinus').disabled = qty <= 1; $('qPlus').disabled = qty >= 20;
+    $('dAddT').textContent = SAR(unit(l) * qty);
+    $('nCount').textContent = $('note').value.length + ' من 120';
+  }
+  $('dForm').addEventListener('input', paintDish);
+  $('dForm').addEventListener('submit', function (e) { e.preventDefault(); });
+  $('qMinus').addEventListener('click', function () { if (qty > 1) qty--; paintDish(); if ($('qMinus').disabled) $('qPlus').focus(); });
+  $('qPlus').addEventListener('click', function () { if (qty < 20) qty++; paintDish(); if ($('qPlus').disabled) $('qMinus').focus(); });
+  $('sections').addEventListener('click', function (e) { var b = e.target.closest('.dish'); if (b) openDish(b.dataset.dish, b); });
+
+  function addLine(l) {
+    var k = lineKey(l), same = cart.find(function (x) { return lineKey(x) === k; });
+    if (same) same.qty = Math.min(20, same.qty + l.qty); else cart.push(l);
+  }
+  function fly(from) {
+    if (calm.matches || !from.animate) { paintBar(true); return; }
+    var box = $('phone').getBoundingClientRect(), a = from.getBoundingClientRect(), bar = $('bar'), n = $('barN');
+    var x0 = a.left + a.width / 2 - box.left, y0 = a.top + a.height / 2 - box.top, x1 = bar.offsetLeft + n.offsetLeft + n.offsetWidth / 2, y1 = bar.offsetTop + n.offsetTop + n.offsetHeight / 2;
+    var dot = document.createElement('i'); dot.className = 'fly'; $('phone').appendChild(dot);
+    var an = dot.animate([
+      { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(1)', opacity: 1 },
+      { transform: 'translate(' + (x0 + x1) / 2 + 'px,' + (Math.min(y0, y1) - 70) + 'px) scale(1.1)', opacity: 1, offset: .5 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(.5)', opacity: .9 }
+    ], { duration: 440, easing: 'cubic-bezier(.3,.1,.5,1)' });
+    an.onfinish = function () { dot.remove(); paintBar(true); };
+  }
+  $('dAdd').addEventListener('click', function () {
+    if (openEl !== $('dsheet')) return;
+    var l = readDish(), name = DISH[l.dish].name;
+    if (editing) {
+      var i = cart.indexOf(editing.line); if (i >= 0) cart.splice(i, 1);
+      addLine(l);
+      var e = editing; editing = null;
+      paintMarks(); paintBar();
+      backToBasket(e);
+      return;
+    }
+    var from = $('dAdd'), rect = { getBoundingClientRect: function () { return r; }, animate: true }, r = from.getBoundingClientRect();
+    barQuietUntil = performance.now() + 450;
+    addLine(l);
+    paintMarks();
+    $('barN').textContent = Math.max(0, count() - l.qty); /* the dot lands, then the count ticks */
+    $('bar').classList.remove('off');
+    hideSheet($('dsheet'));
+    $('live').textContent = 'أضيف ' + name + ' إلى السلة';
+    fly(rect);
+  });
+
+  /* ---------- the basket ---------- */
+  var confirmed = false;
+  function renderBasket() {
+    var body = $('bBody'), foot = $('bFoot');
+    $('bTitle').textContent = confirmed ? 'طلبك' : 'سلتك';
+    if (confirmed) {
+      foot.hidden = false;
+      body.innerHTML = '<div class="done"><span class="seal">' + ic('check') + '</span><h4>وصل طلبك إلى المطبخ</h4><p>' + (mode === 'pickup' ? 'سيكون جاهزًا للاستلام خلال ' : 'سيصلك خلال ') + etaText() + '، وسنرسل لك رسالة عندما يخرج.</p>' +
+        '<dl><div><dt>رقم الطلب</dt><dd><bdi dir="ltr" data-raw>#' + orderNo + '</bdi></dd></div><div><dt>المبلغ</dt><dd>' + SAR(lastTotal) + '، الدفع عند ' + (mode === 'pickup' ? 'الاستلام' : 'التوصيل') + '</dd></div></dl></div>';
+      foot.innerHTML = '<button class="cta" id="again" type="button">بدء طلب جديد</button>';
+      return;
+    }
+    if (!cart.length) {
+      foot.hidden = true;
+      body.innerHTML = '<div class="blank"><svg class="art-b" viewBox="0 0 96 96" aria-hidden="true">' + plate() + '<path d="M38 67C42 55 48 45 57 34" fill="none" stroke="#8c9455" stroke-width="1.4" stroke-linecap="round"/>' +
+        [[41, 59, 9], [44.5, 51, 9], [49, 44, 8], [53, 38.500, 7]].map(function (q) { return leaf(q[0], q[1], -118, '#8c9455', q[2]) + leaf(q[0], q[1], -6, '#a3aa6c', q[2]); }).join('') + leaf(57, 34, -52, '#8c9455', 8) + '</svg><h4>سلتك فارغة</h4><p>ابدأ بمنقوشة زعتر طازجة، أو تصفّح القائمة على مهلك.</p><button class="pill-btn" id="browse" type="button">العودة إلى القائمة</button></div>';
+      return;
+    }
+    foot.hidden = false;
+    var sub = subtotal(), fe = fee(), left = FREE_AT - sub, p = mode === 'pickup';
+    body.innerHTML =
+      '<div class="where">' + ic(p ? 'store' : 'pin') + '<div><b>' + (p ? 'الاستلام من بيت الزعتر' : 'التوصيل إلى البيت') + '</b>' + (p ? 'شارع صاري، حي الروضة، جدة' : 'شارع الأمير سلطان، حي الروضة') + '</div><button type="button" id="swap">' + (p ? 'أفضّل التوصيل' : 'أفضّل الاستلام') + '</button></div>' +
+      '<ul class="lines">' + cart.map(function (l, i) {
+        var c = CAT_OF[l.dish], bits = [c.sizes[l.size][0]].concat(l.extras.map(function (e) { return c.extras[e][0]; })), k = esc(lineKey(l));
+        return '<li class="line" data-i="' + i + '"><span class="thumb">' + art(l.dish) + '</span><div>' +
+          '<div class="top"><b>' + DISH[l.dish].name + '</b><span class="lp">' + SAR(unit(l) * l.qty) + '</span></div>' +
+          '<p>' + bits.join('، ') + '</p>' + (l.note ? '<p>«' + esc(l.note) + '»</p>' : '') +
+          '<div class="ctl"><div class="mini" role="group" aria-label="كمية ' + DISH[l.dish].name + '">' +
+            '<button type="button" data-act="dec" class="' + (l.qty === 1 ? 'del' : '') + '" aria-label="' + (l.qty === 1 ? 'احذف ' + DISH[l.dish].name : 'أنقص الكمية') + '">' + ic(l.qty === 1 ? 'trash' : 'minus') + '</button>' +
+            '<output>' + l.qty + '</output>' +
+            '<button type="button" data-act="inc" aria-label="زد الكمية"' + (l.qty >= 20 ? ' disabled' : '') + '>' + ic('plus') + '</button>' +
+          '</div><button type="button" class="edit" data-act="edit" aria-label="عدّل ' + DISH[l.dish].name + '">تعديل</button></div></div></li>';
+      }).join('') + '</ul>' +
+      '<button type="button" class="more" id="more">' + ic('plus') + 'أضف طبقًا آخر</button>' +
+      '<dl class="sums"><div><dt>المجموع الفرعي</dt><dd>' + SAR(sub) + '</dd></div><div><dt>' + (p ? 'الاستلام' : 'رسوم التوصيل') + '</dt><dd class="' + (fe ? '' : 'free') + '">' + (fe ? SAR(fe) : 'مجانًا') + '</dd></div>' +
+      (p ? '' : '<p class="meter"><i><b style="transform:scaleX(' + Math.min(1, sub / FREE_AT).toFixed(3) + ')"></b></i>' + (left > 0 ? 'أضف ' + SAR(left) + ' ويصبح التوصيل مجانيًا' : 'وصلت إلى حد التوصيل المجاني') + '</p>') + '</dl>';
+    var low = !p && sub < MIN_ORDER;
+    foot.innerHTML = '<div class="tl"><span>الإجمالي<small>شامل الضريبة 15%</small></span><span>' + SAR(sub + fe) + '</span></div>' +
+      (low ? '<p class="warn" id="lowNote">الحد الأدنى للتوصيل ' + SAR(MIN_ORDER) + '. أضف ' + SAR(MIN_ORDER - sub) + ' لإتمام الطلب، أو اختر الاستلام.</p>' : '') +
+      '<button class="cta" id="place" type="button"' + (low ? ' disabled aria-describedby="lowNote"' : '') + '>تأكيد الطلب</button>';
+  }
+  function openBasket(from) { confirmed = false; renderBasket(); $('bBody').scrollTop = 0; showSheet($('bsheet'), from); }
+  var barQuietUntil = 0; /* the bar sits right under the Add button: a double tap on Add must not open the basket */
+  $('bar').addEventListener('click', function (e) { if (e.timeStamp < barQuietUntil) return; openBasket($('bar')); });
+  function backToBasket(e) {
+    hideSheet($('dsheet'), true);
+    renderBasket();
+    $('bBody').scrollTop = e.scroll;
+    showSheet($('bsheet'), null, $('bBody').querySelectorAll('.edit')[e.idx] || $('bBody').querySelector('.edit'));
+  }
+  var undoFn = null, toastT = 0;
+  function toast(msg, undo) {
+    clearTimeout(toastT);
+    $('toastM').textContent = msg; undoFn = undo;
+    $('toastU').hidden = !undo;
+    var foot = $('bFoot');
+    $('toast').style.bottom = openEl === $('bsheet') && !foot.hidden ? foot.offsetHeight + 8 + 'px' : '';
+    $('toast').classList.add('on');
+    toastT = setTimeout(hideToast, undo ? 5000 : 2200);
+  }
+  function hideToast() { $('toast').classList.remove('on'); undoFn = null; }
+  $('toastU').addEventListener('click', function () { var f = undoFn; hideToast(); if (f) f(); });
+
+  function refocusLine(i, sel) {
+    var li = $('bBody').querySelectorAll('.line')[i] || [].slice.call($('bBody').querySelectorAll('.line')).pop();
+    var t = (li && li.querySelector(sel + ':not(:disabled)')) || (li && li.querySelector('[data-act="inc"]')) || $('bBody').querySelector('#browse') || $('bClose');
+    t.focus({ preventScroll: true });
+  }
+  $('bBody').addEventListener('click', function (e) {
+    var a = e.target.closest('[data-act]');
+    if (a) {
+      var i = +a.closest('.line').dataset.i, l = cart[i], sc = $('bBody').scrollTop;
+      if (a.dataset.act === 'inc') { l.qty = Math.min(20, l.qty + 1); after(i, '[data-act="inc"]', sc); }
+      else if (a.dataset.act === 'dec') {
+        if (l.qty > 1) { l.qty--; after(i, '[data-act="dec"]', sc); }
+        else {
+          cart.splice(i, 1); after(i, '[data-act="dec"]', sc);
+          toast('حذفنا ' + DISH[l.dish].name, function () {
+            cart.splice(Math.min(i, cart.length), 0, l);
+            after(i, '[data-act="dec"]', sc);
+          });
+        }
+      } else if (a.dataset.act === 'edit') {
+        editing = { line: l, scroll: sc, idx: i };
+        hideSheet($('bsheet'), true);
+        openDish(l.dish, null, l);
+      }
+      return;
+    }
+    if (e.target.closest('#swap')) { mode = mode === 'pickup' ? 'delivery' : 'pickup'; paintMode(); renderBasket(); $('swap').focus({ preventScroll: true }); return; }
+    if (e.target.closest('#more') || e.target.closest('#browse')) closeOpen();
+  });
+  function after(i, sel, sc) { paintMarks(); paintBar(); renderBasket(); $('bBody').scrollTop = sc; refocusLine(i, sel); }
+  var lastTotal = 0;
+  $('bFoot').addEventListener('click', function (e) {
+    if (e.target.closest('#place') && !e.target.closest('#place').disabled) {
+      lastTotal = subtotal() + fee();
+      confirmed = true;
+      hideToast();
+      renderBasket(); $('bBody').scrollTop = 0;
+      $('again').focus({ preventScroll: true });
+      $('live').textContent = 'وصل طلبك إلى المطبخ، رقم الطلب ' + orderNo;
+    }
+    if (e.target.closest('#again')) finishOrder();
+  });
+  /* however the confirmation is dismissed, the order is placed: the basket starts clean */
+  function finishOrder() {
+    cart = []; confirmed = false; orderNo++;
+    paintMarks(); paintBar();
+    hideSheet($('bsheet'));
+    menu.scrollTo({ top: 0, behavior: calm.matches ? 'auto' : 'smooth' });
+    $('seg').querySelector('[aria-pressed="true"]').focus({ preventScroll: true });
+  }
+
+  /* ---------- delivery or pickup ---------- */
+  $('seg').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || b.dataset.mode === mode) return;
+    mode = b.dataset.mode; paintMode();
+  });
+
+  /* ---------- settings: Western or Arabic-Indic digits, everywhere ---------- */
+  var indic = false, W = '0123456789', A = '٠١٢٣٤٥٦٧٨٩';
+  function flip(s) {
+    return indic ? s.replace(/[0-9]/g, function (d) { return A[+d]; }).replace(/(\S),(\S)/g, function (m, a, b) { return /[٠-٩]/.test(a + b) ? a + '٬' + b : m; }).replace(/([٠-٩])\.([٠-٩])/g, '$1٫$2').replace(/([٠-٩])%/g, '$1٪')
+      : s.replace(/[٠-٩]/g, function (d) { return W[A.indexOf(d)]; }).replace(/٬/g, ',').replace(/٫/g, '.').replace(/٪/g, '%');
+  }
+  function flipTree(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) {
+      var p = n.parentNode;
+      if (p.closest('[data-raw]') || p.closest('svg') || p.tagName === 'TEXTAREA') continue;
+      var t = flip(n.nodeValue);
+      if (t !== n.nodeValue) n.nodeValue = t;
+    }
+  }
+  new MutationObserver(function (list) {
+    if (!indic) return;
+    list.forEach(function (m) {
+      if (m.type === 'characterData') { var p = m.target.parentNode; if (p && !p.closest('[data-raw]') && !p.closest('svg')) { var t = flip(m.target.nodeValue); if (t !== m.target.nodeValue) m.target.nodeValue = t; } }
+      else [].forEach.call(m.addedNodes, function (a) { if (a.nodeType === 1) flipTree(a); else if (a.nodeType === 3 && a.parentNode) flipTree(a.parentNode); });
+    });
+  }).observe($('phone'), { subtree: true, childList: true, characterData: true });
+  $('gear').addEventListener('click', function () { showSheet($('ssheet'), $('gear'), document.querySelector('[name=digits]:checked')); });
+  $('ssheet').addEventListener('change', function (e) {
+    if (e.target.name !== 'digits') return;
+    indic = e.target.value === 'a';
+    flipTree($('phone'));
+    placeInk();
+  });
+
+  /* ---------- go ---------- */
+  paintMarks(); paintBar(); paintMode();
+  setActive(0, false);
+  $('bar').style.transition = 'none'; void $('bar').offsetHeight; $('bar').style.transition = '';
+  requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add('ready'); }); });
+  addEventListener('resize', function () { placeInk(); });
+})();
+</script>
+</body>
+</html>

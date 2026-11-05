@@ -1,0 +1,1075 @@
+<!doctype html>
+<!-- Property search — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Homes for sale beside a hand-drawn city map: listings and price pins answer each other on hover,
+     a pin opens a little card, filters and sort reflow both, and the map pans to search where you look. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Keystone — Homes for sale in Larkhaven</title>
+<style>
+  :root {
+    --bg: #f6f3ec; --surface: #ffffff; --raise: #efebe2; --line: #e2dccf; --line-2: #d3ccbc;
+    --ink: #1d2320; --soft: #5c625d; --dim: #6f746f; --brick: #b4462a; --brick-ink: #8f3218; --green: #2f5d46;
+    --land: #ece6d8; --water: #b5ced0; --water-2: #9fbfc2; --park: #ccd8b4; --park-2: #b9c99d; --street: #fbf8f1; --major: #ffffff; --casing: #d9cfba;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --r: 10px; --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); font-variant-numeric: tabular-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button, input, select { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  svg { display: block; }
+  .i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  :focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .app { display: grid; grid-template-rows: 64px auto 1fr; height: 100svh; }
+
+  /* header */
+  .top { display: flex; align-items: center; gap: 24px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .brand svg { width: 28px; height: 28px; }
+  .search { position: relative; display: flex; align-items: center; gap: 10px; width: min(440px, 100%); height: 40px; padding: 0 12px 0 14px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); transition: border-color .15s, box-shadow .15s; }
+  .search:focus-within { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(29, 35, 32, .08); }
+  .search .i { color: var(--soft); }
+  .search input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font-size: 14px; }
+  .search input::placeholder { color: var(--dim); }
+  .search .x { display: none; width: 24px; height: 24px; border-radius: 50%; place-items: center; color: var(--soft); }
+  .search .x:hover { background: var(--raise); color: var(--ink); }
+  .search.has .x { display: grid; }
+  .search .x .i { width: 14px; height: 14px; }
+  .top-r { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .savedbtn { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; font-weight: 600; transition: background .15s; }
+  .savedbtn:hover { background: var(--raise); }
+  .savedbtn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .savedbtn .n { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--raise); color: var(--ink); font-size: 12px; display: grid; place-items: center; transition: transform .25s var(--ease); }
+  .savedbtn[aria-pressed="true"] .n { background: #fff; }
+  .savedbtn .n.bump { transform: scale(1.25); }
+  .me { width: 36px; height: 36px; border-radius: 50%; background: #d8e2d9; color: var(--green); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+
+  /* filters */
+  .filters { position: relative; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .f { position: relative; }
+  .fbtn { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 14px; border: 1px solid var(--line-2); border-radius: 999px; font-weight: 500; white-space: nowrap; transition: background .15s, border-color .15s, color .15s; }
+  .fbtn:hover { border-color: var(--ink); }
+  .fbtn .i { width: 16px; height: 16px; transition: transform .2s var(--ease); }
+  .fbtn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .fbtn.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .fsep { width: 1px; height: 24px; background: var(--line); margin: 0 4px; }
+  .fsep:has(+ .clear[hidden]) { display: none; }
+  .clear { height: 36px; padding: 0 8px; color: var(--brick-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .clear[hidden] { display: none; }
+  .savesearch { margin-left: auto; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--brick); color: #fff; font-weight: 600; transition: background .15s; }
+  .savesearch:hover { background: var(--brick-ink); }
+  .savesearch[aria-pressed="true"] { background: var(--green); }
+  .savesearch .i { width: 16px; height: 16px; }
+
+  .pop { position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; width: 320px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 40px -16px rgba(30, 28, 20, .28), 0 2px 6px rgba(30, 28, 20, .05);
+    opacity: 0; transform: translateY(-4px); visibility: hidden; transition: opacity .16s var(--ease), transform .16s var(--ease), visibility 0s .16s; }
+  .pop.open { opacity: 1; transform: none; visibility: visible; transition: opacity .16s var(--ease), transform .16s var(--ease); }
+  .pop h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .pop .sub { color: var(--soft); font-size: 13px; margin-bottom: 16px; }
+  .pop .go { width: 100%; height: 40px; margin-top: 20px; border-radius: 8px; background: var(--ink); color: #fff; font-weight: 600; }
+  .pop .go:hover { background: #000; }
+  .pop .go:disabled { background: var(--raise); color: var(--soft); cursor: default; }
+  .hist { display: flex; align-items: flex-end; gap: 3px; height: 56px; padding: 0 9px; }
+  .hist i { flex: 1; min-height: 3px; border-radius: 2px 2px 0 0; background: var(--ink); transition: background .15s; }
+  .hist i.off { background: var(--line-2); }
+  .dual { position: relative; height: 24px; margin-top: -2px; }
+  .dual .track { position: absolute; left: 9px; right: 9px; top: 11px; height: 2px; background: var(--line-2); border-radius: 2px; }
+  .dual .fill { position: absolute; top: 0; height: 2px; background: var(--ink); }
+  .dual input { position: absolute; inset: 0; width: 100%; height: 24px; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; outline: none; }
+  .dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); cursor: grab; }
+  .dual input::-moz-range-thumb { pointer-events: auto; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 1.5px solid var(--ink); cursor: grab; }
+  .dual input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--brick); outline-offset: 2px; }
+  .dual input::-webkit-slider-runnable-track { background: none; }
+  .ends { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 14px; }
+  .ends div { padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 8px; }
+  .ends small { display: block; color: var(--soft); font-size: 11.5px; }
+  .ends b { font-weight: 600; }
+  .ends span { color: var(--dim); }
+  .lbl { display: block; font-weight: 600; font-size: 13px; margin: 0 0 8px; }
+  .lbl + .seg { margin-bottom: 16px; }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; }
+  .seg button { height: 36px; font-weight: 500; border-left: 1px solid var(--line-2); transition: background .15s, color .15s; }
+  .seg button:first-child { border-left: 0; }
+  .seg button:hover { background: var(--raise); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .checks { display: grid; gap: 2px; }
+  .check { display: flex; align-items: center; gap: 12px; padding: 8px 4px; border-radius: 6px; cursor: pointer; }
+  .check:hover { background: var(--bg); }
+  .check input { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border: 1.5px solid var(--line-2); border-radius: 5px; display: grid; place-items: center; flex: none; transition: background .12s, border-color .12s; cursor: pointer; }
+  .check input:checked { background: var(--ink); border-color: var(--ink); }
+  .check input:checked::after { content: ""; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
+  .check span { flex: 1; }
+  .check small { color: var(--soft); font-size: 13px; }
+  .pop select { width: 100%; height: 38px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface); margin-bottom: 14px; }
+  .pop hr { border: 0; border-top: 1px solid var(--line); margin: 8px 0 12px; }
+
+  /* body */
+  .main { display: grid; grid-template-columns: minmax(0, 56%) 1fr; min-height: 0; }
+  .listcol { overflow-y: auto; overscroll-behavior: contain; padding: 20px 24px 40px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+  .lhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; line-height: 1.25; }
+  .count { color: var(--soft); font-size: 13.5px; margin-top: 2px; }
+  .sort { display: flex; align-items: center; gap: 8px; color: var(--soft); font-size: 13.5px; white-space: nowrap; }
+  .sort select { height: 34px; padding: 0 30px 0 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d2320' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 8px center / 16px; -webkit-appearance: none; appearance: none; color: var(--ink); font-weight: 500; cursor: pointer; }
+  .cards { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
+  .card { position: relative; transition: transform .32s var(--ease), opacity .32s var(--ease); }
+  .card[hidden] { display: none; }
+  .ph { position: relative; aspect-ratio: 16 / 10; border-radius: var(--r); overflow: hidden; background: var(--raise); box-shadow: inset 0 0 0 1px rgba(0,0,0,.04); }
+  .ph svg { width: 100%; height: 100%; transition: transform .45s var(--ease); }
+  .card:hover .ph svg, .card.hot .ph svg { transform: scale(1.03); }
+  .card .ring { position: absolute; inset: -6px; border-radius: 14px; border: 1.5px solid transparent; pointer-events: none; transition: border-color .15s; }
+  .card.hot .ring { border-color: var(--ink); }
+  .tag { position: absolute; left: 10px; top: 10px; height: 24px; padding: 0 9px; border-radius: 6px; background: var(--surface); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .tag.cut { color: var(--brick-ink); }
+  .tag.new { color: var(--green); }
+  .heart { position: absolute; right: 8px; top: 8px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.92); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.1); transition: transform .15s var(--ease), background .15s; }
+  .heart:hover { background: #fff; transform: scale(1.06); }
+  .heart:active { transform: scale(.92); }
+  .heart .i { width: 18px; height: 18px; stroke-width: 1.9; transition: fill .15s, stroke .15s; }
+  .heart[aria-pressed="true"] .i { fill: var(--brick); stroke: var(--brick); }
+  .heart.pop1 .i { animation: beat .35s var(--ease); }
+  @keyframes beat { 40% { transform: scale(1.3); } }
+  .cbody { padding: 12px 2px 0; }
+  .prow { display: flex; align-items: baseline; gap: 8px; }
+  .price { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+  .was { color: var(--soft); font-size: 13px; text-decoration: line-through; }
+  .specs { display: flex; gap: 6px; color: var(--ink); font-size: 13.5px; margin-top: 2px; }
+  .specs span + span::before { content: "·"; margin-right: 6px; color: var(--dim); }
+  .addr { margin-top: 2px; font-size: 13.5px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .addr a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .addr a:focus-visible { outline: none; }
+  .card:has(.addr a:focus-visible) .ring { border-color: var(--brick); }
+  .addr a { color: var(--ink); font-weight: 500; }
+  .empty { display: none; padding: 64px 24px; text-align: center; border: 1px dashed var(--line-2); border-radius: 14px; }
+  .empty.on { display: block; }
+  .empty svg { width: 64px; height: 64px; margin: 0 auto 16px; }
+  .empty b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .empty p { color: var(--soft); max-width: 340px; margin: 0 auto; }
+  .empty button { margin-top: 16px; height: 38px; padding: 0 16px; border-radius: 8px; background: var(--ink); color: #fff; font-weight: 600; }
+  .listfoot { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--soft); font-size: 12.5px; }
+
+  /* map */
+  .mapwrap { position: relative; overflow: hidden; overflow: clip; background: var(--land); border-left: 1px solid var(--line); }
+  .view { position: absolute; inset: 0; z-index: 0; overflow: hidden; overflow: clip; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+  .view.drag { cursor: grabbing; }
+  .view:focus-visible { outline: 2px solid var(--brick); outline-offset: -3px; }
+  .world { position: absolute; left: 0; top: 0; width: 2400px; height: 2400px; transform-origin: 0 0; will-change: transform; }
+  .world svg { width: 2400px; height: 2400px; }
+  .pins { position: absolute; inset: 0; pointer-events: none; }
+  .glide .world { transition: transform .35s var(--ease); }
+  .glide .pin { transition: left .35s var(--ease), top .35s var(--ease), transform .2s var(--ease), background .15s, color .15s, opacity .2s; }
+  .pin { position: absolute; left: 0; top: 0; z-index: 1; display: block; padding: 4px 9px; border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 12.5px; font-weight: 700; line-height: 1.45; white-space: nowrap; pointer-events: auto;
+    transform: translate(-50%, calc(-100% - 6px)); box-shadow: 0 1px 2px rgba(40, 32, 16, .22), 0 0 0 1px rgba(40, 32, 16, .1); transition: transform .2s var(--ease), background .15s, color .15s, opacity .2s; }
+  .pin::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 8px; height: 8px; margin-left: -4px; background: inherit; transform: rotate(45deg); border-radius: 0 0 2px 0; box-shadow: 1px 1px 0 rgba(40, 32, 16, .1); }
+  .pin.seen { color: var(--dim); }
+  .pin.saved { padding-left: 22px; }
+  .pin.saved::before { content: ""; position: absolute; left: 8px; top: 50%; width: 10px; height: 10px; margin-top: -5px; background: var(--brick); clip-path: path("M5 9.4 1.2 5.6A2.3 2.3 0 0 1 5 2.6a2.3 2.3 0 0 1 3.8 3z"); }
+  .pin:hover, .pin.hot, .pin:focus-visible { z-index: 5; background: var(--ink); color: #fff; transform: translate(-50%, calc(-100% - 10px)) scale(1.08); }
+  .pin.sel { z-index: 6; background: var(--brick); color: #fff; transform: translate(-50%, calc(-100% - 10px)) scale(1.08); }
+  .pin:hover.saved::before, .pin.hot.saved::before, .pin.sel.saved::before, .pin:focus-visible.saved::before { background: #fff; }
+  .pin:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--brick); }
+  .pin.out { opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, calc(-100% + 2px)) scale(.6); }
+
+  .mtools { position: absolute; left: 16px; top: 16px; display: flex; gap: 8px; align-items: center; pointer-events: none; }
+  .mtools > * { pointer-events: auto; }
+  .chip { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 14px 0 12px; background: var(--surface); border-radius: 999px; box-shadow: 0 1px 3px rgba(40, 32, 16, .16), 0 0 0 1px rgba(40, 32, 16, .06); font-weight: 600; font-size: 13.5px; cursor: pointer; user-select: none; }
+  .sw { position: relative; width: 32px; height: 18px; border-radius: 999px; background: var(--line-2); transition: background .18s; flex: none; }
+  .sw::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .18s var(--ease); }
+  #moveSearch { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  #moveSearch:checked + .sw { background: var(--green); }
+  #moveSearch:checked + .sw::after { transform: translateX(14px); }
+  .chip:has(#moveSearch:focus-visible) { outline: 2px solid var(--brick); outline-offset: 2px; }
+  .here { position: absolute; left: 50%; top: 16px; transform: translate(-50%, -8px); opacity: 0; visibility: hidden; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; font-size: 13.5px; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); transition: opacity .2s var(--ease), transform .2s var(--ease), visibility 0s .2s; }
+  .here.on { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .here .i { width: 16px; height: 16px; }
+  .zoom { position: absolute; right: 16px; top: 16px; display: grid; background: var(--surface); border-radius: 10px; box-shadow: 0 1px 3px rgba(40, 32, 16, .16), 0 0 0 1px rgba(40, 32, 16, .06); overflow: hidden; }
+  .zoom button { width: 38px; height: 38px; display: grid; place-items: center; transition: background .15s; }
+  .zoom button + button { border-top: 1px solid var(--line); }
+  .zoom button:hover { background: var(--bg); }
+  .zoom button:disabled { color: var(--line-2); cursor: default; background: none; }
+  .scale { position: absolute; left: 16px; bottom: 16px; display: flex; align-items: flex-end; gap: 8px; font-size: 11.5px; font-weight: 600; color: #5d5647; }
+  .scale i { display: block; height: 6px; border: 1.5px solid #5d5647; border-top: 0; transition: width .2s; }
+  .mapnote { position: absolute; right: 16px; bottom: 16px; font-size: 11.5px; color: #5d5647; background: rgba(236, 230, 216, .85); padding: 2px 6px; border-radius: 4px; }
+
+  .mini { position: absolute; left: 0; top: 0; z-index: 8; width: 272px; background: var(--surface); border-radius: 12px; box-shadow: 0 18px 40px -14px rgba(30, 24, 10, .45), 0 0 0 1px rgba(40, 32, 16, .08);
+    opacity: 0; visibility: hidden; transform: translateY(6px) scale(.97); transform-origin: var(--ox, 50%) 100%; transition: opacity .18s var(--ease), transform .2s var(--ease), visibility 0s .2s; }
+  .mini.below { transform-origin: var(--ox, 50%) 0; }
+  .mini.on { opacity: 1; visibility: visible; transform: none; transition: opacity .18s var(--ease), transform .2s var(--ease); }
+  .mini .mph { position: relative; height: 136px; border-radius: 12px 12px 0 0; overflow: hidden; }
+  .mini .mph svg { width: 100%; height: 100%; }
+  .mini .sun { display: none; }
+  .mini .mb { position: relative; padding: 10px 14px 14px; }
+  .mini .price { font-size: 17px; }
+  .mini .heart { top: 8px; right: 52px; width: 34px; height: 34px; }
+  .mini .shut { position: absolute; right: 10px; top: 8px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.92); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+  .mini .shut:hover { background: #fff; }
+  .mini .shut .i { width: 16px; height: 16px; }
+  .mini .arrow { position: absolute; left: var(--ax, 50%); bottom: -6px; width: 12px; height: 12px; margin-left: -6px; background: var(--surface); transform: rotate(45deg); box-shadow: 1px 1px 0 rgba(40, 32, 16, .08); }
+  .mini.below .arrow { bottom: auto; top: -6px; box-shadow: -1px -1px 0 rgba(40, 32, 16, .08); }
+  .mini .view-home { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13px; color: var(--soft); }
+  .mini .view-home a { color: var(--brick-ink); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .mini .view-home a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .mini .view-home .i { width: 14px; height: 14px; }
+
+  .toast { position: fixed; left: 24px; bottom: 24px; z-index: 60; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 13.5px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.4); opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .toast.on { opacity: 1; transform: none; }
+  .toast .i { color: #9fd4b7; }
+  .mapbtn { display: none; }
+
+  @media (max-width: 1180px) {
+    .savesearch span { display: none; }
+    .savesearch { padding: 0 10px; }
+  }
+  @media (max-width: 899px) {
+    .main { grid-template-columns: 1fr; }
+    .mapwrap { position: fixed; inset: 0; z-index: 40; border: 0; visibility: hidden; opacity: 0; transform: translateY(12px); transition: opacity .22s var(--ease), transform .22s var(--ease), visibility 0s .22s; }
+    .mapopen .mapwrap { visibility: visible; opacity: 1; transform: none; transition: opacity .22s var(--ease), transform .22s var(--ease); }
+    .mapbtn { position: fixed; left: 50%; bottom: 20px; z-index: 50; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; box-shadow: 0 10px 24px -10px rgba(0,0,0,.55); }
+    .mapbtn .i { width: 18px; height: 18px; }
+    .listcol { padding-bottom: 96px; }
+    .mini { position: absolute; left: 12px !important; right: 12px; top: auto !important; bottom: 76px; width: auto; display: grid; grid-template-columns: 132px 1fr; transform-origin: 50% 100%; }
+    .mini .mph { height: auto; min-height: 120px; border-radius: 12px 0 0 12px; }
+    .mini .arrow { display: none; }
+    .mini .heart { right: auto; left: 92px; top: 8px; }
+    .mini .shut { top: 8px; right: 8px; }
+    .mini .mb { padding-right: 44px; }
+    .mini .view-home span { display: none; }
+    .scale { bottom: 84px; } .mapnote { display: none; }
+    .toast { left: 16px; right: 16px; bottom: 80px; }
+  }
+  @media (max-width: 720px) {
+    .top { gap: 12px; padding: 0 16px; }
+    .app { grid-template-rows: auto auto 1fr; }
+    .top { flex-wrap: wrap; padding: 12px 16px; row-gap: 10px; }
+    .search { order: 3; width: 100%; }
+    .savedbtn .lab { display: none; }
+    .filters { padding: 10px 16px; gap: 6px; }
+    .fsep { display: none; }
+    .fbtn { padding: 0 10px 0 12px; height: 34px; }
+    .savesearch { margin-left: 0; height: 34px; }
+    .listcol { padding: 16px 16px 96px; }
+    .pop { position: fixed; left: 16px !important; right: 16px; width: auto; top: auto; }
+    .mtools .chip { height: 36px; font-size: 13px; }
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+    .count .upd { display: none; }
+    .lhead { align-items: center; }
+    h1 { font-size: 17px; }
+    .sort .sl { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5 4.2 12.8a4.9 4.9 0 0 1 7.8-5.9 4.9 4.9 0 0 1 7.8 5.9z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r=".6"/><circle cx="4.5" cy="12" r=".6"/><circle cx="4.5" cy="17.5" r=".6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" id="app">
+  <header class="top">
+    <a class="brand" href="#" id="home" aria-label="Keystone Homes, home">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#1d2320"/><path d="M7 21v-6.5a7 7 0 0 1 14 0V21" fill="none" stroke="#f6f3ec" stroke-width="2.2"/><path d="M12 6.4h4l-.9 5h-2.2z" fill="#d9774f"/></svg>
+      Keystone
+    </a>
+    <label class="search" id="searchBox">
+      <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+      <span class="sr">Search by street or neighbourhood</span>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Street, neighbourhood or type in Larkhaven">
+      <button class="x" id="qx" type="button" aria-label="Clear search"><svg class="i"><use href="#i-x"/></svg></button>
+    </label>
+    <div class="top-r">
+      <button class="savedbtn" id="savedBtn" aria-pressed="false">
+        <svg class="i" aria-hidden="true"><use href="#i-heart"/></svg><span class="lab">Saved</span><span class="n" id="savedN">2</span>
+      </button>
+      <span class="me" aria-label="Signed in as Noor Haddad" role="img">NH</span>
+    </div>
+  </header>
+
+  <div class="filters" id="filters">
+    <div class="f">
+      <button class="fbtn" data-pop="price" aria-expanded="false" aria-controls="pop-price"><span class="v">Price</span><svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <div class="pop" id="pop-price" role="dialog" aria-label="Price range">
+        <h2>Price range</h2>
+        <p class="sub">Homes listed across Larkhaven this month</p>
+        <div class="hist" id="hist" aria-hidden="true"></div>
+        <div class="dual">
+          <div class="track"><div class="fill" id="pfill"></div></div>
+          <input type="range" id="pmin" min="0" max="20" step="1" value="0" aria-label="Minimum price">
+          <input type="range" id="pmax" min="0" max="20" step="1" value="20" aria-label="Maximum price">
+        </div>
+        <div class="ends"><div><small>Minimum</small><b id="pminL">No min</b></div><span>–</span><div><small>Maximum</small><b id="pmaxL">No max</b></div></div>
+        <button class="go" data-close>Show homes</button>
+      </div>
+    </div>
+    <div class="f">
+      <button class="fbtn" data-pop="rooms" aria-expanded="false" aria-controls="pop-rooms"><span class="v">Beds &amp; baths</span><svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <div class="pop" id="pop-rooms" role="dialog" aria-label="Bedrooms and bathrooms">
+        <span class="lbl" id="bedsL">Bedrooms</span>
+        <div class="seg" role="group" aria-labelledby="bedsL" id="beds"><button data-v="0" aria-pressed="true">Any</button><button data-v="1" aria-pressed="false">1+</button><button data-v="2" aria-pressed="false">2+</button><button data-v="3" aria-pressed="false">3+</button><button data-v="4" aria-pressed="false">4+</button></div>
+        <span class="lbl" id="bathsL">Bathrooms</span>
+        <div class="seg" role="group" aria-labelledby="bathsL" id="baths"><button data-v="0" aria-pressed="true">Any</button><button data-v="1" aria-pressed="false">1+</button><button data-v="2" aria-pressed="false">2+</button><button data-v="3" aria-pressed="false">3+</button></div>
+        <button class="go" data-close>Show homes</button>
+      </div>
+    </div>
+    <div class="f">
+      <button class="fbtn" data-pop="type" aria-expanded="false" aria-controls="pop-type"><span class="v">Home type</span><svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <div class="pop" id="pop-type" role="dialog" aria-label="Home type" style="width:280px">
+        <h2>Home type</h2>
+        <p class="sub">Pick any mix</p>
+        <div class="checks" id="types"></div>
+        <button class="go" data-close>Show homes</button>
+      </div>
+    </div>
+    <div class="f">
+      <button class="fbtn" data-pop="more" aria-expanded="false" aria-controls="pop-more"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg><span class="v">More filters</span></button>
+      <div class="pop" id="pop-more" role="dialog" aria-label="More filters">
+        <label class="lbl" for="minArea">Minimum floor area</label>
+        <select id="minArea"><option value="0">Any size</option><option value="800">800 sq ft or more</option><option value="1200">1,200 sq ft or more</option><option value="1800">1,800 sq ft or more</option><option value="2500">2,500 sq ft or more</option></select>
+        <span class="lbl">Must have</span>
+        <div class="checks">
+          <label class="check"><input type="checkbox" data-more="garden"><span>Private garden</span><small id="c-garden"></small></label>
+          <label class="check"><input type="checkbox" data-more="parking"><span>Off-street parking</span><small id="c-parking"></small></label>
+        </div>
+        <hr>
+        <div class="checks">
+          <label class="check"><input type="checkbox" data-more="recent"><span>Listed in the last 7 days</span><small id="c-recent"></small></label>
+          <label class="check"><input type="checkbox" data-more="cut"><span>Price reduced</span><small id="c-cut"></small></label>
+        </div>
+        <button class="go" data-close id="moreGo">Show homes</button>
+      </div>
+    </div>
+    <span class="fsep" aria-hidden="true"></span>
+    <button class="clear" id="clearAll" hidden>Clear all</button>
+    <button class="savesearch" id="saveSearch" aria-label="Save search" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg><span>Save search</span></button>
+  </div>
+
+  <main class="main" id="main">
+    <section class="listcol" id="listcol" aria-labelledby="h1">
+      <div class="lhead">
+        <div>
+          <h1 id="h1">Homes for sale in Larkhaven</h1>
+          <p class="count" id="count" aria-live="polite">20 homes</p>
+        </div>
+        <label class="sort"><span class="sl">Sort by</span>
+          <select id="sort" aria-label="Sort homes">
+            <option value="rec">Recommended</option>
+            <option value="new">Newest</option>
+            <option value="asc">Price, low to high</option>
+            <option value="desc">Price, high to low</option>
+            <option value="size">Largest first</option>
+          </select>
+        </label>
+      </div>
+      <ul class="cards" id="cards"></ul>
+      <div class="empty" id="empty">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="44" width="56" height="4" rx="2" fill="#e2dccf"/><path d="M14 44V28L32 14l18 14v16z" fill="#fff" stroke="#1d2320" stroke-width="2" stroke-linejoin="round"/><path d="M27 44V33h10v11" fill="none" stroke="#1d2320" stroke-width="2"/><circle cx="46" cy="18" r="7" fill="none" stroke="#b4462a" stroke-width="2"/><path d="m51 23 5 5" stroke="#b4462a" stroke-width="2" stroke-linecap="round"/></svg>
+        <b id="emptyT">No homes match these filters</b>
+        <p id="emptyP">Try a wider price range or fewer must-haves. New homes come up in Larkhaven most days.</p>
+        <button id="emptyBtn">Clear filters</button>
+      </div>
+      <p class="listfoot">Listings from Harbour &amp; Vale, Corrigan Estates and Ostrowski Partners. Prices are asking prices; floor areas are as measured by the seller's agent.</p>
+    </section>
+
+    <section class="mapwrap" id="mapwrap" aria-label="Map of homes">
+      <div class="view" id="view" tabindex="0" role="application" aria-roledescription="map" aria-label="Map of Larkhaven. Drag or use the arrow keys to move, plus and minus to zoom.">
+        <div class="world" id="world"></div>
+        <div class="pins" id="pins"></div>
+      </div>
+      <div class="mtools">
+        <label class="chip"><input type="checkbox" id="moveSearch" checked><span class="sw" aria-hidden="true"></span>Search as I move the map</label>
+      </div>
+      <button class="here" id="here"><svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>Search this area</button>
+      <div class="zoom">
+        <button id="zin" aria-label="Zoom in"><svg class="i"><use href="#i-plus"/></svg></button>
+        <button id="zout" aria-label="Zoom out"><svg class="i"><use href="#i-minus"/></svg></button>
+        <button id="recenter" aria-label="Show all of Larkhaven"><svg class="i"><use href="#i-target"/></svg></button>
+      </div>
+      <div class="scale" aria-hidden="true"><i id="scaleBar" style="width:80px"></i><span id="scaleT">200 m</span></div>
+      <span class="mapnote">Drawn map · not to survey scale</span>
+      <div class="mini" id="mini" role="dialog" aria-label="Home on the map"></div>
+    </section>
+  </main>
+</div>
+<button class="mapbtn" id="mapBtn" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-map"/></svg><span>Map</span></button>
+<div class="toast" id="toast" role="status"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span id="toastT"></span></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const narrowQ = matchMedia("(max-width: 899px)");
+
+  /* ---------- the homes ---------- */
+  const PAL = [
+    { sky: "#dfe8e9", wall: "#f3ede1", roof: "#5b4a3f", trim: "#ffffff", door: "#2f5d46", lawn: "#b9c79c", tree: "#6f8f5b" },
+    { sky: "#efe5d6", wall: "#e9e2d4", roof: "#2c3230", trim: "#f6f3ec", door: "#b4462a", lawn: "#c3c9a2", tree: "#7b9461" },
+    { sky: "#e3e8dc", wall: "#c9785a", roof: "#3b3532", trim: "#f3ece0", door: "#253a52", lawn: "#aebd8f", tree: "#5f7f4f" },
+    { sky: "#dde4ec", wall: "#f4f1ea", roof: "#46525c", trim: "#ffffff", door: "#d1a24a", lawn: "#b7c49a", tree: "#6a8a58" },
+    { sky: "#ede2dc", wall: "#e8d8b8", roof: "#4a3b33", trim: "#fbf6ec", door: "#2f5d46", lawn: "#bfc69a", tree: "#7d935c" },
+    { sky: "#e6ebe4", wall: "#9fb4ad", roof: "#2e3836", trim: "#f6f3ec", door: "#8f3218", lawn: "#b2c194", tree: "#5d7c52" },
+  ];
+  const L = [
+    { id: 1, price: 685000, beds: 3, baths: 2, sqft: 1640, type: "House", style: "cottage", addr: "14 Wren Street", hood: "Old Town", x: 935, y: 862, tag: "new", days: 2, garden: 1, parking: 0, p: 0 },
+    { id: 2, price: 1240000, beds: 4, baths: 3, sqft: 2980, type: "House", style: "modern", addr: "8 Callow Rise", hood: "North Heights", x: 1085, y: 640, days: 11, garden: 1, parking: 1, p: 3 },
+    { id: 3, price: 529000, was: 559000, beds: 2, baths: 2, sqft: 1120, type: "Townhouse", style: "townhouse", addr: "31 Ferris Row", hood: "Millbrook", x: 772, y: 808, tag: "cut", days: 24, garden: 0, parking: 0, p: 2 },
+    { id: 4, price: 412000, beds: 1, baths: 1, sqft: 760, type: "Condo", style: "condo", addr: "Quayside Works, Apt 5C", hood: "The Wharves", x: 1236, y: 916, days: 9, garden: 0, parking: 1, p: 3 },
+    { id: 5, price: 879000, beds: 3, baths: 2.5, sqft: 2050, type: "House", style: "midcentury", addr: "2 Sedge Close", hood: "Ashgrove", x: 1150, y: 1146, days: 15, garden: 1, parking: 1, p: 1 },
+    { id: 6, price: 1595000, beds: 5, baths: 4, sqft: 3640, type: "House", style: "victorian", addr: "47 Marlow Terrace", hood: "Old Town", x: 1012, y: 778, days: 31, garden: 1, parking: 0, p: 5 },
+    { id: 7, price: 748000, beds: 2, baths: 2, sqft: 1480, type: "Loft", style: "loft", addr: "Tanners Yard, Unit 3", hood: "The Wharves", x: 1300, y: 860, tag: "new", days: 1, garden: 0, parking: 1, p: 2 },
+    { id: 8, price: 965000, beds: 4, baths: 3, sqft: 2410, type: "House", style: "farmhouse", addr: "19 Coppice Way", hood: "Ashgrove", x: 1246, y: 1232, days: 6, garden: 1, parking: 1, p: 4 },
+    { id: 9, price: 599000, beds: 2, baths: 1, sqft: 1060, type: "House", style: "aframe", addr: "5 Heron Walk", hood: "Riverside", x: 842, y: 1128, days: 20, garden: 1, parking: 1, p: 1 },
+    { id: 10, price: 455000, beds: 2, baths: 1, sqft: 890, type: "Condo", style: "condo", addr: "Linden Court, Apt 12", hood: "Riverside", x: 938, y: 1196, days: 13, garden: 0, parking: 0, p: 0 },
+    { id: 11, price: 1085000, beds: 3, baths: 3, sqft: 2200, type: "Townhouse", style: "townhouse", addr: "6 Oriel Road", hood: "Old Town", x: 1108, y: 868, days: 17, garden: 1, parking: 0, p: 4 },
+    { id: 12, price: 639000, was: 672000, beds: 3, baths: 2, sqft: 1520, type: "House", style: "cottage", addr: "22 Barrow Hill", hood: "Millbrook", x: 736, y: 686, tag: "cut", days: 38, garden: 1, parking: 1, p: 4 },
+    { id: 13, price: 2150000, beds: 5, baths: 5, sqft: 4300, type: "House", style: "modern", addr: "1 Fenwick Gardens", hood: "North Heights", x: 1212, y: 700, days: 44, garden: 1, parking: 1, p: 1 },
+    { id: 14, price: 389000, beds: 1, baths: 1, sqft: 640, type: "Condo", style: "condo", addr: "The Ropewalk, Apt 2A", hood: "The Wharves", x: 1160, y: 812, days: 8, garden: 0, parking: 0, p: 5 },
+    { id: 15, price: 815000, beds: 3, baths: 2, sqft: 1890, type: "House", style: "midcentury", addr: "11 Pike Street", hood: "Millbrook", x: 838, y: 900, tag: "new", days: 3, garden: 1, parking: 1, p: 5 },
+    { id: 16, price: 1320000, beds: 4, baths: 3.5, sqft: 3020, type: "House", style: "victorian", addr: "3 Holloway Mews", hood: "Riverside", x: 780, y: 1226, days: 26, garden: 1, parking: 1, p: 3 },
+    { id: 17, price: 569000, beds: 2, baths: 2, sqft: 1240, type: "Loft", style: "loft", addr: "Saltworks Lane, Unit 9", hood: "The Wharves", x: 1318, y: 790, days: 12, garden: 0, parking: 0, p: 0 },
+    { id: 18, price: 925000, beds: 4, baths: 2.5, sqft: 2260, type: "House", style: "farmhouse", addr: "28 Ashgrove Crescent", hood: "Ashgrove", x: 1060, y: 1250, days: 19, garden: 1, parking: 1, p: 2 },
+    { id: 19, price: 705000, beds: 3, baths: 2, sqft: 1700, type: "Townhouse", style: "townhouse", addr: "40 Mill Race", hood: "Riverside", x: 1000, y: 1100, days: 10, garden: 0, parking: 0, p: 1 },
+    { id: 20, price: 1780000, beds: 4, baths: 4, sqft: 3350, type: "House", style: "aframe", addr: "9 Juniper Hollow", hood: "Ashgrove", x: 1176, y: 1308, days: 29, garden: 1, parking: 1, p: 0 },
+    { id: 21, price: 1120000, beds: 4, baths: 3, sqft: 2640, type: "House", style: "farmhouse", addr: "16 Ridgeway Lane", hood: "Highfield", x: 830, y: 290, days: 16, garden: 1, parking: 1, p: 3 },
+    { id: 22, price: 795000, beds: 3, baths: 2, sqft: 1810, type: "Townhouse", style: "townhouse", addr: "52 Spinners Row", hood: "Highfield", x: 700, y: 380, days: 7, garden: 0, parking: 1, p: 5 },
+    { id: 23, price: 1460000, beds: 4, baths: 3.5, sqft: 3180, type: "House", style: "victorian", addr: "7 St Bride's Walk", hood: "St Bride's", x: 1090, y: 120, days: 22, garden: 1, parking: 1, p: 2 },
+    { id: 24, price: 649000, beds: 2, baths: 2, sqft: 1310, type: "Loft", style: "loft", addr: "Old Dye House, Unit 6", hood: "North Heights", x: 1000, y: 440, days: 5, garden: 0, parking: 1, p: 1 },
+    { id: 25, price: 575000, beds: 3, baths: 1, sqft: 1280, type: "House", style: "cottage", addr: "33 Coopers End", hood: "Coopers End", x: 610, y: 1400, days: 14, garden: 1, parking: 0, p: 5 },
+    { id: 26, price: 689000, beds: 3, baths: 2, sqft: 1590, type: "House", style: "midcentury", addr: "12 Reed Lane", hood: "Lower Fenn", x: 850, y: 1560, days: 4, garden: 1, parking: 1, p: 3 },
+    { id: 27, price: 435000, beds: 2, baths: 1, sqft: 880, type: "Condo", style: "condo", addr: "Fennside, Apt 8", hood: "Lower Fenn", x: 1060, y: 1500, days: 18, garden: 0, parking: 1, p: 2 },
+    { id: 28, price: 1045000, beds: 4, baths: 3, sqft: 2480, type: "House", style: "aframe", addr: "4 Gallows Cross", hood: "Gallows Cross", x: 720, y: 1640, days: 33, garden: 1, parking: 1, p: 4 },
+  ];
+  L.forEach((l) => { l.x += 200; l.y += 200; });
+  const byId = new Map(L.map((l) => [l.id, l]));
+  const money = (n) => "$" + n.toLocaleString("en-US");
+  const short = (n) => n >= 1e6 ? "$" + (Math.round(n / 1e4) / 100).toString().replace(/0$/, "").replace(/\.$/, "") + "M" : "$" + Math.round(n / 1000) + "K";
+  const specs = (l) => `<span>${l.beds} bd</span><span>${l.baths} ba</span><span>${l.sqft.toLocaleString("en-US")} sq ft</span>`;
+
+  /* ---------- drawn houses ---------- */
+  function house(l, uid) {
+    const c = PAL[l.p], G = 170, s = [];
+    const r = (x, y, w, h, f, ex = "") => s.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${ex}/>`);
+    const p = (pts, f, ex = "") => s.push(`<path d="${pts}" fill="${f}" ${ex}/>`);
+    const glass = "#c6d6da", glass2 = "#e3edee", dark = "#2b302e";
+    const win = (x, y, w, h, frame = c.trim, mull = true) => {
+      r(x - 2, y - 2, w + 4, h + 4, frame); r(x, y, w, h, glass);
+      p(`M${x} ${y + h}L${x + w * .55} ${y}H${x + w}V${y + h * .25}L${x + w * .3} ${y + h}z`, glass2, 'opacity=".55"');
+      if (mull) { r(x + w / 2 - .75, y, 1.5, h, frame); r(x, y + h / 2 - .75, w, 1.5, frame); }
+    };
+    const tree = (x, k, h = 1) => {
+      if (k === 0) { r(x - 2, G - 26 * h, 4, 26 * h, "#6b5644"); s.push(`<circle cx="${x}" cy="${G - 40 * h}" r="${21 * h}" fill="${c.tree}"/><circle cx="${x + 7 * h}" cy="${G - 46 * h}" r="${12 * h}" fill="#fff" opacity=".08"/>`); }
+      else if (k === 1) { r(x - 2, G - 14, 4, 14, "#6b5644"); p(`M${x} ${G - 82 * h}L${x + 15 * h} ${G - 12}H${x - 15 * h}z`, c.tree); p(`M${x} ${G - 82 * h}L${x + 15 * h} ${G - 12}H${x}z`, "#000", 'opacity=".08"'); }
+      else { r(x - 2, G - 24 * h, 4, 24 * h, "#6b5644"); s.push(`<ellipse cx="${x}" cy="${G - 50 * h}" rx="${12 * h}" ry="${30 * h}" fill="${c.tree}"/>`); }
+    };
+    r(0, 0, 320, 200, c.sky);
+    s.push(`<circle class="sun" cx="${[262, 250, 248, 232, 256, 240][l.id % 6]}" cy="${[38, 34, 30, 40, 36, 32][l.id % 6]}" r="13" fill="#fff" opacity=".7"/>`);
+    // distant hills
+    p(`M0 ${G - 22}C60 ${G - 40} 120 ${G - 30} 170 ${G - 34}S280 ${G - 46} 320 ${G - 30}V${G}H0z`, c.lawn, 'opacity=".45"');
+    const st = l.style;
+    if (st === "cottage") {
+      tree(64, 0, 1.05); tree(262, l.id % 2 ? 2 : 0, .9);
+      r(200, 60, 14, 34, c.roof); r(198, 58, 18, 5, "#3a302a");
+      r(104, 106, 112, 64, c.wall); r(104, 106, 112, 64, "#000", 'opacity=".02"');
+      p("M92 110 160 56l68 54z", c.roof); p("M160 56l68 54h-12l-56-44z", "#000", 'opacity=".12"');
+      s.push(`<circle cx="160" cy="88" r="8" fill="${c.trim}"/><circle cx="160" cy="88" r="5.5" fill="${glass}"/>`);
+      win(118, 120, 26, 24); win(176, 120, 26, 24);
+      r(148, 132, 24, 38, c.trim); r(151, 135, 18, 35, c.door); s.push(`<circle cx="165" cy="153" r="1.4" fill="${c.trim}"/>`);
+      r(142, 128, 36, 3, c.trim);
+      p(`M150 ${G}h20l8 30h-36z`, "#e3dccb");
+      s.push(`<rect x="86" y="${G - 12}" width="54" height="12" rx="6" fill="${c.tree}" opacity=".85"/><rect x="180" y="${G - 12}" width="54" height="12" rx="6" fill="${c.tree}" opacity=".85"/>`);
+    } else if (st === "modern") {
+      tree(52, 2, 1.1); tree(276, 2, .85);
+      r(80, 112, 168, 58, c.wall);
+      r(110, 70, 160, 44, dark); r(106, 66, 168, 6, "#1f2422");
+      r(76, 108, 176, 6, "#1f2422");
+      r(120, 78, 140, 28, glass); p("M120 106l40-28h26l-40 28z", glass2, 'opacity=".55"'); r(176, 78, 2, 28, dark); r(220, 78, 2, 28, dark);
+      r(90, 122, 76, 48, glass); p("M90 170l40-48h20l-40 48z", glass2, 'opacity=".5"'); r(127, 122, 2, 48, "#2f3533");
+      for (let i = 0; i < 9; i++) r(178 + i * 7, 122, 4, 48, "#a4785a");
+      r(172, 122, 2, 48, "#8a6249");
+      p(`M120 ${G}h40l20 30h-80z`, "#d8d2c4");
+      s.push(`<rect x="250" y="${G - 10}" width="46" height="10" rx="5" fill="${c.tree}"/>`);
+    } else if (st === "townhouse") {
+      tree(56, 0, .95); tree(270, 1, .9);
+      const cols = [c.wall, "#d8cdb6", "#b9c6c0"], tops = [74, 64, 80];
+      for (let k = 0; k < 3; k++) {
+        const x = 90 + k * 48, top = tops[k];
+        r(x, top, 48, G - top, cols[k]); r(x - 2, top - 6, 52, 6, c.roof); r(x, top, 48, 3, "#000", 'opacity=".08"');
+        for (let fl = 0; fl < 2; fl++) { win(x + 9, top + 14 + fl * 30, 12, 18, c.trim, false); win(x + 27, top + 14 + fl * 30, 12, 18, c.trim, false); }
+        r(x + 15, G - 32, 18, 32, c.trim); r(x + 17, G - 30, 14, 30, k === 1 ? c.door : k === 0 ? "#2b302e" : "#8f3218");
+        r(x + 12, G - 4, 24, 4, "#cfc6b4");
+      }
+    } else if (st === "aframe") {
+      tree(60, 1, 1.15); tree(84, 1, .8); tree(262, 1, 1.05);
+      p("M96 170 160 44l64 126z", c.roof); p("M160 44l64 126h-10L160 58z", "#000", 'opacity=".15"');
+      p("M124 170 160 92l36 78z", glass); p("M124 170 160 92l10 22-30 56z", glass2, 'opacity=".55"');
+      r(159, 92, 2, 78, c.trim); r(138, 134, 44, 2, c.trim);
+      r(86, G - 6, 148, 6, "#a4785a"); for (let i = 0; i < 8; i++) r(92 + i * 19, G - 18, 2, 12, "#8a6249"); r(86, G - 20, 148, 2, "#8a6249");
+    } else if (st === "midcentury") {
+      tree(48, 0, 1.1); tree(286, 2, .8);
+      r(64, 118, 196, 52, c.wall);
+      p("M54 108 160 122 270 102v8L160 130 54 116z", c.roof);
+      for (let i = 0; i < 7; i++) r(70 + i * 12, 124, 8, 6, glass);
+      for (let y = 0; y < 5; y++) for (let x = 0; x < 4; x++) r(72 + x * 12 + (y % 2) * 4, 136 + y * 7, 8, 4, "#b9846a");
+      r(124, 126, 84, 44, glass); p("M124 170l30-44h18l-30 44z", glass2, 'opacity=".5"'); r(165, 126, 2, 44, c.trim); r(206, 126, 2, 44, c.trim);
+      r(214, 136, 18, 34, c.door);
+      r(244, 116, 3, 54, "#2b302e"); p(`M214 ${G}h18l10 30h-38z`, "#ddd6c7");
+    } else if (st === "victorian") {
+      tree(54, 0, 1.15); tree(276, 0, .85);
+      r(118, 84, 92, 86, c.wall);
+      p("M108 88 164 34l56 54z", c.roof); p("M164 34l56 54h-10l-46-44z", "#000", 'opacity=".14"');
+      s.push(`<circle cx="164" cy="70" r="7" fill="${c.trim}"/><circle cx="164" cy="70" r="4.5" fill="${glass}"/>`);
+      r(110, 86, 108, 3, c.trim);
+      r(124, 100, 40, 36, "#000", 'opacity=".07"'); win(130, 104, 10, 26, c.trim, false); win(146, 104, 10, 26, c.trim, false);
+      p("M120 100l8-8h32l8 8z", c.roof);
+      win(180, 102, 18, 26);
+      p("M146 144h72l-6-8h-60z", c.roof); r(150, 144, 3, 26, c.trim); r(208, 144, 3, 26, c.trim);
+      r(170, 146, 18, 24, c.door); r(152, 160, 56, 2, c.trim);
+      for (let i = 0; i < 6; i++) r(154 + i * 9, 162, 2, 8, c.trim);
+      r(124, 146, 20, 18, glass); r(122, 144, 24, 3, c.trim);
+      p(`M172 ${G}h16l6 30h-28z`, "#e3dccb");
+    } else if (st === "condo") {
+      tree(64, 2, 1.1); tree(84, 2, .8); tree(258, 0, .9);
+      r(108, 36, 112, 134, c.wall); r(104, 32, 120, 6, c.roof);
+      r(180, 36, 40, 134, "#000", 'opacity=".05"');
+      for (let f = 0; f < 5; f++) {
+        const y = 44 + f * 22;
+        r(116, y, 30, 14, glass); r(152, y, 22, 14, glass); r(186, y, 26, 14, glass);
+        p(`M116 ${y + 14}l12-14h8l-12 14z`, glass2, 'opacity=".5"');
+        if (f % 2 === 0) { r(112, y + 12, 38, 5, c.roof, 'opacity=".85"'); }
+        else r(182, y + 12, 34, 5, c.roof, 'opacity=".85"');
+      }
+      r(150, 150, 28, 20, glass); r(144, 146, 40, 4, c.roof);
+      r(122, 156, 20, 8, "#000", 'opacity=".05"');
+    } else if (st === "farmhouse") {
+      tree(50, 0, 1.15); tree(282, 1, 1);
+      r(102, 108, 96, 62, dark);
+      for (let i = 0; i < 16; i++) r(106 + i * 6, 108, 1, 62, "#3b413e");
+      p("M96 112 150 62l54 50z", "#3d4442"); p("M150 62l54 50h-9l-45-41z", "#000", 'opacity=".2"');
+      win(112, 120, 14, 34, "#121615", false); win(170, 120, 14, 34, "#121615", false);
+      r(138, 128, 24, 42, "#a4785a"); r(149, 128, 2, 42, "#8a6249");
+      r(146, 82, 8, 14, glass);
+      r(198, 128, 54, 42, c.wall); p("M194 130l30-16 32 16z", "#a4785a");
+      win(212, 138, 26, 18, c.trim);
+      s.push(`<rect x="88" y="${G - 10}" width="30" height="10" rx="5" fill="${c.tree}"/>`);
+    } else if (st === "loft") {
+      tree(46, 2, 1.1); tree(286, 2, 1);
+      r(70, 76, 180, 94, "#b26248");
+      for (let y = 0; y < 15; y++) r(70, 80 + y * 6, 180, 1, "#000", 'opacity=".05"');
+      let d = "M68 78";
+      for (let i = 0; i < 6; i++) d += `L${68 + i * 31} 58l31 20`;
+      p(d + "z", c.roof);
+      for (let i = 0; i < 6; i++) r(70 + i * 31, 62, 10, 14, glass, 'opacity=".9"');
+      for (let row = 0; row < 2; row++) for (let i = 0; i < 5; i++) {
+        const x = 84 + i * 33, y = 92 + row * 38;
+        if (row === 1 && i === 2) continue;
+        s.push(`<path d="M${x - 2} ${y + 26}V${y + 9}a13 13 0 0 1 26 0V${y + 26}z" fill="#efe6d6"/><path d="M${x} ${y + 26}V${y + 9}a11 11 0 0 1 22 0V${y + 26}z" fill="${glass}"/><rect x="${x + 10}" y="${y - 2}" width="2" height="28" fill="#2b302e" opacity=".6"/><rect x="${x}" y="${y + 13}" width="22" height="1.5" fill="#2b302e" opacity=".6"/>`);
+      }
+      r(150, 130, 22, 40, "#2b302e"); r(146, 126, 30, 4, "#2b302e");
+    }
+    s.push(`<rect y="${G}" width="320" height="${200 - G}" fill="${c.lawn}"/><rect y="${G}" width="320" height="2" fill="#000" opacity=".06"/>`);
+    return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${s.join("")}</svg>`;
+  }
+
+  /* ---------- the map ---------- */
+  function drawMap() {
+    const grid = (cx, cy, ang, sx, sy, R = 1400) => {
+      let d = "";
+      for (let i = -R; i <= R; i += sx) d += `M${i} ${-R}V${R}`;
+      for (let j = -R; j <= R; j += sy) d += `M${-R} ${j}H${R}`;
+      return `<path transform="translate(${cx} ${cy}) rotate(${ang})" d="${d}"/>`;
+    };
+    const RIVER = "M-240 1088C220 1020 470 1150 760 1050S1110 978 1300 990 1700 920 2240 860";
+    const parks = [
+      ["Orchard Common", "M836 566c40-14 92-20 128-10 10 26 14 56 6 86-42 10-88 12-126 4-12-26-16-54-8-80z", 902, 610],
+      ["Lark Meadows", "M560 1162c60-22 140-32 196-24 26 10 30 30 18 44-60 18-126 26-204 18-24-10-30-28-10-38z", 660, 1178],
+      ["Fenwick Park", "M1270 560c50-20 120-22 170-6 18 40 18 90 2 130-54 18-118 18-168 0-18-40-20-84-4-124z", 1356, 626],
+      ["Tanner's Green", "M872 1250c34-12 74-14 104-4 8 22 8 46-2 68-34 10-72 10-102 0-10-20-10-44 0-64z", 924, 1288],
+      ["Highfield Park", "M860 200c90-30 220-34 300-6 22 50 24 120 4 170-90 26-210 26-300 4-24-50-26-118-4-168z", 1010, 262],
+      ["Fenn Allotments", "M830 1640c50-14 110-16 150-4 8 30 8 60-2 88-48 12-100 12-146 0-10-28-10-58-2-84z", 904, 1690],
+      ["Bride's Hill", "M1260 330c40-16 90-18 130-6 14 40 14 80 0 116-44 14-94 14-134 0-12-36-12-74 4-110z", 1324, 396],
+      ["Quarry Wood", "M520 640c40-30 100-36 150-14 14 50 8 110-16 156-50 14-104 6-138-26-10-40-8-80 4-116z", 594, 720],
+    ];
+    const majors = [
+      ["Kingsway", "M-240 610C400 640 760 600 1080 520S1700 420 2240 400"],
+      ["Quarry Road", "M980 -240C1000 400 960 760 1046 1080S1110 1700 1060 2240"],
+      ["Harbour Avenue", "M-240 1400C480 1310 880 1370 1380 1290S1820 1200 2240 1240"],
+      ["Millbrook Road", "M640 -240C700 480 820 900 760 1400L700 2240"],
+      ["Wharf Street", "M1012 975C1200 930 1400 890 1600 862S1900 820 2240 800"],
+    ];
+    const hoods = [["MILLBROOK", 690, 868], ["OLD TOWN", 1040, 714], ["NORTH HEIGHTS", 1140, 580], ["THE WHARVES", 1250, 1000], ["RIVERSIDE", 880, 1056], ["ASHGROVE", 1170, 1196], ["SALT MARSH", 1560, 1060], ["HIGHFIELD", 900, 450], ["ST BRIDE'S", 1300, 250], ["COOPERS END", 760, 1480], ["LOWER FENN", 1010, 1580], ["GALLOWS CROSS", 1060, 1840], ["SPINNERS ROW", 560, 300]];
+    let svg = `<svg viewBox="-200 -200 2400 2400" aria-hidden="true">
+      <defs>
+        <clipPath id="dA"><path d="M-200 -200H760L820 600 700 1060-200 1110z"/></clipPath>
+        <clipPath id="dB"><path d="M760 -200H1500L1450 700 1300 990 700 1060 820 600z"/></clipPath>
+        <clipPath id="dC"><path d="M1500 -200H2200V880L1300 990 1450 700z"/></clipPath>
+        <clipPath id="dD"><path d="M-200 1110 700 1060 1300 990 2200 880V2200H-200z"/></clipPath>
+        <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="8" height="8" fill="#c3d1a7"/><path d="M0 0V8" stroke="#b6c699" stroke-width="3"/></pattern>
+      </defs>
+      <rect x="-200" y="-200" width="2400" height="2400" fill="#ece6d8"/>
+      <g fill="#e4ddcc"><path d="M880 640h220v300H880z" transform="rotate(14 990 790)"/></g>
+      <g stroke="#f8f4ea" stroke-width="5" fill="none">
+        <g clip-path="url(#dA)">${grid(400, 600, -6, 58, 50)}</g>
+        <g clip-path="url(#dB)">${grid(1000, 600, 14, 42, 40)}</g>
+        <g clip-path="url(#dC)">${grid(1700, 500, 2, 86, 42)}</g>
+        <g clip-path="url(#dD)">${grid(1000, 1500, 28, 62, 54)}</g>
+      </g>`;
+    parks.forEach(([, d]) => svg += `<path d="${d}" fill="url(#hatch)" stroke="#c3d1a7" stroke-width="10" stroke-linejoin="round"/>`);
+    svg += `<path d="M1150 1490c60-30 150-30 190 10 20 50 10 110-30 140-60 20-130 14-170-20-20-40-16-96 10-130z" fill="#b5ced0" stroke="#a6c2c5" stroke-width="6"/><ellipse cx="1050" cy="318" rx="46" ry="20" fill="#b5ced0"/><ellipse cx="1360" cy="640" rx="34" ry="18" fill="#b5ced0"/><ellipse cx="596" cy="742" rx="22" ry="14" fill="#b5ced0"/>`;
+    // the river and the sea
+    svg += `<path d="${RIVER}" fill="none" stroke="#a6c2c5" stroke-width="84" stroke-linecap="round"/><path id="river" d="${RIVER}" fill="none" stroke="#b5ced0" stroke-width="70" stroke-linecap="round"/>`;
+    svg += `<path d="M1640 2200C1700 1860 1900 1760 2200 1690V2200z" fill="#b5ced0" stroke="#a6c2c5" stroke-width="8"/>`;
+    // the railway
+    const RAIL = "M-240 880C520 820 1040 760 1480 690S1880 610 2240 580";
+    svg += `<path d="${RAIL}" fill="none" stroke="#a69c88" stroke-width="5"/><path d="${RAIL}" fill="none" stroke="#ece6d8" stroke-width="2" stroke-dasharray="10 10"/>`;
+    svg += `<g transform="translate(1180 724) rotate(-9)"><rect x="-24" y="-9" width="48" height="18" rx="4" fill="#8e8572"/><text x="0" y="4.5" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Avenir Next, Segoe UI, sans-serif" letter-spacing=".08em">STN</text></g>`;
+    majors.forEach(([, d]) => { svg += `<path d="${d}" fill="none" stroke="#d9cfba" stroke-width="16"/>`; });
+    majors.forEach(([, d], i) => { svg += `<path id="m${i}" d="${d}" fill="none" stroke="#fff" stroke-width="12"/>`; });
+    majors.forEach(([n], i) => {
+      svg += `<text font-size="12.5" font-weight="600" fill="#7a705c" font-family="Avenir Next, Segoe UI, sans-serif" letter-spacing=".02em" dy="4"><textPath href="#m${i}" startOffset="${[34, 28, 32, 22, 30][i]}%">${n}</textPath></text>`;
+    });
+    svg += `<text font-size="15" font-style="italic" fill="#56777b" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" letter-spacing=".12em" dy="5"><textPath href="#river" startOffset="17%">River Lark</textPath></text>`;
+    svg += `<text font-size="15" font-style="italic" fill="#56777b" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" letter-spacing=".12em" dy="5"><textPath href="#river" startOffset="72%">River Lark</textPath></text>`;
+    svg += `<text x="1244" y="1572" text-anchor="middle" font-size="14" font-style="italic" fill="#56777b" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" letter-spacing=".1em">Lark Reservoir</text>`;
+    svg += `<text x="1940" y="1960" text-anchor="middle" font-size="16" font-style="italic" fill="#56777b" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif" letter-spacing=".14em">Lark Bay</text>`;
+    parks.forEach(([n, , x, y]) => svg += `<text x="${x}" y="${y}" text-anchor="middle" font-size="12" font-style="italic" fill="#4f6a3e" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif">${n}</text>`);
+    hoods.forEach(([n, x, y]) => svg += `<text x="${x}" y="${y}" text-anchor="middle" font-size="13" font-weight="700" fill="#8a7f69" font-family="Avenir Next, Segoe UI, sans-serif" letter-spacing=".22em" paint-order="stroke" stroke="#ece6d8" stroke-width="4">${n}</text>`);
+    svg += `</svg>`;
+    $("world").innerHTML = svg;
+  }
+
+  /* ---------- state ---------- */
+  const PRICE_STEPS = [0, 350e3, 400e3, 450e3, 500e3, 550e3, 600e3, 650e3, 700e3, 750e3, 800e3, 900e3, 1e6, 1.1e6, 1.2e6, 1.3e6, 1.4e6, 1.6e6, 1.8e6, 2e6, Infinity];
+  const TYPES = ["House", "Townhouse", "Condo", "Loft"];
+  const S = { pmin: 0, pmax: 20, beds: 0, baths: 0, types: new Set(TYPES), area: 0, more: { garden: false, parking: false, recent: false, cut: false },
+    q: "", savedOnly: false, sort: "rec", bounds: null, saved: new Set([6, 15]), seen: new Set(), sel: null };
+
+  function passes(l, skip) {
+    if (l.price < PRICE_STEPS[S.pmin] || l.price > PRICE_STEPS[S.pmax]) if (skip !== "price") return false;
+    if (l.beds < S.beds || l.baths < S.baths) return false;
+    if (skip !== "type" && !S.types.has(l.type)) return false;
+    if (l.sqft < S.area) return false;
+    if (S.more.garden && !l.garden) return false;
+    if (S.more.parking && !l.parking) return false;
+    if (S.more.recent && l.days > 7) return false;
+    if (S.more.cut && !l.was) return false;
+    if (S.savedOnly && !S.saved.has(l.id)) return false;
+    if (S.q) { const h = `${l.addr} ${l.hood} ${l.type}`.toLowerCase(); if (!S.q.split(/\s+/).every((w) => h.includes(w))) return false; }
+    if (S.bounds) { const b = S.bounds; if (l.x < b.x0 || l.x > b.x1 || l.y < b.y0 || l.y > b.y1) return false; }
+    return true;
+  }
+  const visible = () => L.filter((l) => passes(l));
+
+  /* ---------- cards ---------- */
+  const cardsEl = $("cards"), cardEls = new Map();
+  L.forEach((l) => {
+    const li = document.createElement("li");
+    li.className = "card"; li.dataset.id = l.id;
+    const tag = l.tag === "new" ? `<span class="tag new">New · ${l.days === 1 ? "1 day" : l.days + " days"}</span>` : l.tag === "cut" ? `<span class="tag cut"><svg class="i" style="width:13px;height:13px;stroke-width:2.2"><use href="#i-down"/></svg>Price cut</span>` : "";
+    li.innerHTML = `<span class="ring"></span><div class="ph">${house(l)}${tag}<button class="heart" data-save="${l.id}" aria-pressed="false" aria-label="Save ${l.addr}"><svg class="i"><use href="#i-heart"/></svg></button></div>
+      <div class="cbody"><div class="prow"><b class="price">${money(l.price)}</b>${l.was ? `<s class="was">${money(l.was)}</s>` : ""}</div>
+      <p class="specs">${specs(l)}</p>
+      <p class="addr"><a href="#" data-open="${l.id}">${l.addr}</a>, ${l.hood} · ${l.type}</p></div>`;
+    cardsEl.append(li); cardEls.set(l.id, li);
+  });
+
+  /* ---------- pins ---------- */
+  const pinsEl = $("pins"), pinEls = new Map();
+  L.forEach((l) => {
+    const b = document.createElement("button");
+    b.className = "pin"; b.dataset.id = l.id;
+    b.setAttribute("aria-label", `${money(l.price)}, ${l.addr}, ${l.beds} bedrooms`);
+    b.textContent = short(l.price);
+    pinsEl.append(b); pinEls.set(l.id, b);
+  });
+
+  /* ---------- map view ---------- */
+  let hot = null;
+  const view = $("view"), world = $("world");
+  const M = { x: 0, y: 0, z: 1, w: 0, h: 0 };
+  const HOME = { cx: 1230, cy: 1175 };
+  function fitZ() { const z = Math.min(M.w / 720, M.h / 820); let i = 0; Z.forEach((v, k) => { if (v <= z) i = k; }); return Math.min(i, 3); }
+  const Z = [0.6, 0.72, 0.86, 1, 1.2, 1.45];
+  let zi = 2, fitted = false;
+  function measure() { M.w = view.clientWidth; M.h = view.clientHeight; }
+  function clamp() {
+    const W = 2400 * M.z, H = 2400 * M.z;
+    M.x = Math.min(0, Math.max(M.w - W, M.x)); M.y = Math.min(0, Math.max(M.h - H, M.y));
+  }
+  function center(cx, cy) { M.x = M.w / 2 - cx * M.z; M.y = M.h / 2 - cy * M.z; clamp(); }
+  function place() {
+    world.style.transform = `translate(${M.x}px, ${M.y}px) scale(${M.z})`;
+    L.forEach((l) => {
+      let x = l.x * M.z + M.x, y = l.y * M.z + M.y;
+      if (l.id === hot) { x = Math.max(44, Math.min(M.w - 44, x)); y = Math.max(40, Math.min(M.h - 8, y)); } // a hovered home off the view peeks in at the edge
+      const s = pinEls.get(l.id).style; s.left = Math.round(x) + "px"; s.top = Math.round(y) + "px";
+    });
+    placeMini();
+    $("zin").disabled = zi === Z.length - 1; $("zout").disabled = zi === 0;
+    const metres = Math.round(200 / M.z / 50) * 50; $("scaleBar").style.width = Math.round(80 * (metres / 200) * M.z) + "px"; $("scaleT").textContent = metres + " m";
+  }
+  function glide(fn) {
+    const mw = $("mapwrap");
+    if (!still) { mw.classList.add("glide"); clearTimeout(glide.t); glide.t = setTimeout(() => mw.classList.remove("glide"), 380); }
+    fn(); place();
+  }
+  function viewBounds() { const pad = 18; return { x0: (-M.x + pad) / M.z, y0: (-M.y + pad + 30) / M.z, x1: (-M.x + M.w - pad) / M.z, y1: (-M.y + M.h - pad) / M.z }; }
+  function moved() {
+    if ($("moveSearch").checked) { S.bounds = viewBounds(); update(); }
+    else $("here").classList.add("on");
+  }
+
+  let drag = null;
+  view.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || e.target.closest(".pin")) return;
+    drag = { sx: e.clientX, sy: e.clientY, x: M.x, y: M.y, moved: false, id: e.pointerId };
+  });
+  view.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    if (!drag.moved) { drag.moved = true; view.setPointerCapture(e.pointerId); view.classList.add("drag"); }
+    M.x = drag.x + dx; M.y = drag.y + dy; clamp(); place();
+  });
+  const endDrag = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const was = drag.moved; drag = null; view.classList.remove("drag");
+    if (was) moved(); else if (!e.target.closest(".pin")) closeMini();
+  };
+  view.addEventListener("pointerup", endDrag);
+  view.addEventListener("pointercancel", endDrag);
+  view.addEventListener("keydown", (e) => {
+    if (e.target !== view) return;
+    const k = e.key, step = 90;
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(k)) {
+      e.preventDefault();
+      glide(() => { M.x += k === "ArrowLeft" ? step : k === "ArrowRight" ? -step : 0; M.y += k === "ArrowUp" ? step : k === "ArrowDown" ? -step : 0; clamp(); });
+      clearTimeout(view.kt); view.kt = setTimeout(moved, 400);
+    } else if (k === "+" || k === "=") { e.preventDefault(); zoom(1); }
+    else if (k === "-" || k === "_") { e.preventDefault(); zoom(-1); }
+  });
+  function zoom(d) {
+    const ni = Math.max(0, Math.min(Z.length - 1, zi + d)); if (ni === zi) return;
+    const cx = (M.w / 2 - M.x) / M.z, cy = (M.h / 2 - M.y) / M.z;
+    zi = ni; glide(() => { M.z = Z[zi]; center(cx, cy); }); moved();
+  }
+  $("zin").addEventListener("click", () => zoom(1));
+  $("zout").addEventListener("click", () => zoom(-1));
+  $("recenter").addEventListener("click", () => { zi = fitZ(); glide(() => { M.z = Z[zi]; center(HOME.cx, HOME.cy); }); S.bounds = null; $("here").classList.remove("on"); update(); });
+  $("here").addEventListener("click", () => { S.bounds = viewBounds(); $("here").classList.remove("on"); update(); });
+  $("moveSearch").addEventListener("change", (e) => { if (e.target.checked) { $("here").classList.remove("on"); if (S.bounds || moved.any) { S.bounds = viewBounds(); update(); } } });
+
+  /* ---------- hover sync ---------- */
+  function setHot(id) {
+    if (hot === id) return;
+    if (hot != null) { pinEls.get(hot).classList.remove("hot"); cardEls.get(hot).classList.remove("hot"); }
+    hot = id;
+    if (id != null) { pinEls.get(id).classList.add("hot"); cardEls.get(id).classList.add("hot"); }
+    place();
+  }
+  cardsEl.addEventListener("mouseover", (e) => { const c = e.target.closest(".card"); if (c) setHot(+c.dataset.id); });
+  cardsEl.addEventListener("mouseleave", () => setHot(S.sel));
+  cardsEl.addEventListener("focusin", (e) => { const c = e.target.closest(".card"); if (c) setHot(+c.dataset.id); });
+  cardsEl.addEventListener("focusout", () => setHot(S.sel));
+  pinsEl.addEventListener("mouseover", (e) => { const p = e.target.closest(".pin"); if (p) setHot(+p.dataset.id); });
+  pinsEl.addEventListener("mouseout", (e) => { const p = e.target.closest(".pin"); if (p && !p.contains(e.relatedTarget)) setHot(S.sel); });
+  pinsEl.addEventListener("focusin", (e) => {
+    const p = e.target.closest(".pin"); if (!p) return;
+    const l = byId.get(+p.dataset.id), sx = l.x * M.z + M.x, sy = l.y * M.z + M.y; // tabbing to a pin off the view brings it in
+    if (sx < 40 || sx > M.w - 40 || sy < 60 || sy > M.h - 16) glide(() => center(l.x, l.y));
+    setHot(l.id);
+  });
+  pinsEl.addEventListener("click", (e) => { const p = e.target.closest(".pin"); if (p) openMini(+p.dataset.id, true); });
+
+  /* ---------- the mini card ---------- */
+  const mini = $("mini");
+  function openMini(id, fromPin) {
+    const l = byId.get(id);
+    if (S.sel != null && S.sel !== id) pinEls.get(S.sel).classList.remove("sel");
+    S.sel = id; S.seen.add(id);
+    const pin = pinEls.get(id); pin.classList.add("sel", "seen");
+    mini.setAttribute("aria-label", `${l.addr}, ${money(l.price)}`);
+    mini.innerHTML = `<div class="mph">${house(l)}</div><button class="heart" data-save="${id}" aria-pressed="${S.saved.has(id)}" aria-label="Save ${l.addr}"><svg class="i"><use href="#i-heart"/></svg></button><button class="shut" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button>
+      <div class="mb"><div class="prow"><b class="price">${money(l.price)}</b>${l.was ? `<s class="was">${money(l.was)}</s>` : ""}</div><p class="specs">${specs(l)}</p><p class="addr" style="white-space:normal">${l.addr}, ${l.hood}</p>
+      <div class="view-home"><span>${l.days === 1 ? "Listed yesterday" : `On Keystone ${l.days} days`}</span><a href="#" data-tour="${id}">Book a viewing <svg class="i"><use href="#i-arrow"/></svg></a></div></div><span class="arrow"></span>`;
+    // make sure the pin sits comfortably in view
+    const sx = l.x * M.z + M.x, sy = l.y * M.z + M.y, wide = !narrowQ.matches;
+    const needTop = wide ? 330 : 120, needBottom = wide ? 40 : 320;
+    if (sx < 160 || sx > M.w - 160 || sy < needTop || sy > M.h - needBottom) {
+      if (!fromPin || sx < 40 || sx > M.w - 40 || sy < 60 || sy > M.h - 40 || !wide) glide(() => center(l.x, l.y - (wide ? 120 : -80)));
+    }
+    placeMini();
+    requestAnimationFrame(() => mini.classList.add("on"));
+    setHot(id);
+    const c = cardEls.get(id); if (!c.hidden && wide) c.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+  }
+  function closeMini(focusPin) {
+    if (S.sel == null) return;
+    const id = S.sel; pinEls.get(id).classList.remove("sel"); S.sel = null; mini.classList.remove("on"); setHot(null);
+    if (focusPin) pinEls.get(id).focus();
+  }
+  function placeMini() {
+    if (S.sel == null || narrowQ.matches) return;
+    const l = byId.get(S.sel), sx = l.x * M.z + M.x, sy = l.y * M.z + M.y, w = 272, h = mini.offsetHeight || 290;
+    let left = Math.max(12, Math.min(M.w - w - 12, sx - w / 2)), top = sy - 44 - h, below = false;
+    if (top < 64) { top = sy + 12; below = true; }
+    mini.classList.toggle("below", below);
+    mini.style.left = left + "px"; mini.style.top = top + "px";
+    mini.style.setProperty("--ax", Math.max(18, Math.min(w - 18, sx - left)) + "px");
+    mini.style.setProperty("--ox", Math.max(18, Math.min(w - 18, sx - left)) + "px");
+  }
+  mini.addEventListener("click", (e) => {
+    if (e.target.closest(".shut")) closeMini(true);
+    const t = e.target.closest("[data-tour]");
+    if (t) { e.preventDefault(); toast(`Viewing request sent for ${byId.get(+t.dataset.tour).addr}. The agent usually replies within a day.`); }
+  });
+
+  /* ---------- saving ---------- */
+  function syncSaved(id, animate) {
+    const on = S.saved.has(id);
+    document.querySelectorAll(`[data-save="${id}"]`).forEach((b) => { b.setAttribute("aria-pressed", String(on)); b.setAttribute("aria-label", `${on ? "Saved" : "Save"} ${byId.get(id).addr}`); if (animate && on && !still) { b.classList.remove("pop1"); void b.offsetWidth; b.classList.add("pop1"); } });
+    pinEls.get(id).classList.toggle("saved", on);
+    const n = $("savedN"); n.textContent = S.saved.size;
+    if (animate && !still) { n.classList.add("bump"); setTimeout(() => n.classList.remove("bump"), 220); }
+  }
+  document.addEventListener("click", (e) => {
+    const h = e.target.closest("[data-save]");
+    if (h) {
+      e.preventDefault(); e.stopPropagation();
+      const id = +h.dataset.save;
+      S.saved.has(id) ? S.saved.delete(id) : S.saved.add(id);
+      syncSaved(id, true);
+      if (S.savedOnly) update();
+      return;
+    }
+    const o = e.target.closest("[data-open]");
+    if (o) {
+      e.preventDefault();
+      const id = +o.dataset.open;
+      if (narrowQ.matches) setMap(true);
+      requestAnimationFrame(() => openMini(id, false));
+    }
+    const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault();
+  }, true);
+  $("savedBtn").addEventListener("click", () => {
+    S.savedOnly = !S.savedOnly; $("savedBtn").setAttribute("aria-pressed", String(S.savedOnly)); update();
+  });
+  $("home").addEventListener("click", (e) => { e.preventDefault(); resetAll(); $("listcol").scrollTo({ top: 0 }); });
+
+  /* ---------- filters ---------- */
+  // histogram from the listings
+  (function () {
+    const counts = Array(20).fill(0);
+    L.forEach((l) => { for (let i = 0; i < 20; i++) if (l.price >= PRICE_STEPS[i] && l.price < PRICE_STEPS[i + 1]) counts[i]++; });
+    const mx = Math.max(...counts);
+    $("hist").innerHTML = counts.map((c) => `<i style="height:${c ? 8 + (c / mx) * 48 : 3}px"></i>`).join("");
+  })();
+  const typeBox = $("types");
+  TYPES.forEach((t) => {
+    const n = L.filter((l) => l.type === t).length;
+    typeBox.insertAdjacentHTML("beforeend", `<label class="check"><input type="checkbox" checked data-type="${t}"><span>${t === "Loft" ? "Loft or warehouse" : t}</span><small data-tc="${t}">${n}</small></label>`);
+  });
+  typeBox.addEventListener("change", (e) => { const t = e.target.dataset.type; e.target.checked ? S.types.add(t) : S.types.delete(t); update(); });
+  function priceLabel(i, end) { const v = PRICE_STEPS[i]; if (!end && i === 0) return "No min"; if (end && i === 20) return "No max"; return short(v); }
+  function syncPrice(src) {
+    let a = +$("pmin").value, b = +$("pmax").value;
+    if (a >= b) { if (src === "min") a = b - 1; else b = a + 1; $("pmin").value = a; $("pmax").value = b; }
+    S.pmin = a; S.pmax = b;
+    $("pminL").textContent = priceLabel(a, false); $("pmaxL").textContent = priceLabel(b, true);
+    $("pmin").setAttribute("aria-valuetext", priceLabel(a, false)); $("pmax").setAttribute("aria-valuetext", priceLabel(b, true));
+    $("pfill").style.left = (a / 20 * 100) + "%"; $("pfill").style.width = ((b - a) / 20 * 100) + "%";
+    [...$("hist").children].forEach((bar, i) => bar.classList.toggle("off", i < a || i >= b));
+  }
+  $("pmin").addEventListener("input", () => { syncPrice("min"); update(); });
+  $("pmax").addEventListener("input", () => { syncPrice("max"); update(); });
+  function seg(id, key) {
+    $(id).addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      S[key] = +b.dataset.v;
+      $(id).querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      update();
+    });
+  }
+  seg("beds", "beds"); seg("baths", "baths");
+  $("minArea").addEventListener("change", (e) => { S.area = +e.target.value; update(); });
+  document.querySelectorAll("[data-more]").forEach((c) => c.addEventListener("change", () => { S.more[c.dataset.more] = c.checked; update(); }));
+
+  // popovers
+  let openPop = null;
+  function closePop(focus) {
+    if (!openPop) return;
+    const btn = document.querySelector(`[data-pop="${openPop}"]`);
+    $("pop-" + openPop).classList.remove("open"); btn.setAttribute("aria-expanded", "false");
+    if (focus) btn.focus();
+    openPop = null;
+  }
+  document.querySelectorAll("[data-pop]").forEach((btn) => btn.addEventListener("click", () => {
+    const k = btn.dataset.pop, was = openPop === k;
+    closePop(false);
+    if (was) return;
+    openPop = k; const pop = $("pop-" + k);
+    if (innerWidth <= 720) pop.style.top = ($("filters").getBoundingClientRect().bottom + 8) + "px"; else pop.style.top = "";
+    pop.classList.add("open"); btn.setAttribute("aria-expanded", "true");
+    const first = pop.querySelector("input, select, button"); setTimeout(() => first && first.focus({ preventScroll: true }), 30);
+  }));
+  document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closePop(true)));
+  document.addEventListener("pointerdown", (e) => { if (openPop && !e.target.closest(".f")) closePop(false); });
+  $("filters").addEventListener("focusout", (e) => { if (openPop && e.relatedTarget && !e.relatedTarget.closest(".f")) closePop(false); });
+
+  function resetFilters() {
+    S.pmin = 0; S.pmax = 20; $("pmin").value = 0; $("pmax").value = 20; syncPrice();
+    S.beds = 0; S.baths = 0; ["beds", "baths"].forEach((id) => $(id).querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.v === "0"))));
+    S.types = new Set(TYPES); typeBox.querySelectorAll("input").forEach((c) => c.checked = true);
+    S.area = 0; $("minArea").value = "0";
+    Object.keys(S.more).forEach((k) => S.more[k] = false); document.querySelectorAll("[data-more]").forEach((c) => c.checked = false);
+  }
+  function resetAll() {
+    resetFilters(); S.q = ""; $("q").value = ""; $("searchBox").classList.remove("has");
+    S.savedOnly = false; $("savedBtn").setAttribute("aria-pressed", "false");
+    S.bounds = null; $("here").classList.remove("on");
+    update();
+  }
+  $("clearAll").addEventListener("click", () => { resetFilters(); S.bounds = null; update(); });
+  $("emptyBtn").addEventListener("click", () => {
+    if (S.savedOnly && !S.saved.size) { S.savedOnly = false; $("savedBtn").setAttribute("aria-pressed", "false"); update(); return; }
+    resetAll(); zi = fitZ(); glide(() => { M.z = Z[zi]; center(HOME.cx, HOME.cy); });
+  });
+
+  // search field
+  $("q").addEventListener("input", (e) => { S.q = e.target.value.trim().toLowerCase(); $("searchBox").classList.toggle("has", !!e.target.value); update(); });
+  $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") e.preventDefault(); });
+  $("qx").addEventListener("click", (e) => { e.preventDefault(); $("q").value = ""; S.q = ""; $("searchBox").classList.remove("has"); update(); $("q").focus(); });
+
+  $("sort").addEventListener("change", (e) => { S.sort = e.target.value; update(); });
+
+  $("saveSearch").addEventListener("click", () => {
+    const on = $("saveSearch").getAttribute("aria-pressed") !== "true";
+    $("saveSearch").setAttribute("aria-pressed", String(on));
+    $("saveSearch").querySelector("span").textContent = on ? "Search saved" : "Save search";
+    $("saveSearch").querySelector("use").setAttribute("href", on ? "#i-check" : "#i-bell");
+    toast(on ? "Search saved. New matches will show under Saved each morning." : "Search removed from your alerts.");
+  });
+
+  function toast(t) { $("toastT").textContent = t; $("toast").classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").classList.remove("on"), 3200); }
+
+  /* ---------- update everything ---------- */
+  function filterLabels(list) {
+    const pb = document.querySelector('[data-pop="price"]');
+    const pOn = S.pmin > 0 || S.pmax < 20;
+    pb.classList.toggle("on", pOn);
+    pb.querySelector(".v").textContent = !pOn ? "Price" : S.pmin === 0 ? `Up to ${short(PRICE_STEPS[S.pmax])}` : S.pmax === 20 ? `${short(PRICE_STEPS[S.pmin])}+` : `${short(PRICE_STEPS[S.pmin])} – ${short(PRICE_STEPS[S.pmax])}`;
+    const rb = document.querySelector('[data-pop="rooms"]');
+    rb.classList.toggle("on", !!(S.beds || S.baths));
+    rb.querySelector(".v").textContent = S.beds || S.baths ? [S.beds && `${S.beds}+ bd`, S.baths && `${S.baths}+ ba`].filter(Boolean).join(", ") : "Beds & baths";
+    const tb = document.querySelector('[data-pop="type"]');
+    const tOn = S.types.size < TYPES.length;
+    tb.classList.toggle("on", tOn);
+    tb.querySelector(".v").textContent = !tOn ? "Home type" : S.types.size === 0 ? "No types" : S.types.size === 1 ? [...S.types][0] : `${S.types.size} types`;
+    const mN = Object.values(S.more).filter(Boolean).length + (S.area ? 1 : 0);
+    const mb = document.querySelector('[data-pop="more"]');
+    mb.classList.toggle("on", mN > 0);
+    mb.querySelector(".v").textContent = mN ? `More filters · ${mN}` : "More filters";
+    $("clearAll").hidden = !(pOn || S.beds || S.baths || tOn || mN);
+    const n = list.length;
+    document.querySelectorAll("[data-close]").forEach((b) => { b.textContent = n ? `Show ${n} home${n === 1 ? "" : "s"}` : "No homes match"; });
+    // live counts inside the popovers
+    ["garden", "parking", "recent", "cut"].forEach((k) => {
+      const was = S.more[k]; S.more[k] = true; const c = L.filter((l) => passes(l)).length; S.more[k] = was; $("c-" + k).textContent = c;
+    });
+    TYPES.forEach((t) => { const c = L.filter((l) => l.type === t && passes(l, "type")).length; document.querySelector(`[data-tc="${t}"]`).textContent = c; });
+  }
+
+  let first = true;
+  function update() {
+    const list = visible();
+    const ord = [...list];
+    const key = { rec: (a, b) => a.id - b.id, new: (a, b) => a.days - b.days, asc: (a, b) => a.price - b.price, desc: (a, b) => b.price - a.price, size: (a, b) => b.sqft - a.sqft }[S.sort];
+    ord.sort(key);
+    const show = new Set(list.map((l) => l.id));
+    // FLIP the cards
+    const before = new Map();
+    if (!first && !still) cardEls.forEach((el, id) => { if (!el.hidden) before.set(id, el.getBoundingClientRect()); });
+    const all = [...L].sort(key);
+    all.forEach((l) => { const el = cardEls.get(l.id); el.hidden = !show.has(l.id); cardsEl.append(el); });
+    if (!first && !still) {
+      const vh = $("listcol").clientHeight;
+      cardEls.forEach((el, id) => {
+        if (el.hidden) return;
+        const r = el.getBoundingClientRect(), b = before.get(id);
+        if (r.top > vh + 400 || r.bottom < -400) return;
+        el.style.transition = "none";
+        if (b) { const dx = b.left - r.left, dy = b.top - r.top; if (dx || dy) el.style.transform = `translate(${dx}px, ${dy}px)`; }
+        else { el.style.opacity = "0"; el.style.transform = "translateY(10px) scale(.98)"; }
+      });
+      void cardsEl.offsetWidth;
+      cardEls.forEach((el) => { el.style.transition = ""; el.style.transform = ""; el.style.opacity = ""; });
+    }
+    pinEls.forEach((p, id) => p.classList.toggle("out", !show.has(id)));
+    if (S.sel != null && !show.has(S.sel)) closeMini();
+    const n = list.length;
+    $("count").innerHTML = S.savedOnly ? `${n} saved home${n === 1 ? "" : "s"}` : S.bounds ? `${n} home${n === 1 ? "" : "s"} in this part of the map` : `${n} home${n === 1 ? "" : "s"}${n === L.length ? "<span class=upd> · updated 12 minutes ago</span>" : ""}`;
+    $("h1").textContent = S.savedOnly ? "Your saved homes" : "Homes for sale in Larkhaven";
+    const empty = $("empty"); empty.classList.toggle("on", n === 0);
+    if (n === 0) {
+      if (S.savedOnly && !S.saved.size) { $("emptyT").textContent = "Nothing saved yet"; $("emptyP").textContent = "Tap the heart on any home and it will wait for you here, along with price changes."; $("emptyBtn").textContent = "Browse all homes"; }
+      else if (S.bounds && L.some((l) => { const b = S.bounds; S.bounds = null; const r = passes(l); S.bounds = b; return r; })) { $("emptyT").textContent = "No homes in this part of the map"; $("emptyP").textContent = "Move the map or zoom out to see homes that match your filters."; $("emptyBtn").textContent = "Show all of Larkhaven"; }
+      else { $("emptyT").textContent = "No homes match these filters"; $("emptyP").textContent = "Try a wider price range or fewer must-haves. New homes come up in Larkhaven most days."; $("emptyBtn").textContent = "Clear filters"; }
+    }
+    filterLabels(list);
+    first = false;
+  }
+
+  /* ---------- small screens: list or map ---------- */
+  function setMap(on) {
+    document.body.classList.toggle("mapopen", on);
+    $("mapBtn").setAttribute("aria-pressed", String(on));
+    $("mapBtn").querySelector("span").textContent = on ? "List" : "Map";
+    $("mapBtn").querySelector("use").setAttribute("href", on ? "#i-list" : "#i-map");
+    if (on) { measure(); if (!fitted) { fitted = true; zi = fitZ(); M.z = Z[zi]; center(HOME.cx, HOME.cy); } clamp(); place(); } else closeMini();
+  }
+  $("mapBtn").addEventListener("click", () => setMap(!document.body.classList.contains("mapopen")));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (openPop) { closePop(true); return; }
+    if (S.sel != null) { closeMini(true); return; }
+    if (document.body.classList.contains("mapopen")) setMap(false);
+  });
+
+  /* ---------- start ---------- */
+  drawMap();
+  syncPrice();
+  S.saved.forEach((id) => syncSaved(id, false));
+  measure(); zi = fitZ(); M.z = Z[zi]; center(HOME.cx, HOME.cy); place();
+  update();
+  let lastW = innerWidth;
+  new ResizeObserver(() => {
+    const cx = (M.w / 2 - M.x) / M.z, cy = (M.h / 2 - M.y) / M.z;
+    measure(); if (M.w && M.h) { center(cx, cy); place(); }
+  }).observe(view);
+  narrowQ.addEventListener("change", () => { if (!narrowQ.matches) document.body.classList.remove("mapopen"); closeMini(); });
+</script>
+</body>
+</html>

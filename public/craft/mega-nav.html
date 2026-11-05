@@ -1,0 +1,669 @@
+<!doctype html>
+<!-- Mega menu navbar — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A site navbar for a shipping API whose dropdown is one panel that morphs: its width, height and position
+     glide from menu to menu while the contents cross-fade sideways and a notch follows the active item.
+     Arrow keys, Enter and Esc work; below 768px it becomes a full-height drawer with accordion sections. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portage — Shipping API</title>
+<style>
+  :root {
+    --bg: #ffffff; --wash: #f4f5f6; --ink: #11151a; --soft: #4f5863; --dim: #69727d; --line: #e3e6ea; --line-2: #cdd2d8;
+    --sun: #ffcf1f; --sun-wash: #fff6d1; --go: #11784a;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.22, .8, .24, 1);
+    --nav: 64px; --pad: 40px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { min-height: 100dvh; background: var(--bg); color: var(--ink); font: 15px/24px var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 var(--pad); }
+
+  /* ---------- bar ---------- */
+  .top { position: sticky; top: 0; z-index: 40; background: var(--bg); border-bottom: 1px solid var(--line); overflow-x: clip; }
+  .bar { position: relative; display: flex; align-items: center; height: var(--nav); gap: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding-right: 4px; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+  .logo svg { width: 26px; height: 26px; }
+  .logo rect { fill: var(--sun); stroke: none; }
+  .logo path { stroke: var(--ink); stroke-width: 2.25; }
+  .logo circle { fill: var(--ink); stroke: none; }
+  .bar > nav { flex: 1; min-width: 0; }
+  .menu { display: flex; align-items: center; justify-content: center; gap: 2px; list-style: none; }
+  .ti { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 12px; border-radius: 8px; font-size: 15px; font-weight: 500; color: var(--soft); transition: color .15s, background-color .15s; }
+  .ti:hover, .ti[aria-expanded="true"] { color: var(--ink); }
+  .ti[aria-expanded="true"] { background: var(--wash); }
+  .ti svg { width: 14px; height: 14px; stroke-width: 1.75; margin-right: -4px; color: var(--dim); transition: transform .22s var(--ease); }
+  .ti[aria-expanded="true"] svg { transform: rotate(180deg); color: var(--ink); }
+  .side { display: flex; align-items: center; gap: 8px; }
+  .signin { height: 36px; padding: 0 12px; display: inline-flex; align-items: center; font-weight: 500; color: var(--soft); border-radius: 8px; transition: color .15s; }
+  .signin:hover { color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 8px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; white-space: nowrap; transition: background-color .15s, transform .15s var(--ease); }
+  .btn:hover { background: #262c34; }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 16px; height: 16px; stroke-width: 1.75; transition: transform .2s var(--ease); }
+  .btn:hover svg { transform: translateX(2px); }
+  .btn.ghost { background: var(--bg); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .btn.ghost:hover { background: var(--wash); }
+  .burger { display: none; width: 40px; height: 40px; margin-right: -8px; border-radius: 8px; place-items: center; }
+  .burger i { position: absolute; width: 18px; height: 1.5px; border-radius: 1px; background: var(--ink); transition: transform .24s var(--ease), opacity .15s; }
+  .burger i:nth-child(1) { transform: translateY(-5px); }
+  .burger i:nth-child(3) { transform: translateY(5px); }
+  .burger[aria-expanded="true"] i:nth-child(1) { transform: rotate(45deg); }
+  .burger[aria-expanded="true"] i:nth-child(2) { opacity: 0; }
+  .burger[aria-expanded="true"] i:nth-child(3) { transform: rotate(-45deg); }
+  .burger span.box { position: relative; display: grid; place-items: center; width: 18px; height: 18px; }
+
+  /* ---------- the morphing dropdown ---------- */
+  .dd { position: absolute; top: calc(var(--nav) - 4px); left: 0; z-index: 41; width: var(--w, 400px); height: var(--h, 300px); transform: translateX(var(--x, 0px)); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .16s ease-out, visibility 0s .16s; }
+  .dd::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+  .dd.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .16s ease-out, visibility 0s; }
+  .dd.morph { transition: width .32s var(--ease), height .32s var(--ease), transform .32s var(--ease), opacity .16s ease-out, visibility 0s; }
+  .dd .card { position: absolute; inset: 0; border-radius: 14px; background: var(--bg); box-shadow: 0 0 0 1px rgba(17, 21, 26, .08), 0 14px 32px -12px rgba(17, 21, 26, .22), 0 4px 8px -4px rgba(17, 21, 26, .06); transform-origin: var(--nx, 50%) 0; transition: transform .2s var(--ease); }
+  .dd:not(.on) .card { transform: translateY(-6px) scale(.98); }
+  .notch { position: absolute; top: -6px; left: var(--nx, 50%); width: 12px; height: 12px; margin-left: -6px; border-radius: 2px 0 0 0; background: var(--bg); box-shadow: -1px -1px 0 rgba(17, 21, 26, .08); transform: rotate(45deg); }
+  .dd.morph .notch { transition: left .32s var(--ease); }
+  .clip { position: absolute; inset: 0; overflow: hidden; border-radius: 14px; }
+  .panel { position: absolute; top: 0; left: 0; width: var(--pw); max-width: calc(100vw - 32px); opacity: 0; visibility: hidden; transform: translateX(var(--from, 0px));
+    transition: opacity .18s ease-out, transform .28s var(--ease), visibility 0s .28s; }
+  .panel.cur { opacity: 1; visibility: visible; transform: none; transition: opacity .22s ease-out .06s, transform .28s var(--ease), visibility 0s; }
+  .panel.still { transition: none; }
+
+  /* panel parts */
+  .pp { display: grid; gap: 8px; padding: 12px; }
+  .ml { display: flex; gap: 12px; padding: 10px 12px; border-radius: 10px; transition: background-color .15s; outline-offset: -2px; }
+  .ml:hover, .ml:focus-visible { background: var(--wash); }
+  .ml .ic { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); transition: border-color .15s, background-color .15s; }
+  .ml:hover .ic, .ml:focus-visible .ic { border-color: var(--line-2); }
+  .ml b { display: block; font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: -.005em; }
+  .ml small { display: block; margin-top: 2px; font-size: 13px; line-height: 18px; color: var(--soft); }
+  .ml.flat { padding: 8px 12px; }
+  .ml.flat b { font-size: 14px; }
+  .ml.flat .ic { width: auto; height: auto; border: 0; background: none; color: var(--dim); padding-top: 1px; }
+  .ml.flat:hover .ic, .ml.flat:focus-visible .ic { color: var(--ink); }
+  .ml.flat .ic svg { width: 18px; height: 18px; }
+  .lab { padding: 8px 12px 4px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--dim); letter-spacing: .02em; }
+  .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; border-top: 1px solid var(--line); background: #fafafa; font-size: 13px; color: var(--soft); }
+  .tx { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink); border-radius: 4px; }
+  .tx svg { width: 14px; height: 14px; stroke-width: 1.75; transition: transform .2s var(--ease); }
+  .tx:hover svg, a:hover > .tx svg, a:focus-visible > .tx svg { transform: translateX(2px); }
+
+  #p-product { --pw: 728px; }
+  #p-product .pp { grid-template-columns: 1fr 1fr 232px; }
+  .feat { grid-row: span 3; grid-column: 3; display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--wash); transition: background-color .15s; outline-offset: -2px; }
+  .feat:hover, .feat:focus-visible { background: #eceef0; }
+  .feat .map { width: 100%; height: 108px; border-radius: 6px; background: var(--bg); }
+  .feat .map svg { width: 100%; height: 100%; }
+  .feat b { margin-top: 4px; font-size: 15px; line-height: 20px; font-weight: 600; }
+  .feat small { font-size: 13px; line-height: 18px; color: var(--soft); }
+  .feat .tx { margin-top: auto; font-size: 13px; }
+
+  #p-solutions { --pw: 600px; }
+  #p-solutions .pp { grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+  .quote { grid-column: 1 / -1; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; margin-top: 4px; padding: 16px; border-radius: 10px; border: 1px solid var(--line); transition: border-color .15s; outline-offset: -2px; }
+  .quote:hover, .quote:focus-visible { border-color: var(--line-2); }
+  .quote q { grid-column: 1 / -1; font-size: 15px; line-height: 22px; font-weight: 500; letter-spacing: -.005em; quotes: "“" "”"; }
+  .quote .av { width: 40px; height: 40px; border-radius: 50%; background: #e7dfd3; color: #5a4630; display: grid; place-items: center; font-size: 13px; font-weight: 600; margin-top: 8px; }
+  .quote span { margin-top: 8px; font-size: 13px; line-height: 18px; color: var(--soft); }
+  .quote span b { display: block; color: var(--ink); font-weight: 600; }
+
+  #p-developers { --pw: 680px; }
+  #p-developers .pp { grid-template-columns: 1fr 292px; }
+  .devside { display: flex; flex-direction: column; gap: 12px; padding: 4px; }
+  .term { position: relative; border-radius: 10px; background: var(--ink); color: #e9edf1; padding: 12px 12px 12px 14px; font: 13px/20px var(--mono); display: flex; align-items: center; gap: 8px; }
+  .term .p { color: var(--sun); }
+  .term code { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cp { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 6px; color: #aab3bd; transition: background-color .15s, color .15s; flex: none; }
+  .cp:hover { background: #262c34; color: #fff; }
+  .cp svg { width: 16px; height: 16px; }
+  .cp .ok { display: none; color: var(--sun); }
+  .cp.done .ok { display: block; }
+  .cp.done .cpy { display: none; }
+  .term :focus-visible, .copyline :focus-visible { outline-color: var(--sun); outline-offset: 0; }
+  .log { display: grid; gap: 2px; }
+  .log a { display: grid; grid-template-columns: 52px 1fr; gap: 8px; padding: 6px 8px; border-radius: 8px; font-size: 13px; line-height: 18px; transition: background-color .15s; outline-offset: -2px; }
+  .log a:hover, .log a:focus-visible { background: var(--wash); }
+  .log time { color: var(--dim); font-variant-numeric: tabular-nums; }
+  .status { display: flex; align-items: center; gap: 8px; margin-top: auto; padding: 8px; font-size: 13px; color: var(--soft); border-radius: 8px; outline-offset: -2px; }
+  .status:hover { color: var(--ink); }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--go); flex: none; }
+
+  #p-resources { --pw: 376px; }
+  .latest { display: block; margin: 4px 0 0; padding: 12px; border-radius: 10px; background: var(--sun-wash); transition: background-color .15s; outline-offset: -2px; }
+  .latest:hover, .latest:focus-visible { background: #ffefb0; }
+  .latest small { display: block; font-size: 12px; line-height: 16px; color: #6b5600; font-weight: 600; }
+  .latest b { display: block; margin-top: 4px; font-size: 14px; line-height: 20px; font-weight: 600; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr); gap: 48px; align-items: center; min-height: calc(100dvh - var(--nav) - 1px); padding-top: 48px; padding-bottom: 48px; }
+  .news { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; font-size: 14px; line-height: 20px; color: var(--soft); border-radius: 6px; }
+  .news b { font-weight: 600; color: var(--ink); }
+  .news .tx { font-weight: 500; color: var(--soft); }
+  .news:hover .tx { color: var(--ink); }
+  .news .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 3px var(--sun-wash); }
+  h1 { font-size: 56px; line-height: 60px; font-weight: 700; letter-spacing: -.032em; max-width: 12ch; text-wrap: balance; }
+  .lede { margin-top: 20px; max-width: 30em; font-size: 18px; line-height: 28px; color: var(--soft); text-wrap: pretty; }
+  .ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 32px; }
+  .ctas .btn { height: 44px; padding: 0 20px; font-size: 15px; border-radius: 10px; }
+  .copyline { display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0 6px 0 14px; border-radius: 10px; background: var(--wash); font: 14px/20px var(--mono); color: var(--ink); }
+  .copyline .p { color: var(--dim); margin-right: 4px; }
+  .copyline .cp { color: var(--dim); }
+  .copyline .cp:hover { background: #e7e9ec; color: var(--ink); }
+  .copyline .cp .ok { color: var(--go); }
+  .fine { margin-top: 20px; font-size: 13px; line-height: 20px; color: var(--dim); }
+
+  .stage { position: relative; height: 480px; }
+  .stage .grid { position: absolute; inset: 0 -40px 0 0; border-radius: 20px 0 0 20px; background: var(--wash) radial-gradient(circle, #d4d8dd 1px, transparent 1.4px) 0 0 / 20px 20px; }
+  .stage .route { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .rates { position: absolute; left: 24px; top: 40px; width: 344px; border-radius: 14px; background: var(--bg); box-shadow: 0 0 0 1px rgba(17, 21, 26, .07), 0 12px 28px -14px rgba(17, 21, 26, .25); overflow: hidden; }
+  .rh { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line); font: 12px/16px var(--mono); }
+  .rh .verb { font-weight: 700; color: var(--ink); }
+  .rh .path { color: var(--soft); }
+  .rh .ok { margin-left: auto; color: var(--go); }
+  .trip { display: flex; align-items: center; gap: 8px; padding: 12px 14px 8px; font-size: 13px; line-height: 18px; color: var(--soft); }
+  .trip b { color: var(--ink); font-weight: 600; }
+  .trip svg { width: 14px; height: 14px; color: var(--dim); }
+  .trip .w { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .opts { display: grid; gap: 2px; padding: 4px 6px 6px; border: 0; }
+  .opt { position: relative; display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 10px; padding: 10px 8px; border-radius: 9px; cursor: pointer; transition: background-color .15s; }
+  .opt:hover { background: #f8f8f9; }
+  .opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .opt .rd { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line-2); display: grid; place-items: center; transition: border-color .15s; }
+  .opt .rd::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); transform: scale(0); transition: transform .18s var(--ease); }
+  .opt input:checked + .rd { border-color: var(--ink); }
+  .opt input:checked + .rd::after { transform: scale(1); }
+  .opt input:focus-visible + .rd { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .opt:has(input:checked) { background: var(--wash); }
+  .opt .nm { font-size: 14px; line-height: 20px; font-weight: 600; }
+  .opt .nm small { display: block; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--soft); }
+  .opt .pr { text-align: right; font-size: 15px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .opt .pr small { display: block; font-size: 12px; line-height: 16px; font-weight: 400; color: var(--soft); }
+  .opt .tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; background: var(--sun); color: var(--ink); font-size: 11px; line-height: 18px; font-weight: 600; vertical-align: 1px; }
+  .rf { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--soft); }
+  .rf .btn { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+  .rf .btn.done { background: var(--go); }
+
+  .label { position: absolute; right: 0; top: 150px; width: 216px; padding: 12px; border-radius: 4px; background: #fffefb; color: #111; box-shadow: 0 0 0 1px rgba(17, 21, 26, .1), 0 18px 30px -16px rgba(17, 21, 26, .35); transform: rotate(3deg); transition: transform .35s var(--ease); font-size: 10px; line-height: 13px; }
+  .label.bump { transform: rotate(3deg) translateY(-6px); }
+  .lb { border: 2px solid #111; }
+  .lb > div { padding: 6px 8px; border-bottom: 2px solid #111; }
+  .lb > div:last-child { border-bottom: 0; }
+  .l1 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .l1 b { font-size: 15px; line-height: 18px; font-weight: 800; letter-spacing: -.01em; }
+  .l1 span { padding: 2px 6px; background: #111; color: #fff; font-weight: 700; letter-spacing: .06em; font-size: 10px; }
+  .l2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .l2 em { display: block; font-style: normal; font-weight: 700; font-size: 8px; letter-spacing: .08em; color: #444; }
+  .l3 svg { width: 100%; height: 56px; stroke: none; }
+  .l3 p { margin-top: 4px; text-align: center; font: 600 11px/14px var(--mono); letter-spacing: .06em; }
+  .l4 { display: flex; justify-content: space-between; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* ---------- drawer (below 768px) ---------- */
+  .drawer { position: fixed; top: var(--nav); left: 0; right: 0; bottom: 0; z-index: 39; display: flex; flex-direction: column; background: var(--bg); visibility: hidden; opacity: 0; transform: translateY(-8px); transition: opacity .2s ease-out, transform .26s var(--ease), visibility 0s .26s; }
+  .drawer.on { visibility: visible; opacity: 1; transform: none; transition: opacity .2s ease-out, transform .26s var(--ease), visibility 0s; }
+  .dscroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 8px 16px 16px; }
+  .acc { border-bottom: 1px solid var(--line); }
+  .acc > h2 { font: inherit; }
+  .ah { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 56px; padding: 0 4px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; text-align: left; border-radius: 6px; outline-offset: -2px; }
+  .ah svg { width: 18px; height: 18px; color: var(--dim); transition: transform .26s var(--ease); }
+  .ah[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .ab { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s var(--ease), visibility 0s .3s; visibility: hidden; }
+  .ab.open { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .3s var(--ease), visibility 0s; }
+  .ab > div { min-height: 0; overflow: hidden; }
+  .ab .list { display: grid; gap: 2px; padding: 0 0 12px; }
+  .ab .ml { padding: 8px; margin: 0 -4px; }
+  .dlink { display: flex; align-items: center; height: 56px; padding: 0 4px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; border-bottom: 1px solid var(--line); outline-offset: -2px; }
+  .dfoot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+  .dfoot .btn { height: 44px; font-size: 15px; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1100px) {
+    :root { --pad: 24px; }
+    .bar { gap: 12px; }
+    .ti { padding: 0 9px; }
+    .signin { display: none; }
+    .hero .wrap { grid-template-columns: 1fr; gap: 40px; padding-top: 56px; align-content: start; }
+    h1 { max-width: 15ch; }
+    .stage { max-width: 640px; width: 100%; }
+    .stage .grid { inset: 0; border-radius: 20px; }
+  }
+  @media (max-width: 767px) {
+    :root { --nav: 56px; --pad: 16px; }
+    .menu, .side .btn { display: none; }
+    .burger { display: grid; }
+    .side { margin-left: auto; }
+    .dd { display: none; }
+    .hero .wrap { padding-top: 32px; gap: 32px; }
+    .news { margin-bottom: 16px; font-size: 13px; }
+    h1 { font-size: 38px; line-height: 42px; letter-spacing: -.028em; }
+    .lede { font-size: 16px; line-height: 26px; margin-top: 16px; }
+    .ctas { margin-top: 24px; }
+    .ctas .btn { flex: 1 1 auto; }
+    .copyline { width: 100%; justify-content: space-between; }
+    .stage { height: auto; padding: 16px 12px 28px; }
+    .rates { position: relative; left: auto; top: auto; width: auto; }
+    .label { position: relative; right: auto; top: auto; width: 216px; margin: -8px 8px 0 auto; transform: rotate(2deg); }
+    .label.bump { transform: rotate(2deg) translateY(-6px); }
+    .stage .route { display: none; }
+  }
+  @media (min-width: 768px) { .drawer { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="wrap bar" id="bar">
+    <a class="logo" href="#" aria-label="Portage home">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7"/><path d="M9 19.5V7h5.25a3.75 3.75 0 0 1 0 7.5H9"/><circle cx="18" cy="19.5" r="1.6"/></svg>
+      Portage
+    </a>
+    <nav aria-label="Main">
+      <ul class="menu" id="menu">
+        <li><button class="ti" type="button" id="t-product" data-p="product" aria-expanded="false" aria-controls="p-product">Product<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button></li>
+        <li><button class="ti" type="button" id="t-solutions" data-p="solutions" aria-expanded="false" aria-controls="p-solutions">Solutions<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button></li>
+        <li><button class="ti" type="button" id="t-developers" data-p="developers" aria-expanded="false" aria-controls="p-developers">Developers<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button></li>
+        <li><button class="ti" type="button" id="t-resources" data-p="resources" aria-expanded="false" aria-controls="p-resources">Resources<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button></li>
+        <li><a class="ti" href="#" id="t-pricing">Pricing</a></li>
+      </ul>
+    </nav>
+    <div class="side">
+      <a class="signin" href="#">Sign in</a>
+      <a class="btn" href="#">Start building</a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu"><span class="box" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    </div>
+
+    <div class="dd" id="dd">
+      <div class="card"></div>
+      <span class="notch" aria-hidden="true"></span>
+      <div class="clip">
+
+        <section class="panel" id="p-product" aria-labelledby="t-product">
+          <div class="pp">
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 3.5h7.9v7.9l-9 9-7.9-7.9z"/><circle cx="16.25" cy="7.75" r="1.25"/></svg></span><span><b>Rates</b><small>Compare 140 carriers in one call</small></span></a>
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3.5h10V9M7 17H4.5V9h15v8H17M7 14h10v6.5H7z"/></svg></span><span><b>Labels</b><small>PDF, ZPL or PNG, ready to print</small></span></a>
+            <a class="feat" href="#">
+              <span class="map"><svg viewBox="0 0 208 108" aria-hidden="true"><g stroke="#dfe2e6" stroke-width="1"><path d="M0 27h208M0 54h208M0 81h208M52 0v108M104 0v108M156 0v108"/></g><path d="M24 80c26-4 30-40 62-42s38 30 64 24 30-34 38-40" stroke="#11151a" stroke-width="1.5" stroke-dasharray="3 4"/><circle cx="24" cy="80" r="4" fill="#fff" stroke="#11151a" stroke-width="1.5"/><circle cx="188" cy="22" r="5" fill="#ffcf1f" stroke="#11151a" stroke-width="1.5"/><path d="M128 65h40v16h-40z" fill="#fff" stroke="#11151a" stroke-width="1"/><text x="148" y="76" text-anchor="middle" font-size="8" font-weight="600" fill="#11151a" stroke="none" font-family="ui-monospace, Menlo, monospace">0.42 kg</text></svg></span>
+              <b>Carbon on every rate</b>
+              <small>Each quote now carries its CO₂e estimate, so checkout can offer the lighter route.</small>
+              <span class="tx">See what’s new<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></svg></span>
+            </a>
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s6-5.4 6-10.25a6 6 0 1 0-12 0C6 15.1 12 20.5 12 20.5z"/><circle cx="12" cy="10.25" r="2"/></svg></span><span><b>Tracking</b><small>One event format for every carrier</small></span></a>
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 13.5 4.5 9 9 4.5M4.5 9h10a5 5 0 0 1 0 10H11"/></svg></span><span><b>Returns</b><small>Prepaid labels and QR drop-offs</small></span></a>
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5v9.5H4z"/><path d="m9 14.25 2 2 4-4"/></svg></span><span><b>Addresses</b><small>Verify and correct before you ship</small></span></a>
+            <a class="ml" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h7.5l4 4v13h-11.5z"/><path d="M13.5 3.5v4.5h4.5M9.5 12.5h5M9.5 16h5"/></svg></span><span><b>Customs</b><small>Duties, HS codes and paperwork</small></span></a>
+          </div>
+          <div class="pfoot"><span>Plugins for 12 store platforms and 9 warehouse systems</span><a class="tx" href="#">Browse integrations<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></svg></a></div>
+        </section>
+
+        <section class="panel" id="p-solutions" aria-labelledby="t-solutions">
+          <div class="pp">
+            <div>
+              <p class="lab">By business</p>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.5v9h15v-9M3.5 5h17l-1 5.5h-15zM10 19.5v-5h4v5"/></svg></span><span><b>Marketplaces</b><small>Ship for thousands of sellers on one account</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 19.5 7.75v8.5L12 20.5l-7.5-4.25v-8.5zM4.5 7.75 12 12l7.5-4.25M12 12v8.5"/></svg></span><span><b>Direct to consumer</b><small>Branded tracking pages and easy returns</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h10v9.5M13.5 9.5h3.75L20.5 13v4.5h-1.75M8.75 17.5h6.5M3.5 15.5v2h1.75"/><circle cx="7" cy="17.5" r="1.75"/><circle cx="17" cy="17.5" r="1.75"/></svg></span><span><b>Wholesale and B2B</b><small>Pallets, freight quotes and booking</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20V9l8.5-5 8.5 5v11M7.5 20v-7h9v7M7.5 16.5h9"/></svg></span><span><b>3PL and fulfilment</b><small>Per-client carrier accounts and billing</small></span></a>
+            </div>
+            <div>
+              <p class="lab">By team</p>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5.5l-3 13"/></svg></span><span><b>Engineering</b><small>One integration instead of forty</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2"/><circle cx="9" cy="16.5" r="2"/></svg></span><span><b>Operations</b><small>Rules that pick the carrier for you</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2zM9.5 8.5h5M9.5 12.5h5"/></svg></span><span><b>Finance</b><small>Invoice audits and surcharge refunds</small></span></a>
+            </div>
+            <a class="quote" href="#">
+              <q>We replaced four carrier integrations with Portage in one sprint, and our label errors went to almost zero.</q>
+              <span class="av" aria-hidden="true">IV</span>
+              <span><b>Ilse Vermeulen</b>Head of platform, Halden Outdoor</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel" id="p-developers" aria-labelledby="t-developers">
+          <div class="pp">
+            <div>
+              <p class="lab">Documentation</p>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3.5 5.5 13.5H12l-1 7 7.5-10H12z"/></svg></span><span><b>Quickstart</b><small>Your first label in five minutes</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5a2 2 0 0 1 2-2h11.5v13H7a2 2 0 0 0-2 2zM5 18.5a2 2 0 0 0 2 2h11.5v-4"/></svg></span><span><b>API reference</b><small>Every endpoint, with examples</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM7.5 9.5l3 2.5-3 2.5M12.5 15h4"/></svg></span><span><b>SDKs</b><small>Node, Python, Go, Ruby and PHP</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14.5v5h16v-5M12 4v10.5M8 10.5l4 4 4-4"/></svg></span><span><b>Webhooks</b><small>Tracking events, pushed to you</small></span></a>
+              <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5h5M10.5 3.5V9L5 18.5a1.3 1.3 0 0 0 1.1 2h11.8a1.3 1.3 0 0 0 1.1-2L13.5 9V3.5M7.25 14.5h9.5"/></svg></span><span><b>Sandbox</b><small>Test carriers that never charge</small></span></a>
+            </div>
+            <div class="devside">
+              <div class="term"><span class="p" aria-hidden="true">$</span><code id="cmd1">npm install @portage/node</code><button class="cp" type="button" data-copy="cmd1" aria-label="Copy install command"><svg class="cpy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 8.5h11v11h-11z"/><path d="M15.5 8.5v-4h-11v11h4"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button></div>
+              <div class="log">
+                <p class="lab" style="padding-left:8px">Changelog</p>
+                <a href="#"><time datetime="2026-11-02">Nov 2</time><span>Multi-piece shipments</span></a>
+                <a href="#"><time datetime="2026-10-24">Oct 24</time><span>Webhook retries with backoff</span></a>
+                <a href="#"><time datetime="2026-10-09">Oct 9</time><span>Rates in six new currencies</span></a>
+                <a href="#"><time datetime="2026-09-28">Sep 28</time><span>Address checks for Japan</span></a>
+              </div>
+              <a class="status" href="#"><i aria-hidden="true"></i>API status: all systems normal</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="p-resources" aria-labelledby="t-resources">
+          <div class="pp">
+            <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5h12v14.5H6a1.5 1.5 0 0 1-1.5-1.5zM16.5 9h3v9a1.5 1.5 0 0 1-3 0M8 9h5M8 12.5h5M8 16h3"/></svg></span><span><b>Blog</b><small>Notes from the shipping floor</small></span></a>
+            <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg></span><span><b>Guides</b><small>Playbooks for peak season and beyond</small></span></a>
+            <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5z"/></svg></span><span><b>Carrier directory</b><small>Services, zones and cut-off times</small></span></a>
+            <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="m6 6 3.5 3.5M14.5 14.5 18 18M18 6l-3.5 3.5M9.5 14.5 6 18"/></svg></span><span><b>Help centre</b><small>Answers, and people when you need them</small></span></a>
+            <a class="ml flat" href="#"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 6h15v14h-15zM4.5 10h15M8.5 3.5v4M15.5 3.5v4"/></svg></span><span><b>Events</b><small>Office hours every other Thursday</small></span></a>
+            <a class="latest" href="#"><small>From the blog · Oct 29</small><b>Dimensional weight rules for 2027, carrier by carrier</b></a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+  <div class="dscroll" id="dscroll"></div>
+  <div class="dfoot"><a class="btn ghost" href="#">Sign in</a><a class="btn" href="#">Start building</a></div>
+</div>
+
+<main class="hero" id="hero">
+  <div class="wrap">
+    <div class="copy">
+      <a class="news" href="#"><span class="dot" aria-hidden="true"></span><b>v2.14</b> Multi-piece shipments <span class="tx">Read more<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></svg></span></a>
+      <h1>One API for every carrier you ship with</h1>
+      <p class="lede">Compare live rates, print labels and follow parcels across 140 carriers in 38 countries. Checkout, the warehouse and support all read the same shipment.</p>
+      <div class="ctas">
+        <a class="btn" href="#">Get API keys<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></svg></a>
+        <span class="copyline"><span><span class="p" aria-hidden="true">$</span><code id="cmd2">npm i @portage/node</code></span><button class="cp" type="button" data-copy="cmd2" aria-label="Copy install command"><svg class="cpy" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 8.5h11v11h-11z"/><path d="M15.5 8.5v-4h-11v11h4"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button></span>
+      </div>
+      <p class="fine">Free in the sandbox. 500 live labels a month on us, then from 4¢ a label.</p>
+    </div>
+
+    <div class="stage" aria-label="Example: rates for one parcel and the label it buys" role="group">
+      <div class="grid" aria-hidden="true"></div>
+      <svg class="route" viewBox="0 0 600 480" preserveAspectRatio="none" aria-hidden="true"><path d="M420 452c40-30 60-80 120-96" stroke="#bfc5cc" stroke-width="1.5" stroke-dasharray="3 5"/></svg>
+      <div class="rates">
+        <div class="rh"><span class="verb">POST</span><span class="path">/v2/rates</span><span class="ok">200 · 184 ms</span></div>
+        <div class="trip"><b>Rotterdam</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13.5 6.5 19 12l-5.5 5.5"/></svg><b>Lyon</b><span class="w">2.4 kg · 30×20×15 cm</span></div>
+        <fieldset class="opts" id="opts">
+          <legend class="sr">Choose a rate</legend>
+          <label class="opt"><input type="radio" name="rate" value="0" checked><span class="rd" aria-hidden="true"></span><span class="nm">Northline Ground<small>Tue 10 Nov · 3 days</small></span><span class="pr">€8.42<small>0.42 kg CO₂e</small></span></label>
+          <label class="opt"><input type="radio" name="rate" value="1"><span class="rd" aria-hidden="true"></span><span class="nm">Harbour Post Eco<span class="tag">Cheapest</span><small>Thu 12 Nov · 5 days</small></span><span class="pr">€6.15<small>0.31 kg CO₂e</small></span></label>
+          <label class="opt"><input type="radio" name="rate" value="2"><span class="rd" aria-hidden="true"></span><span class="nm">Kite Express<small>Sat 7 Nov · next day</small></span><span class="pr">€21.90<small>1.86 kg CO₂e</small></span></label>
+        </fieldset>
+        <div class="rf"><span id="rfT">3 of 11 carriers shown</span><button class="btn" id="buy" type="button">Buy label · €8.42</button></div>
+      </div>
+      <div class="label" id="label" aria-hidden="true">
+        <div class="lb">
+          <div class="l1"><b id="lC">NORTHLINE</b><span id="lS">GROUND</span></div>
+          <div class="l2"><p><em>FROM</em>Halden Outdoor<br>Industrieweg 14<br>3044 AS Rotterdam NL</p><p><em>SHIP TO</em>Camille Arnaud<br>7 Rue Mercière<br>69002 Lyon FR</p></div>
+          <div class="l3"><svg id="bars" viewBox="0 0 200 56" preserveAspectRatio="none"></svg><p id="lT">PG 4821 7730 0915 NL</p></div>
+          <div class="l4"><span>2.4 KG</span><span>1 OF 1</span><span id="lD">TUE 10 NOV</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<p class="sr" id="live" aria-live="polite"></p>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const desk = () => matchMedia("(min-width: 768px)").matches;
+  const say = (t) => { $("live").textContent = ""; setTimeout(() => { $("live").textContent = t; }, 30); };
+
+  /* links in this demo never navigate */
+  document.addEventListener("click", (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault(); });
+
+  /* ---------- the morphing dropdown ---------- */
+  const dd = $("dd"), bar = $("bar"), top = $("top");
+  const triggers = [...document.querySelectorAll(".ti")];           // includes Pricing, which has no panel
+  const menus = triggers.filter((t) => t.dataset.p);
+  const panelOf = (t) => $("p-" + t.dataset.p);
+  const S = { cur: null, by: null, closeT: 0, openT: 0, hideT: 0 };
+
+  const focusables = (el) => [...el.querySelectorAll("a[href], button:not(:disabled)")];
+
+  function measure(t) {
+    const p = panelOf(t);
+    const w = p.offsetWidth, h = p.offsetHeight;
+    const b = bar.getBoundingClientRect(), r = t.getBoundingClientRect();
+    const center = r.left + r.width / 2 - b.left;
+    const x = Math.round(Math.max(16 - b.left, Math.min(center - w / 2, innerWidth - 16 - w - b.left)));
+    const nx = Math.round(Math.max(20, Math.min(w - 20, center - x)));
+    return { w, h, x, nx };
+  }
+  function place(t) {
+    const m = measure(t);
+    dd.style.setProperty("--w", m.w + "px");
+    dd.style.setProperty("--h", m.h + "px");
+    dd.style.setProperty("--x", m.x + "px");
+    dd.style.setProperty("--nx", m.nx + "px");
+  }
+
+  function open(t, by) {
+    clearTimeout(S.closeT); clearTimeout(S.openT); clearTimeout(S.hideT);
+    if (!t || !t.dataset.p) { close(); return; }
+    const prev = S.cur;
+    if (prev === t) { S.by = by === "click" || S.by === "click" ? "click" : by; return; }
+    const panel = panelOf(t);
+    const quiet = calm();
+    if (!prev) {
+      /* first open: jump into place, then fade and settle */
+      dd.classList.remove("morph");
+      menus.forEach((m) => { const p = panelOf(m); p.classList.add("still"); p.classList.remove("cur"); p.style.removeProperty("--from"); });
+      panel.classList.add("cur");
+      place(t);
+      void dd.offsetWidth;
+      menus.forEach((m) => panelOf(m).classList.remove("still"));
+      dd.classList.add("on");
+      if (!quiet) requestAnimationFrame(() => requestAnimationFrame(() => { if (S.cur) dd.classList.add("morph"); }));
+    } else {
+      /* switch: the card morphs, the contents slide in from the side we are heading to */
+      const dir = menus.indexOf(t) > menus.indexOf(prev) ? 1 : -1;
+      const out = panelOf(prev);
+      out.style.setProperty("--from", -dir * 28 + "px");
+      out.classList.remove("cur");
+      panel.classList.add("still");
+      panel.style.setProperty("--from", dir * 28 + "px");
+      void panel.offsetWidth;
+      panel.classList.remove("still");
+      panel.classList.add("cur");
+      if (!quiet) dd.classList.add("morph");
+      place(t);
+      prev.setAttribute("aria-expanded", "false");
+    }
+    menus.forEach((m) => { const on = m === t; panelOf(m).inert = !on; });
+    t.setAttribute("aria-expanded", "true");
+    S.cur = t; S.by = by;
+  }
+
+  function close(refocus) {
+    clearTimeout(S.closeT); clearTimeout(S.openT);
+    const t = S.cur; if (!t) return;
+    t.setAttribute("aria-expanded", "false");
+    dd.classList.remove("on");
+    S.cur = null; S.by = null;
+    const hadFocus = dd.contains(document.activeElement);
+    S.hideT = setTimeout(() => { if (!S.cur) { dd.classList.remove("morph"); menus.forEach((m) => { panelOf(m).inert = true; }); } }, 200);
+    if (refocus || hadFocus) t.focus({ preventScroll: true });
+  }
+  menus.forEach((m) => { panelOf(m).inert = true; });
+
+  /* pointer: hover opens with a little intent, moving between items morphs at once */
+  triggers.forEach((t) => {
+    t.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse" || !desk()) return;
+      clearTimeout(S.closeT); clearTimeout(S.openT);
+      if (S.cur) open(t, "hover");
+      else if (t.dataset.p) S.openT = setTimeout(() => open(t, "hover"), 70);
+    });
+    t.addEventListener("pointerleave", () => clearTimeout(S.openT));
+  });
+  top.addEventListener("pointerleave", (e) => {
+    if (e.pointerType !== "mouse" || !S.cur || S.by === "click" || S.by === "key") return;
+    S.closeT = setTimeout(() => close(), 220);
+  });
+  top.addEventListener("pointerenter", () => clearTimeout(S.closeT));
+  dd.addEventListener("pointerenter", () => clearTimeout(S.closeT));
+
+  menus.forEach((t) => t.addEventListener("click", (e) => {
+    const viaKey = e.detail === 0;
+    if (S.cur === t) {
+      /* a click on a menu that hover just opened keeps it open (and pins it) */
+      if (S.by === "hover" && !viaKey) { S.by = "click"; return; }
+      close(true); return;
+    }
+    open(t, viaKey ? "key" : "click");
+  }));
+
+  /* keyboard on the bar */
+  $("menu").addEventListener("keydown", (e) => {
+    const t = e.target.closest(".ti"); if (!t) return;
+    const i = triggers.indexOf(t);
+    const go = (j) => {
+      const n = triggers[(j + triggers.length) % triggers.length];
+      n.focus();
+      if (S.cur) n.dataset.p ? open(n, "key") : close();
+    };
+    if (e.key === "ArrowRight") { e.preventDefault(); go(i + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); go(i - 1); }
+    else if (e.key === "Home") { e.preventDefault(); go(0); }
+    else if (e.key === "End") { e.preventDefault(); go(triggers.length - 1); }
+    else if ((e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey && S.cur === t)) && t.dataset.p) {
+      e.preventDefault();
+      open(t, "key");
+      focusables(panelOf(t))[0]?.focus({ preventScroll: true });
+    }
+    else if (e.key === "ArrowUp" && S.cur === t) { e.preventDefault(); close(true); }
+    else if (e.key === "Escape" && S.cur) { e.preventDefault(); close(true); }
+  });
+
+  /* keyboard inside a panel */
+  dd.addEventListener("keydown", (e) => {
+    if (!S.cur) return;
+    const list = focusables(panelOf(S.cur));
+    const i = list.indexOf(document.activeElement);
+    const mi = menus.indexOf(S.cur);
+    if (e.key === "ArrowDown") { e.preventDefault(); list[Math.min(list.length - 1, i + 1)]?.focus(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); if (i <= 0) S.cur.focus(); else list[i - 1].focus(); }
+    else if (e.key === "Home") { e.preventDefault(); list[0]?.focus(); }
+    else if (e.key === "End") { e.preventDefault(); list[list.length - 1]?.focus(); }
+    else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const n = menus[(mi + (e.key === "ArrowRight" ? 1 : -1) + menus.length) % menus.length];
+      open(n, "key");
+      focusables(panelOf(n))[0]?.focus({ preventScroll: true });
+    }
+    else if (e.key === "Escape") { e.preventDefault(); close(true); }
+    else if (e.key === "Tab") {
+      if (!e.shiftKey && i === list.length - 1) {
+        e.preventDefault();
+        const next = triggers[triggers.indexOf(S.cur) + 1];
+        close(); (next || document.querySelector(".side .btn")).focus();
+      } else if (e.shiftKey && i === 0) { e.preventDefault(); S.cur.focus(); }
+    }
+  });
+  /* choosing a link closes the menu */
+  dd.addEventListener("click", (e) => { const a = e.target.closest("a"); if (a) { const t = S.cur; close(); t?.focus({ preventScroll: true }); say(a.querySelector("b")?.textContent || a.textContent.trim()); } });
+
+  document.addEventListener("pointerdown", (e) => { if (S.cur && !dd.contains(e.target) && !e.target.closest(".ti")) close(); });
+  document.addEventListener("focusin", (e) => { if (S.cur && !dd.contains(e.target) && !$("menu").contains(e.target)) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.cur && !dd.contains(e.target) && !$("menu").contains(e.target)) close(true); });
+  addEventListener("resize", () => { if (S.cur) { if (!desk()) close(); else { dd.classList.remove("morph"); place(S.cur); } } if (desk() && D.on) drawer(false); });
+
+  /* ---------- drawer (below 768px): built from the same links ---------- */
+  const D = { on: false };
+  const chev = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+  $("dscroll").innerHTML = menus.map((t) => {
+    const id = t.dataset.p;
+    return `<section class="acc"><h2><button class="ah" type="button" aria-expanded="false" aria-controls="ab-${id}" id="ah-${id}">${t.firstChild.textContent}${chev}</button></h2><div class="ab" id="ab-${id}" role="region" aria-labelledby="ah-${id}"><div><div class="list"></div></div></div></section>`;
+  }).join("") + `<a class="dlink" href="#">Pricing</a>`;
+  menus.forEach((t) => {
+    const list = $("ab-" + t.dataset.p).querySelector(".list");
+    panelOf(t).querySelectorAll(".ml").forEach((a) => { const c = a.cloneNode(true); c.classList.remove("flat"); list.appendChild(c); });
+  });
+  const burger = $("burger"), dw = $("drawer");
+  function drawer(on) {
+    D.on = on;
+    dw.classList.toggle("on", on);
+    burger.setAttribute("aria-expanded", on);
+    burger.setAttribute("aria-label", on ? "Close menu" : "Open menu");
+    document.body.style.overflow = on ? "hidden" : "";
+    $("hero").inert = on;
+    if (on) dw.querySelector(".ah")?.focus({ preventScroll: true });
+    else if (dw.contains(document.activeElement) || document.activeElement === document.body) burger.focus({ preventScroll: true });
+  }
+  dw.inert = true;
+  burger.addEventListener("click", () => { drawer(!D.on); dw.inert = !D.on; });
+  $("dscroll").addEventListener("click", (e) => {
+    const h = e.target.closest(".ah");
+    if (h) {
+      const open = h.getAttribute("aria-expanded") !== "true";
+      h.setAttribute("aria-expanded", open);
+      $(h.getAttribute("aria-controls")).classList.toggle("open", open);
+      return;
+    }
+    if (e.target.closest("a")) { drawer(false); dw.inert = true; }
+  });
+  dw.querySelector(".dfoot").addEventListener("click", (e) => { if (e.target.closest("a")) { drawer(false); dw.inert = true; } });
+  document.addEventListener("keydown", (e) => {
+    if (!D.on) return;
+    if (e.key === "Escape") { e.preventDefault(); drawer(false); dw.inert = true; return; }
+    if (e.key !== "Tab") return;
+    const list = [burger, ...[...dw.querySelectorAll("a[href], button")].filter((el) => el.offsetParent !== null && !el.closest(".ab:not(.open)"))];
+    const i = list.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); list[list.length - 1].focus(); }
+    else if (!e.shiftKey && i === list.length - 1) { e.preventDefault(); list[0].focus(); }
+  });
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll(".cp").forEach((b) => b.addEventListener("click", async () => {
+    const text = $(b.dataset.copy).textContent;
+    try { await navigator.clipboard.writeText(text); } catch (_) { /* sandboxed frames refuse; still show the state */ }
+    b.classList.add("done"); b.setAttribute("aria-label", "Copied");
+    say("Copied " + text);
+    clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove("done"); b.setAttribute("aria-label", "Copy install command"); }, 1600);
+  }));
+
+  /* ---------- the hero's rate card drives the label ---------- */
+  const RATES = [
+    { c: "NORTHLINE", s: "GROUND", p: "€8.42", d: "TUE 10 NOV", t: "PG 4821 7730 0915 NL" },
+    { c: "HARBOUR POST", s: "ECO", p: "€6.15", d: "THU 12 NOV", t: "HP 0063 5518 2047 NL" },
+    { c: "KITE", s: "EXPRESS", p: "€21.90", d: "SAT 7 NOV", t: "KX 7719 4402 8836 NL" },
+  ];
+  function bars(seed) {
+    let s = seed, x = 0, out = "";
+    const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    while (x < 196) { const w = 1 + Math.floor(rnd() * 3); if (rnd() > 0.38) out += `<rect x="${x}" y="0" width="${w}" height="56" fill="#111"/>`; x += w + 1; }
+    $("bars").innerHTML = out;
+  }
+  function setRate(i, animate) {
+    const r = RATES[i];
+    $("lC").textContent = r.c; $("lS").textContent = r.s; $("lD").textContent = r.d; $("lT").textContent = r.t;
+    $("buy").textContent = "Buy label · " + r.p; $("buy").classList.remove("done");
+    bars(4821 + i * 977);
+    if (animate && !calm()) { const l = $("label"); l.classList.remove("bump"); void l.offsetWidth; l.classList.add("bump"); setTimeout(() => l.classList.remove("bump"), 260); }
+  }
+  $("opts").addEventListener("change", (e) => setRate(+e.target.value, true));
+  $("buy").addEventListener("click", () => {
+    const b = $("buy"); if (b.classList.contains("done")) return;
+    b.classList.add("done"); b.textContent = "Label bought";
+    $("rfT").textContent = "Tracking webhook armed";
+    say("Label bought");
+    setTimeout(() => { const i = +document.querySelector('#opts input:checked').value; setRate(i); $("rfT").textContent = "3 of 11 carriers shown"; }, 2200);
+  });
+  setRate(0);
+})();
+</script>
+</body>
+</html>

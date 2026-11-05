@@ -1,0 +1,671 @@
+<!doctype html>
+<!-- Clinic booking — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A calm appointment booking page for a family practice: pick a reason, a doctor and a time on one
+     page while a summary fills in beside it. Large type, plain words, keyboard-friendly, and if a time
+     is taken while you choose, it says so kindly and offers the two nearest. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Book an appointment — Larkspur Clinic</title>
+<style>
+  :root {
+    --bg: #f2f5f3; --card: #ffffff; --ink: #13201d; --soft: #45534f; --faint: #6b7975; --line: #d3dcd8; --line-2: #b9c6c1;
+    --teal: #0c6553; --teal-2: #094f41; --tint: #e2f0eb; --tint-2: #cfe6de; --lark: #4b55a0;
+    --warm: #fdf2e3; --warm-ink: #7a420c; --warm-line: #efd2a9;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 18px; background: var(--bg); }
+  html.big { font-size: 21px; }
+  body { background: var(--bg); color: var(--ink); font: 1rem/1.5 var(--sans); font-variant-numeric: tabular-nums; overflow-x: hidden; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  svg { display: block; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* header */
+  .top { background: var(--card); border-bottom: 1px solid var(--line); }
+  .top-in { max-width: 1360px; margin: 0 auto; padding: 0 40px; height: 4rem; display: flex; align-items: center; gap: 2rem; }
+  .logo { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; letter-spacing: -.01em; }
+  .logo svg { width: 1.9rem; height: 1.9rem; }
+  .logo span { font-weight: 500; color: var(--soft); }
+  .tnav { display: flex; gap: .4rem; }
+  .tnav a { white-space: nowrap; padding: .45rem .8rem; border-radius: 8px; text-decoration: none; color: var(--soft); font-size: .9rem; }
+  .tnav a:hover { background: var(--bg); color: var(--ink); }
+  .tnav a[aria-current] { color: var(--ink); background: var(--tint); font-weight: 600; }
+  .tright { margin-left: auto; display: flex; align-items: center; gap: 1.2rem; font-size: .9rem; }
+  .call { color: var(--soft); white-space: nowrap; display: flex; align-items: center; gap: .4rem; }
+  .call .ico { width: 1.1rem; height: 1.1rem; color: var(--teal); }
+  .call b { color: var(--ink); font-weight: 600; }
+  .bigbtn { white-space: nowrap; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .85rem; border: 1.5px solid var(--line-2); border-radius: 8px; font-weight: 600; font-size: .85rem; background: var(--card); }
+  .bigbtn:hover { border-color: var(--ink); }
+  .bigbtn[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .bigbtn .aa { font-weight: 700; letter-spacing: -.02em; }
+  .bigbtn .aa small { font-size: .7em; }
+  .me { display: flex; align-items: center; gap: .6rem; white-space: nowrap; }
+  .ini { width: 2.2rem; height: 2.2rem; border-radius: 50%; display: grid; place-items: center; background: #ede4f5; color: #4b2c6b; font-weight: 700; font-size: .8rem; }
+
+  /* page */
+  .page { max-width: 1360px; margin: 0 auto; padding: 2.2rem 40px 4rem; display: grid; grid-template-columns: minmax(0, 1fr) 23rem; gap: 2.5rem; align-items: start; }
+  .intro h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -.02em; font-weight: 700; }
+  .intro p { color: var(--soft); margin-top: .4rem; font-size: 1.05rem; }
+  .steps { display: grid; gap: 1.5rem; margin-top: 1.8rem; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem 1.8rem 1.8rem; }
+  .step-h { display: flex; align-items: flex-start; gap: .9rem; margin-bottom: 1.2rem; }
+  .num { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; flex: none; border: 2px solid var(--line-2); font-weight: 700; font-size: .9rem; color: var(--soft); transition: background .2s, border-color .2s, color .2s; }
+  .step.done .num { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .step-h .num { margin-top: .05rem; }
+  .step-h h2 { font-size: 1.3rem; line-height: 1.25; letter-spacing: -.01em; }
+  .step-h p { color: var(--soft); font-size: .9rem; }
+  fieldset { border: 0; min-width: 0; }
+
+  /* reason chips */
+  .reasons { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
+  .opt { position: relative; display: flex; align-items: center; gap: .6rem; min-height: 3.3rem; padding: .7rem .9rem; border: 1.5px solid var(--line-2); border-radius: 10px; background: var(--card); cursor: pointer; font-size: .95rem; line-height: 1.25; transition: border-color .15s, background .15s; }
+  .opt:hover { border-color: var(--ink); }
+  .opt .tick { width: 1.15rem; height: 1.15rem; border-radius: 50%; border: 2px solid var(--line-2); flex: none; display: grid; place-items: center; transition: border-color .15s, background .15s; }
+  .opt .tick svg { width: .75rem; height: .75rem; stroke: #fff; stroke-width: 3.5; fill: none; opacity: 0; }
+  input.sr:checked + .opt { border-color: var(--teal); background: var(--tint); box-shadow: inset 0 0 0 1px var(--teal); font-weight: 600; }
+  input.sr:checked + .opt .tick { background: var(--teal); border-color: var(--teal); }
+  input.sr:checked + .opt .tick svg { opacity: 1; }
+  input.sr:focus-visible + .opt, input.sr:focus-visible + .doc, input.sr:focus-visible + .day, input.sr:focus-visible + .slot, input.sr:focus-visible + .mode { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+  .more { margin-top: 1rem; }
+  .more label { display: block; font-weight: 600; font-size: .95rem; margin-bottom: .4rem; }
+  .more label span { font-weight: 400; color: var(--soft); }
+  textarea { width: 100%; min-height: 5.2rem; resize: vertical; padding: .75rem .9rem; border: 1.5px solid var(--line-2); border-radius: 10px; background: #fff; line-height: 1.45; }
+  textarea:focus-visible, select:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 1px; border-color: var(--ink); }
+  .count { font-size: .8rem; color: var(--faint); text-align: right; margin-top: .25rem; }
+  .advice { display: flex; gap: .7rem; margin-top: 1rem; padding: .8rem 1rem; border-radius: 10px; background: var(--warm); border: 1px solid var(--warm-line); color: var(--warm-ink); font-size: .9rem; }
+  .advice .ico { margin-top: .1rem; }
+  .advice b { color: #5c3008; }
+
+  /* doctors */
+  .docs { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+  .doc { display: grid; grid-template-columns: auto 1fr auto; gap: .85rem; align-items: start; padding: .95rem 1rem; border: 1.5px solid var(--line-2); border-radius: 12px; cursor: pointer; background: var(--card); transition: border-color .15s, background .15s; height: 100%; }
+  .doc:hover { border-color: var(--ink); }
+  input.sr:checked + .doc { border-color: var(--teal); background: var(--tint); box-shadow: inset 0 0 0 1px var(--teal); }
+  .portrait { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 1.05rem; letter-spacing: .02em; }
+  .doc b { display: block; font-size: 1.02rem; line-height: 1.3; }
+  .doc .role { display: block; color: var(--soft); font-size: .85rem; line-height: 1.4; }
+  .doc .langs { display: flex; gap: .4rem; align-items: flex-start; line-height: 1.4; font-size: .85rem; color: var(--soft); margin-top: .4rem; }
+  .doc .langs .ico { width: 1rem; height: 1rem; margin-top: .15rem; }
+  .doc .next { display: block; margin-top: .45rem; font-size: .88rem; font-weight: 600; color: var(--teal-2); }
+  .doc .next.none { color: var(--faint); font-weight: 500; }
+  .doc .tick { margin-top: .2rem; width: 1.3rem; height: 1.3rem; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; }
+  .doc .tick svg { width: .8rem; height: .8rem; stroke: #fff; stroke-width: 3.5; fill: none; opacity: 0; }
+  input.sr:checked + .doc .tick { background: var(--teal); border-color: var(--teal); }
+  input.sr:checked + .doc .tick svg { opacity: 1; }
+  .any .portrait { background: var(--bg); color: var(--teal); border: 1.5px dashed var(--line-2); }
+  .any .portrait svg { width: 1.4rem; height: 1.4rem; }
+
+  /* when */
+  .modes { display: inline-grid; grid-template-columns: 1fr 1fr; gap: .3rem; padding: .3rem; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); margin-bottom: 1.3rem; }
+  .mode { display: flex; align-items: center; gap: .55rem; padding: .6rem 1.1rem; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: .95rem; color: var(--soft); }
+  .mode:hover { color: var(--ink); }
+  input.sr:checked + .mode { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(19, 32, 29, .12), 0 0 0 1px var(--line); }
+  .mode small { font-weight: 500; color: var(--faint); }
+  .days { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: .45rem; }
+  .day { display: grid; justify-items: center; gap: .05rem; padding: .55rem .2rem .6rem; border: 1.5px solid var(--line-2); border-radius: 10px; cursor: pointer; background: var(--card); transition: border-color .15s, background .15s; }
+  .day:hover { border-color: var(--ink); }
+  .day .dw { font-size: .78rem; color: var(--soft); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .day .dn { font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
+  .day .df { font-size: .72rem; color: var(--teal-2); font-weight: 600; white-space: nowrap; }
+  input.sr:checked + .day { border-color: var(--teal); background: var(--teal); color: #fff; }
+  input.sr:checked + .day .dw, input.sr:checked + .day .df { color: #d9efe8; }
+  input.sr:disabled + .day { cursor: not-allowed; background: var(--bg); border-style: dashed; }
+  input.sr:disabled + .day .dn, input.sr:disabled + .day .dw { color: var(--faint); }
+  input.sr:disabled + .day .df { color: var(--faint); font-weight: 500; }
+  .month { font-size: .9rem; color: var(--soft); margin-bottom: .6rem; display: flex; justify-content: space-between; }
+  .periods { display: grid; gap: 1.1rem; margin-top: 1.4rem; }
+  .period h3 { display: flex; align-items: center; gap: .5rem; font-size: .95rem; margin-bottom: .55rem; }
+  .period h3 .ico { color: var(--soft); }
+  .period h3 span { font-weight: 400; color: var(--faint); font-size: .85rem; }
+  .slots { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .45rem; }
+  .slot { display: grid; place-items: center; height: 3rem; border: 1.5px solid var(--line-2); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1rem; background: var(--card); transition: border-color .15s, background .15s; }
+  .slot:hover { border-color: var(--ink); }
+  input.sr:checked + .slot { background: var(--teal); border-color: var(--teal); color: #fff; }
+  input.sr:disabled + .slot { cursor: not-allowed; background: transparent; border-color: transparent; color: var(--faint); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--line-2); }
+  .noslots { padding: .9rem 1rem; border-radius: 10px; background: var(--bg); color: var(--soft); font-size: .92rem; }
+  .legend { display: flex; gap: 1.2rem; margin-top: 1.2rem; font-size: .82rem; color: var(--soft); }
+  .legend i { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px; border: 1.5px solid var(--line-2); margin-right: .4rem; vertical-align: -1px; }
+  .legend i.t { border-color: transparent; background: linear-gradient(135deg, transparent 45%, var(--line-2) 45% 55%, transparent 55%); }
+
+  /* taken notice */
+  .taken { margin-top: 1.3rem; padding: 1.2rem 1.3rem; border-radius: 12px; background: var(--warm); border: 1.5px solid var(--warm-line); }
+  .taken h3 { font-size: 1.05rem; color: #5c3008; display: flex; gap: .55rem; align-items: center; }
+  .taken p { margin-top: .35rem; color: var(--warm-ink); font-size: .95rem; }
+  .alts { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .9rem; }
+  .alt { display: grid; text-align: left; padding: .65rem 1rem; border-radius: 10px; background: var(--card); border: 1.5px solid var(--warm-line); min-width: 13rem; }
+  .alt:hover { border-color: var(--warm-ink); }
+  .alt b { font-size: 1rem; }
+  .alt span { font-size: .85rem; color: var(--soft); }
+  .linkbtn { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-weight: 600; font-size: .92rem; padding: .3rem 0; }
+
+  /* summary */
+  .sum { position: sticky; top: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-top: 4.9rem; }
+  .sum-h { padding: 1.3rem 1.5rem 1rem; border-bottom: 1px solid var(--line); }
+  .sum-h h2 { font-size: 1.15rem; }
+  .sum-h p { color: var(--soft); font-size: .85rem; margin-top: .1rem; }
+  .rows { list-style: none; padding: .4rem 1.5rem; }
+  .rows li { display: grid; grid-template-columns: 1.6rem 1fr; gap: .7rem; padding: .8rem 0; border-bottom: 1px solid var(--line); }
+  .rows li:last-child { border-bottom: 0; }
+  .rows .ico { color: var(--soft); margin-top: .12rem; }
+  .rows small { display: block; font-size: .78rem; color: var(--soft); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .rows span { display: block; font-weight: 600; line-height: 1.35; }
+  .rows span.todo { color: var(--faint); font-weight: 500; font-style: italic; }
+  .rows em { display: block; font-style: normal; color: var(--soft); font-size: .88rem; font-weight: 400; margin-top: .1rem; }
+  .rows li.fill { animation: fill .5s var(--ease); }
+  @keyframes fill { from { background: var(--tint); } }
+  .cost { padding: 1.1rem 1.5rem; background: var(--bg); border-top: 1px solid var(--line); display: grid; gap: .75rem; }
+  .ins { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-weight: 600; font-size: .95rem; }
+  .switch { position: relative; width: 3.1rem; height: 1.75rem; border-radius: 1rem; background: #8a9893; flex: none; transition: background .2s; }
+  .switch::after { content: ""; position: absolute; top: .2rem; left: .2rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .2s var(--ease); }
+  .switch[aria-checked="true"] { background: var(--teal); }
+  .switch[aria-checked="true"]::after { transform: translateX(1.35rem); }
+  .insurer label { display: block; font-size: .85rem; color: var(--soft); margin-bottom: .3rem; }
+  select { width: 100%; height: 2.7rem; padding: 0 .7rem; border: 1.5px solid var(--line-2); border-radius: 8px; background: #fff; }
+  .line { display: flex; justify-content: space-between; font-size: .95rem; }
+  .line span:first-child { color: var(--soft); }
+  .line.total { font-size: 1.15rem; font-weight: 700; padding-top: .6rem; border-top: 1px solid var(--line); }
+  .line.total span:first-child { color: var(--ink); }
+  .cost .note { font-size: .82rem; color: var(--soft); }
+  .go { padding: 1.2rem 1.5rem 1.5rem; display: grid; gap: .7rem; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 3.3rem; padding: 0 1.4rem; border-radius: 10px; font-weight: 700; font-size: 1.05rem; transition: background .15s; }
+  .btn-main { background: var(--teal); color: #fff; }
+  .btn-main:hover { background: var(--teal-2); }
+  .btn-line { border: 1.5px solid var(--line-2); background: var(--card); }
+  .btn-line:hover { border-color: var(--ink); }
+  .missing { font-size: .9rem; color: var(--warm-ink); background: var(--warm); border-radius: 8px; padding: .6rem .8rem; }
+  .missing button { color: inherit; text-decoration: underline; font-weight: 700; text-underline-offset: 2px; }
+  .reassure { font-size: .82rem; color: var(--soft); text-align: center; }
+
+  /* done */
+  .done-wrap { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) 23rem; gap: 2.5rem; align-items: start; }
+  .done-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 2.2rem 2.4rem; }
+  .done-badge { width: 3.4rem; height: 3.4rem; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; }
+  .done-badge svg { width: 1.8rem; height: 1.8rem; stroke-width: 2.5; }
+  .done-card h1 { font-size: 2rem; letter-spacing: -.02em; margin-top: 1.1rem; line-height: 1.15; }
+  .done-card .when { font-size: 1.3rem; margin-top: .6rem; line-height: 1.4; }
+  .done-card .where { color: var(--soft); margin-top: .3rem; }
+  .ref { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.6rem; padding: 1rem 1.2rem; border-radius: 10px; background: var(--bg); border: 1px dashed var(--line-2); }
+  .ref small { display: block; font-size: .8rem; color: var(--soft); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .ref code { font: 700 1.35rem/1.3 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .06em; }
+  .done-acts { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.6rem; }
+  .done-acts .btn { font-size: .98rem; }
+  .done-acts .btn[aria-pressed="true"] { border-color: var(--teal); color: var(--teal-2); background: var(--tint); }
+  .next-steps { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.8rem; border-top: 1px solid var(--line); }
+  .next-steps li { position: relative; padding: 1.1rem 1rem 0 0; display: grid; gap: .15rem; font-size: .9rem; color: var(--soft); line-height: 1.4; }
+  .next-steps li::before { content: ""; position: absolute; top: -.3rem; left: 0; width: .6rem; height: .6rem; border-radius: 50%; background: var(--card); border: 2px solid var(--teal); }
+  .next-steps li:first-child::before { background: var(--teal); }
+  .next-steps b { color: var(--ink); font-size: .95rem; }
+  .bring { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem 1.6rem; }
+  .bring h2 { font-size: 1.15rem; margin-bottom: .8rem; }
+  .bring ul { list-style: none; display: grid; gap: .75rem; }
+  .bring li { display: flex; gap: .7rem; font-size: .98rem; }
+  .bring li .ico { color: var(--teal); margin-top: .15rem; }
+  .bring .help { margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: .9rem; color: var(--soft); }
+  .bring .help b { color: var(--ink); }
+  .resched { margin-top: 1.5rem; padding: .9rem 1.1rem; border-radius: 10px; background: var(--tint); border: 1px solid var(--tint-2); font-size: .95rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .resched b { color: var(--teal-2); }
+  .enter { animation: enter .3s var(--ease) both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(8px); } }
+
+  .bar { display: none; }
+  .toast { position: fixed; left: 50%; bottom: 1.5rem; z-index: 30; transform: translate(-50%, .6rem); opacity: 0; background: var(--ink); color: #fff; padding: .7rem 1.1rem; border-radius: 10px; font-size: .95rem; pointer-events: none; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 1600px) { html.big .tnav { display: none; } }
+  @media (max-width: 1240px) {
+    .tnav { display: none; }
+    .reasons { grid-template-columns: repeat(3, 1fr); }
+    .days { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .slots { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+  @media (max-width: 1000px) {
+    .page, .done-wrap { grid-template-columns: 1fr; gap: 1.5rem; }
+    .sum { position: static; margin-top: 0; }
+    .call { display: none; }
+    .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px -12px rgba(19, 32, 29, .3); }
+    .bar div { flex: 1; min-width: 0; font-size: .85rem; color: var(--soft); line-height: 1.3; }
+    .bar b { display: block; color: var(--ink); font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar .btn { min-height: 3rem; font-size: .95rem; flex: none; }
+    body { padding-bottom: 5rem; }
+    body.booked { padding-bottom: 0; }
+    body.booked .bar { display: none; }
+    .toast { bottom: 5.6rem; }
+  }
+  @media (max-width: 700px) {
+    html { font-size: 17px; } html.big { font-size: 19px; }
+    .top-in, .page { padding-left: 16px; padding-right: 16px; }
+    .top-in { gap: 1rem; }
+    .logo span { display: none; }
+    .me b { display: none; }
+    .bigbtn .lbl { display: none; }
+    .page { padding-top: 1.4rem; }
+    .intro h1 { font-size: 1.65rem; }
+    .step { padding: 1.2rem 1rem 1.3rem; border-radius: 12px; }
+    .reasons, .docs { grid-template-columns: 1fr; }
+    .reasons { grid-template-columns: 1fr 1fr; }
+    .days { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; }
+    .day .df { font-size: .66rem; }
+    .slots { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .modes { display: grid; width: 100%; }
+    .mode { justify-content: center; padding: .6rem .5rem; }
+    .mode small { display: none; }
+    .done-card { padding: 1.5rem 1.2rem; }
+    .done-card h1 { font-size: 1.65rem; }
+    .done-card .when { font-size: 1.15rem; }
+    .ref code { font-size: 1.1rem; }
+    .alt { min-width: 0; flex: 1 1 100%; }
+    .next-steps { grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); margin-left: .3rem; gap: .9rem; }
+    .next-steps li { padding: 0 0 0 1.1rem; }
+    .next-steps li::before { top: .3rem; left: -.36rem; }
+    .legend { flex-wrap: wrap; gap: .5rem 1rem; }
+    .month { flex-direction: column; gap: .1rem; }
+  }
+  @media (max-width: 400px) {
+    .reasons { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  </defs>
+</svg>
+<header class="top">
+  <div class="top-in">
+    <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 30V9" stroke="#0c6553" stroke-width="2" stroke-linecap="round"/><path d="M16 22c-3.5 0-6-2-6.5-5 3.2-.2 5.6 1.4 6.5 5zM16 18c3.5 0 6-2 6.5-5-3.2-.2-5.6 1.4-6.5 5z" fill="#0c6553"/><circle cx="16" cy="5.5" r="3" fill="#4b55a0"/><circle cx="11.5" cy="10" r="2.6" fill="#6b74bf"/><circle cx="20.5" cy="10" r="2.6" fill="#6b74bf"/><circle cx="16" cy="12.5" r="2.2" fill="#8d94d3"/></svg>Larkspur<span>Clinic</span></div>
+    <nav class="tnav" aria-label="Main"><a href="#" data-nolink aria-current="page">Appointments</a><a href="#" data-nolink>Prescriptions</a><a href="#" data-nolink>Test results</a><a href="#" data-nolink>Messages</a></nav>
+    <div class="tright">
+      <span class="call"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4.5-2 1.5a11 11 0 005.5 5.5l1.5-2 4.5 1.5v3a2 2 0 01-2 2A16.5 16.5 0 014.5 5.5a2 2 0 012-2z"/></svg><span class="sr">Call us on </span><b>0161 496 0732</b></span>
+      <button class="bigbtn" type="button" id="bigText" aria-pressed="false"><span class="aa" aria-hidden="true"><small>A</small>A</span><span class="lbl">Larger text</span><span class="sr">Larger text</span></button>
+      <div class="me"><span class="ini" aria-hidden="true">ME</span><b>Margaret Ellis</b></div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="page">
+  <div class="flow" id="flow">
+    <div class="intro">
+      <h1>Book an appointment</h1>
+      <p>Three short steps. Nothing is booked until you press Confirm.</p>
+    </div>
+    <div class="steps">
+      <section class="step" id="s1" aria-labelledby="s1h">
+        <div class="step-h"><span class="num" aria-hidden="true">1</span><div><h2 id="s1h">What is the visit for?</h2><p>Choose the closest one. It helps us give you enough time.</p></div></div>
+        <fieldset><legend class="sr">Reason for visit</legend><div class="reasons" id="reasons"></div></fieldset>
+        <div class="advice" id="advice" hidden></div>
+        <div class="more">
+          <label for="notes">Anything you'd like the doctor to know? <span>(optional)</span></label>
+          <textarea id="notes" maxlength="300" placeholder="For example: a dry cough for ten days, worse at night." aria-describedby="notesCount"></textarea>
+          <div class="count" id="notesCount">0 of 300 characters</div>
+        </div>
+      </section>
+
+      <section class="step" id="s2" aria-labelledby="s2h">
+        <div class="step-h"><span class="num" aria-hidden="true">2</span><div><h2 id="s2h">Who would you like to see?</h2><p>All our doctors can help with every reason above.</p></div></div>
+        <fieldset><legend class="sr">Doctor</legend><div class="docs" id="docs"></div></fieldset>
+      </section>
+
+      <section class="step" id="s3" aria-labelledby="s3h">
+        <div class="step-h"><span class="num" aria-hidden="true">3</span><div><h2 id="s3h">When suits you?</h2><p>Times in grey are already booked.</p></div></div>
+        <fieldset><legend class="sr">How you'd like to be seen</legend>
+          <div class="modes" id="modes">
+            <input class="sr" type="radio" name="mode" id="m-in" value="in" checked><label class="mode" for="m-in"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20V9l8-5 8 5v11"/><path d="M10 20v-6h4v6"/><path d="M12 8v3M10.5 9.5h3"/></svg>In person <small>at the clinic</small></label>
+            <input class="sr" type="radio" name="mode" id="m-video" value="video"><label class="mode" for="m-video"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2"/><path d="M15.5 10.5l5-3v9l-5-3"/></svg>Video call <small>from home</small></label>
+          </div>
+        </fieldset>
+        <div class="month" id="month"></div>
+        <fieldset><legend class="sr">Date</legend><div class="days" id="days"></div></fieldset>
+        <div class="periods" id="periods"></div>
+        <div class="legend" aria-hidden="true"><span><i></i>Free</span><span><i class="t"></i>Booked</span><span>All times are UK time</span></div>
+        <div class="taken" id="taken" hidden tabindex="-1"></div>
+      </section>
+    </div>
+  </div>
+
+  <aside class="sum" id="sum" aria-labelledby="sumH">
+    <div class="sum-h"><h2 id="sumH">Your appointment</h2><p>For Margaret Ellis, born 14 March 1951</p></div>
+    <ul class="rows" id="rows"></ul>
+    <div class="cost">
+      <div class="ins"><span id="insLbl">I have health insurance</span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="insLbl" id="ins"></button></div>
+      <div class="insurer" id="insurer" hidden><label for="insSel">Your insurer</label><select id="insSel"><option value="northway">Northway Health, full cover</option><option value="clearwell">Clearwell Cover, £20 excess</option><option value="other">Another insurer (we'll check)</option></select></div>
+      <div class="line"><span id="feeLbl">In-person appointment, 15 min</span><span id="fee">£65</span></div>
+      <div class="line" id="insLine" hidden><span id="insName">Paid by Northway Health</span><span id="insAmt">−£65</span></div>
+      <div class="line total"><span>To pay on the day</span><span id="pay">£65</span></div>
+      <p class="note" id="payNote">Pay by card at reception. No charge if you cancel up to 24 hours before.</p>
+    </div>
+    <div class="go">
+      <div class="missing" id="missing" hidden role="alert"></div>
+      <button class="btn btn-main" type="button" id="confirm">Confirm appointment</button>
+      <p class="reassure">You can change or cancel online at any time.</p>
+    </div>
+  </aside>
+</main>
+
+<div class="bar" id="bar"><div><b id="barWhen">Choose a time</b><span id="barWho">Step 1 of 3</span></div><button class="btn btn-main" type="button" id="barGo">Review</button></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const TICK = `<svg viewBox="0 0 24 24"><use href="#tick"/></svg>`;
+  const icon = (d) => `<svg class="ico" viewBox="0 0 24 24">${d}</svg>`;
+
+  const REASONS = [
+    { id: "cough", t: "Cough, cold or flu", bring: "A note of when it started and any temperatures you've taken" },
+    { id: "repeat", t: "Medication review", bring: "Your current medicines, or their boxes, so we can check doses" },
+    { id: "bp", t: "Blood pressure", bring: "Wear a top with loose sleeves, and bring home readings if you have them" },
+    { id: "skin", t: "Skin, rash or mole", bring: "Photos showing how it looked when it started, if you have any" },
+    { id: "joint", t: "Joints, back or aches", bring: "Comfortable clothes so the doctor can look at how you move" },
+    { id: "mind", t: "Feeling low or anxious", bring: "Nothing is needed. Bring someone with you if that would help" },
+    { id: "child", t: "A child's health", bring: "The child's red book or vaccination record" },
+    { id: "other", t: "Something else", bring: "A list of the things you'd like to talk about" },
+  ];
+  const DOCS = [
+    { id: "any", n: "First available doctor", role: "The soonest time with any of our doctors", langs: "", any: true },
+    { id: "okonkwo", n: "Dr Amara Okonkwo", short: "Dr Okonkwo", role: "GP, women's health", langs: "English, Igbo", ini: "AO", bg: "#e7efe0", fg: "#3a5a1f", days: [1, 2, 4, 5] },
+    { id: "haddad", n: "Dr Leila Haddad", short: "Dr Haddad", role: "GP, care of older people", langs: "English, Arabic, French", ini: "LH", bg: "#e9e7f6", fg: "#3e3a7a", days: [1, 2, 3, 5, 6] },
+    { id: "wisniewski", n: "Dr Tomasz Wiśniewski", short: "Dr Wiśniewski", role: "GP, joints and sports injuries", langs: "English, Polish", ini: "TW", bg: "#f6e8dc", fg: "#7a3e14", days: [2, 3, 4, 6] },
+    { id: "menon", n: "Dr Ravi Menon", short: "Dr Menon", role: "GP, children and families", langs: "English, Malayalam, Hindi", ini: "RM", bg: "#dfeef2", fg: "#14576a", days: [1, 3, 4, 5] },
+    { id: "byrne", n: "Siobhán Byrne", short: "Siobhán Byrne", role: "Nurse practitioner, checks and reviews", langs: "English, Irish", ini: "SB", bg: "#f5e3ea", fg: "#7a2147", days: [1, 2, 3, 4, 5] },
+  ];
+  const TIMES = {
+    in: { Morning: ["08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"], Afternoon: ["13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"], Evening: ["17:30", "18:00", "18:30"] },
+    video: { Morning: ["08:15", "08:45", "09:15", "11:15", "11:45"], Afternoon: ["12:45", "13:15", "16:45"], Evening: ["17:15", "17:45", "18:15", "18:45", "19:15", "19:45", "20:15"] },
+  };
+  const PERIOD_ICON = {
+    Morning: '<circle cx="12" cy="14" r="4"/><path d="M12 5v2M5.6 7.6l1.4 1.4M18.4 7.6L17 9M3 18h18"/>',
+    Afternoon: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+    Evening: '<path d="M19 14.5A7.5 7.5 0 019.5 5a7.5 7.5 0 109.5 9.5z"/>',
+  };
+  const FEES = { in: 65, video: 45 };
+  const INS = { northway: { n: "Northway Health", pay: 0 }, clearwell: { n: "Clearwell Cover", pay: 20 }, other: { n: "your insurer", pay: null } };
+
+  /* the next ten open days (the clinic is closed on Sundays) */
+  const DW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], DWL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const now = new Date(), DAYS = [];
+  for (let i = 1; DAYS.length < 10; i++) { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); if (d.getDay() !== 0) DAYS.push({ d, i }); }
+  const dayName = (k, long) => { const { d, i } = DAYS[k]; return i === 1 ? "Tomorrow" : long ? `${DWL[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}` : `${DW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()].slice(0, 3)}`; };
+  const fullDate = (k) => { const { d } = DAYS[k]; return `${DWL[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`; };
+
+  /* seeded bookings, so the page always opens the same way */
+  const hash = (s) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; };
+  const takenNow = new Set();
+  const works = (doc, k) => doc.days.includes(DAYS[k].d.getDay()) && !(DAYS[k].d.getDay() === 6 && doc.id === "byrne");
+  function freeWith(doc, k, mode, t) {
+    if (!works(doc, k)) return false;
+    if (DAYS[k].d.getDay() === 6 && t >= "13:00") return false;
+    if (mode === "in" && t >= "17:00" && ![2, 4].includes(DAYS[k].d.getDay())) return false;
+    if (takenNow.has(`${k}|${mode}|${t}`)) return false;
+    const busy = .38 + (k < 2 ? .28 : 0);
+    return hash(`${doc.id}|${DAYS[k].i}|${mode}|${t}`) > busy;
+  }
+  function slotDoc(docId, k, mode, t) {
+    if (docId !== "any") { const d = DOCS.find((x) => x.id === docId); return freeWith(d, k, mode, t) ? d : null; }
+    return DOCS.slice(1).find((d) => freeWith(d, k, mode, t)) || null;
+  }
+  const allTimes = (mode) => Object.values(TIMES[mode]).flat();
+  const freeCount = (docId, k, mode) => allTimes(mode).filter((t) => slotDoc(docId, k, mode, t)).length;
+  function nextFree(docId, mode) {
+    for (let k = 0; k < DAYS.length; k++) for (const t of allTimes(mode)) { const d = slotDoc(docId, k, mode, t); if (d) return { k, t, d }; }
+    return null;
+  }
+
+  const S = { reason: null, doc: "any", mode: "in", day: null, time: null, ins: false, insurer: "northway", notes: "", tookOnce: false, booked: null, resched: false, cal: false };
+
+  /* ---------- build ---------- */
+  $("#reasons").innerHTML = REASONS.map((r) => `<input class="sr" type="radio" name="reason" id="r-${r.id}" value="${r.id}"><label class="opt" for="r-${r.id}"><span class="tick">${TICK}</span>${r.t}</label>`).join("");
+  function buildDocs() {
+    $("#docs").innerHTML = DOCS.map((d) => {
+      const nx = nextFree(d.id, S.mode);
+      const next = nx ? `Next free: ${nx.k === 0 ? "tomorrow" : dayName(nx.k)} at ${nx.t}` : "No free times in the next two weeks";
+      const portrait = d.any ? `<span class="portrait">${icon('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/>')}</span>` : `<span class="portrait" style="background:${d.bg};color:${d.fg}" aria-hidden="true">${d.ini}</span>`;
+      return `<input class="sr" type="radio" name="doc" id="d-${d.id}" value="${d.id}"${S.doc === d.id ? " checked" : ""}><label class="doc${d.any ? " any" : ""}" for="d-${d.id}">${portrait}<span><b>${d.n}</b><span class="role">${d.role}</span>${d.langs ? `<span class="langs">${icon('<path d="M4 6h9M8.5 4v2M6 6c.5 3 3 5.5 6 6.5M11 6c-.6 3-3 6-6.5 7.5"/><path d="M13 20l3.5-8 3.5 8M14.2 17.5h4.6"/>')}${d.langs}</span>` : ""}<span class="next${nx ? "" : " none"}">${next}</span></span><span class="tick">${TICK}</span></label>`;
+    }).join("");
+  }
+  function buildDays() {
+    const firstM = MON[DAYS[0].d.getMonth()], lastM = MON[DAYS[9].d.getMonth()];
+    $("#month").innerHTML = `<span>${firstM === lastM ? firstM : firstM + " – " + lastM} ${DAYS[9].d.getFullYear()}</span><span>${S.mode === "video" ? "Video calls run until 20:30" : "Late clinics on Tuesdays and Thursdays"}</span>`;
+    $("#days").innerHTML = DAYS.map(({ d }, k) => {
+      const n = freeCount(S.doc, k, S.mode);
+      return `<input class="sr" type="radio" name="day" id="day-${k}" value="${k}"${S.day === k ? " checked" : ""}${n ? "" : " disabled"} aria-label="${fullDate(k)}, ${n ? n + " free time" + (n > 1 ? "s" : "") : "fully booked"}"><label class="day" for="day-${k}"><span class="dw">${k === 0 ? "Tmrw" : DW[d.getDay()]}</span><span class="dn">${d.getDate()}</span><span class="df">${n ? n + " free" : "Full"}</span></label>`;
+    }).join("");
+  }
+  function buildSlots() {
+    const P = $("#periods");
+    if (S.day == null) { P.innerHTML = `<p class="noslots">Choose a day above to see the times.</p>`; return; }
+    P.innerHTML = Object.entries(TIMES[S.mode]).map(([name, times]) => {
+      const free = times.filter((t) => slotDoc(S.doc, S.day, S.mode, t)).length;
+      const range = `${times[0]}–${times[times.length - 1]}`;
+      const body = free ? `<div class="slots">${times.map((t) => { const ok = !!slotDoc(S.doc, S.day, S.mode, t); return `<input class="sr" type="radio" name="time" id="t-${t.replace(":", "")}" value="${t}"${S.time === t ? " checked" : ""}${ok ? "" : " disabled"} aria-label="${t}${ok ? "" : ", booked"}"><label class="slot" for="t-${t.replace(":", "")}">${t}</label>`; }).join("")}</div>` : `<p class="noslots">No ${name.toLowerCase()} times free on this day.</p>`;
+      return `<fieldset class="period"><legend class="sr">${name} times</legend><h3 aria-hidden="true">${icon(PERIOD_ICON[name])}${name} <span>${range} · ${free} free</span></h3>${body}</fieldset>`;
+    }).join("");
+  }
+
+  /* ---------- summary ---------- */
+  const ROW_ICON = {
+    reason: '<path d="M9 4h6v3H9z"/><path d="M15 5.5h2.5V20h-11V5.5H9"/><path d="M9.5 12h5M9.5 15.5h3.5"/>',
+    doc: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/>',
+    when: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+    where: '<path d="M12 21s-6.5-5.4-6.5-11a6.5 6.5 0 0113 0c0 5.6-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  };
+  let lastRows = {};
+  function chosenDoc() { return S.day != null && S.time ? slotDoc(S.doc, S.day, S.mode, S.time) : null; }
+  function summary() {
+    const r = REASONS.find((x) => x.id === S.reason), d = DOCS.find((x) => x.id === S.doc), at = chosenDoc();
+    const rows = {
+      reason: ["Reason", r ? r.t : null, S.notes.trim() ? `“${S.notes.trim().slice(0, 60)}${S.notes.trim().length > 60 ? "…" : ""}”` : ""],
+      doc: ["With", d.any ? (at ? at.n : "First available doctor") : d.n, d.any && at ? "First available" : d.any ? "We'll match you when you pick a time" : d.role],
+      when: ["When", S.day != null && S.time ? `${fullDate(S.day)}, ${S.time}` : S.day != null ? fullDate(S.day) : null, S.day != null && !S.time ? "Now choose a time" : S.day != null && S.time ? "15 minutes · please arrive 5 minutes early".replace("please arrive 5 minutes early", S.mode === "video" ? "we'll text you the link" : "please arrive 5 minutes early") : ""],
+      where: ["Where", S.mode === "video" ? "Video call from home" : "Larkspur Clinic", S.mode === "video" ? "Works on a phone, tablet or computer" : "14 Orchard Row, Didsbury, M20 6RT"],
+    };
+    $("#rows").innerHTML = Object.entries(rows).map(([k, [lab, val, sub]]) => {
+      const sig = val + sub, changed = lastRows[k] !== undefined && lastRows[k] !== sig && !reduce.matches;
+      lastRows[k] = sig;
+      return `<li class="${changed ? "fill" : ""}">${icon(ROW_ICON[k])}<div><small>${lab}</small><span class="${val ? "" : "todo"}">${val || "Not chosen yet"}</span>${sub ? `<em>${sub}</em>` : ""}</div></li>`;
+    }).join("");
+    const fee = FEES[S.mode];
+    $("#feeLbl").textContent = `${S.mode === "video" ? "Video" : "In-person"} appointment, 15 min`;
+    $("#fee").textContent = `£${fee}`;
+    $("#insurer").hidden = !S.ins; $("#insLine").hidden = !S.ins;
+    let pay = fee, note = "Pay by card at reception. No charge if you cancel up to 24 hours before.";
+    if (S.mode === "video") note = "We'll take payment when the call starts. No charge if you cancel up to 24 hours before.";
+    if (S.ins) {
+      const i = INS[S.insurer];
+      if (i.pay == null) { $("#insName").textContent = "Insurer to confirm"; $("#insAmt").textContent = "—"; pay = fee; note = "We'll check your cover within a day and email you. If you're covered, you pay nothing."; }
+      else { $("#insName").textContent = `Paid by ${i.n}`; $("#insAmt").textContent = `−£${fee - i.pay}`; pay = i.pay; note = i.pay ? `Your policy has a £${i.pay} excess, paid on the day. We bill ${i.n} for the rest.` : `We bill ${i.n} directly. Bring your membership card.`; }
+    }
+    $("#pay").textContent = `£${pay}`; $("#payNote").textContent = note;
+    const done = [!!S.reason, true, !!(S.day != null && S.time)];
+    ["#s1", "#s2", "#s3"].forEach((s, i) => $(s).classList.toggle("done", done[i] && (i !== 1 || !!S.reason || S.doc !== "any")));
+    $("#barWhen").textContent = S.day != null && S.time ? `${dayName(S.day)}, ${S.time}` : S.reason ? "Now choose a time" : "Choose a reason";
+    $("#barWho").textContent = at ? at.n : d.n;
+    if ($("#missing").hidden === false) missingCheck(false);
+  }
+  function missing() {
+    const m = [];
+    if (!S.reason) m.push(["a reason for your visit", "#r-" + REASONS[0].id]);
+    if (S.day == null) m.push(["a day", "#days input:not(:disabled)"]);
+    else if (!S.time) m.push(["a time", "#periods input:not(:disabled)"]);
+    return m;
+  }
+  function missingCheck(show) {
+    const m = missing(), box = $("#missing");
+    if (!m.length) { box.hidden = true; return true; }
+    if (show || !box.hidden) {
+      box.hidden = false;
+      box.innerHTML = `Almost there. Please choose ${m.map(([t], i) => `<button type="button" data-go="${i}">${t}</button>`).join(m.length > 1 ? " and " : "")}.`;
+      $$("[data-go]", box).forEach((b) => b.addEventListener("click", () => { const el = $(m[+b.dataset.go][1]); if (el) { el.closest(".step").scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "start" }); el.focus({ preventScroll: true }); } }));
+    }
+    return false;
+  }
+
+  /* ---------- events ---------- */
+  /* events are delegated from the page, so they survive the flow being swapped for the confirmation and back */
+  const ADV = icon('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>');
+  function advice() {
+    const adv = $("#advice");
+    if (S.reason === "mind") { adv.hidden = false; adv.innerHTML = `${ADV}<span>If you feel unsafe right now, please call <b>111</b> or go to A&amp;E. You don't need an appointment for that.</span>`; }
+    else if (S.reason === "child") { adv.hidden = false; adv.innerHTML = `${ADV}<span>For a baby under three months with a temperature, call us on <b>0161 496 0732</b> and we'll see them today.</span>`; }
+    else adv.hidden = true;
+  }
+  function keepOrDrop(msg) {
+    if (S.day != null && S.time && !slotDoc(S.doc, S.day, S.mode, S.time)) { const t = S.time; S.time = null; toast(msg.replace("{t}", t)); }
+    if (S.day != null && !freeCount(S.doc, S.day, S.mode)) { S.day = null; S.time = null; }
+  }
+  const pageEl = $("#page");
+  pageEl.addEventListener("input", (e) => { if (e.target.id === "notes") { S.notes = e.target.value; $("#notesCount").textContent = `${e.target.value.length} of 300 characters`; summary(); } });
+  pageEl.addEventListener("change", (e) => {
+    const t = e.target;
+    if (t.name === "reason") { S.reason = t.value; advice(); summary(); }
+    else if (t.name === "doc") {
+      S.doc = t.value; const d = DOCS.find((x) => x.id === S.doc);
+      keepOrDrop(`{t} isn't free with ${d.any ? "any doctor" : d.short}, so please pick another time`);
+      if (S.day == null) { const nx = nextFree(S.doc, S.mode); if (nx) S.day = nx.k; }
+      buildDays(); buildSlots(); summary();
+    } else if (t.name === "mode") {
+      S.mode = t.value;
+      keepOrDrop(`{t} isn't offered as a ${S.mode === "video" ? "video call" : "visit"}, so please pick another time`);
+      if (S.day == null) { const nx = nextFree(S.doc, S.mode); if (nx) S.day = nx.k; }
+      buildDocs(); buildDays(); buildSlots(); summary();
+    } else if (t.name === "day") { S.day = +t.value; S.time = null; buildSlots(); summary(); }
+    else if (t.name === "time") { S.time = t.value; $("#taken").hidden = true; summary(); }
+    else if (t.id === "insSel") { S.insurer = t.value; summary(); }
+  });
+  pageEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "ins") { S.ins = !S.ins; b.setAttribute("aria-checked", String(S.ins)); summary(); }
+    else if (b.id === "confirm") onConfirm();
+  });
+  $("#bigText").addEventListener("click", (e) => { const on = document.documentElement.classList.toggle("big"); e.currentTarget.setAttribute("aria-pressed", String(on)); });
+  $$("a[data-nolink]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); if (!a.hasAttribute("aria-current")) toast(`${a.textContent} isn't part of this demo`); }));
+  $("#barGo").addEventListener("click", () => { $("#sum").scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "start" }); $("#confirm").focus({ preventScroll: true }); });
+
+  /* the slot that gets taken while you choose (once) */
+  function nearest(k, mode, t) {
+    const toMin = (x) => +x.slice(0, 2) * 60 + +x.slice(3);
+    const c = [];
+    for (let kk = k; kk < Math.min(DAYS.length, k + 4); kk++) for (const tt of allTimes(mode)) {
+      const d = slotDoc(S.doc, kk, mode, tt);
+      if (d && !(kk === k && tt === t)) c.push({ k: kk, t: tt, d, score: (kk - k) * 2000 + Math.abs(toMin(tt) - toMin(t)) });
+    }
+    return c.sort((a, b) => a.score - b.score).slice(0, 2);
+  }
+  function onConfirm() {
+    if (!missingCheck(true)) return;
+    if (!S.tookOnce) {
+      S.tookOnce = true;
+      const lost = S.time, day = S.day;
+      takenNow.add(`${day}|${S.mode}|${lost}`);
+      S.time = null;
+      const alts = nearest(day, S.mode, lost), box = $("#taken");
+      const who = DOCS.find((x) => x.id === S.doc);
+      box.innerHTML = `<h3>${icon('<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>')}Sorry, ${lost} was just booked by someone else</h3><p>It happened while you were choosing. ${alts.length ? `These are the nearest free times${who.any ? "" : " with " + who.short}:` : "Please choose another time above."}</p><div class="alts">${alts.map((a, i) => `<button class="alt" type="button" data-alt="${i}"><b>${a.k === day ? "Same day" : dayName(a.k, true)}, ${a.t}</b><span>${a.d.n} · book this time</span></button>`).join("")}</div><p style="margin-top:.8rem"><button class="linkbtn" type="button" id="pickOther">Choose a different time instead</button></p>`;
+      box.hidden = false;
+      buildDays(); buildSlots(); summary();
+      box.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "center" });
+      box.focus({ preventScroll: true });
+      $$("[data-alt]", box).forEach((b) => b.addEventListener("click", () => { const a = alts[+b.dataset.alt]; S.day = a.k; S.time = a.t; book(); }));
+      $("#pickOther").addEventListener("click", () => { box.hidden = true; const f = $("#periods input:not(:disabled)"); f?.focus(); });
+      return;
+    }
+    book();
+  }
+
+  /* ---------- booked ---------- */
+  const page = pageEl;
+  const flowHTML = page.innerHTML;
+  function refOf() { const h = hash(`${S.reason}${S.doc}${S.day}${S.time}${S.mode}`); const n = String(Math.floor(h * 9000) + 1000), L = "ABCDEFGHJKMNPQRSTUVWXYZ"; return `LK-${n}-${L[Math.floor(h * 997) % L.length]}${L[Math.floor(h * 7919) % L.length]}`; }
+  function book() {
+    const at = chosenDoc(); if (!at) return;
+    const r = REASONS.find((x) => x.id === S.reason), ref = refOf(), video = S.mode === "video";
+    S.booked = { ...S, at, ref };
+    document.body.classList.add("booked");
+    const bring = [r.bring, video ? "A quiet room, and your phone charged; we'll text the link 15 minutes before" : "Photo ID, and your patient number if you have it to hand", S.ins ? `Your ${INS[S.insurer].n === "your insurer" ? "insurance" : INS[S.insurer].n} membership card` : "A card to pay at reception", "Glasses or hearing aids if you use them"];
+    page.innerHTML = `<div class="done-wrap enter"><div class="done-card" role="region" aria-labelledby="doneH">
+      <span class="done-badge">${icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>')}</span>
+      <h1 id="doneH" tabindex="-1">You're booked in, Margaret</h1>
+      <p class="when"><b>${fullDate(S.day)} at ${S.time}</b> with ${at.n}</p>
+      <p class="where">${video ? "Video call. We'll text a link to 07700 900 418 fifteen minutes before." : "Larkspur Clinic, 14 Orchard Row, Didsbury, M20 6RT. Step-free entrance on Orchard Row."}</p>
+      <div class="ref"><div><small>Booking reference</small><code id="refCode">${ref}</code></div><button class="btn btn-line" type="button" id="copyRef">${icon('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0014.5 4h-9A1.5 1.5 0 004 5.5v9A1.5 1.5 0 005.5 16H8"/>')}<span>Copy</span></button></div>
+      <div class="done-acts">
+        <button class="btn btn-main" type="button" id="cal" aria-pressed="false">${icon('<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M12 12.5v5M9.5 15h5"/>')}<span>Add to calendar</span></button>
+        <button class="btn btn-line" type="button" id="resched">Change the time</button>
+        <button class="btn btn-line" type="button" id="again">Book another</button>
+      </div>
+      <ol class="next-steps" aria-label="What happens next">
+        <li><b>Today</b><span>A confirmation email with this reference</span></li>
+        <li><b>${dayName(S.day) === "Tomorrow" ? "This evening" : "The day before"}</b><span>A reminder text at 18:00, reply C to cancel</span></li>
+        <li><b>${video ? "15 minutes before" : "When you arrive"}</b><span>${video ? "A text with the link to join" : "Check in on the screen by the door"}</span></li>
+      </ol>
+      <p class="where" style="margin-top:1.2rem;font-size:.9rem">We've also sent this to margaret.ellis@postmail.uk. To cancel, use the link in that email or call us.</p>
+    </div>
+    <aside class="bring" aria-labelledby="bringH"><h2 id="bringH">What to bring</h2><ul>${bring.map((b) => `<li>${icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>')}<span>${b}</span></li>`).join("")}</ul>
+      <p class="help"><b>Feeling worse before then?</b> Call 0161 496 0732 between 8:00 and 18:30, or 111 out of hours.</p></aside></div>`;
+    $("#doneH").focus();
+    window.scrollTo({ top: 0 });
+    $("#copyRef").addEventListener("click", async (e) => {
+      const b = e.currentTarget;
+      try { await navigator.clipboard.writeText(ref); } catch (err) { /* the frame may block the clipboard; still confirm */ }
+      b.querySelector("span").textContent = "Copied"; toast(`Reference ${ref} copied`);
+      setTimeout(() => { if (document.contains(b)) b.querySelector("span").textContent = "Copy"; }, 2000);
+    });
+    $("#cal").addEventListener("click", (e) => {
+      const b = e.currentTarget, on = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", String(on)); b.className = on ? "btn btn-line" : "btn btn-main";
+      b.querySelector("span").textContent = on ? "Added to calendar" : "Add to calendar";
+      toast(on ? "Added, with a reminder the day before" : "Removed from your calendar");
+    });
+    $("#resched").addEventListener("click", () => restore(true));
+    $("#again").addEventListener("click", () => { Object.assign(S, { reason: null, doc: "any", mode: "in", day: null, time: null, notes: "", ins: false, insurer: "northway" }); S.booked = null; const nx = nextFree("any", "in"); if (nx) S.day = nx.k; restore(false); });
+  }
+  function restore(resched) {
+    document.body.classList.remove("booked");
+    page.innerHTML = flowHTML;
+    bind();
+    if (resched) {
+      const b = S.booked;
+      S.time = null;
+      const n = document.createElement("div"); n.className = "resched enter";
+      n.innerHTML = `<span>Your booking <b>${b.ref}</b> stays at ${dayName(b.day)}, ${b.time} until you confirm a new time.</span><button class="linkbtn" type="button" id="keepOld">Keep it</button>`;
+      $(".intro").after(n);
+      $("#keepOld").addEventListener("click", () => { Object.assign(S, b); book(); });
+      $("#s3").scrollIntoView({ block: "start" });
+      ($("#periods input:not(:disabled)") || $("#days input:checked") || $("#days input:not(:disabled)"))?.focus({ preventScroll: true });
+    } else { $(".intro h1").setAttribute("tabindex", "-1"); $(".intro h1").focus(); }
+  }
+
+  /* put the saved answers back into the restored flow */
+  function bind() {
+    $("#reasons").innerHTML = REASONS.map((r) => `<input class="sr" type="radio" name="reason" id="r-${r.id}" value="${r.id}"${S.reason === r.id ? " checked" : ""}><label class="opt" for="r-${r.id}"><span class="tick">${TICK}</span>${r.t}</label>`).join("");
+    $("#notes").value = S.notes; $("#notesCount").textContent = `${S.notes.length} of 300 characters`;
+    $$("input[name=mode]").forEach((i) => { i.checked = i.value === S.mode; });
+    $("#ins").setAttribute("aria-checked", String(S.ins)); $("#insSel").value = S.insurer;
+    lastRows = {}; advice();
+    buildDocs(); buildDays(); buildSlots(); summary();
+  }
+
+  const toastEl = $("#toast"); let tt;
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => toastEl.classList.remove("on"), 2600); }
+
+  /* open on the soonest day that has times, so the times are visible straight away */
+  { const nx = nextFree(S.doc, S.mode); if (nx) S.day = nx.k; }
+  buildDocs(); buildDays(); buildSlots(); summary();
+})();
+</script>
+</body>
+</html>

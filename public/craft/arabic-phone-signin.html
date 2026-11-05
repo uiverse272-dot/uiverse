@@ -1,0 +1,698 @@
+<!doctype html>
+<!-- Arabic phone sign-in — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A right-to-left sign-in flow for a transport app: pick a country from a searchable sheet, the number
+     formats and validates as you type, then a six-box code with paste, resend timer and a shake for a wrong
+     code, then your name. A marker travels the route at the top, one stop per step. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مسار — تسجيل الدخول</title>
+<style>
+  :root {
+    --navy: #0e2240; --navy-2: #163259; --navy-3: #21406c; --amber: #ffb22e; --amber-ink: #8a5300;
+    --sheet: #ffffff; --field: #f4f5f8; --ink: #0f1a2b; --muted: #556074; --line: #dfe3ea; --line-2: #c9cfda;
+    --bad: #c0321d; --bad-wash: #fdf0ed; --good: #1d7a4c;
+    --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif;
+    --num: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ease: cubic-bezier(.2, .75, .25, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--navy); }
+  body { color: var(--ink); font: 15px/1.6 var(--ar); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  button:disabled { cursor: default; }
+  :focus-visible { outline: 2px solid var(--navy-3); outline-offset: 2px; }
+  .ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .ltr { direction: ltr; unicode-bidi: isolate; font-family: var(--num); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .phone { position: relative; display: flex; flex-direction: column; max-width: 430px; min-height: 100vh; min-height: 100svh; margin: 0 auto; background: var(--navy); overflow: hidden; }
+
+  /* status bar, mirrored for a right-to-left phone */
+  .status { display: flex; justify-content: space-between; align-items: center; height: 46px; padding: 0 28px; color: #fff; font: 600 15px/1 var(--num); flex: none; }
+  .status .icons { display: flex; gap: 6px; align-items: center; direction: ltr; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; }
+  .bars i { display: block; width: 3px; background: #fff; border-radius: 1px; }
+  .bars i:nth-child(1) { height: 4px; } .bars i:nth-child(2) { height: 6px; } .bars i:nth-child(3) { height: 8px; } .bars i:nth-child(4) { height: 10px; }
+  .status svg { width: 16px; height: 12px; }
+  .batt { display: block; width: 25px; height: 12px; border: 1.5px solid rgba(255, 255, 255, .55); border-radius: 4px; padding: 1.5px; }
+  .batt b { display: block; width: 72%; height: 100%; background: #fff; border-radius: 1.5px; }
+
+  /* the route */
+  .hero { position: relative; flex: none; color: #fff; }
+  .topbar { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; }
+  .back { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; transition: background-color .15s, opacity .2s, transform .2s var(--ease); }
+  .back:hover { background: rgba(255, 255, 255, .08); }
+  .back[hidden] { display: grid; visibility: hidden; opacity: 0; transform: translateX(6px); }
+  .back:focus-visible, .cc:focus-visible { outline-color: var(--amber); }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 19px; letter-spacing: 0; }
+  .brand svg { width: 26px; height: 26px; }
+  .stepno { margin-inline-start: auto; font-size: 13px; color: rgba(255, 255, 255, .72); }
+  .route { display: block; width: 100%; height: auto; margin-top: -4px; }
+  .route .base { fill: none; stroke: rgba(255, 255, 255, .22); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1 9; }
+  .route .done { fill: none; stroke: var(--amber); stroke-width: 4; stroke-linecap: round; }
+  .route .stop { fill: var(--navy); stroke: rgba(255, 255, 255, .45); stroke-width: 2.5; transition: fill .25s, stroke .25s; }
+  .route .stop.reached { fill: var(--amber); stroke: var(--amber); }
+  .route .lbl { fill: rgba(255, 255, 255, .7); font: 500 12px var(--ar); transition: fill .25s; }
+  .route .lbl.reached { fill: #fff; }
+  .route .street { fill: none; stroke: rgba(255, 255, 255, .05); stroke-width: 10; stroke-linecap: round; }
+  .route .street.thin { stroke-width: 2; stroke: rgba(255, 255, 255, .06); }
+  .route .blocks rect { fill: rgba(255, 255, 255, .03); stroke: rgba(255, 255, 255, .045); stroke-width: 1; }
+  .route .flag { fill: none; stroke: rgba(255, 255, 255, .55); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .25s; }
+  .route .flag.reached { stroke: var(--amber); }
+
+  /* the sheet with the steps */
+  .sheet { position: relative; flex: 1; display: flex; flex-direction: column; margin-top: -20px; padding: 28px 24px 24px; background: var(--sheet); border-radius: 28px 28px 0 0; min-height: 520px; }
+  .steps { position: relative; flex: 1; display: grid; }
+  .step { grid-area: 1 / 1; display: flex; flex-direction: column; min-width: 0; transition: transform .32s var(--ease), opacity .24s ease-out; }
+  .step.off { visibility: hidden; opacity: 0; pointer-events: none; transition: transform .32s var(--ease), opacity .2s ease-out, visibility 0s .32s; }
+  .step.to-left { transform: translateX(-36px); }
+  .step.to-right { transform: translateX(36px); }
+  h1 { font-size: 24px; line-height: 34px; font-weight: 700; letter-spacing: 0; }
+  h1:focus { outline: none; }
+  .sub { margin-top: 6px; color: var(--muted); font-size: 15px; line-height: 24px; text-wrap: pretty; }
+  .sub .ltr { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .link { color: var(--navy-3); font-weight: 600; text-decoration: underline; text-decoration-color: rgba(33, 64, 108, .35); text-underline-offset: 4px; }
+  .link:hover { text-decoration-color: currentColor; }
+
+  label.lb { display: block; margin-top: 24px; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+  .tel { display: flex; direction: ltr; height: 56px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--field); transition: border-color .15s, background-color .15s, box-shadow .15s; }
+  .tel:focus-within { border-color: var(--navy); background: #fff; box-shadow: 0 0 0 4px rgba(14, 34, 64, .08); }
+  .tel.bad { border-color: var(--bad); background: var(--bad-wash); box-shadow: none; }
+  .cc { display: flex; align-items: center; gap: 6px; padding: 0 12px 0 14px; border-right: 1.5px solid var(--line); font: 600 16px var(--num); color: var(--ink); border-radius: 13px 0 0 13px; flex: none; }
+  .cc:hover { background: rgba(14, 34, 64, .04); }
+  .cc:focus-visible { outline: 2px solid var(--navy-3); outline-offset: -2px; }
+  .cc .ic { width: 16px; height: 16px; color: var(--muted); }
+  .cc small { font: 500 13px var(--ar); color: var(--muted); }
+  .tel input { flex: 1; min-width: 0; border: 0; background: none; outline: none; padding: 0 14px; font: 500 18px/1 var(--num); letter-spacing: .02em; text-align: left; direction: ltr; }
+  .tel input::placeholder { color: #9aa3b2; }
+  .tel .ok { display: grid; place-items: center; width: 40px; color: var(--good); opacity: 0; transform: scale(.6); transition: opacity .2s, transform .25s var(--ease); }
+  .tel.valid .ok { opacity: 1; transform: none; }
+  .msg { min-height: 22px; margin-top: 8px; font-size: 13px; line-height: 20px; color: var(--muted); }
+  .msg.bad { color: var(--bad); }
+
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 56px; border-radius: 16px; font-size: 16px; font-weight: 700; transition: background-color .15s, transform .15s, opacity .2s; }
+  .btn:active:not(:disabled) { transform: scale(.985); }
+  .pri { background: var(--navy); color: #fff; }
+  .pri:hover:not(:disabled) { background: #08172d; }
+  .pri:disabled { background: #c7cdd8; color: #4a5468; }
+  .pri .ic { width: 20px; height: 20px; }
+  .ghost { height: 48px; color: var(--navy-3); font-weight: 600; font-size: 15px; }
+  .ghost:hover { background: var(--field); }
+  .push { margin-top: auto; padding-top: 16px; }
+  .note { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; font-size: 13px; line-height: 20px; color: var(--muted); }
+  .note .ic { width: 18px; height: 18px; margin-top: 1px; color: var(--navy-3); }
+  .fine { margin-top: 12px; font-size: 12.5px; line-height: 20px; color: var(--muted); text-align: center; }
+  .spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: turn .8s linear infinite; }
+  @keyframes turn { to { transform: rotate(1turn); } }
+
+  /* the code */
+  .otp { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; direction: ltr; margin-top: 28px; }
+  .otp input { width: 100%; height: 60px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--field); text-align: center; font: 600 24px/1 var(--num); caret-color: var(--navy); outline: none; transition: box-shadow .15s; }
+  .otp input:focus { border-color: var(--navy); background: #fff; box-shadow: 0 0 0 4px rgba(14, 34, 64, .08); }
+  .otp input.has { background: #fff; border-color: var(--line-2); }
+  .otp input.has:focus { border-color: var(--navy); }
+  .otp.bad input { border-color: var(--bad); background: var(--bad-wash); color: var(--bad); }
+  .otp.good input { border-color: var(--good); background: #eef7f2; color: var(--good); }
+  .otp input:disabled { opacity: .55; }
+  .otp.shake { animation: shake .36s ease-out; }
+  @keyframes shake { 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
+  .otp.good input { animation: pop .3s var(--ease) both; animation-delay: calc(var(--i) * 30ms); }
+  @keyframes pop { 50% { transform: translateY(-4px); } }
+  .demo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: #fff7e8; color: var(--amber-ink); font-size: 13px; }
+  .demo b { font: 700 15px var(--num); letter-spacing: .12em; direction: ltr; unicode-bidi: isolate; color: #5f3a00; margin-inline-start: 4px; }
+  .demo button { flex: none; padding: 4px 10px; border-radius: 8px; color: #5f3a00; font-weight: 700; font-size: 13px; text-decoration: underline; text-decoration-color: rgba(95, 58, 0, .35); text-underline-offset: 3px; }
+  .demo button:hover { background: #ffeccb; }
+  .resend { display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; margin-top: 8px; font-size: 14px; color: var(--muted); }
+  .resend button { color: var(--navy-3); font-weight: 700; padding: 6px 8px; border-radius: 8px; }
+  .resend button:hover { background: var(--field); }
+
+  /* name + terms */
+  .inp { display: block; width: 100%; height: 56px; padding: 0 16px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--field); outline: none; font-size: 17px; transition: border-color .15s, background-color .15s, box-shadow .15s; }
+  .inp::placeholder { color: #8c95a5; }
+  .inp:focus { border-color: var(--navy); background: #fff; box-shadow: 0 0 0 4px rgba(14, 34, 64, .08); }
+  .inp[aria-invalid="true"] { border-color: var(--bad); background: var(--bad-wash); }
+  .check { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; font-size: 14px; line-height: 22px; color: var(--ink); }
+  .check input { position: absolute; opacity: 0; width: 22px; height: 22px; margin: 0; }
+  .check .box { position: relative; display: grid; place-items: center; width: 22px; height: 22px; border: 1.5px solid var(--line-2); border-radius: 6px; background: #fff; flex: none; transition: background-color .15s, border-color .15s; }
+  .check .box svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s var(--ease); }
+  .check input:checked + .box { background: var(--navy); border-color: var(--navy); }
+  .check input:checked + .box svg { stroke-dashoffset: 0; }
+  .check input:focus-visible + .box { outline: 2px solid var(--navy-3); outline-offset: 2px; }
+  .check input[aria-invalid="true"] + .box { border-color: var(--bad); }
+  .check .t { position: relative; }
+
+  /* welcome */
+  .welcome { align-items: center; text-align: center; padding-top: 8px; }
+  .seal { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 16px; border-radius: 50%; background: #fff4df; color: var(--amber-ink); }
+  .seal .ic { width: 34px; height: 34px; stroke-width: 2; }
+  .saved { width: 100%; margin-top: 24px; border-top: 1px solid var(--line); text-align: right; list-style: none; }
+  .saved li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .saved .pin { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--field); color: var(--navy-3); flex: none; }
+  .saved b { display: block; font-size: 15px; font-weight: 600; }
+  .saved span { font-size: 13px; color: var(--muted); }
+  .saved button.add { margin-inline-start: auto; color: var(--navy-3); font-weight: 600; font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .saved button.add:hover { background: var(--field); }
+  .saved button.add[aria-pressed="true"] { color: var(--good); }
+
+  /* bottom sheets */
+  .scrim { position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-end; justify-content: center; background: rgba(8, 18, 34, .48); opacity: 0; visibility: hidden; transition: opacity .25s ease-out, visibility 0s .25s; }
+  .scrim.on { opacity: 1; visibility: visible; transition: opacity .25s ease-out; }
+  .bs { width: 100%; max-width: 430px; max-height: 82vh; display: flex; flex-direction: column; background: #fff; border-radius: 24px 24px 0 0; padding: 8px 20px 24px; transform: translateY(40px); transition: transform .3s var(--ease); }
+  .scrim.on .bs { transform: none; }
+  .grab { width: 36px; height: 5px; margin: 0 auto 8px; border-radius: 3px; background: var(--line-2); }
+  .bs-h { display: flex; align-items: center; justify-content: space-between; height: 44px; }
+  .bs-h h2 { font-size: 18px; font-weight: 700; }
+  .x { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--field); color: var(--muted); }
+  .x:hover { color: var(--ink); }
+  .x .ic { width: 18px; height: 18px; }
+  .find { position: relative; margin: 8px 0 8px; }
+  .find .ic { position: absolute; right: 14px; top: 13px; width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+  .find input { width: 100%; height: 44px; padding: 0 42px 0 14px; border: 1.5px solid transparent; border-radius: 12px; background: var(--field); outline: none; font-size: 15px; }
+  .find input:focus { border-color: var(--navy); background: #fff; }
+  .find input::placeholder { color: #7d8697; }
+  .find input::-webkit-search-cancel-button { display: none; }
+  .clist { list-style: none; overflow-y: auto; margin: 0 -8px; padding: 0 0 4px; min-height: 120px; }
+  .copt { display: flex; align-items: center; gap: 12px; width: 100%; height: 52px; padding: 0 12px; border-radius: 12px; font-size: 16px; text-align: right; }
+  .copt:hover, .copt.kb { background: var(--field); }
+  .copt:focus-visible { outline-offset: -2px; }
+  .copt .code { margin-right: auto; font: 500 15px var(--num); color: var(--muted); direction: ltr; }
+  .copt .tick { width: 20px; color: var(--navy); visibility: hidden; }
+  .copt[aria-selected="true"] { font-weight: 700; }
+  .copt[aria-selected="true"] .tick { visibility: visible; }
+  .copt mark { background: #fff1cc; color: inherit; border-radius: 3px; }
+  .none { padding: 28px 8px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+  .none b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+  .terms { margin: 4px 0 20px; padding-inline-start: 20px; color: var(--muted); font-size: 14px; line-height: 24px; }
+  .terms li + li { margin-top: 8px; }
+  .toast { position: fixed; left: 50%; top: 52px; z-index: 20; max-width: calc(100% - 40px); padding: 12px 18px; border-radius: 14px; background: var(--ink); color: #fff; font-size: 14px; transform: translate(-50%, -12px); opacity: 0; box-shadow: 0 8px 24px rgba(8, 18, 34, .18); text-align: center; pointer-events: none; transition: opacity .2s, transform .25s var(--ease); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 370px) {
+    .sheet { padding: 24px 20px 20px; }
+    h1 { font-size: 22px; line-height: 32px; }
+    .otp { gap: 6px; }
+    .otp input { height: 54px; font-size: 22px; }
+    .cc small { display: none; }
+  }
+  @media (min-height: 900px) { .sheet { padding-top: 32px; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status" aria-hidden="true"><span class="ltr">9:41</span><span class="icons"><span class="bars"><i></i><i></i><i></i><i></i></span><svg viewBox="0 0 16 12"><path d="M8 11.2 10.4 8.6a3.4 3.4 0 0 0-4.8 0zM3.4 6.4a6.6 6.6 0 0 1 9.2 0l1.4-1.5a8.6 8.6 0 0 0-12 0zM.6 3.6a10.6 10.6 0 0 1 14.8 0L16 3a11.4 11.4 0 0 0-16 0z" fill="#fff"/></svg><i class="batt"><b></b></i></span></div>
+
+  <header class="hero">
+    <div class="topbar">
+      <button class="back" id="back" type="button" aria-label="رجوع" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <span class="brand"><svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="8" fill="#ffb22e"/><path d="M19.5 7.5c-6 0-3 11-13 11" fill="none" stroke="#0e2240" stroke-width="2.4" stroke-linecap="round"/><circle cx="19.5" cy="7.5" r="2.4" fill="#0e2240"/><circle cx="6.5" cy="18.5" r="2.4" fill="#0e2240"/></svg>مسار</span>
+      <span class="stepno" id="stepno">الخطوة 1 من 3</span>
+    </div>
+    <svg class="route" id="route" viewBox="0 0 390 168" aria-hidden="true">
+      <g class="blocks">
+        <rect x="-8" y="6" width="70" height="22" rx="5"/><rect x="74" y="6" width="96" height="22" rx="5"/><rect x="182" y="2" width="58" height="26" rx="5"/><rect x="252" y="8" width="66" height="20" rx="5"/><rect x="330" y="4" width="70" height="24" rx="5"/>
+        <rect x="-8" y="66" width="22" height="48" rx="5"/><rect x="64" y="70" width="44" height="40" rx="5"/><rect x="176" y="40" width="34" height="34" rx="5"/><rect x="292" y="40" width="36" height="28" rx="5"/><rect x="368" y="56" width="40" height="34" rx="5"/>
+        <rect x="190" y="118" width="70" height="36" rx="5"/><rect x="20" y="126" width="80" height="30" rx="5"/>
+      </g>
+      <path class="street" d="M-10 40C80 48 140 30 210 36S340 52 400 46"/>
+      <path class="street thin" d="M60 -10 72 180M168 -10 160 180M280 -10 286 180"/>
+      <path class="base" id="rbase" d="M352 116C306 116 296 78 250 78S174 118 132 106 74 56 36 56"/>
+      <path class="done" id="rdone" d="M352 116C306 116 296 78 250 78S174 118 132 106 74 56 36 56"/>
+      <g id="stops"></g>
+      <g id="bus"><circle r="12" fill="#fff"/><circle r="12" fill="none" stroke="#ffb22e" stroke-width="3"/><circle r="4" fill="#0e2240"/></g>
+    </svg>
+  </header>
+
+  <main class="sheet">
+    <div class="steps">
+      <!-- 1 · number -->
+      <section class="step" id="s1" aria-labelledby="h1">
+        <h1 id="h1" tabindex="-1">سجّل دخولك برقم جوالك</h1>
+        <p class="sub">نرسل إليك رمز تحقق في رسالة نصية، فلا حاجة إلى كلمة مرور.</p>
+        <label class="lb" for="tel">رقم الجوال</label>
+        <div class="tel" id="telbox">
+          <button class="cc" id="cc" type="button" aria-haspopup="dialog" aria-label="مفتاح الدولة: السعودية +966، تغيير"><span id="cc-code">+966</span><small id="cc-name">السعودية</small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <input id="tel" type="tel" inputmode="numeric" autocomplete="tel-national" dir="ltr" placeholder="50 123 4567" aria-describedby="tel-msg">
+          <span class="ok" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+        </div>
+        <p class="msg" id="tel-msg" aria-live="polite">يتكوّن الرقم من 9 أرقام ويبدأ بالرقم 5.</p>
+        <div class="push">
+          <p class="note"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span>لا يظهر رقمك للسائق أبدًا، فالمكالمات تمر عبر رقم مؤقت.</span></p>
+          <button class="btn pri" id="send" type="button">إرسال الرمز</button>
+          <p class="fine">قد يحتسب مشغّل شبكتك رسوم الرسالة النصية.</p>
+        </div>
+      </section>
+
+      <!-- 2 · code -->
+      <section class="step off to-left" id="s2" aria-labelledby="h2" inert>
+        <h1 id="h2" tabindex="-1">أدخل رمز التحقق</h1>
+        <p class="sub">أرسلنا رمزًا من 6 أرقام إلى <bdi class="ltr" id="sent-to">+966 50 123 4567</bdi>. <button class="link" type="button" id="edit">تعديل الرقم</button></p>
+        <div class="otp" id="otp" role="group" aria-label="رمز التحقق، 6 أرقام" aria-describedby="otp-msg"></div>
+        <p class="msg" id="otp-msg" aria-live="polite"></p>
+        <div class="demo"><span>للتجربة استخدم الرمز <b>246810</b></span><button type="button" id="demo-fill">املأه عني</button></div>
+        <div class="resend" id="resend" aria-live="polite"></div>
+        <div class="push">
+          <button class="btn pri" id="verify" type="button" disabled>تحقّق</button>
+        </div>
+      </section>
+
+      <!-- 3 · name -->
+      <section class="step off to-left" id="s3" aria-labelledby="h3" inert>
+        <h1 id="h3" tabindex="-1">بقيت خطوة أخيرة</h1>
+        <p class="sub">بأي اسم يناديك السائق؟ يظهر اسمك الأول فقط عند الحجز.</p>
+        <label class="lb" for="name">الاسم</label>
+        <input class="inp" id="name" autocomplete="name" maxlength="40" placeholder="مثلًا: نورة العتيبي" aria-describedby="name-msg">
+        <p class="msg" id="name-msg" aria-live="polite"></p>
+        <label class="check"><input type="checkbox" id="agree" aria-describedby="agree-msg"><span class="box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span class="t">قرأت <button class="link" type="button" data-sheet="terms">شروط الاستخدام</button> و<button class="link" type="button" data-sheet="privacy">سياسة الخصوصية</button> وأوافق عليهما.</span></label>
+        <p class="msg" id="agree-msg" aria-live="polite"></p>
+        <div class="push">
+          <button class="btn pri" id="create" type="button">إنشاء الحساب</button>
+        </div>
+      </section>
+
+      <!-- 4 · welcome -->
+      <section class="step off to-left welcome" id="s4" aria-labelledby="h4" inert>
+        <span class="seal" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+        <h1 id="h4" tabindex="-1">أهلًا يا نورة، حسابك جاهز</h1>
+        <p class="sub">احفظ عنوانَي البيت والعمل لتطلب رحلتك إليهما بلمسة واحدة.</p>
+        <ul class="saved">
+          <li><span class="pin"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg></span><span><b>البيت</b><span>حي الياسمين، الرياض</span></span><button class="add" type="button" aria-pressed="false" data-place="البيت">حفظ</button></li>
+          <li><span class="pin"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v12H4zM9 8V5h6v3M4 13h16"/></svg></span><span><b>العمل</b><span>طريق الملك فهد، العليا</span></span><button class="add" type="button" aria-pressed="false" data-place="العمل">حفظ</button></li>
+        </ul>
+        <div class="push" style="width:100%">
+          <button class="btn pri" id="ride" type="button">احجز أول رحلة<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+          <button class="btn ghost" id="again" type="button" style="margin-top:8px">أعد العرض من البداية</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- country picker -->
+<div class="scrim" id="cs" aria-hidden="true">
+  <div class="bs" role="dialog" aria-modal="true" aria-labelledby="cs-h">
+    <span class="grab" aria-hidden="true"></span>
+    <div class="bs-h"><h2 id="cs-h">اختر الدولة</h2><button class="x" type="button" id="cs-x" aria-label="إغلاق"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="find"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><label class="sr" for="cq">ابحث عن دولة</label><input id="cq" type="search" autocomplete="off" placeholder="ابحث باسم الدولة أو بالمفتاح" role="combobox" aria-controls="clist" aria-expanded="true" aria-autocomplete="list"></div>
+    <ul class="clist" id="clist" role="listbox" aria-label="الدول"></ul>
+  </div>
+</div>
+
+<!-- terms -->
+<div class="scrim" id="ts" aria-hidden="true">
+  <div class="bs" role="dialog" aria-modal="true" aria-labelledby="ts-h">
+    <span class="grab" aria-hidden="true"></span>
+    <div class="bs-h"><h2 id="ts-h"></h2><button class="x" type="button" id="ts-x" aria-label="إغلاق"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <ul class="terms" id="ts-b"></ul>
+    <button class="btn pri" type="button" id="ts-ok">فهمت</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const AR = "٠١٢٣٤٥٦٧٨٩", FA = "۰۱۲۳۴۵۶۷۸۹";
+  const digits = (s) => s.replace(/[٠-٩]/g, (d) => AR.indexOf(d)).replace(/[۰-۹]/g, (d) => FA.indexOf(d)).replace(/\D/g, "");
+
+  /* ── countries ───────────────────────────────────────────────────────── */
+  const C = [
+    { id: "SA", ar: "السعودية", en: "saudi arabia ksa", code: "966", len: 9, g: [2, 3, 4], pre: ["5"], ex: "50 123 4567", starts: "بالرقم 5" },
+    { id: "AE", ar: "الإمارات", en: "uae emirates", code: "971", len: 9, g: [2, 3, 4], pre: ["5"], ex: "50 123 4567", starts: "بالرقم 5" },
+    { id: "KW", ar: "الكويت", en: "kuwait", code: "965", len: 8, g: [4, 4], pre: ["5", "6", "9"], ex: "6000 1234", starts: "بالرقم 5 أو 6 أو 9" },
+    { id: "QA", ar: "قطر", en: "qatar", code: "974", len: 8, g: [4, 4], pre: ["3", "5", "6", "7"], ex: "3312 3456", starts: "بالرقم 3 أو 5 أو 6 أو 7" },
+    { id: "BH", ar: "البحرين", en: "bahrain", code: "973", len: 8, g: [4, 4], pre: ["3", "6"], ex: "3600 1234", starts: "بالرقم 3 أو 6" },
+    { id: "OM", ar: "عُمان", en: "oman", code: "968", len: 8, g: [4, 4], pre: ["7", "9"], ex: "9123 4567", starts: "بالرقم 7 أو 9" },
+    { id: "EG", ar: "مصر", en: "egypt", code: "20", len: 10, g: [2, 4, 4], pre: ["10", "11", "12", "15"], ex: "10 1234 5678", starts: "بـ 10 أو 11 أو 12 أو 15" },
+    { id: "JO", ar: "الأردن", en: "jordan", code: "962", len: 9, g: [2, 3, 4], pre: ["77", "78", "79"], ex: "79 123 4567", starts: "بـ 77 أو 78 أو 79" },
+  ];
+  const WORDS = ["", "رقمًا واحدًا", "رقمين", "3 أرقام", "4 أرقام", "5 أرقام", "6 أرقام", "7 أرقام", "8 أرقام", "9 أرقام", "10 أرقام"];
+  let cc = C[0];
+  const fmt = (d, c = cc) => { const out = []; let i = 0; for (const n of c.g) { if (i >= d.length) break; out.push(d.slice(i, i + n)); i += n; } return out.join(" "); };
+  const preOk = (d, c = cc) => c.pre.some((p) => d.startsWith(p) || p.startsWith(d));
+
+  /* ── step 1: the number ──────────────────────────────────────────────── */
+  const tel = $("tel"), telbox = $("telbox"), tmsg = $("tel-msg");
+  let num = "", shown = false;
+  const hintText = () => `يتكوّن الرقم من ${WORDS[cc.len]} ويبدأ ${cc.starts}.`;
+  function check(final) {
+    const valid = num.length === cc.len && preOk(num) && cc.pre.some((p) => num.startsWith(p));
+    let err = "";
+    if (num && !preOk(num)) err = `تبدأ أرقام الجوال في ${cc.ar} ${cc.starts}.`;
+    else if (final && !num) err = "اكتب رقم جوالك أولًا.";
+    else if (final && num.length < cc.len) err = `الرقم ناقص؛ رقم الجوال في ${cc.ar} يتكوّن من ${WORDS[cc.len]}.`;
+    telbox.classList.toggle("valid", valid);
+    telbox.classList.toggle("bad", !!err);
+    tel.setAttribute("aria-invalid", !!err);
+    tmsg.classList.toggle("bad", !!err);
+    tmsg.textContent = err || (valid ? "رقم صحيح، سنرسل الرمز إليه." : hintText());
+    return valid;
+  }
+  function setNum(raw, caretDigits) {
+    let d = digits(raw);
+    const plus = /^\s*(\+|00)/.test(raw);
+    if (plus || d.length > cc.len) {
+      const s = plus ? d.replace(/^00/, "") : d;
+      const m = C.find((c) => s.startsWith(c.code) && s.length - c.code.length <= c.len + 1);
+      if (m && (plus || s.length > cc.len)) { pickCountry(m, true); d = s.slice(m.code.length); caretDigits = undefined; }
+    }
+    if (d.startsWith("0")) { d = d.replace(/^0+/, ""); if (caretDigits) caretDigits = Math.max(0, caretDigits - 1); }
+    num = d.slice(0, cc.len);
+    tel.value = fmt(num);
+    if (caretDigits !== undefined && document.activeElement === tel) {
+      let seen = 0, pos = 0;
+      const v = tel.value;
+      if (caretDigits > 0) { for (pos = 0; pos < v.length; pos++) { if (/\d/.test(v[pos])) seen++; if (seen === caretDigits) { pos++; break; } } }
+      tel.setSelectionRange(pos, pos);
+    }
+    check(false);
+  }
+  tel.addEventListener("input", () => {
+    const before = tel.value.slice(0, tel.selectionStart);
+    setNum(tel.value, digits(before).length);
+  });
+  tel.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); send(); return; }
+    // Backspace right after a space removes the digit before it, not just the space
+    if (e.key === "Backspace" && tel.selectionStart === tel.selectionEnd && tel.value[tel.selectionStart - 1] === " ") {
+      e.preventDefault();
+      const at = digits(tel.value.slice(0, tel.selectionStart)).length;
+      num = num.slice(0, at - 1) + num.slice(at);
+      tel.value = fmt(num); setNum(tel.value, at - 1);
+    }
+  });
+  tel.addEventListener("blur", () => { if (num && num.length < cc.len) check(true); });
+  $("send").addEventListener("click", send);
+  function send() {
+    if (!check(true)) { tel.focus(); return; }
+    $("sent-to").textContent = `+${cc.code} ${fmt(num)}`;
+    go(2);
+    startOtp();
+  }
+
+  /* ── the country sheet ───────────────────────────────────────────────── */
+  const cs = $("cs"), cq = $("cq"), clist = $("clist");
+  const norm = (s) => s.toLowerCase().replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[+\s]/g, "");
+  let shownC = C, kb = -1, lastFocus = null;
+  function listC() {
+    const q = norm(digits(cq.value) && /^[\s+\d٠-٩]+$/.test(cq.value) ? digits(cq.value) : cq.value);
+    shownC = !q ? C : C.filter((c) => norm(c.ar).includes(q) || norm(c.ar).replace(/^ال/, "").startsWith(q) || c.en.includes(q) || c.code.startsWith(q));
+    kb = shownC.length ? Math.max(0, shownC.indexOf(cc)) : -1;
+    if (q && kb >= 0 && !shownC.includes(cc)) kb = 0;
+    clist.innerHTML = shownC.length ? shownC.map((c, i) => `<li role="none"><button type="button" class="copt${i === kb ? " kb" : ""}" role="option" id="o-${c.id}" data-id="${c.id}" aria-selected="${c === cc}" tabindex="-1"><svg class="ic tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>${c.ar}</span><span class="code">+${c.code}</span></button></li>`).join("")
+      : `<li class="none" role="none"><b>لا نعمل في هذه الدولة بعد</b>متوفرون حاليًا في دول الخليج ومصر والأردن.</li>`;
+    cq.setAttribute("aria-activedescendant", kb >= 0 ? `o-${shownC[kb].id}` : "");
+  }
+  function moveKb(i) {
+    if (!shownC.length) return;
+    kb = (i + shownC.length) % shownC.length;
+    clist.querySelectorAll(".copt").forEach((b, j) => b.classList.toggle("kb", j === kb));
+    const el = clist.querySelectorAll(".copt")[kb]; el.scrollIntoView({ block: "nearest" });
+    cq.setAttribute("aria-activedescendant", el.id);
+  }
+  function openSheet(el, focusEl) {
+    lastFocus = document.activeElement;
+    el.classList.add("on"); el.setAttribute("aria-hidden", "false");
+    document.querySelector(".phone").inert = true;
+    setTimeout(() => focusEl.focus(), reduce.matches ? 0 : 60);
+  }
+  function closeSheet(el, back = lastFocus) {
+    if (!el.classList.contains("on")) return;
+    el.classList.remove("on"); el.setAttribute("aria-hidden", "true");
+    document.querySelector(".phone").inert = false;
+    if (back) back.focus();
+  }
+  $("cc").addEventListener("click", () => { cq.value = ""; listC(); openSheet(cs, cq); });
+  $("cs-x").addEventListener("click", () => closeSheet(cs));
+  cs.addEventListener("pointerdown", (e) => { if (e.target === cs) closeSheet(cs); });
+  cq.addEventListener("input", listC);
+  cq.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); moveKb(kb + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); moveKb(kb - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (kb >= 0) choose(shownC[kb]); }
+  });
+  clist.addEventListener("click", (e) => { const b = e.target.closest(".copt"); if (b) choose(C.find((c) => c.id === b.dataset.id)); });
+  function pickCountry(c, quiet) {
+    cc = c;
+    $("cc-code").textContent = "+" + c.code; $("cc-name").textContent = c.ar;
+    $("cc").setAttribute("aria-label", `مفتاح الدولة: ${c.ar} +${c.code}، تغيير`);
+    tel.placeholder = c.ex;
+    if (!quiet) { num = num.slice(0, c.len); tel.value = fmt(num); check(false); }
+  }
+  function choose(c) { pickCountry(c); closeSheet(cs, tel); }
+
+  /* ── step 2: the code ────────────────────────────────────────────────── */
+  const otp = $("otp"), omsg = $("otp-msg"), verifyBtn = $("verify");
+  otp.innerHTML = Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" maxlength="1" ${i === 0 ? 'autocomplete="one-time-code"' : 'autocomplete="off"'} aria-label="الرقم ${i + 1} من 6" style="--i:${i}">`).join("");
+  const boxes = [...otp.children];
+  otp.addEventListener("animationend", (e) => { if (e.target === otp) otp.classList.remove("shake"); });
+  const CODE = "246810";
+  let tries = 0, busy = false, left = 30, tick = 0;
+  const code = () => boxes.map((b) => b.value).join("");
+  function paintBoxes() {
+    boxes.forEach((b) => b.classList.toggle("has", !!b.value));
+    verifyBtn.disabled = code().length < 6 || busy || tries >= 3;
+  }
+  function fill(from, ds) {
+    let i = from;
+    for (const d of ds) { if (i > 5) break; boxes[i].value = d; i++; }
+    paintBoxes();
+    if (code().length === 6) { boxes[5].focus(); verify(); } else boxes[Math.min(i, 5)].focus();
+  }
+  function clearBad() { if (otp.classList.contains("bad")) { otp.classList.remove("bad"); if (tries < 3) omsg.textContent = ""; omsg.classList.remove("bad"); } }
+  boxes.forEach((b, i) => {
+    b.addEventListener("input", () => {
+      clearBad();
+      const d = digits(b.value);
+      if (!d) { b.value = ""; paintBoxes(); return; }
+      if (d.length > 1) { b.value = ""; fill(i, d); return; }
+      b.value = d; paintBoxes();
+      if (code().length === 6) verify(); else if (i < 5) boxes[i + 1].focus();
+    });
+    b.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        clearBad();
+        if (!b.value && i > 0) { e.preventDefault(); boxes[i - 1].value = ""; boxes[i - 1].focus(); paintBoxes(); }
+        else if (b.value) { e.preventDefault(); b.value = ""; paintBoxes(); }
+      } else if (e.key === "ArrowLeft" && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
+      else if (e.key === "ArrowRight" && i < 5) { e.preventDefault(); boxes[i + 1].focus(); }
+      else if (e.key === "Enter") { e.preventDefault(); if (!verifyBtn.disabled) verify(); }
+      else if (e.key.length === 1 && /\d|[٠-٩]/.test(e.key) && b.value && b.selectionStart === b.selectionEnd && b.selectionStart === 1) {
+        e.preventDefault(); clearBad(); b.value = digits(e.key); paintBoxes();
+        if (code().length === 6) verify(); else if (i < 5) boxes[i + 1].focus();
+      }
+    });
+    b.addEventListener("focus", () => setTimeout(() => { if (document.activeElement === b && b.value) b.select(); }, 0));
+    b.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const d = digits((e.clipboardData || window.clipboardData).getData("text") || "");
+      if (!d) return;
+      clearBad();
+      if (d.length >= 6) { boxes.forEach((x) => (x.value = "")); fill(0, d.slice(0, 6)); } else fill(i, d);
+    });
+  });
+  verifyBtn.addEventListener("click", verify);
+  $("demo-fill").addEventListener("click", () => {
+    if (busy || tries >= 3 || otp.classList.contains("good")) return;
+    clearBad(); boxes.forEach((x) => (x.value = "")); fill(0, CODE);
+  });
+  function verify() {
+    if (busy || tries >= 3 || code().length < 6) return;
+    busy = true; paintBoxes();
+    verifyBtn.innerHTML = '<span class="spin" aria-hidden="true"></span>جارٍ التحقق';
+    omsg.textContent = ""; omsg.classList.remove("bad");
+    setTimeout(() => {
+      busy = false;
+      verifyBtn.textContent = "تحقّق";
+      if (code() === CODE) {
+        otp.classList.add("good"); omsg.textContent = "تم التحقق من رقمك.";
+        boxes.forEach((b) => (b.disabled = true));
+        clearInterval(tick);
+        setTimeout(() => go(3), reduce.matches ? 200 : 520);
+        return;
+      }
+      tries++;
+      otp.classList.remove("shake"); void otp.offsetWidth; otp.classList.add("bad", "shake");
+      omsg.classList.add("bad");
+      if (tries >= 3) {
+        omsg.textContent = "أدخلت رمزًا خاطئًا 3 مرات. اطلب رمزًا جديدًا للمتابعة.";
+        boxes.forEach((b) => (b.disabled = true));
+        clearInterval(tick); left = 0; paintResend();
+        paintBoxes();
+        setTimeout(() => $("again-code") && $("again-code").focus(), 380);
+      } else {
+        omsg.textContent = tries === 1 ? "الرمز غير صحيح. تبقّت لك محاولتان." : "الرمز غير صحيح. تبقّت لك محاولة واحدة.";
+        setTimeout(() => { boxes.forEach((b) => (b.value = "")); paintBoxes(); boxes[0].focus(); }, 420);
+      }
+    }, 650);
+  }
+  function paintResend() {
+    $("resend").innerHTML = left > 0
+      ? `لم يصلك الرمز؟ يمكنك طلب رمز جديد بعد <bdi class="ltr">0:${String(left).padStart(2, "0")}</bdi>`
+      : `لم يصلك الرمز؟ <button type="button" id="again-code">أرسل رمزًا جديدًا</button>`;
+  }
+  function startTimer() {
+    clearInterval(tick); left = 30; paintResend();
+    tick = setInterval(() => {
+      left--;
+      if (left <= 0) { clearInterval(tick); left = 0; paintResend(); return; }
+      const t = $("resend").querySelector("bdi"); if (t) t.textContent = `0:${String(left).padStart(2, "0")}`;
+    }, 1000);
+  }
+  function startOtp() {
+    tries = 0; busy = false;
+    otp.classList.remove("bad", "good", "shake");
+    boxes.forEach((b) => { b.value = ""; b.disabled = false; });
+    omsg.textContent = ""; omsg.classList.remove("bad");
+    verifyBtn.textContent = "تحقّق";
+    paintBoxes(); startTimer();
+  }
+  $("resend").addEventListener("click", (e) => {
+    if (e.target.id !== "again-code") return;
+    startOtp(); boxes[0].focus();
+    toast(`أرسلنا رمزًا جديدًا إلى \u2066${$("sent-to").textContent.replace(/ /g, "\u00a0")}\u2069`);
+  });
+  $("edit").addEventListener("click", () => { clearInterval(tick); go(1); });
+
+  /* ── step 3: name and terms ──────────────────────────────────────────── */
+  const nameIn = $("name"), agree = $("agree");
+  const nameErr = (v) => !v ? "اكتب اسمك ليعرفك السائق." : v.length < 2 ? "الاسم قصير جدًا." : /[0-9٠-٩@#$%^&*_=+<>{}\[\]\\/|~]/.test(v) ? "يحتوي الاسم على أرقام أو رموز، اكتبه بالحروف فقط." : "";
+  const setErr = (el, msgEl, txt) => { el.setAttribute("aria-invalid", !!txt); msgEl.textContent = txt; msgEl.classList.toggle("bad", !!txt); };
+  nameIn.addEventListener("input", () => { if (nameIn.getAttribute("aria-invalid") === "true") setErr(nameIn, $("name-msg"), nameErr(nameIn.value.trim())); });
+  nameIn.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); create(); } });
+  agree.addEventListener("change", () => { if (agree.checked) setErr(agree, $("agree-msg"), ""); });
+  $("create").addEventListener("click", create);
+  function create() {
+    const v = nameIn.value.trim().replace(/\s+/g, " ");
+    const ne = nameErr(v), ae = agree.checked ? "" : "يلزم الموافقة على الشروط لإنشاء الحساب.";
+    setErr(nameIn, $("name-msg"), ne); setErr(agree, $("agree-msg"), ae);
+    if (ne) { nameIn.focus(); return; }
+    if (ae) { agree.focus(); return; }
+    const btn = $("create");
+    btn.disabled = true; btn.innerHTML = '<span class="spin" aria-hidden="true"></span>جارٍ إنشاء الحساب';
+    setTimeout(() => {
+      btn.disabled = false; btn.textContent = "إنشاء الحساب";
+      $("h4").textContent = `أهلًا يا ${v.split(" ")[0]}، حسابك جاهز`;
+      go(4);
+    }, 700);
+  }
+
+  /* terms and privacy */
+  const TERMS = {
+    terms: ["شروط الاستخدام", ["تُحسب الأجرة قبل الحجز، ولا تتغير إلا إذا غيّرت وجهتك أثناء الرحلة.", "يمكنك إلغاء الرحلة مجانًا خلال دقيقتين من الحجز.", "نحتفظ بحقنا في إيقاف الحسابات التي تسيء إلى السائقين أو الركاب."]],
+    privacy: ["سياسة الخصوصية", ["نستخدم رقم جوالك لتسجيل الدخول والتواصل بشأن رحلاتك فقط.", "لا يرى السائق رقمك؛ تمر المكالمات عبر رقم مؤقت.", "يمكنك حذف حسابك وبياناتك في أي وقت من الإعدادات."]],
+  };
+  const ts = $("ts");
+  document.querySelectorAll("[data-sheet]").forEach((b) => b.addEventListener("click", (e) => {
+    e.preventDefault();
+    const [t, items] = TERMS[b.dataset.sheet];
+    $("ts-h").textContent = t; $("ts-b").innerHTML = items.map((x) => `<li>${x}</li>`).join("");
+    openSheet(ts, $("ts-ok"));
+  }));
+  $("ts-x").addEventListener("click", () => closeSheet(ts));
+  $("ts-ok").addEventListener("click", () => closeSheet(ts));
+  ts.addEventListener("pointerdown", (e) => { if (e.target === ts) closeSheet(ts); });
+
+  /* sheets: Escape closes, Tab stays inside */
+  document.addEventListener("keydown", (e) => {
+    const open = document.querySelector(".scrim.on");
+    if (!open) return;
+    if (e.key === "Escape") { e.preventDefault(); closeSheet(open); return; }
+    if (e.key === "Tab") {
+      const f = [...open.querySelectorAll("button:not([tabindex='-1']), input")].filter((x) => x.offsetParent);
+      const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+
+  /* welcome */
+  document.querySelectorAll(".add").forEach((b) => b.addEventListener("click", () => {
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", on); b.textContent = on ? "محفوظ" : "حفظ";
+    toast(on ? `حفظنا عنوان ${b.dataset.place}` : `أزلنا عنوان ${b.dataset.place}`);
+  }));
+  $("ride").addEventListener("click", () => toast("من هنا تبدأ شاشة الحجز في تطبيقك."));
+  $("again").addEventListener("click", () => {
+    num = ""; tel.value = ""; pickCountry(C[0]); check(false);
+    nameIn.value = ""; agree.checked = false; setErr(nameIn, $("name-msg"), ""); setErr(agree, $("agree-msg"), "");
+    document.querySelectorAll(".add").forEach((b) => { b.setAttribute("aria-pressed", "false"); b.textContent = "حفظ"; });
+    go(1);
+  });
+  let tt = 0;
+  function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
+
+  /* ── steps slide in the reading direction; the route marker follows ─── */
+  const steps = [$("s1"), $("s2"), $("s3"), $("s4")];
+  let at = 1;
+  function go(n) {
+    const fwd = n > at, from = steps[at - 1], to = steps[n - 1];
+    if (n === at) return;
+    // forward in Arabic reads right to left: the old step leaves to the right, the new one arrives from the left
+    to.classList.remove("to-left", "to-right"); to.classList.add(fwd ? "to-left" : "to-right");
+    void to.offsetWidth;
+    to.classList.remove("off", "to-left", "to-right"); to.inert = false;
+    from.classList.add("off", fwd ? "to-right" : "to-left"); from.inert = true;
+    at = n;
+    $("back").hidden = !(n === 2);
+    $("stepno").textContent = n <= 3 ? `الخطوة ${n} من 3` : "تم";
+    moveBus(n - 1);
+    const f = n === 1 ? tel : n === 2 ? boxes[0] : n === 3 ? nameIn : $("h4");
+    setTimeout(() => f.focus({ preventScroll: true }), reduce.matches ? 0 : 140);
+  }
+  $("back").addEventListener("click", () => { if (at === 2) { clearInterval(tick); go(1); } });
+
+  /* the route */
+  const base = $("rbase"), done = $("rdone"), bus = $("bus"), stopsG = $("stops");
+  const LEN = base.getTotalLength();
+  const AT = [0, .36, .68, 1];
+  const LBL = ["رقمك", "الرمز", "اسمك", "انطلق"];
+  const NS = "http://www.w3.org/2000/svg";
+  let flag = null;
+  const stopEls = AT.map((f, i) => {
+    const p = base.getPointAtLength(LEN * f);
+    const c = document.createElementNS(NS, "circle"); c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", 6); c.setAttribute("class", "stop");
+    const t = document.createElementNS(NS, "text"); t.setAttribute("direction", "ltr");
+    if (i === 0) { t.setAttribute("x", p.x - 18); t.setAttribute("y", p.y + 23); t.setAttribute("text-anchor", "end"); }
+    else { t.setAttribute("x", p.x); t.setAttribute("y", p.y + (i === 1 ? -18 : 30)); t.setAttribute("text-anchor", "middle"); } t.setAttribute("class", "lbl"); t.textContent = LBL[i];
+    stopsG.append(c, t);
+    if (i === 3) {
+      const fl = document.createElementNS(NS, "path"); fl.setAttribute("class", "flag");
+      fl.setAttribute("d", `M${p.x} ${p.y - 7}V${p.y - 25}l-11 4.5 11 4.5`); stopsG.append(fl); flag = fl;
+    }
+    return [c, t];
+  });
+  done.style.strokeDasharray = `${LEN} ${LEN}`;
+  let pos = 0, raf = 0;
+  function place(f) {
+    const p = base.getPointAtLength(LEN * f);
+    bus.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+    done.style.strokeDashoffset = (LEN * (1 - f)).toFixed(1);
+    stopEls.forEach(([c, t], i) => { const r = AT[i] <= f + .001; c.classList.toggle("reached", r); t.classList.toggle("reached", r); });
+    flag.classList.toggle("reached", f > .999);
+  }
+  function moveBus(i) {
+    const target = AT[i], start = pos;
+    cancelAnimationFrame(raf);
+    if (reduce.matches) { pos = target; place(pos); return; }
+    const t0 = performance.now(), D = 620;
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      pos = start + (target - start) * e; place(pos);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  place(0);
+  check(false);
+})();
+</script>
+</body>
+</html>

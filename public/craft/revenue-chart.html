@@ -1,0 +1,565 @@
+<!doctype html>
+<!-- Revenue chart — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A sales card for a small business: totals that count up, metric tabs and a bars/line toggle that
+     morph the chart, a dashed previous period, a snapping crosshair with a comparison tooltip, an
+     annotated sale, and arrow-key reading with a live region. Seeded data, no requests. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brook — Sales</title>
+<style>
+:root {
+  --bg: #edf0ec; --card: #fbfcfa; --ink: #17201d; --soft: #4d5954; --dim: #66716c; --line: #dfe4df; --grid: #eaeeea; --base: #c9d1cb; --tint: #f1f4f0;
+  --series: #2e6b5e; --series2: #1d4b41; --prev: #8f9a95;
+  --up: #1d6640; --upbg: #e2efe6; --down: #973a1d; --downbg: #f6e5de;
+  --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --out: cubic-bezier(.2, .8, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body { display: grid; place-items: center; min-height: 100vh; padding: 24px; background: var(--bg); color: var(--ink); font: 14px/1.4 var(--sans); -webkit-font-smoothing: antialiased; }
+button, select { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+svg { display: block; }
+.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.card { display: flex; flex-direction: column; width: min(960px, 100%); height: min(calc(100vh - 48px), 700px); min-height: 520px; padding: 22px 24px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); box-shadow: 0 1px 2px rgba(23, 32, 29, .04), 0 8px 24px -16px rgba(23, 32, 29, .16); }
+
+/* header */
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.top h1 { font-size: 16px; font-weight: 650; letter-spacing: -.005em; }
+.top .sub { margin-top: 2px; color: var(--soft); font-size: 13px; }
+.sel { position: relative; display: inline-flex; align-items: center; flex: none; }
+.sel select { appearance: none; height: 34px; padding: 0 34px 0 34px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); font-size: 13px; font-weight: 550; cursor: pointer; transition: border-color .15s, background .15s; }
+.sel select:hover { border-color: var(--base); background: var(--tint); }
+.sel .i { position: absolute; pointer-events: none; color: var(--soft); }
+.sel .cal { left: 11px; width: 15px; height: 15px; }
+.sel .chev { right: 11px; width: 14px; height: 14px; }
+
+/* stat tabs */
+.tabs { position: relative; display: flex; gap: 8px; margin-top: 18px; border-bottom: 1px solid var(--line); }
+.tab { display: grid; gap: 4px; min-width: 0; padding: 8px 20px 14px 0; margin-right: 20px; text-align: left; border-radius: 6px 6px 0 0; }
+.tab .tl { display: flex; align-items: center; gap: 8px; color: var(--soft); font-size: 13px; font-weight: 550; transition: color .15s; }
+.tab:hover .tl, .tab[aria-selected="true"] .tl { color: var(--ink); }
+.tab .tv { font-size: 28px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; color: var(--soft); transition: color .2s; white-space: nowrap; }
+.tab[aria-selected="true"] .tv { color: var(--ink); }
+.tab .tv small { font-size: 17px; font-weight: 550; letter-spacing: 0; color: var(--dim); }
+.tab:focus-visible { outline-offset: -2px; }
+.chip { display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px 0 4px; border-radius: 5px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chip .i { width: 13px; height: 13px; stroke-width: 2; }
+.chip.up { color: var(--up); background: var(--upbg); }
+.chip.down { color: var(--down); background: var(--downbg); }
+.ink { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; border-radius: 2px 2px 0 0; background: var(--series); transition: transform .3s var(--out), width .3s var(--out); }
+
+/* toolbar */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin: 14px 0 6px; }
+.legend { display: flex; gap: 18px; color: var(--soft); font-size: 12.5px; }
+.key { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transition: opacity .2s; }
+.key i { width: 14px; height: 10px; border-radius: 2px; background: var(--series); }
+.key i.dash, .tip .r i.dash { height: 2px; border-radius: 1px; background: repeating-linear-gradient(90deg, var(--prev) 0 4px, transparent 4px 7px); }
+.tip .r i.dash { width: 12px; }
+.key.off { opacity: 0; }
+.ctrls { display: flex; align-items: center; gap: 12px; }
+.switch { display: inline-flex; align-items: center; gap: 9px; height: 32px; padding: 0 10px 0 6px; border-radius: 8px; color: var(--soft); font-size: 13px; font-weight: 550; transition: background .15s, color .15s; }
+.switch:hover { background: var(--tint); color: var(--ink); }
+.track { position: relative; width: 28px; height: 16px; border-radius: 8px; background: #8e9893; transition: background .2s; flex: none; }
+.track::after { content: ""; position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(23, 32, 29, .25); transition: transform .2s var(--out); }
+.switch[aria-checked="true"] { color: var(--ink); }
+.switch[aria-checked="true"] .track { background: var(--series); }
+.switch[aria-checked="true"] .track::after { transform: translateX(12px); }
+.seg { display: inline-flex; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--tint); }
+.seg button { display: grid; place-items: center; width: 32px; height: 26px; border-radius: 6px; color: var(--dim); transition: background .15s, color .15s, box-shadow .15s; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(23, 32, 29, .12), 0 0 0 1px rgba(23, 32, 29, .05); }
+
+/* the chart */
+.plot { position: relative; flex: 1; min-height: 220px; border-radius: 8px; touch-action: pan-y; }
+.plot:focus-visible { outline-offset: 4px; }
+.plot #svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.plot text { font: 11.5px var(--sans); fill: var(--dim); font-variant-numeric: tabular-nums; }
+.hits { position: absolute; display: grid; }
+.pin { position: absolute; z-index: 3; display: grid; place-items: center; width: 24px; height: 24px; margin: 0 0 0 -12px; border: 1px solid var(--base); border-radius: 50%; background: var(--card); color: var(--series2); box-shadow: 0 1px 3px rgba(23, 32, 29, .12); transition: border-color .15s, background .15s, opacity .2s; }
+.pin::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 6px; background: var(--base); }
+.pin:hover, .pin.on { border-color: var(--series); background: #e8f0ec; }
+.pin .i { width: 13px; height: 13px; stroke-width: 2; }
+.pin.hide { opacity: 0; pointer-events: none; }
+.pincard, .tip { position: absolute; z-index: 4; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 10px 28px -12px rgba(23, 32, 29, .28), 0 1px 2px rgba(23, 32, 29, .06); pointer-events: none; opacity: 0; transform: translateY(3px); transition: opacity .14s, transform .14s var(--out); }
+.pincard { width: 272px; }
+.pincard.on, .tip.on { opacity: 1; transform: none; }
+.pincard b { display: block; font-size: 13.5px; font-weight: 650; }
+.pincard .meta { margin-top: 1px; color: var(--dim); font-size: 12px; }
+.pincard p { margin-top: 8px; color: var(--soft); font-size: 13px; line-height: 1.45; }
+.tip { min-width: 196px; font-size: 13px; }
+.tip h3 { margin-bottom: 8px; font-size: 12.5px; font-weight: 650; }
+.tip .r { display: flex; align-items: center; gap: 8px; color: var(--soft); }
+.tip .r + .r { margin-top: 5px; }
+.tip .r span { flex: 1; white-space: nowrap; }
+.tip .r b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tip .r i { width: 12px; height: 8px; border-radius: 2px; background: var(--series); flex: none; }
+.tip .d { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--grid); color: var(--dim); font-size: 12px; }
+
+@media (max-width: 680px) {
+  body { padding: 12px; place-items: start center; }
+  .card { height: auto; min-height: calc(100vh - 24px); padding: 18px 16px 12px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+  .top .sub { font-size: 12.5px; }
+  .sel .cal { display: none; }
+  .sel select { padding-left: 12px; font-size: 12.5px; }
+  .tab { margin: 0; padding: 6px 8px 12px 0; }
+  .tab .tl { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 12px; }
+  .tab .tv { font-size: 19px; order: -1; }
+  .tab .tv small { font-size: 13px; }
+  .tab .chip { height: 18px; font-size: 11px; }
+  #panel { min-height: 300px; }
+  .switch { margin-left: -6px; }
+  .bar { margin-top: 12px; }
+  .ctrls { width: 100%; justify-content: space-between; }
+  .legend { gap: 14px; font-size: 12px; }
+}
+@media (max-width: 400px) { .top .sub .xs { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<main class="card" aria-labelledby="ttl">
+  <header class="top">
+    <div>
+      <h1 id="ttl">Sales</h1>
+      <p class="sub">Harrow Lane Coffee<span class="xs"> · all channels</span></p>
+    </div>
+    <label class="sel"><span class="sr">Period</span>
+      <svg class="i cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>
+      <select id="period">
+        <option value="d30">Last 30 days</option>
+        <option value="w12">Last 12 weeks</option>
+        <option value="m12">Last 12 months</option>
+      </select>
+      <svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+    </label>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Metric" id="tabs">
+    <button class="tab" role="tab" id="t-rev" data-m="rev" aria-selected="true" aria-controls="panel"><span class="tv num" id="v-rev"></span><span class="tl">Revenue <span class="chip" id="d-rev"></span></span></button>
+    <button class="tab" role="tab" id="t-ord" data-m="ord" aria-selected="false" aria-controls="panel" tabindex="-1"><span class="tv num" id="v-ord"></span><span class="tl">Orders <span class="chip" id="d-ord"></span></span></button>
+    <button class="tab" role="tab" id="t-aov" data-m="aov" aria-selected="false" aria-controls="panel" tabindex="-1"><span class="tv num" id="v-aov"></span><span class="tl">Avg. order <span class="chip" id="d-aov"></span></span></button>
+    <span class="ink" id="ink" aria-hidden="true"></span>
+  </div>
+
+  <div class="bar">
+    <div class="legend" aria-hidden="true">
+      <span class="key"><i></i><span id="kNow"></span></span>
+      <span class="key" id="kPrevWrap"><i class="dash"></i><span id="kPrev"></span></span>
+    </div>
+    <div class="ctrls">
+      <button class="switch" id="cmp" role="switch" aria-checked="true"><span class="track" aria-hidden="true"></span>Compare to previous</button>
+      <div class="seg" role="group" aria-label="Chart type">
+        <button data-type="bar" aria-pressed="true" aria-label="Bar chart"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg></button>
+        <button data-type="line" aria-pressed="false" aria-label="Line chart"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16 5-6 4 4 7-8"/><path d="M4 20h16"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="plot" id="panel" role="tabpanel" aria-labelledby="t-rev">
+    <div class="plot" id="plot" tabindex="0" role="group" aria-roledescription="chart" aria-describedby="khelp" style="position:absolute;inset:0;min-height:0">
+      <svg id="svg" aria-hidden="true"></svg>
+      <div class="hits" id="hits" aria-hidden="true"></div>
+      <div class="tip" id="tip" aria-hidden="true"></div>
+    </div>
+    <button class="pin" id="pin" aria-describedby="pinCard" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.6V4h8.6l7.4 7.4-8.6 8.6z"/><circle cx="8.5" cy="8.5" r="1.4"/></svg><span class="sr" id="pinName"></span></button>
+    <div class="pincard" id="pinCard" role="tooltip"></div>
+  </div>
+  <p class="sr" id="khelp">Use the left and right arrow keys to read each point, Home and End to jump to either end.</p>
+  <p class="sr" id="live" aria-live="polite"></p>
+  <div class="sr"><table id="table"></table></div>
+</main>
+
+<script>
+const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+const $ = (id) => document.getElementById(id);
+
+/* ---------- seeded daily sales, Oct 2024 to yesterday (3 Nov 2026) ---------- */
+function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const DAY = 864e5, D = (y, m, d) => Date.UTC(y, m - 1, d);
+const START = D(2024, 10, 1), END = D(2026, 11, 3);
+const WEEKDAY = [0.94, 0.78, 0.84, 0.9, 0.98, 1.16, 1.3];
+const MONTH = [0.86, 0.9, 0.97, 1, 1.02, 0.99, 0.95, 0.93, 1, 1.04, 1.1, 1.3];
+const SALE = { [D(2025, 4, 11)]: 1.6, [D(2025, 4, 12)]: 1.85, [D(2025, 4, 13)]: 1.45, [D(2026, 4, 10)]: 1.9, [D(2026, 4, 11)]: 2.25, [D(2026, 4, 12)]: 1.7, [D(2026, 10, 23)]: 1.95, [D(2026, 10, 24)]: 2.4, [D(2026, 10, 25)]: 1.75 };
+const days = new Map();
+{
+  const r = rng(20261104);
+  for (let t = START, k = 0; t <= END; t += DAY, k++) {
+    const d = new Date(t), sale = SALE[t] || 1;
+    const rev = (1180 + k * 0.85) * WEEKDAY[d.getUTCDay()] * MONTH[d.getUTCMonth()] * (1 + (r() - 0.5) * 0.22) * sale;
+    const aov = (41.2 + (r() - 0.5) * 5) * (sale > 1 ? 0.8 : 1);
+    const ord = Math.max(1, Math.round(rev / aov));
+    days.set(t, { rev: Math.round(ord * aov * 100) / 100, ord });
+  }
+}
+function sum(a, b) { let rev = 0, ord = 0; for (let t = a; t <= b; t += DAY) { const x = days.get(t); if (x) { rev += x.rev; ord += x.ord; } } return { rev, ord, aov: ord ? rev / ord : 0 }; }
+
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dm = (t) => { const d = new Date(t); return `${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
+const monthStart = (y, m) => Date.UTC(y, m, 1);
+
+/* each period: buckets for now and the matching previous ones */
+function build(key) {
+  const out = [];
+  if (key === "d30") {
+    const a = D(2026, 10, 5);
+    for (let i = 0; i < 30; i++) { const t = a + i * DAY, p = t - 30 * DAY; const d = new Date(t);
+      out.push({ ...sum(t, t), pv: sum(p, p), tick: dm(t), long: `${WD[d.getUTCDay()]} ${dm(t)}`, plong: `${WD[new Date(p).getUTCDay()]} ${dm(p)}` }); }
+    return { pts: out, now: "5 Oct – 3 Nov", prev: "5 Sep – 4 Oct", name: "the last 30 days", pin: 19 };
+  }
+  if (key === "w12") {
+    const a = D(2026, 8, 10);
+    for (let i = 0; i < 12; i++) { const t = a + i * 7 * DAY, p = t - 84 * DAY;
+      out.push({ ...sum(t, t + 6 * DAY), pv: sum(p, p + 6 * DAY), tick: dm(t), long: `Week of ${dm(t)}`, plong: `Week of ${dm(p)}` }); }
+    return { pts: out, now: "10 Aug – 1 Nov", prev: "18 May – 9 Aug", name: "the last 12 weeks", pin: 10 };
+  }
+  for (let i = 0; i < 12; i++) {
+    const y = 2025 + (10 + i >= 12 ? 1 : 0), m = (10 + i) % 12;
+    const a = monthStart(y, m), b = monthStart(m === 11 ? y + 1 : y, (m + 1) % 12) - DAY;
+    const pa = monthStart(y - 1, m), pb = monthStart(m === 11 ? y : y - 1, (m + 1) % 12) - DAY;
+    out.push({ ...sum(a, b), pv: sum(pa, pb), tick: m === 0 ? `Jan ’${String(y).slice(2)}` : MON[m], long: `${MON[m]} ${y}`, plong: `${MON[m]} ${y - 1}` });
+  }
+  return { pts: out, now: "Nov 2025 – Oct 2026", prev: "Nov 2024 – Oct 2025", name: "the last 12 months", pin: 5 };
+}
+
+/* the sale each period points at, explained per metric */
+function saleNote(period, metric) {
+  const spring = period === "m12";
+  const a = spring ? D(2026, 4, 10) : D(2026, 10, 23), s = sum(a, a + 2 * DAY);
+  let base = { rev: 0, ord: 0 };
+  for (let w = 1; w <= 4; w++) { const x = sum(a - w * 7 * DAY, a - w * 7 * DAY + 2 * DAY); base.rev += x.rev / 4; base.ord += x.ord / 4; }
+  const times = (n) => (Math.round(n * 10) / 10).toFixed(1) + "×";
+  const body = metric === "rev" ? `${money(s.rev)} in three days, ${times(s.rev / base.rev)} a usual Friday to Sunday.`
+    : metric === "ord" ? `${s.ord.toLocaleString("en-US")} orders in three days, ${times(s.ord / base.ord)} a usual Friday to Sunday.`
+    : `Baskets averaged ${money(s.aov, 2)} against ${money(base.rev / base.ord, 2)} on a usual weekend: the discount drew in smaller orders.`;
+  return spring ? { title: "Spring sale", meta: "10–12 Apr · 20% off brewing kits", body } : { title: "Autumn sale", meta: "23–25 Oct · 25% off beans and gift boxes", body };
+}
+
+/* ---------- formats ---------- */
+const money = (v, dp = 0) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+const METRIC = {
+  rev: { name: "Revenue", fmt: (v) => money(v), big: (v) => money(v), axis: (v) => (v >= 1000 ? "$" + +(v / 1000).toFixed(1) + "K" : "$" + v) },
+  ord: { name: "Orders", fmt: (v) => Math.round(v).toLocaleString("en-US"), big: (v) => Math.round(v).toLocaleString("en-US"), axis: (v) => (v >= 1000 ? +(v / 1000).toFixed(1) + "K" : String(v)) },
+  aov: { name: "Avg. order", fmt: (v) => money(v, 2), big: (v) => { const s = money(v, 2); return s.slice(0, -3) + "<small>" + s.slice(-3) + "</small>"; }, axis: (v) => "$" + v },
+};
+const pct = (a, b) => (b ? ((a - b) / b) * 100 : 0);
+const pctTxt = (n) => (n >= 0 ? "+" : "−") + Math.abs(n).toFixed(1) + "%";
+const ICON_UP = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18V6M7 11l5-5 5 5"/></svg>';
+const ICON_DN = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M7 13l5 5 5-5"/></svg>';
+
+/* nice ticks: 1, 2, 2.5, 5 × 10ⁿ, four or five steps */
+function nice(max) {
+  if (max <= 0) max = 1;
+  const raw = max / 4, mag = 10 ** Math.floor(Math.log10(raw)), n = raw / mag;
+  const step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * mag;
+  const top = Math.ceil((max * 1.04) / step) * step;
+  const ticks = []; for (let v = 0; v <= top + step / 2; v += step) ticks.push(Math.round(v * 100) / 100);
+  return { top, ticks };
+}
+
+/* ---------- state ---------- */
+const S = { period: "d30", metric: "rev", type: "bar", cmp: true, idx: null, kbd: false, data: build("d30") };
+const series = () => S.data.pts.map((p) => p[S.metric]);
+const prevSeries = () => S.data.pts.map((p) => p.pv[S.metric]);
+function target() {
+  const v = series(), p = prevSeries();
+  const n = nice(Math.max(...v, ...(S.cmp ? p : [0])));
+  return { v, p, ymax: n.top, ticks: n.ticks, t: S.type === "line" ? 1 : 0, c: S.cmp ? 1 : 0 };
+}
+let cur = { v: [], p: [], ymax: 1, t: 0, c: 0 };
+let tickOld = [], tickNew = [], tk = 1, grow = 0;
+
+/* ---------- tween ---------- */
+let raf = 0;
+const ease = (k) => 1 - (1 - k) ** 3;
+const lerp = (a, b, k) => a + (b - a) * k;
+function morph(dur, opts = {}) {
+  const to = target();
+  const from = { v: cur.v.slice(), p: cur.p.slice(), ymax: cur.ymax, t: cur.t, c: cur.c };
+  if (from.v.length !== to.v.length || opts.fresh) { from.v = to.v.map(() => 0); from.p = to.p.map(() => 0); }
+  if (opts.first) from.ymax = to.ymax;
+  if (String(to.ticks) !== String(tickNew)) { tickOld = tickNew; tickNew = to.ticks; tk = 0; }
+  cancelAnimationFrame(raf);
+  const stagger = opts.fresh || from.v.length !== cur.v.length || opts.first ? 0.3 : 0;
+  if (reduce.matches || !dur) { cur = { ...to }; tk = 1; draw(); return; }
+  const t0 = performance.now(), n = to.v.length;
+  const step = (now) => {
+    const k = Math.min(1, (now - t0) / dur), e = ease(k);
+    const each = (i) => (stagger ? ease(Math.max(0, Math.min(1, (k - (i / n) * stagger) / (1 - stagger)))) : e);
+    cur = { v: to.v.map((x, i) => lerp(from.v[i], x, each(i))), p: to.p.map((x, i) => lerp(from.p[i], x, each(i))), ymax: lerp(from.ymax, to.ymax, e), t: lerp(from.t, to.t, e), c: lerp(from.c, to.c, e) };
+    tk = e;
+    draw();
+    if (k < 1) raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+}
+
+/* ---------- drawing ---------- */
+const svg = $("svg"), plot = $("plot");
+let G = null;
+function rr(x, y, w, h, rt, rb) {
+  rt = Math.min(rt, w / 2, h); rb = Math.min(rb, w / 2, Math.max(0, h - rt));
+  return `M${x},${y + h - rb}V${y + rt}q0,${-rt} ${rt},${-rt}H${x + w - rt}q${rt},0 ${rt},${rt}V${y + h - rb}q0,${rb} ${-rb},${rb}H${x + rb}q${-rb},0 ${-rb},${-rb}Z`;
+}
+function curve(pts) {
+  if (pts.length < 2) return "";
+  /* monotone cubic so the line never overshoots a value */
+  const n = pts.length, d = [], m = [];
+  for (let i = 0; i < n - 1; i++) d.push((pts[i + 1][1] - pts[i][1]) / (pts[i + 1][0] - pts[i][0]));
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (2 * d[i - 1] * d[i]) / (d[i - 1] + d[i]);
+  let s = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], h = (x1 - x0) / 3;
+    s += `C${(x0 + h).toFixed(1)},${(y0 + m[i] * h).toFixed(1)} ${(x1 - h).toFixed(1)},${(y1 - m[i + 1] * h).toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`;
+  }
+  return s;
+}
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+function draw() {
+  const W = plot.clientWidth, H = plot.clientHeight, M = METRIC[S.metric], n = cur.v.length;
+  if (!W || !H || !n) return;
+  const ticksAll = [...tickNew, ...tickOld];
+  const padL = Math.max(...ticksAll.map((v) => M.axis(v).length), 2) * 6.6 + 14, padR = 4, padT = 32, padB = 28;
+  const iw = W - padL - padR, ih = H - padT - padB, slot = iw / n;
+  const X = (i) => padL + slot * (i + 0.5), Y = (v) => padT + ih - (v / cur.ymax) * ih, y0 = padT + ih;
+  G = { W, H, padL, padT, padB, iw, ih, slot, X, Y, n };
+  let s = `<defs><clipPath id="cp"><rect x="${padL - 6}" y="0" width="${(iw + 12) * clamp01(cur.c)}" height="${H}"/></clipPath><clipPath id="ca"><rect x="0" y="${padT - 30}" width="${W}" height="${ih + 40}"/></clipPath></defs>`;
+  /* gridlines and y labels: the outgoing set fades as the new one settles */
+  const gl = (vals, op) => vals.map((v) => { const y = Y(v); if (y < padT - 24 || op <= 0.01) return ""; return `<g opacity="${op.toFixed(2)}"><line x1="${padL}" x2="${W - padR}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${v === 0 ? "var(--base)" : "var(--grid)"}" stroke-width="1" shape-rendering="crispEdges"/><text x="${padL - 12}" y="${(y + 4).toFixed(1)}" text-anchor="end">${M.axis(v)}</text></g>`; }).join("");
+  const oldOnly = tickOld.filter((v) => !tickNew.includes(v)), kept = tickNew.filter((v) => tickOld.includes(v) || !tickOld.length), fresh = tickNew.filter((v) => !kept.includes(v));
+  s += `<g clip-path="url(#ca)">` + gl(oldOnly, 1 - tk) + gl(kept, 1) + gl(fresh, tk) + `</g>`;
+  /* hover band (bars) */
+  const t = cur.t, hi = S.idx;
+  if (hi !== null && hi < n) s += `<rect x="${(X(hi) - slot / 2 + 1).toFixed(1)}" y="${padT - 8}" width="${(slot - 2).toFixed(1)}" height="${ih + 8}" rx="6" fill="var(--tint)" opacity="${(1 - t).toFixed(2)}"/>`;
+  /* bars that shrink into dots as the line takes over */
+  const bw = Math.min(slot * 0.62, 28), barOp = 1 - clamp01((t - 0.55) / 0.4);
+  if (barOp > 0.01) {
+    s += `<g opacity="${barOp.toFixed(2)}">`;
+    cur.v.forEach((v, i) => {
+      const top = Y(v), h = Math.max(0, y0 - top), w = lerp(bw, 8, t), hh = lerp(h, Math.min(8, h), t), y = lerp(top, top - Math.min(4, h / 2), t);
+      if (hh < 0.5) return;
+      s += `<path d="${rr(X(i) - w / 2, y, w, hh, 4, 4 * t)}" fill="${hi === i ? "var(--series2)" : "var(--series)"}"/>`;
+    });
+    s += `</g>`;
+  }
+  /* the line, its wash and the end marker */
+  const lineOp = clamp01((t - 0.3) / 0.5);
+  const pts = cur.v.map((v, i) => [X(i), Y(v)]);
+  if (lineOp > 0.01) {
+    const c = curve(pts);
+    s += `<path d="${c}L${X(n - 1)},${y0}L${X(0)},${y0}Z" fill="var(--series)" opacity="${(0.1 * lineOp).toFixed(3)}"/>`;
+    s += `<path d="${c}" fill="none" stroke="var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="${lineOp.toFixed(2)}"/>`;
+    if (hi === null) s += `<circle cx="${X(n - 1)}" cy="${Y(cur.v[n - 1])}" r="4.5" fill="var(--series)" stroke="var(--card)" stroke-width="2" opacity="${lineOp.toFixed(2)}"/>`;
+  }
+  /* previous period, drawn in from the left */
+  if (cur.c > 0.01) {
+    s += `<path clip-path="url(#cp)" d="${curve(cur.p.map((v, i) => [X(i), Y(v)]))}" fill="none" stroke="var(--prev)" stroke-width="1.75" stroke-dasharray="4 4" stroke-linecap="round" opacity="${Math.min(1, cur.c * 2).toFixed(2)}"/>`;
+  }
+  /* crosshair and snapped points */
+  if (hi !== null && hi < n) {
+    if (t > 0.01) s += `<line x1="${X(hi)}" x2="${X(hi)}" y1="${padT - 8}" y2="${y0}" stroke="var(--base)" stroke-width="1" opacity="${t.toFixed(2)}" shape-rendering="crispEdges"/>`;
+    if (cur.c > 0.5) s += `<circle cx="${X(hi)}" cy="${Y(cur.p[hi])}" r="4" fill="var(--prev)" stroke="var(--card)" stroke-width="2"/>`;
+    if (t > 0.01) s += `<circle cx="${X(hi)}" cy="${Y(cur.v[hi])}" r="5" fill="var(--series)" stroke="var(--card)" stroke-width="2" opacity="${t.toFixed(2)}"/>`;
+  }
+  /* x labels, thinned to fit */
+  const every = Math.max(1, Math.ceil(64 / slot));
+  for (let i = n - 1; i >= 0; i -= every) {
+    const x = Math.max(padL + 16, Math.min(W - padR - 18, X(i)));
+    s += `<text x="${x.toFixed(1)}" y="${H - 8}" text-anchor="middle"${hi === i ? ' style="fill:var(--ink);font-weight:600"' : ""}>${S.data.pts[i].tick}</text>`;
+  }
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
+  placeHits(); placePin(); if (hi !== null) placeTip();
+}
+
+/* ---------- pointer columns ---------- */
+let hitsN = 0;
+function placeHits() {
+  const h = $("hits");
+  Object.assign(h.style, { left: G.padL + "px", top: G.padT - 10 + "px", width: G.iw + "px", height: G.ih + G.padB + 10 + "px", gridTemplateColumns: `repeat(${G.n}, 1fr)` });
+  if (hitsN !== G.n) { h.innerHTML = Array.from({ length: G.n }, (_, i) => `<div data-i="${i}"></div>`).join(""); hitsN = G.n; }
+}
+$("hits").addEventListener("pointerover", (e) => { const c = e.target.closest("[data-i]"); if (c) setIdx(+c.dataset.i); });
+$("hits").addEventListener("pointerdown", (e) => { const c = e.target.closest("[data-i]"); if (c) setIdx(+c.dataset.i); });
+plot.addEventListener("pointerleave", () => { if (!S.kbd) setIdx(null); });
+function setIdx(i) {
+  if (i === S.idx) return;
+  S.idx = i;
+  if (i !== null) hidePin();
+  $("tip").classList.toggle("on", i !== null);
+  draw();
+}
+
+/* ---------- tooltip ---------- */
+function placeTip() {
+  const i = S.idx, p = S.data.pts[i], M = METRIC[S.metric], tip = $("tip");
+  const v = p[S.metric], pv = p.pv[S.metric], d = pct(v, pv);
+  tip.innerHTML = `<h3>${p.long}</h3><div class="r"><i></i><span>This period</span><b>${M.fmt(v)}</b></div><div class="r"><i class="dash"></i><span>${p.plong}</span><b>${M.fmt(pv)}</b></div><div class="d"><span>vs previous</span><span class="chip ${d >= 0 ? "up" : "down"}">${d >= 0 ? ICON_UP : ICON_DN}${Math.abs(d).toFixed(1)}%</span></div>`;
+  const tw = tip.offsetWidth, x = G.X(i);
+  let left = x + G.slot / 2 + 10;
+  if (left + tw > G.W) left = x - G.slot / 2 - 10 - tw;
+  tip.style.left = Math.max(0, left) + "px";
+  tip.style.top = Math.max(0, G.padT - 8) + "px";
+}
+
+/* ---------- the annotation pin ---------- */
+function placePin() {
+  const pin = $("pin"), i = S.data.pin;
+  if (i >= G.n) return;
+  /* it sits where the bar will end, so it never slides out from under the pointer */
+  const y = G.Y(S.data.pts[i][S.metric]), top = lerp(y, y - 6, cur.t);
+  pin.style.left = G.X(i) + "px";
+  pin.style.top = Math.max(2, top - 32) + "px";
+  pin.classList.toggle("hide", cur.v[i] < S.data.pts[i][S.metric] * 0.5);
+  if ($("pinCard").classList.contains("on")) placePinCard();
+}
+function placePinCard() {
+  const c = $("pinCard"), pin = $("pin"), x = pin.offsetLeft, W = plot.clientWidth, cw = c.offsetWidth;
+  let left = x + 20;
+  if (left + cw > W) left = x - 20 - cw;
+  c.style.left = Math.max(0, left) + "px";
+  c.style.top = pin.offsetTop + "px";
+}
+function fillPin() {
+  const n = saleNote(S.period, S.metric);
+  $("pinCard").innerHTML = `<b>${n.title}</b><div class="meta">${n.meta}</div><p>${n.body}</p>`;
+  $("pinName").textContent = n.title;
+}
+function showPin() { setIdx(null); fillPin(); $("pinCard").classList.add("on"); $("pin").classList.add("on"); $("pin").setAttribute("aria-expanded", "true"); placePinCard(); }
+function hidePin() { $("pinCard").classList.remove("on"); $("pin").classList.remove("on"); $("pin").setAttribute("aria-expanded", "false"); }
+$("pin").addEventListener("pointerenter", showPin);
+$("pin").addEventListener("pointerleave", (e) => { if (document.activeElement !== $("pin") || e.pointerType === "mouse") hidePin(); });
+$("pin").addEventListener("focus", showPin);
+$("pin").addEventListener("blur", hidePin);
+$("pin").addEventListener("click", () => ($("pinCard").classList.contains("on") ? hidePin() : showPin()));
+
+/* ---------- numbers that count ---------- */
+const shown = { rev: 0, ord: 0, aov: 0 };
+const counters = {};
+function countTo(m, to, dur) {
+  const el = $("v-" + m), from = shown[m], f = METRIC[m].big;
+  cancelAnimationFrame(counters[m]);
+  if (reduce.matches || !dur || from === to) { shown[m] = to; el.innerHTML = f(to); return; }
+  const t0 = performance.now();
+  const step = (now) => {
+    const k = Math.min(1, (now - t0) / dur), v = lerp(from, to, ease(k));
+    shown[m] = k < 1 ? v : to;
+    el.innerHTML = f(m === "aov" ? v : Math.round(v));
+    if (k < 1) counters[m] = requestAnimationFrame(step);
+  };
+  counters[m] = requestAnimationFrame(step);
+}
+function totals(dur) {
+  const P = S.data.pts, now = { rev: 0, ord: 0 }, prev = { rev: 0, ord: 0 };
+  P.forEach((p) => { now.rev += p.rev; now.ord += p.ord; prev.rev += p.pv.rev; prev.ord += p.pv.ord; });
+  now.aov = now.rev / now.ord; prev.aov = prev.rev / prev.ord;
+  for (const m of ["rev", "ord", "aov"]) {
+    countTo(m, m === "rev" ? Math.round(now.rev) : m === "ord" ? now.ord : now.aov, dur);
+    const d = pct(now[m], prev[m]), chip = $("d-" + m);
+    chip.className = "chip " + (d >= 0 ? "up" : "down");
+    chip.innerHTML = (d >= 0 ? ICON_UP : ICON_DN) + Math.abs(d).toFixed(1) + "%";
+    chip.setAttribute("aria-label", `${d >= 0 ? "up" : "down"} ${Math.abs(d).toFixed(1)}% on the previous period`);
+  }
+  S.tot = now; S.ptot = prev;
+}
+
+/* ---------- labels for assistive tech ---------- */
+function describe() {
+  const M = METRIC[S.metric], v = series(), mx = v.indexOf(Math.max(...v)), d = pct(S.tot[S.metric], S.ptot[S.metric]);
+  plot.setAttribute("aria-label", `${M.name} for ${S.data.name}, ${S.type === "bar" ? "bar" : "line"} chart. Total ${M.fmt(S.tot[S.metric])}, ${d >= 0 ? "up" : "down"} ${Math.abs(d).toFixed(1)}% on the previous period. Highest: ${S.data.pts[mx].long}, ${M.fmt(v[mx])}.`);
+  $("panel").setAttribute("aria-labelledby", "t-" + S.metric);
+  $("table").innerHTML = `<caption>${M.name}, ${S.data.now} against ${S.data.prev}</caption><tr><th scope="col">Point</th><th scope="col">This period</th><th scope="col">Previous period</th></tr>` + S.data.pts.map((p) => `<tr><th scope="row">${p.long}</th><td>${M.fmt(p[S.metric])}</td><td>${M.fmt(p.pv[S.metric])}</td></tr>`).join("");
+  $("kNow").textContent = S.data.now; $("kPrev").textContent = S.data.prev;
+  $("kPrevWrap").classList.toggle("off", !S.cmp);
+  fillPin();
+}
+function announce() {
+  if (S.idx === null) return;
+  const p = S.data.pts[S.idx], M = METRIC[S.metric], d = pct(p[S.metric], p.pv[S.metric]);
+  const note = S.idx === S.data.pin ? ` ${saleNote(S.period, S.metric).title}.` : "";
+  $("live").textContent = `${p.long}: ${M.fmt(p[S.metric])}. ${p.plong}: ${M.fmt(p.pv[S.metric])}, ${d >= 0 ? "up" : "down"} ${Math.abs(d).toFixed(1)}%.${note}`;
+}
+
+/* ---------- controls ---------- */
+const tabs = [...document.querySelectorAll(".tab")];
+function placeInk(animate = true) {
+  const t = tabs.find((x) => x.dataset.m === S.metric), ink = $("ink");
+  if (!animate) ink.style.transition = "none";
+  ink.style.width = (t.offsetWidth - (innerWidth <= 680 ? 8 : 20)) + "px";
+  ink.style.transform = `translateX(${t.offsetLeft}px)`;
+  if (!animate) { ink.offsetWidth; ink.style.transition = ""; }
+}
+function setMetric(m, focus) {
+  if (m === S.metric) return;
+  S.metric = m;
+  tabs.forEach((t) => { const on = t.dataset.m === m; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
+  placeInk();
+  hidePin(); describe(); morph(460); announce();
+}
+tabs.forEach((t) => t.addEventListener("click", () => setMetric(t.dataset.m)));
+$("tabs").addEventListener("keydown", (e) => {
+  const i = tabs.findIndex((t) => t.dataset.m === S.metric);
+  const k = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+  if (k === undefined) return;
+  e.preventDefault();
+  setMetric(tabs[(k + tabs.length) % tabs.length].dataset.m, true);
+});
+$("period").addEventListener("change", (e) => {
+  S.period = e.target.value; S.data = build(S.period);
+  S.idx = null; $("tip").classList.remove("on"); hidePin();
+  totals(600); describe(); morph(560, { fresh: true });
+});
+$("cmp").addEventListener("click", () => {
+  S.cmp = !S.cmp;
+  $("cmp").setAttribute("aria-checked", S.cmp);
+  describe(); morph(420);
+});
+document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+  if (S.type === b.dataset.type) return;
+  S.type = b.dataset.type;
+  document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  describe(); morph(440);
+}));
+
+/* keyboard reading */
+plot.addEventListener("keydown", (e) => {
+  const n = S.data.pts.length;
+  let i = S.idx;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") i = i === null ? 0 : Math.min(n - 1, i + 1);
+  else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = i === null ? n - 1 : Math.max(0, i - 1);
+  else if (e.key === "Home") i = 0;
+  else if (e.key === "End") i = n - 1;
+  else if (e.key === "Escape") { S.kbd = false; return setIdx(null); }
+  else return;
+  e.preventDefault();
+  S.kbd = true; setIdx(i); announce();
+});
+plot.addEventListener("blur", () => { S.kbd = false; setIdx(null); });
+plot.addEventListener("pointermove", () => { S.kbd = false; });
+addEventListener("keydown", (e) => { if (e.key === "Escape" && $("pinCard").classList.contains("on")) { hidePin(); } });
+addEventListener("pointerdown", (e) => { if (!e.target.closest(".pin") && $("pinCard").classList.contains("on")) hidePin(); });
+
+new ResizeObserver(() => {
+  /* hidden overlays keep their last spot; park them so a narrower frame never scrolls sideways */
+  for (const id of ["tip", "pinCard"]) if (!$(id).classList.contains("on")) $(id).style.left = "0px";
+  draw(); placeInk(false);
+}).observe(plot);
+
+/* first paint: everything settles within ~700ms */
+totals(700); describe(); placeInk(false);
+tickNew = target().ticks;
+morph(700, { first: true });
+</script>
+</body>
+</html>

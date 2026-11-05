@@ -1,0 +1,729 @@
+<!doctype html>
+<!-- Features bento — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     Six hairline tiles for an AI code-review product, each running its own small demo: a review that
+     writes itself and applies its fix, live charts, working toggles, a service graph and real shortcuts. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kiln — features</title>
+<style>
+  :root {
+    --bg: #0b0c0b; --tile: #101210; --raise: #161916; --well: #0c0e0c; --line: #252925; --line-2: #333933;
+    --ink: #eceee8; --soft: #a0a79f; --dim: #808880;
+    --glaze: #a9dcc3; --glaze-ink: #0a1410; --clay: #e68f6d; --ochre: #dcb76b;
+    --glaze-wash: rgba(169, 220, 195, .1); --clay-wash: rgba(230, 143, 109, .1);
+    --grot: "Helvetica Neue", Arial, sans-serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 13px/1.45 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--glaze); outline-offset: 2px; }
+  svg { display: block; }
+  .ic { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .wrap { height: 100svh; min-height: 780px; padding: 28px 40px; display: flex; flex-direction: column; gap: 20px; max-width: 1440px; margin: 0 auto; }
+
+  /* heading */
+  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+  h1 { font: 500 38px/1.08 var(--grot); letter-spacing: -.028em; text-wrap: balance; }
+  .head p { margin-top: 8px; font-size: 15px; color: var(--soft); }
+  .ctl { display: flex; flex: none; border: 1px solid var(--line-2); }
+  .ctl button { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; color: var(--soft); transition: color .15s, background .15s; }
+  .ctl button + button { border-left: 1px solid var(--line-2); }
+  .ctl button:hover { color: var(--ink); background: var(--raise); }
+  .ctl .ic { width: 14px; height: 14px; }
+
+  /* the grid: tiles sit on the light layer, so the 1px gaps are the borders */
+  .grid { position: relative; flex: 1; min-height: 0; display: grid; gap: 1px; padding: 1px; background: var(--line);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: minmax(184px, .92fr) minmax(226px, 1.08fr) minmax(206px, 1fr);
+    grid-template-areas:
+      "d d d d d d d c c c c c"
+      "d d d d d d d t t t t t"
+      "g g g g g k k k r r r r"; }
+  .grid::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .25s ease-out;
+    background: radial-gradient(340px circle at var(--x, 50%) var(--y, 50%), rgba(214, 240, 226, .85), rgba(214, 240, 226, .3) 40%, transparent 74%); }
+  .grid.lit::before { opacity: 1; }
+  .tile { position: relative; background: var(--tile); padding: 16px 20px; display: flex; flex-direction: column; min-width: 0; container-type: inline-size; transition: background .2s ease-out; }
+  .tile:hover { background: #121512; }
+  .t-diff { grid-area: d; } .t-chart { grid-area: c; } .t-tog { grid-area: t; } .t-graph { grid-area: g; } .t-keys { grid-area: k; } .t-risk { grid-area: r; }
+  h2 { font: 600 15px/1.3 var(--sans); letter-spacing: -.008em; }
+  .tile > header p, .tile > div > header p { color: var(--soft); margin-top: 2px; }
+
+  /* 1. the diff */
+  .code { flex: 1; margin-top: 12px; border: 1px solid var(--line); background: var(--well); display: flex; flex-direction: column; min-height: 0; font: 12.5px/20px var(--mono); }
+  .bar { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-bottom: 1px solid var(--line); color: var(--soft); font-size: 12px; }
+  .bar .path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+  .bar .plus { color: var(--glaze); } .bar .minus { color: var(--clay); }
+  .ln { display: grid; grid-template-columns: 36px 16px minmax(0, 1fr); padding-right: 12px; border-left: 2px solid transparent; transition: border-color .15s ease-out; }
+  .ln .no { color: var(--dim); text-align: right; padding-right: 8px; user-select: none; }
+  .ln .sg { user-select: none; color: var(--dim); }
+  .ln code { font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 0; color: #d4d8d1; }
+  .ln.add { background: var(--glaze-wash); } .ln.add .sg, .ln.add .no { color: var(--glaze); }
+  .ln.del { background: var(--clay-wash); } .ln.del .sg, .ln.del .no { color: var(--clay); }
+  .ln.cur { border-left-color: var(--glaze); }
+  .k { color: var(--soft); } .n { color: var(--glaze); } .f { color: var(--ink); }
+  .ln mark { background: rgba(169, 220, 195, .24); color: var(--ink); padding: 0 1px; }
+  .ln.flash { animation: flash .7s ease-out; }
+  @keyframes flash { 0% { background: rgba(169, 220, 195, .34); } 100% { background: var(--glaze-wash); } }
+
+  .thread { margin: 8px 12px 8px 54px; border: 1px solid var(--line-2); background: var(--tile); font: 13px/1.5 var(--sans); }
+  .who { display: flex; align-items: center; gap: 8px; padding: 8px 12px 0; font-size: 12px; color: var(--soft); }
+  .who b { color: var(--ink); font-weight: 600; }
+  .who .ic { color: var(--glaze); }
+  .who time { margin-left: auto; color: var(--dim); }
+  .say { padding: 4px 12px 8px; position: relative; }
+  .say i { font-style: normal; opacity: 0; }
+  .say i.on { opacity: 1; }
+  .say i.at { box-shadow: 1px 0 0 var(--glaze); }
+  .say .m { font: 12px var(--mono); color: var(--ink); }
+  .sug { margin: 0 12px; border: 1px solid var(--line); font: 12.5px/20px var(--mono); transition: opacity .25s ease-out, transform .25s var(--ease); }
+  .sug small { display: block; padding: 0 8px; color: var(--soft); font: 11.5px/22px var(--sans); border-bottom: 1px solid var(--line); }
+  .sug code { display: block; padding: 2px 8px; font: inherit; color: #d4d8d1; background: var(--glaze-wash); overflow-wrap: anywhere; }
+  .sug code mark { background: rgba(169, 220, 195, .24); color: var(--ink); }
+  .thread.wait .sug, .thread.wait .acts { opacity: 0; transform: translateY(4px); pointer-events: none; }
+  .acts { display: flex; align-items: center; gap: 8px; padding: 8px 12px; min-height: 48px; transition: opacity .25s ease-out, transform .25s var(--ease); }
+  .btn { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); font-weight: 500; transition: background .15s, border-color .15s, transform .1s; white-space: nowrap; }
+  .btn:hover { background: var(--raise); border-color: #475047; }
+  .btn:active, .btn.press { transform: translateY(1px); }
+  .btn.go { background: var(--glaze); border-color: var(--glaze); color: var(--glaze-ink); }
+  .btn.go:hover { background: #bbe6d1; border-color: #bbe6d1; }
+  .btn kbd { font: 11px var(--mono); opacity: .7; }
+  .done { display: flex; align-items: center; gap: 8px; color: var(--soft); flex: 1; min-width: 0; }
+  .done .ic { color: var(--glaze); }
+  .done b { font-weight: 500; color: var(--ink); }
+  .done code { font: 12px var(--mono); }
+  .done .btn { margin-left: auto; }
+  [hidden] { display: none !important; }
+
+  /* 2. the chart */
+  .ctop { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .read { text-align: right; flex: none; }
+  .read b { display: block; font: 500 28px/1 var(--grot); letter-spacing: -.02em; }
+  .read small { display: block; margin-top: 4px; font-size: 12px; color: var(--soft); }
+  .seg { display: inline-flex; border: 1px solid var(--line-2); margin-top: 8px; }
+  .seg button { height: 24px; padding: 0 8px; font-size: 12px; color: var(--soft); transition: color .15s, background .15s; }
+  .seg button[aria-pressed="true"] { background: var(--raise); color: var(--ink); }
+  .seg button:hover { color: var(--ink); }
+  .bars { flex: 1; min-height: 56px; margin-top: 8px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; align-items: end; border-bottom: 1px solid var(--line-2); cursor: crosshair; touch-action: pan-y; }
+  .bars i { display: block; height: 100%; transform-origin: bottom; transform: scaleY(var(--v)); background: #3d453e; transition: transform .35s var(--ease) calc(var(--i) * 18ms), background .15s; }
+  .bars i.on { background: var(--glaze); }
+  .bars.zero i { transform: scaleY(0); transition: none; }
+  .axis { display: flex; justify-content: space-between; margin-top: 4px; font: 11.5px/16px var(--sans); color: var(--dim); }
+
+  /* 3. the toggles */
+  .tog-body { flex: 1; margin-top: 12px; display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 14fr); gap: 16px; min-height: 0; }
+  .sw-list { display: flex; flex-direction: column; list-style: none; }
+  .sw { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .sw-list li:last-child .sw { border-bottom: 0; }
+  .sw .tr { flex: none; width: 32px; height: 16px; border: 1px solid var(--line-2); background: var(--well); position: relative; transition: background .18s ease-out, border-color .18s ease-out; }
+  .sw .tr::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; background: var(--soft); transition: transform .18s var(--ease), background .18s ease-out; }
+  .sw[aria-checked="true"] .tr { background: var(--glaze); border-color: var(--glaze); }
+  .sw[aria-checked="true"] .tr::after { transform: translateX(16px); background: var(--glaze-ink); }
+  .pr { border: 1px solid var(--line); background: var(--well); padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12px; line-height: 16px; align-self: stretch; }
+  .pr .tt { font-weight: 600; font-size: 12.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr .tt span { color: var(--dim); font-weight: 400; }
+  .fold { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .22s var(--ease), opacity .22s ease-out; }
+  .fold > div { overflow: hidden; min-height: 0; }
+  .fold.shut { grid-template-rows: 0fr; opacity: 0; }
+  .pr .sum { color: var(--soft); padding-bottom: 2px; }
+  .chk { display: flex; align-items: flex-start; gap: 8px; color: var(--soft); }
+  .chk svg { width: 14px; height: 14px; margin-top: 1px; stroke-width: 2; }
+  .chk.ok svg { color: var(--glaze); } .chk.warn svg { color: var(--ochre); } .chk.bad svg { color: var(--clay); }
+  .merge { margin-top: auto; padding-top: 4px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 600; }
+  .merge.ok { color: var(--glaze); } .merge.warn { color: var(--ochre); } .merge.bad { color: var(--clay); }
+
+  /* 4. the graph */
+  .gbox { flex: 1; min-height: 100px; margin-top: 8px; position: relative; }
+  .gbox svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .ed { fill: none; stroke: var(--line-2); stroke-width: 1; transition: stroke .2s ease-out; }
+  .ed.hot { stroke: var(--glaze); }
+  .pk { fill: none; stroke: #7d877e; stroke-width: 2; stroke-linecap: butt; }
+  .pk.hot { stroke: #d6f0e2; stroke-width: 2; }
+  .nd { cursor: pointer; outline: none; }
+  .nd .hit { fill: transparent; stroke: none; }
+  .nd .box { fill: var(--well); stroke: var(--line-2); transition: fill .18s ease-out, stroke .18s ease-out; }
+  .nd text { font: 11px var(--mono); fill: var(--soft); text-anchor: middle; dominant-baseline: central; transition: fill .18s ease-out; pointer-events: none; }
+  .nd.reach .box { stroke: var(--glaze); } .nd.reach text { fill: var(--ink); }
+  .nd.sel .box { fill: var(--glaze); stroke: var(--glaze); } .nd.sel text { fill: var(--glaze-ink); font-weight: 600; }
+  .nd:hover .box { stroke: var(--glaze); }
+  .nd:focus-visible .box { stroke: var(--ink); stroke-width: 2; }
+  .gread { margin-top: 8px; min-height: 20px; font: 12px/20px var(--mono); color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gread b { color: var(--ink); font-weight: 500; }
+
+  /* 5. the keys */
+  .keys { margin: auto 0; padding-top: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .key { display: flex; flex-direction: column; align-items: stretch; gap: 4px; text-align: center; }
+  .key span { display: grid; place-items: center; height: 52px; background: var(--raise); border: 1px solid var(--line-2); border-bottom-width: 3px; font: 500 16px var(--mono); transition: transform .08s ease-out, background .12s ease-out, color .12s ease-out, border-color .12s ease-out; }
+  .key small { font-size: 12px; color: var(--soft); transition: color .12s ease-out; }
+  .key:hover span { border-color: #475047; }
+  .key.on span { background: var(--glaze); color: var(--glaze-ink); border-color: var(--glaze); border-bottom-width: 1px; transform: translateY(2px); margin-bottom: 2px; }
+  .key.on small { color: var(--ink); }
+  .kcap { margin-top: 8px; min-height: 18px; font-size: 12px; color: var(--dim); }
+
+  /* 6. the risk ring */
+  .rbody { flex: 1; margin-top: 8px; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 16px; align-items: center; min-height: 0; }
+  .ring { position: relative; width: 104px; height: 104px; }
+  .ring line { stroke: var(--line-2); stroke-width: 2; }
+  .ring line.on { stroke: var(--rc, var(--glaze)); }
+  .ring .num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring .num b { font: 500 28px/1 var(--grot); letter-spacing: -.02em; }
+  .ring .num small { font-size: 11.5px; line-height: 14px; margin-top: 2px; color: var(--soft); }
+  .rside { min-width: 0; }
+  .step { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .step b { font: 500 12px var(--mono); }
+  .step div { display: flex; gap: 0; margin-right: -6px; }
+  .step button { width: 28px; height: 28px; display: grid; place-items: center; color: var(--soft); transition: color .15s, background .15s; }
+  .step button:hover { color: var(--ink); background: var(--raise); }
+  .step .ic { width: 14px; height: 14px; }
+  .fac { list-style: none; margin-top: 4px; }
+  .fac li { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; line-height: 20px; color: var(--soft); }
+  .fac li span:last-child { color: var(--ink); font-family: var(--mono); font-size: 11.5px; }
+  .fac li span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* tablet: two columns of equal tiles */
+  @media (max-width: 1080px) {
+    .wrap { height: auto; min-height: 100svh; padding: 24px; }
+    .head { flex-wrap: wrap; }
+    h1 { font-size: 32px; }
+    .grid { flex: none; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: auto;
+      grid-template-areas: "d d" "c t" "g g" "k r"; }
+    .bars { min-height: 80px; flex: none; height: 96px; }
+    .gbox { min-height: 132px; flex: none; height: 132px; }
+    .keys { margin-top: 16px; padding-top: 0; }
+    .rbody { margin-top: 16px; flex: none; }
+  }
+  @container (max-width: 440px) { .tog-body { grid-template-columns: minmax(0, 1fr); gap: 12px; } .pr { min-height: 118px; } }
+
+  /* phone: one column */
+  @media (max-width: 640px) {
+    .wrap { padding: 24px 16px; gap: 16px; }
+    h1 { font-size: 28px; }
+    .head p { font-size: 14px; }
+    .ctl { align-self: flex-start; }
+    .grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "d" "c" "t" "g" "k" "r"; }
+    .tile { padding: 16px; }
+    .ln { grid-template-columns: 28px 14px minmax(0, 1fr); font-size: 12px; }
+    .ln code { padding-left: 4ch; text-indent: -4ch; }
+    .thread { margin: 8px; }
+    .who time { display: none; }
+    .acts { flex-wrap: wrap; }
+    .btn kbd { display: none; }
+    .btn { height: 36px; }
+    .step button { width: 36px; height: 36px; }
+    .seg button { height: 32px; padding: 0 12px; }
+    .gbox { height: 168px; }
+    .gread { white-space: normal; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="head">
+    <div>
+      <h1>Kiln reads the diff, and everything the diff touches.</h1>
+      <p>Every pull request gets a reviewer who knows your services, your history and your rules, and who brings the fix.</p>
+    </div>
+    <div class="ctl" id="ctl" aria-label="Demo playback" role="group">
+      <button id="replay" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg>Replay</button>
+      <button id="pause" type="button" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path id="pauseIc" d="M8 5v14M16 5v14"/></svg><span id="pauseTx">Pause</span></button>
+    </div>
+  </header>
+
+  <section class="grid" id="grid" aria-label="Kiln features">
+
+    <article class="tile t-diff" data-demo="diff">
+      <header><h2>Comments worth keeping</h2><p>It reads the surrounding code, then proposes the exact change. Apply it from the thread.</p></header>
+      <div class="code" id="code">
+        <div class="bar">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4"/></svg>
+          <span class="path"><bdi>services/billing/src/invoice.ts</bdi></span>
+          <span><span class="plus">+2</span> <span class="minus">−1</span></span>
+        </div>
+        <div class="ln"><span class="no">38</span><span class="sg"></span><code><span class="k">export function</span> <span class="f">invoiceTotal</span>(lines: Line[], plan: Plan) {</code></div>
+        <div class="ln"><span class="no">39</span><span class="sg"></span><code>  <span class="k">const</span> subtotal = lines.<span class="f">reduce</span>((sum, l) =&gt; sum + l.amount, <span class="n">0</span>);</code></div>
+        <div class="ln del"><span class="no">40</span><span class="sg">−</span><code>  <span class="k">const</span> discount = subtotal * plan.discount;</code></div>
+        <div class="ln add" id="target"><span class="no">40</span><span class="sg">+</span><code id="targetCode"></code></div>
+        <div class="thread wait" id="thread">
+          <div class="who"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-9a8 8 0 0 1 16 0v9zM9 21v-6a3 3 0 0 1 6 0v6"/></svg><b>Kiln</b><span>on line 40</span><time>just now</time></div>
+          <p class="sr" id="sayFull"></p>
+          <p class="say" id="say" aria-hidden="true"></p>
+          <div class="sug" id="sug"><small>Suggested change</small><code><span class="k">const</span> discount = subtotal * <mark>(plan.discount?.rate ?? <span class="n">0</span>)</mark>;</code></div>
+          <div class="acts" id="acts">
+            <button class="btn go" id="apply" type="button">Apply suggestion <kbd>A</kbd></button>
+            <button class="btn" id="dismiss" type="button">Dismiss</button>
+          </div>
+          <div class="acts" id="after" hidden>
+            <div class="done"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path id="doneIc" d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="doneTx"></span><button class="btn" id="undo" type="button">Undo <kbd>U</kbd></button></div>
+          </div>
+        </div>
+        <div class="ln add"><span class="no">41</span><span class="sg">+</span><code>  <span class="k">const</span> tax = <span class="f">roundCents</span>(subtotal - discount) * plan.taxRate;</code></div>
+        <div class="ln"><span class="no">42</span><span class="sg"></span><code>  <span class="k">return</span> { subtotal, discount, tax };</code></div>
+      </div>
+      <p class="sr" id="diffLive" role="status"></p>
+    </article>
+
+    <article class="tile t-chart" data-demo="chart">
+      <div class="ctop">
+        <header><h2>First review in minutes</h2><p>Time until the first comment lands, by week.</p>
+          <div class="seg" role="group" aria-label="Measure"><button id="mMed" type="button" aria-pressed="true">Median</button><button id="mP90" type="button" aria-pressed="false">Slowest 10%</button></div>
+        </header>
+        <div class="read"><b id="rVal">14 min</b><small id="rWk">week of 26 Oct</small></div>
+      </div>
+      <div class="bars zero" id="bars" tabindex="0" role="slider" aria-label="Week to read" aria-valuemin="1" aria-valuemax="12" aria-valuenow="12"></div>
+      <div class="axis" aria-hidden="true"><span>10 Aug</span><span>26 Oct</span></div>
+    </article>
+
+    <article class="tile t-tog" data-demo="tog">
+      <header><h2>Your rules, per repository</h2><p>Flip a check and the pull request changes with it.</p></header>
+      <div class="tog-body">
+        <ul class="sw-list">
+          <li><button class="sw" role="switch" type="button" id="swLint" aria-checked="true">Auto-fix lint<span class="tr"></span></button></li>
+          <li><button class="sw" role="switch" type="button" id="swSec" aria-checked="true">Block on secrets<span class="tr"></span></button></li>
+          <li><button class="sw" role="switch" type="button" id="swSum" aria-checked="true">Summarise PRs<span class="tr"></span></button></li>
+        </ul>
+        <div class="pr" aria-live="polite">
+          <div class="tt"><span>#2841</span> Retry webhook deliveries</div>
+          <div class="fold" id="sumFold"><div><p class="sum">Adds backoff to webhook retries. No schema changes.</p></div></div>
+          <div class="chk" id="chkLint"></div>
+          <div class="chk" id="chkSec"></div>
+          <div class="merge" id="merge"></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile t-graph" data-demo="graph">
+      <header><h2>Sees past the diff</h2><p>Traces each change across your services. Pick one.</p></header>
+      <div class="gbox" id="gbox"><svg id="gsvg" role="group" aria-label="Service graph"></svg></div>
+      <p class="gread" id="gread" role="status"></p>
+    </article>
+
+    <article class="tile t-keys" data-demo="keys">
+      <header><h2>Hands on the keyboard</h2><p>Walk the review above without the mouse.</p></header>
+      <div class="keys" id="keys" role="group" aria-label="Review shortcuts">
+        <button class="key" type="button" data-key="j" aria-keyshortcuts="J"><span>J</span><small>Next</small></button>
+        <button class="key" type="button" data-key="k" aria-keyshortcuts="K"><span>K</span><small>Prev</small></button>
+        <button class="key" type="button" data-key="a" aria-keyshortcuts="A"><span>A</span><small>Apply</small></button>
+        <button class="key" type="button" data-key="u" aria-keyshortcuts="U"><span>U</span><small>Undo</small></button>
+      </div>
+      <p class="kcap" id="kcap" role="status">Try them. They drive the diff.</p>
+    </article>
+
+    <article class="tile t-risk" data-demo="risk">
+      <header><h2>A risk score you can argue with</h2><p>Every factor is on show, so you can disagree.</p></header>
+      <div class="rbody">
+        <div class="ring" id="ring" role="img" aria-label="">
+          <svg id="ringSvg" viewBox="0 0 104 104" width="104" height="104" aria-hidden="true"></svg>
+          <div class="num" aria-hidden="true"><b id="rNum">0</b><small id="rLvl">&nbsp;</small></div>
+        </div>
+        <div class="rside">
+          <div class="step">
+            <b id="rPr">#2841</b>
+            <div role="group" aria-label="Choose a pull request">
+              <button id="rPrev" type="button" aria-label="Previous pull request"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
+              <button id="rNext" type="button" aria-label="Next pull request"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+            </div>
+          </div>
+          <ul class="fac" id="rFac"></ul>
+        </div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const mq = matchMedia("(prefers-reduced-motion: reduce)");
+  const still = () => mq.matches;
+  let paused = false;
+
+  /* ── pointer light on the hairlines ─────────────────────────── */
+  const grid = $("grid");
+  grid.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch") return;
+    const r = grid.getBoundingClientRect();
+    grid.style.setProperty("--x", `${e.clientX - r.left}px`);
+    grid.style.setProperty("--y", `${e.clientY - r.top}px`);
+    grid.classList.add("lit");
+  });
+  grid.addEventListener("pointerleave", () => grid.classList.remove("lit"));
+
+  /* ── keys ───────────────────────────────────────────────────── */
+  const keyEls = Object.fromEntries([...document.querySelectorAll(".key")].map((k) => [k.dataset.key, k]));
+  const kcap = $("kcap");
+  function light(k, hold = 180) {
+    const el = keyEls[k]; if (!el) return;
+    el.classList.add("on");
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("on"), hold);
+  }
+
+  /* ── 1. the review ──────────────────────────────────────────── */
+  const CODE_OLD = '  <span class="k">const</span> discount = subtotal * plan.discount.rate;';
+  const CODE_NEW = '  <span class="k">const</span> discount = subtotal * <mark>(plan.discount?.rate ?? <span class="n">0</span>)</mark>;';
+  const COMMENT = [["plan.discount", 1], [" is null on free plans since #2790, so this line throws for about one invoice in nine. Fall back to a rate of 0.", 0]];
+  const say = $("say"), thread = $("thread"), target = $("target"), targetCode = $("targetCode");
+  $("sayFull").textContent = COMMENT.map((c) => c[0]).join("");
+  say.innerHTML = COMMENT.map(([t, m]) => {
+    const inner = [...t].map((c) => `<i>${c === " " ? " " : c}</i>`).join("");
+    return m ? `<span class="m">${inner}</span>` : inner;
+  }).join("");
+  const chars = [...say.querySelectorAll("i")];
+  const CHANGED = [...document.querySelectorAll(".ln.del, .ln.add")];
+
+  const TYPE_START = 350, MS_PER_CHAR = 15, TYPE_END = TYPE_START + chars.length * MS_PER_CHAR;
+  const AUTO_NEXT = 700, AUTO_APPLY = TYPE_END + 2900, AUTO_RESET = AUTO_APPLY + 3800;
+  const diff = { t: 0, state: "typing", auto: true, typed: 0, cursor: -1, jDone: false };
+
+  function setTyped(n) {
+    if (n === diff.typed) return;
+    chars.forEach((c, i) => { c.classList.toggle("on", i < n); c.classList.toggle("at", i === n - 1 && n < chars.length); });
+    diff.typed = n;
+  }
+  function setCursor(i) {
+    diff.cursor = i;
+    CHANGED.forEach((l, j) => l.classList.toggle("cur", j === i));
+  }
+  function showActions() {
+    const fromAfter = $("after").contains(document.activeElement);
+    thread.classList.remove("wait");
+    $("acts").hidden = false; $("after").hidden = true;
+    if (fromAfter) $("apply").focus();
+  }
+  function finishTyping() {
+    setTyped(chars.length);
+    if (diff.state === "typing") { diff.state = "ready"; showActions(); }
+  }
+  function settle(kind) {
+    const hadFocus = $("acts").contains(document.activeElement);
+    diff.state = kind;
+    $("acts").hidden = true; $("after").hidden = false;
+    if (kind === "applied") {
+      targetCode.innerHTML = CODE_NEW;
+      target.classList.remove("flash"); void target.offsetWidth; target.classList.add("flash");
+      $("doneIc").setAttribute("d", "m5 12.5 4.5 4.5L19 7.5");
+      $("doneTx").innerHTML = "<b>Applied</b> by Priya Raman in <code>8c41f2e</code>";
+      $("diffLive").textContent = "Suggestion applied in commit 8c41f2e.";
+    } else {
+      $("doneIc").setAttribute("d", "M6 6l12 12M18 6 6 18");
+      $("doneTx").innerHTML = "<b>Dismissed</b> by Priya Raman";
+      $("diffLive").textContent = "Suggestion dismissed.";
+    }
+    if (hadFocus) $("undo").focus();
+  }
+  function undo() {
+    if (diff.state !== "applied" && diff.state !== "dismissed") return false;
+    targetCode.innerHTML = CODE_OLD; target.classList.remove("flash");
+    diff.state = "ready"; showActions();
+    $("diffLive").textContent = "Back to the suggestion.";
+    return true;
+  }
+  function restartDiff() {
+    diff.t = 0; diff.state = "typing"; diff.auto = true; diff.jDone = false;
+    targetCode.innerHTML = CODE_OLD; target.classList.remove("flash");
+    thread.classList.add("wait"); $("acts").hidden = false; $("after").hidden = true;
+    setTyped(0); setCursor(-1);
+    if (still()) { diff.auto = false; finishTyping(); }
+  }
+  function tickDiff(dt) {
+    diff.t += dt;
+    if (diff.state === "typing") {
+      const n = Math.max(0, Math.min(chars.length, Math.floor((diff.t - TYPE_START) / MS_PER_CHAR)));
+      setTyped(n);
+      if (n >= chars.length) finishTyping();
+    }
+    if (!diff.auto) return;
+    if (!diff.jDone && diff.t > AUTO_NEXT) { diff.jDone = true; press("j", true); }
+    if (diff.state === "ready" && diff.t > AUTO_APPLY) { press("a", true); }
+    if (diff.state === "applied" && diff.t > AUTO_RESET) {
+      light("u", 220); kcap.textContent = "U: undo, and the review starts over.";
+      restartDiff();
+    }
+  }
+
+  /* what a shortcut does, whoever pressed it */
+  function press(k, fromDemo) {
+    light(k, fromDemo ? 240 : 180);
+    if (!fromDemo) diff.auto = false;
+    if (k === "j" || k === "k") {
+      const n = CHANGED.length;
+      const next = k === "j" ? (diff.cursor + 1) % n : (diff.cursor <= 0 ? n - 1 : diff.cursor - 1);
+      setCursor(next);
+      const label = ["the old line 40", "the new line 40", "line 41"][next];
+      kcap.textContent = `${k.toUpperCase()}: ${k === "j" ? "next" : "previous"} change, ${label}.`;
+    } else if (k === "a") {
+      if (diff.state === "typing") finishTyping();
+      if (diff.state === "ready") { settle("applied"); kcap.textContent = "A: suggestion applied."; }
+      else kcap.textContent = "A: nothing left to apply here.";
+    } else if (k === "u") {
+      kcap.textContent = undo() ? "U: undone. The suggestion is back." : "U: nothing to undo yet.";
+    }
+  }
+  $("apply").addEventListener("click", () => { diff.auto = false; light("a"); settle("applied"); kcap.textContent = "A: suggestion applied."; });
+  $("dismiss").addEventListener("click", () => { diff.auto = false; settle("dismissed"); kcap.textContent = "Dismissed. U brings it back."; });
+  $("undo").addEventListener("click", () => { diff.auto = false; light("u"); undo(); kcap.textContent = "U: undone. The suggestion is back."; });
+  Object.entries(keyEls).forEach(([k, el]) => el.addEventListener("click", () => press(k, false)));
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const k = e.key.toLowerCase();
+    if (keyEls[k]) { e.preventDefault(); press(k, false); }
+  });
+
+  /* ── 2. the chart ───────────────────────────────────────────── */
+  const WEEKS = ["10 Aug", "17 Aug", "24 Aug", "31 Aug", "7 Sep", "14 Sep", "21 Sep", "28 Sep", "5 Oct", "12 Oct", "19 Oct", "26 Oct"];
+  const SERIES = { med: [96, 88, 74, 61, 52, 47, 39, 31, 26, 21, 17, 14], p90: [410, 388, 352, 301, 266, 240, 198, 163, 140, 118, 101, 86] };
+  const bars = $("bars");
+  let metric = "med", hoverAt = 11;
+  bars.innerHTML = WEEKS.map((_, i) => `<i style="--i:${i}" aria-hidden="true"></i>`).join("");
+  const barEls = [...bars.children];
+  const fmt = (m) => (m < 60 ? `${m} min` : m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m / 60} h`);
+  function drawBars() {
+    const s = SERIES[metric], top = Math.max(...s);
+    barEls.forEach((b, i) => { b.style.setProperty("--v", (Math.max(.03, s[i] / top)).toFixed(3)); b.classList.toggle("on", i === hoverAt); });
+    $("rVal").textContent = fmt(s[hoverAt]);
+    $("rWk").textContent = `week of ${WEEKS[hoverAt]}`;
+    bars.setAttribute("aria-valuenow", hoverAt + 1);
+    bars.setAttribute("aria-valuetext", `Week of ${WEEKS[hoverAt]}: ${fmt(s[hoverAt])}`);
+  }
+  function growBars() {
+    bars.classList.add("zero");
+    void bars.offsetWidth;
+    bars.classList.remove("zero");
+  }
+  function pickMetric(m) {
+    metric = m;
+    $("mMed").setAttribute("aria-pressed", m === "med");
+    $("mP90").setAttribute("aria-pressed", m === "p90");
+    drawBars();
+  }
+  $("mMed").addEventListener("click", () => pickMetric("med"));
+  $("mP90").addEventListener("click", () => pickMetric("p90"));
+  bars.addEventListener("pointermove", (e) => {
+    const r = bars.getBoundingClientRect();
+    hoverAt = Math.max(0, Math.min(11, Math.floor((e.clientX - r.left) / r.width * 12)));
+    drawBars();
+  });
+  bars.addEventListener("pointerleave", () => { hoverAt = 11; drawBars(); });
+  bars.addEventListener("keydown", (e) => {
+    const go = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+    if (go) { e.preventDefault(); hoverAt = Math.max(0, Math.min(11, hoverAt + go)); drawBars(); }
+    if (e.key === "Home") { e.preventDefault(); hoverAt = 0; drawBars(); }
+    if (e.key === "End") { e.preventDefault(); hoverAt = 11; drawBars(); }
+  });
+
+  /* ── 3. the toggles ─────────────────────────────────────────── */
+  const IC = { ok: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', warn: '<path d="M12 5v9M12 18v1.5"/>', bad: '<path d="M6 6l12 12M18 6 6 18"/>' };
+  const chk = (el, tone, html) => { el.className = `chk ${tone}`; el.innerHTML = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[tone]}</svg><span>${html}</span>`; };
+  const on = (id) => $(id).getAttribute("aria-checked") === "true";
+  function drawPR() {
+    const lint = on("swLint"), sec = on("swSec"), sum = on("swSum");
+    chk($("chkLint"), lint ? "ok" : "warn", lint ? "3 lint issues fixed in a commit" : "3 lint issues left for the author");
+    chk($("chkSec"), sec ? "bad" : "warn", sec ? "Live key in <code>.env.sample</code>" : "Live key found, not blocking");
+    $("sumFold").classList.toggle("shut", !sum);
+    const m = $("merge");
+    const tone = sec ? "bad" : lint ? "ok" : "warn";
+    m.className = `merge ${tone}`;
+    m.textContent = sec ? "Merge blocked" : lint ? "Ready to merge" : "Mergeable, with warnings";
+  }
+  ["swLint", "swSec", "swSum"].forEach((id) => $(id).addEventListener("click", () => {
+    $(id).setAttribute("aria-checked", !on(id)); drawPR();
+  }));
+
+  /* ── 4. the service graph ───────────────────────────────────── */
+  const NODES = { gateway: [0, .5], auth: [.34, .06], billing: [.34, .5], search: [.34, .94], ledger: [.67, .22], invoices: [.67, .78], notify: [1, .5] };
+  const EDGES = [["gateway", "auth"], ["gateway", "billing"], ["gateway", "search"], ["auth", "ledger"], ["billing", "ledger"], ["billing", "invoices"], ["search", "invoices"], ["ledger", "notify"], ["invoices", "notify"]];
+  const svg = $("gsvg"), gbox = $("gbox");
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a, p) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+  let selected = "billing", gAuto = true, gClock = 0, edgeEls = [], nodeEls = {}, gW = 0, gH = 0;
+  const reach = (from) => { const seen = new Set(), q = [from]; while (q.length) { const c = q.shift(); for (const [a, b] of EDGES) if (a === c && !seen.has(b)) { seen.add(b); q.push(b); } } return seen; };
+  function buildGraph() {
+    const w = gbox.clientWidth, h = gbox.clientHeight;
+    if (!w || !h || (w === gW && h === gH)) return;
+    gW = w; gH = h;
+    const focused = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.node : null;
+    svg.innerHTML = "";
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    const NW = w < 400 ? 60 : 72, NH = 24;
+    const pos = (n) => [NW / 2 + NODES[n][0] * (w - NW), NH / 2 + NODES[n][1] * (h - NH)];
+    edgeEls = EDGES.map(([a, b], i) => {
+      const [ax, ay] = pos(a), [bx, by] = pos(b);
+      const x1 = ax + NW / 2, x2 = bx - NW / 2, mx = (x1 + x2) / 2;
+      const dy = by - ay, r = Math.min(4, Math.abs(dy) / 2), s = Math.sign(dy);
+      const d = Math.abs(dy) < 1 ? `M${x1} ${ay}H${x2}`
+        : `M${x1} ${ay}H${mx - r}Q${mx} ${ay} ${mx} ${ay + s * r}V${by - s * r}Q${mx} ${by} ${mx + r} ${by}H${x2}`;
+      const line = el("path", { d, class: "ed" }, svg);
+      const pk = el("path", { d, class: "pk" }, svg);
+      const L = line.getTotalLength();
+      pk.style.strokeDasharray = `16 ${L + 400}`;
+      pk.style.strokeDashoffset = 18;
+      return { a, b, line, pk, L, phase: (i * 137) % 360 };
+    });
+    nodeEls = {};
+    for (const n in NODES) {
+      const [x, y] = pos(n);
+      const g = el("g", { class: "nd", tabindex: 0, role: "button", "aria-label": `Show what ${n} reaches`, "data-node": n }, svg);
+      el("rect", { class: "hit", x: x - NW / 2 - 2, y: y - NH / 2 - 8, width: NW + 4, height: NH + 16 }, g);
+      el("rect", { class: "box", x: x - NW / 2 + .5, y: y - NH / 2 + .5, width: NW - 1, height: NH - 1 }, g);
+      const t = el("text", { x, y }, g); t.textContent = n;
+      g.addEventListener("pointerenter", (e) => { if (e.pointerType !== "touch") pick(n, true); });
+      g.addEventListener("click", () => pick(n, true));
+      g.addEventListener("focus", () => { if (g.matches(":focus-visible")) pick(n, true); });
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(n, true); } });
+      nodeEls[n] = g;
+    }
+    drawSel();
+    if (focused && nodeEls[focused]) nodeEls[focused].focus();
+    if (still()) edgeEls.forEach((e) => { e.pk.style.display = "none"; });
+  }
+  function drawSel() {
+    const hot = reach(selected);
+    for (const n in nodeEls) {
+      nodeEls[n].classList.toggle("sel", n === selected);
+      nodeEls[n].classList.toggle("reach", hot.has(n));
+      nodeEls[n].setAttribute("aria-pressed", n === selected);
+    }
+    edgeEls.forEach((e) => {
+      const live = e.a === selected || hot.has(e.a);
+      e.hot = live;
+      e.line.classList.toggle("hot", live); e.pk.classList.toggle("hot", live);
+    });
+    const list = [...hot];
+    $("gread").innerHTML = list.length
+      ? `<b>${selected}</b> changed. Reaches ${list.join(", ")}.`
+      : `<b>${selected}</b> changed. Nothing downstream.`;
+  }
+  function pick(n, byUser) {
+    if (byUser) gAuto = false;
+    if (selected === n) return;
+    selected = n; drawSel();
+  }
+  const CYCLE = ["billing", "auth", "search"];
+  function tickGraph(dt) {
+    gClock += dt;
+    for (const e of edgeEls) {
+      const speed = .07, period = e.L + 180;
+      const pos = ((gClock * speed + e.phase) % period);
+      e.pk.style.strokeDashoffset = 16 - pos;
+    }
+    if (gAuto && gClock > 7000) {
+      gClock = 0;
+      pick(CYCLE[(CYCLE.indexOf(selected) + 1) % CYCLE.length], false);
+    }
+  }
+
+  /* ── 6. the risk ring ───────────────────────────────────────── */
+  const PRS = [
+    { id: "#2841", score: 42, lvl: "Moderate", c: "var(--ochre)", fac: [["Touches billing", "+22"], ["No new tests", "+14"], ["Reaches 3 services", "+6"]] },
+    { id: "#2839", score: 78, lvl: "High", c: "var(--clay)", fac: [["Changes session auth", "+38"], ["Handles secrets", "+28"], ["1,240 lines changed", "+12"]] },
+    { id: "#2836", score: 9, lvl: "Low", c: "var(--glaze)", fac: [["Copy changes only", "+3"], ["Small, well tested", "+4"], ["Author owns this code", "+2"]] },
+  ];
+  const TICKS = 48, ringSvg = $("ringSvg");
+  for (let i = 0; i < TICKS; i++) {
+    const a = (i / TICKS) * Math.PI * 2 - Math.PI / 2, c = Math.cos(a), s = Math.sin(a);
+    el("line", { x1: (52 + c * 43).toFixed(2), y1: (52 + s * 43).toFixed(2), x2: (52 + c * 51).toFixed(2), y2: (52 + s * 51).toFixed(2) }, ringSvg);
+  }
+  const ticks = [...ringSvg.children];
+  const risk = { i: 0, shown: 0, from: 0, to: 42, t: 1, D: 700, wait: 0 };
+  function drawRing(v) {
+    const lit = Math.round(v / 100 * TICKS);
+    ticks.forEach((t, i) => t.classList.toggle("on", i < lit));
+    $("rNum").textContent = Math.round(v);
+  }
+  function setPR(i, animate) {
+    risk.i = (i + PRS.length) % PRS.length;
+    const p = PRS[risk.i];
+    $("ring").style.setProperty("--rc", p.c);
+    $("ring").setAttribute("aria-label", `Pull request ${p.id}: risk ${p.score} of 100, ${p.lvl.toLowerCase()}`);
+    $("rPr").textContent = p.id;
+    $("rLvl").textContent = p.lvl;
+    $("rFac").innerHTML = p.fac.map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join("");
+    risk.from = risk.shown; risk.to = p.score;
+    if (animate && !still() && !paused) { risk.t = 0; } else { risk.t = 1; risk.shown = p.score; drawRing(p.score); }
+  }
+  $("rPrev").addEventListener("click", () => setPR(risk.i - 1, true));
+  $("rNext").addEventListener("click", () => setPR(risk.i + 1, true));
+  function tickRisk(dt) {
+    if (risk.t >= 1) return;
+    risk.t = Math.min(1, risk.t + dt / risk.D);
+    const e = 1 - Math.pow(1 - risk.t, 3);
+    risk.shown = risk.from + (risk.to - risk.from) * e;
+    drawRing(risk.shown);
+  }
+
+  /* ── play, pause, replay ────────────────────────────────────── */
+  let last = 0, started = false;
+  function frame(now) {
+    const dt = Math.min(48, now - last || 16); last = now;
+    if (!paused && !still()) { tickDiff(dt); tickGraph(dt); tickRisk(dt); }
+    requestAnimationFrame(frame);
+  }
+  function replay() {
+    restartDiff();
+    growBars();
+    risk.shown = 0; setPR(risk.i, true);
+    drawRing(still() ? risk.to : 0);
+    gAuto = !still(); gClock = 0;
+    kcap.textContent = "Try them. They drive the diff.";
+  }
+  $("replay").addEventListener("click", () => {
+    if (paused) setPaused(false);
+    replay();
+  });
+  function setPaused(p) {
+    paused = p;
+    $("pause").setAttribute("aria-pressed", p);
+    $("pauseTx").textContent = p ? "Play" : "Pause";
+    $("pauseIc").setAttribute("d", p ? "M7 4.5v15l12-7.5z" : "M8 5v14M16 5v14");
+    if (p && risk.t < 1) { risk.t = 1; risk.shown = risk.to; drawRing(risk.to); }
+  }
+  $("pause").addEventListener("click", () => setPaused(!paused));
+
+  function boot() {
+    targetCode.innerHTML = CODE_OLD;
+    drawPR(); drawBars();
+    buildGraph();
+    new ResizeObserver(buildGraph).observe(gbox);
+    if (still()) {
+      $("ctl").hidden = true;
+      bars.classList.remove("zero");
+      restartDiff();
+      setPR(0, false);
+      gAuto = false;
+    } else {
+      restartDiff();
+      /* the first load waits a beat so the bars and ring are seen to move */
+      setPR(0, false); risk.shown = 0; drawRing(0); risk.from = 0; risk.to = PRS[0].score; risk.t = -.2;
+      requestAnimationFrame(() => requestAnimationFrame(() => bars.classList.remove("zero")));
+      if (!started) { started = true; requestAnimationFrame(frame); }
+    }
+  }
+  mq.addEventListener("change", () => {
+    if (still()) {
+      $("ctl").hidden = true;
+      paused = false;
+      diff.auto = false; finishTyping();
+      bars.classList.remove("zero");
+      risk.t = 1; risk.shown = risk.to; drawRing(risk.to);
+      edgeEls.forEach((e) => { e.pk.style.display = "none"; });
+      gAuto = false;
+    } else {
+      $("ctl").hidden = false;
+      edgeEls.forEach((e) => { e.pk.style.display = ""; });
+      if (!started) { started = true; requestAnimationFrame(frame); }
+    }
+  });
+  boot();
+})();
+</script>
+</body>
+</html>

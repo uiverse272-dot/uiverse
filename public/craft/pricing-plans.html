@@ -1,0 +1,828 @@
+<!doctype html>
+<!-- Pricing page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A full pricing page for a meeting-notes product: billing period, currency and a seats slider reprice
+     every plan with volume tiers and rolling digits, a comparison table with a sticky plan header and
+     collapsible groups, an FAQ and a contact-sales band. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quorum — Pricing</title>
+<style>
+  :root {
+    --navy: #0c2340; --navy-2: #13305a; --ink: #172a44; --muted: #536179; --faint: #8a95a8;
+    --line: #dfe4ec; --line-2: #c9d1dd; --wash: #f4f6f9; --white: #fff;
+    --accent: #0a7a63; --accent-2: #08664f; --accent-tint: #e5f3ef;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --grot: "Helvetica Neue", Arial, system-ui, sans-serif;
+    --r: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--white); }
+  body { background: var(--white); color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button, input, select { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  h1, h2, h3 { font-family: var(--grot); color: var(--navy); letter-spacing: -.02em; }
+
+  /* nav */
+  .nav { border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; height: 64px; gap: 32px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 18px/1 var(--grot); color: var(--navy); text-decoration: none; letter-spacing: -.02em; }
+  .brand svg { width: 26px; height: 26px; }
+  .links { display: flex; gap: 4px; }
+  .links a { padding: 8px 12px; border-radius: 6px; text-decoration: none; color: var(--muted); font-size: 14px; }
+  .links a:hover { color: var(--navy); background: var(--wash); }
+  .links a[aria-current] { color: var(--navy); font-weight: 600; }
+  .nav .end { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 6px; font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s; }
+  .btn-ghost { color: var(--navy); }
+  .btn-ghost:hover { background: var(--wash); }
+  .btn-solid { background: var(--accent); color: #fff; }
+  .btn-solid:hover { background: var(--accent-2); }
+  .btn-line { border: 1px solid var(--line-2); color: var(--navy); background: #fff; }
+  .btn-line:hover { border-color: var(--navy); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: var(--navy-2); }
+  .btn[disabled], .btn.is-off { background: var(--wash); color: var(--faint); border-color: var(--line); cursor: not-allowed; }
+
+  /* hero */
+  .hero { padding: 48px 0 28px; display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end; }
+  .hero h1 { font-size: 44px; line-height: 1.06; font-weight: 700; max-width: 640px; }
+  .hero p { margin-top: 16px; color: var(--muted); font-size: 17px; max-width: 560px; }
+  .trial { font-size: 14px; color: var(--muted); text-align: right; line-height: 1.5; }
+  .trial b { color: var(--navy); font-weight: 600; display: block; }
+
+  /* controls */
+  .controls { display: grid; grid-template-columns: auto auto 1fr; gap: 32px; align-items: start; padding: 16px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--wash); }
+  .ctl-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .seg { display: inline-flex; padding: 3px; background: #fff; border: 1px solid var(--line); border-radius: 7px; }
+  .seg button { height: 32px; padding: 0 14px; border-radius: 5px; font-size: 14px; color: var(--muted); font-weight: 500; transition: background-color .2s, color .2s; }
+  .seg button[aria-checked="true"] { background: var(--navy); color: #fff; }
+  .bill { display: flex; align-items: center; gap: 12px; }
+  .save { font-size: 13px; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .sel { position: relative; display: inline-block; }
+  .band .sel, .mob-pick .sel { display: block; }
+  .sel select { appearance: none; height: 40px; padding: 0 36px 0 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-size: 14px; font-weight: 500; color: var(--navy); cursor: pointer; }
+  .sel svg { position: absolute; right: 10px; top: 10px; pointer-events: none; color: var(--muted); }
+  .seats-row { display: grid; grid-template-columns: 1fr 96px; gap: 16px; align-items: start; }
+  .seats-row .num { margin-top: -8px; }
+  .seats-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .tier-now { font-size: 12px; color: var(--accent); font-weight: 600; }
+  .track { position: relative; height: 24px; }
+  .track input { position: absolute; inset: 0; width: 100%; height: 24px; margin: 0; appearance: none; background: none; cursor: pointer; z-index: 2; }
+  .track input::-webkit-slider-runnable-track { height: 4px; background: transparent; }
+  .track input::-moz-range-track { height: 4px; background: transparent; }
+  .track input::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; background: #fff; border: 2px solid var(--navy); box-shadow: 0 1px 3px rgba(12,35,64,.2); }
+  .track input::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--navy); }
+  .track input:focus-visible { outline: none; }
+  .track input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .rail { position: absolute; left: 10px; right: 10px; top: 10px; height: 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .rail i { background: var(--line-2); border-radius: 2px; position: relative; overflow: hidden; }
+  .rail i b { position: absolute; inset: 0 auto 0 0; background: var(--navy); width: 0; }
+  .ticks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin: 2px 10px 0; font-size: 12px; color: var(--muted); }
+  .ticks span { white-space: nowrap; }
+  .ticks em { display: block; font-style: normal; font-size: 11px; color: var(--faint); }
+  .ticks span.on em { color: var(--accent); }
+  .controls > * { min-width: 0; }
+  .ticks span.on { color: var(--navy); font-weight: 600; }
+  .num { position: relative; }
+  .num input { width: 100%; height: 40px; border: 1px solid var(--line); border-radius: 7px; padding: 0 46px 0 12px; font-size: 15px; font-weight: 600; color: var(--navy); background: #fff; }
+  .num input[aria-invalid="true"] { border-color: #b4232a; }
+  .num span { position: absolute; right: 12px; top: 11px; font-size: 13px; color: var(--muted); pointer-events: none; }
+  .num-err { position: absolute; top: 44px; right: 0; font-size: 12px; color: #b4232a; white-space: nowrap; }
+
+  /* plan cards */
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .plan { position: relative; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--r); padding: 24px; background: #fff; transition: border-color .25s, box-shadow .25s; }
+  .plan.rec, .ent.rec { border-color: var(--navy); box-shadow: 0 0 0 1px var(--navy), 0 8px 24px -16px rgba(12,35,64,.45); }
+  .flag { position: absolute; top: -1px; right: 24px; transform: translateY(-50%); background: var(--navy); color: #fff; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 4px; opacity: 0; transition: opacity .25s; white-space: nowrap; }
+  .rec > .flag { opacity: 1; }
+  .plan h3 { font-size: 20px; font-weight: 700; }
+  .plan .desc { color: var(--muted); font-size: 14px; margin-top: 4px; min-height: 42px; }
+  .price { margin-top: 20px; display: flex; align-items: flex-start; gap: 4px; color: var(--navy); font-family: var(--grot); transition: opacity .25s; }
+  .price .cur { font-size: 18px; font-weight: 600; margin-top: 5px; }
+  .price .roll { font-size: 44px; font-weight: 700; letter-spacing: -.03em; }
+  .per { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .total { font-size: 13px; color: var(--ink); margin-top: 2px; min-height: 20px; }
+  .total s { color: var(--faint); margin-right: 4px; }
+  .plan .btn { margin-top: 20px; width: 100%; }
+  .plan ul { list-style: none; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; }
+  .plan ul .lead { color: var(--muted); font-size: 13px; }
+  .plan li { display: flex; gap: 10px; align-items: flex-start; }
+  .plan li svg { width: 18px; height: 18px; margin-top: 1px; color: var(--accent); }
+  .plan.capped .price, .plan.capped .per { opacity: .4; }
+  .cap-note { display: none; font-size: 13px; color: var(--ink); margin-top: 2px; }
+  .plan.capped .cap-note { display: block; }
+  .plan.capped .total { display: none; }
+
+  .roll { display: inline-flex; line-height: 1; }
+  .roll .d { display: inline-block; height: 1em; overflow: hidden; }
+  .roll .strip { display: flex; flex-direction: column; transition: transform .45s cubic-bezier(.2,.75,.25,1); }
+  .roll .strip span, .roll .c { display: block; height: 1em; line-height: 1; }
+
+  /* enterprise */
+  .ent { position: relative; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--r); padding: 24px; display: grid; grid-template-columns: 280px 1fr auto; gap: 40px; align-items: center; background: var(--wash); transition: border-color .25s, box-shadow .25s, background-color .25s; }
+  .ent.rec { background: #fff; }
+  .ent h3 { font-size: 20px; font-weight: 700; }
+  .ent p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .ent ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 14px; }
+  .ent li { display: flex; gap: 10px; }
+  .ent li svg { width: 18px; height: 18px; margin-top: 1px; color: var(--accent); }
+  .ent .go { text-align: right; }
+  .ent .go b { display: block; font: 700 28px/1 var(--grot); color: var(--navy); letter-spacing: -.02em; }
+  .ent .go small { display: block; color: var(--muted); font-size: 13px; margin: 6px 0 12px; }
+  .fine { margin-top: 16px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; }
+
+  /* comparison */
+  section.block { padding: 88px 0 0; }
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 24px; }
+  .sec-head h2 { font-size: 28px; font-weight: 700; line-height: 1.15; }
+  .sec-head p { color: var(--muted); margin-top: 6px; }
+  .linkbtn { color: var(--accent); font-weight: 600; font-size: 14px; padding: 6px 2px; }
+  .linkbtn:hover { text-decoration: underline; }
+  table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 14px; }
+  .cmp col.f { width: 32%; }
+  .cmp thead th { position: sticky; top: 0; z-index: 3; background: #fff; border-bottom: 1px solid var(--line-2); padding: 16px 16px 14px; text-align: left; vertical-align: bottom; font-weight: 400; }
+  .cmp thead th.stuck { border-bottom-color: var(--navy); }
+  .cmp thead .pn { display: block; font: 700 16px/1.2 var(--grot); color: var(--navy); }
+  .cmp thead .pp { display: block; font-size: 13px; color: var(--muted); margin: 2px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cmp thead .btn { height: 32px; font-size: 13px; padding: 0 12px; width: 100%; }
+  .cmp thead th.feat { font-size: 13px; color: var(--muted); }
+  .cmp [data-col].hl { background: #f5f8fc; }
+  .cmp thead [data-col].hl { background: #f5f8fc; }
+  .cmp tbody th, .cmp tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .cmp tbody th { font-weight: 400; color: var(--ink); }
+  .cmp td { color: var(--ink); }
+  .cmp td svg { width: 18px; height: 18px; color: var(--accent); display: block; }
+  .cmp td .no { color: var(--faint); }
+  .cmp tr.grp th { padding: 0; border-bottom: 1px solid var(--line-2); background: #fff; }
+  .grp button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 24px 16px 10px; font: 700 15px/1.2 var(--grot); color: var(--navy); text-align: left; }
+  .grp button small { font: 400 13px var(--sans); color: var(--muted); margin-left: 4px; }
+  .grp button svg { width: 18px; height: 18px; transition: transform .2s ease-out; color: var(--muted); }
+  .grp button[aria-expanded="false"] svg { transform: rotate(-90deg); }
+  .feat-name { display: inline-flex; align-items: center; gap: 6px; }
+  .info { width: 24px; height: 24px; display: inline-grid; place-items: center; border-radius: 50%; color: var(--faint); margin: -3px 0; }
+  .info:hover, .info[aria-expanded="true"] { color: var(--navy); background: var(--wash); }
+  .info svg { width: 16px; height: 16px; }
+  tr.fade-in > * { animation: rowin .25s ease-out; }
+  @keyframes rowin { from { opacity: 0; transform: translateY(-4px); } }
+  .tip { position: absolute; z-index: 10; max-width: 280px; padding: 10px 12px; border-radius: 6px; background: var(--navy); color: #fff; font-size: 13px; line-height: 1.45; box-shadow: 0 8px 20px -8px rgba(12,35,64,.5); opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; pointer-events: none; }
+  .tip.show { opacity: 1; transform: none; }
+  .tip::after { content: ""; position: absolute; left: var(--ax, 20px); top: -5px; width: 10px; height: 10px; background: var(--navy); transform: rotate(45deg); }
+  .mob-pick { display: none; }
+
+  /* faq */
+  .faq-grid { display: grid; grid-template-columns: 320px 1fr; gap: 64px; }
+  .faq-grid .sec-head { display: block; }
+  .faq-grid .sec-head p a { color: var(--accent); font-weight: 600; }
+  .qa { border-top: 1px solid var(--line); }
+  .qa:last-child { border-bottom: 1px solid var(--line); }
+  .qa h3 { font: inherit; }
+  .qa button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px 0; text-align: left; font: 600 16px/1.4 var(--sans); color: var(--navy); }
+  .qa button .pm { position: relative; width: 20px; height: 20px; flex: none; }
+  .qa button .pm::before, .qa button .pm::after { content: ""; position: absolute; left: 3px; right: 3px; top: 9px; height: 1.75px; background: var(--muted); border-radius: 1px; transition: transform .25s ease-out; }
+  .qa button .pm::after { transform: rotate(90deg); }
+  .qa button[aria-expanded="true"] .pm::after { transform: rotate(0); }
+  .ans { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease-out; }
+  .ans > div { overflow: hidden; }
+  .ans p { color: var(--muted); padding: 0 48px 20px 0; }
+  .qa.open .ans { grid-template-rows: 1fr; }
+
+  /* compliance */
+  .trust { margin-top: 88px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 24px 0; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .trust .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .trust .badges span { border: 1px solid var(--line-2); border-radius: 4px; padding: 6px 12px; font: 600 13px/1 var(--grot); color: var(--navy); letter-spacing: .01em; }
+  .trust p { color: var(--muted); font-size: 14px; flex: 1; min-width: 260px; }
+  .trust a { color: var(--accent); font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .trust a:hover { text-decoration: underline; }
+  .trust a svg { width: 16px; height: 16px; }
+
+  /* contact band */
+  .band { background: var(--navy); color: #fff; margin-top: 88px; }
+  .band .wrap { display: grid; grid-template-columns: 1fr 440px; gap: 64px; padding-top: 64px; padding-bottom: 64px; align-items: center; }
+  .band h2 { color: #fff; font-size: 32px; line-height: 1.12; font-weight: 700; }
+  .band p { color: #b9c5d6; margin-top: 12px; max-width: 520px; }
+  .band .who { display: flex; align-items: center; gap: 12px; margin-top: 24px; font-size: 14px; color: #dbe3ee; }
+  .band .who i { width: 40px; height: 40px; border-radius: 50%; background: #2a4a74; display: grid; place-items: center; font-style: normal; font-weight: 600; font-size: 14px; color: #fff; }
+  .band .who small { display: block; color: #9fb0c6; font-size: 13px; }
+  .band form { background: #fff; color: var(--ink); border-radius: var(--r); padding: 24px; display: grid; gap: 12px; }
+  .band label { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .band input[type="email"], .band select { width: 100%; height: 42px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 12px; font-size: 15px; margin-top: 6px; background: #fff; }
+  .band input[aria-invalid="true"] { border-color: #b4232a; }
+  .band .err { font-size: 13px; color: #b4232a; min-height: 0; }
+  .band .err:empty { display: none; }
+  .band form .btn { height: 44px; margin-top: 4px; }
+  .band .done { display: none; text-align: left; }
+  .band form.sent > :not(.done) { display: none; }
+  .band form.sent .done { display: block; animation: rowin .3s ease-out; }
+  .done h3 { font-size: 18px; margin: 12px 0 6px; }
+  .done p { color: var(--muted); margin: 0; font-size: 14px; }
+  .done svg { width: 32px; height: 32px; color: var(--accent); }
+  .band .sel svg { top: 17px; }
+  footer { background: var(--navy); color: #9fb0c6; font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; padding-top: 20px; padding-bottom: 24px; border-top: 1px solid #22406a; flex-wrap: wrap; }
+  footer nav { display: flex; gap: 20px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: #fff; }
+
+  .spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 1100px) {
+    .controls { grid-template-columns: auto auto; }
+    .controls .seats { grid-column: 1 / -1; }
+    .ent { grid-template-columns: 1fr auto; }
+    .ent ul { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (max-width: 960px) {
+    .wrap { padding: 0 24px; }
+    .links { display: none; }
+    .hero { grid-template-columns: 1fr; gap: 16px; padding-top: 40px; }
+    .hero h1 { font-size: 36px; }
+    .trial { text-align: left; }
+    .plan { padding: 20px; }
+    .price .roll { font-size: 36px; }
+    .faq-grid { grid-template-columns: 1fr; gap: 8px; }
+    .band .wrap { grid-template-columns: 1fr; gap: 32px; }
+  }
+  @media (max-width: 800px) {
+    .plans { grid-template-columns: 1fr; }
+    .plan .desc { min-height: 0; }
+  }
+  @media (max-width: 720px) {
+    .wrap { padding: 0 16px; }
+    .nav .end .btn-ghost { display: none; }
+    .hero { padding: 32px 0 20px; }
+    .hero h1 { font-size: 30px; }
+    .hero p { font-size: 16px; }
+    .controls { grid-template-columns: 1fr; gap: 20px; padding: 16px; }
+    .bill { flex-wrap: wrap; gap: 8px 12px; }
+    .ticks { font-size: 11px; }
+    .ticks span:first-child em { visibility: hidden; }
+    .seats-row { grid-template-columns: 1fr 88px; }
+    .ent { grid-template-columns: 1fr; gap: 16px; padding: 20px; }
+    .ent ul { grid-template-columns: 1fr; grid-row: auto; }
+    .ent .go { text-align: left; }
+    .fine { flex-direction: column; gap: 4px; }
+    section.block { padding-top: 64px; }
+    .sec-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .sec-head h2 { font-size: 24px; }
+    table.cmp { table-layout: auto; }
+    .cmp col.f { width: auto; }
+    .cmp thead th.feat, .cmp tbody th { width: 56%; }
+    .cmp thead th { padding: 12px 8px 12px; }
+    .cmp thead th.feat .lbl { display: none; }
+    .mob-pick { display: block; }
+    .mob-pick label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .mob-pick select { appearance: none; width: 100%; height: 36px; padding: 0 32px 0 10px; border: 1px solid var(--line-2); border-radius: 6px; background: #fff; font-size: 14px; font-weight: 600; color: var(--navy); }
+    .mob-pick .sel svg { top: 8px; right: 8px; }
+    .cmp thead .btn { display: none; }
+    .cmp thead .pp { white-space: normal; overflow: visible; margin-bottom: 0; }
+    .cmp thead th[data-col] { vertical-align: bottom; }
+    .cmp tbody th, .cmp tbody td { padding: 12px 8px; }
+    .grp button { padding: 20px 8px 10px; }
+    .cmp[data-show="essentials"] [data-col]:not([data-col="essentials"]),
+    .cmp[data-show="team"] [data-col]:not([data-col="team"]),
+    .cmp[data-show="business"] [data-col]:not([data-col="business"]),
+    .cmp[data-show="enterprise"] [data-col]:not([data-col="enterprise"]) { display: none; }
+    .band .wrap { padding-top: 48px; padding-bottom: 48px; }
+    .band h2 { font-size: 26px; }
+    .band form { padding: 20px; }
+    .trust { margin-top: 64px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24"><path d="M8 12h8"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.75v.01"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Quorum home">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="6" fill="#0c2340"/><circle cx="12.5" cy="12.5" r="5.75" fill="none" stroke="#fff" stroke-width="2.25"/><path d="M15.5 15.5l4.5 4.5" stroke="#3fc4a3" stroke-width="2.25" stroke-linecap="round"/></svg>
+      Quorum
+    </a>
+    <nav class="links" aria-label="Main">
+      <a href="#">Product</a><a href="#">Integrations</a><a href="#">Customers</a><a href="#" aria-current="page">Pricing</a><a href="#">Docs</a>
+    </nav>
+    <div class="end">
+      <a class="btn btn-ghost" href="#">Sign in</a>
+      <a class="btn btn-navy" href="#">Start free trial</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Pricing for teams that meet, decide and follow through</h1>
+        <p>Every plan records unlimited meetings. You pay per editor, and the rate per seat drops as your team grows.</p>
+      </div>
+      <p class="trial"><b>14 days of Business, free</b>No card needed. Viewers and guests never count as seats.</p>
+    </div>
+
+    <div class="controls" role="group" aria-label="Price options">
+      <div>
+        <span class="ctl-label" id="billLbl">Billing</span>
+        <div class="bill">
+          <div class="seg" role="radiogroup" aria-labelledby="billLbl" id="bill">
+            <button type="button" role="radio" aria-checked="false" data-v="month" tabindex="-1">Monthly</button>
+            <button type="button" role="radio" aria-checked="true" data-v="year">Yearly</button>
+          </div>
+          <span class="save" id="saveNote">2 months free</span>
+        </div>
+      </div>
+      <div>
+        <label class="ctl-label" for="cur">Currency</label>
+        <div class="sel">
+          <select id="cur">
+            <option value="USD">USD — US dollar</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="GBP">GBP — Pound sterling</option>
+            <option value="SAR">SAR — Saudi riyal</option>
+            <option value="AED">AED — UAE dirham</option>
+          </select>
+          <svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+        </div>
+      </div>
+      <div class="seats">
+        <div class="seats-top"><label class="ctl-label" for="seatRange" id="seatLbl">Seats</label><span class="tier-now" id="tierNow"></span></div>
+        <div class="seats-row">
+          <div>
+            <div class="track">
+              <div class="rail" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+              <input type="range" id="seatRange" min="0" max="400" step="1" value="0" aria-labelledby="seatLbl">
+            </div>
+            <div class="ticks" aria-hidden="true"><span>1–10<em>List price</em></span><span>11–50<em>−10%</em></span><span>51–200<em>−18%</em></span><span>201–500<em>−25%</em></span></div>
+          </div>
+          <div class="num">
+            <input id="seatNum" inputmode="numeric" autocomplete="off" value="24" aria-label="Number of seats" aria-describedby="seatErr">
+            <span aria-hidden="true">seats</span>
+            <div class="num-err" id="seatErr" role="alert"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="sr" aria-live="polite" id="live"></p>
+
+    <div class="plans" id="plans"></div>
+
+    <article class="ent" id="ent">
+      <span class="flag" id="flag-enterprise"></span>
+      <div>
+        <h3>Enterprise</h3>
+        <p>For organisations rolling Quorum out across regions, with procurement and security reviews to pass.</p>
+      </div>
+      <ul>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>SCIM provisioning and directory groups</li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Data residency in US, EU, KSA or UAE</li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>99.95% uptime SLA</li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Invoicing in your currency, net 45</li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Unlimited audit log with export</li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>A named success manager</li>
+      </ul>
+      <div class="go">
+        <b>Custom</b>
+        <small id="entNote">Annual contract</small>
+        <a class="btn btn-line" href="#contact" id="entBtn">Talk to sales</a>
+      </div>
+    </article>
+
+    <div class="fine"><span id="vatNote">Prices exclude VAT and sales tax.</span><span>Volume rates apply to every seat once you reach a tier.</span></div>
+
+    <section class="block" aria-labelledby="cmpH">
+      <div class="sec-head">
+        <div>
+          <h2 id="cmpH">Compare every plan</h2>
+          <p>What each plan includes, feature by feature.</p>
+        </div>
+        <button class="linkbtn" type="button" id="toggleAll">Collapse all</button>
+      </div>
+      <table class="cmp" id="cmp" data-show="team">
+        <colgroup><col class="f"><col data-col="essentials"><col data-col="team"><col data-col="business"><col data-col="enterprise"></colgroup>
+        <thead>
+          <tr>
+            <th class="feat" scope="col"><span class="lbl">Features</span>
+              <div class="mob-pick"><label for="pick">Compare</label><div class="sel"><select id="pick"><option value="essentials">Essentials</option><option value="team" selected>Team</option><option value="business">Business</option><option value="enterprise">Enterprise</option></select><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></div></div>
+            </th>
+            <th scope="col" data-col="essentials"><span class="pn">Essentials</span><span class="pp" data-pp="essentials"></span><a class="btn btn-line" href="#">Choose</a></th>
+            <th scope="col" data-col="team"><span class="pn">Team</span><span class="pp" data-pp="team"></span><a class="btn btn-line" href="#">Choose</a></th>
+            <th scope="col" data-col="business"><span class="pn">Business</span><span class="pp" data-pp="business"></span><a class="btn btn-line" href="#">Choose</a></th>
+            <th scope="col" data-col="enterprise"><span class="pn">Enterprise</span><span class="pp">Custom</span><a class="btn btn-line" href="#contact">Talk to sales</a></th>
+          </tr>
+        </thead>
+      </table>
+    </section>
+
+    <section class="block faq-grid" aria-labelledby="faqH">
+      <div class="sec-head">
+        <h2 id="faqH">Questions about billing</h2>
+        <p>Something else? Write to <a href="#">billing@quorum.app</a> and a person replies within a day.</p>
+      </div>
+      <div id="faq"></div>
+    </section>
+
+    <div class="trust">
+      <div class="badges" aria-label="Certifications"><span>SOC 2 Type II</span><span>ISO 27001</span><span>GDPR</span></div>
+      <p>Audited every year by an independent firm. Reports and our data processing agreement are available on request.</p>
+      <a href="#">Security overview <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+
+  <section class="band" id="contact" aria-labelledby="bandH">
+    <div class="wrap">
+      <div>
+        <h2 id="bandH">Rolling Quorum out to more than 200 people?</h2>
+        <p>We'll size the contract, set up single sign-on and directory sync with your IT team, and run the first week of meetings alongside you.</p>
+        <div class="who"><i aria-hidden="true">IA</i><div>Ifeoma Adeyemi<small>Head of sales, EMEA · replies within one business day</small></div></div>
+      </div>
+      <form id="sales" novalidate>
+        <div>
+          <label for="workEmail">Work email</label>
+          <input type="email" id="workEmail" autocomplete="email" placeholder="name@company.com" aria-describedby="emailErr">
+        </div>
+        <div class="err" id="emailErr" role="alert"></div>
+        <div>
+          <label for="size">Team size</label>
+          <div class="sel">
+            <select id="size"><option>201–500 people</option><option>501–2,000 people</option><option>More than 2,000</option><option>Fewer than 200</option></select>
+            <svg class="i" aria-hidden="true"><use href="#i-chev"/></svg>
+          </div>
+        </div>
+        <button class="btn btn-solid" type="button" id="salesBtn">Talk to sales</button>
+        <div class="done" aria-live="polite">
+          <svg class="i" aria-hidden="true"><use href="#i-done"/></svg>
+          <h3>Thanks — we'll be in touch</h3>
+          <p id="doneMsg"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Quorum Labs Ltd.</span>
+    <nav aria-label="Legal"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Subprocessors</a><a href="#">Status</a></nav>
+  </div>
+</footer>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const ic = (id) => `<svg class="i" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+
+  // links go nowhere in the frame
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[href]");
+    if (!a) return;
+    e.preventDefault();
+    const h = a.getAttribute("href");
+    if (h.length > 1) { const t = document.querySelector(h); if (t) t.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth" }); }
+  });
+
+  const FX = { USD: 1, EUR: 0.92, GBP: 0.79, SAR: 3.75, AED: 3.67 };
+  const TIERS = [[10, 0], [50, .10], [200, .18], [500, .25]];
+  const PLANS = [
+    { id: "essentials", name: "Essentials", list: 9, cap: 50, desc: "For small teams that want every meeting written down.",
+      lead: "Includes", feats: ["Unlimited meeting notes", "Transcription in 12 languages", "30 AI summaries per member a month", "Decision log", "Calendar sync"] },
+    { id: "team", name: "Team", list: 16, desc: "For teams that run on decisions and need them to stick.",
+      lead: "Everything in Essentials, plus", feats: ["Unlimited AI summaries", "Action items sent to your task tracker", "Search decisions across workspaces", "Templates for recurring meetings", "Guests in up to 5 per meeting"] },
+    { id: "business", name: "Business", list: 28, desc: "For departments with approvals, audits and policy to follow.",
+      lead: "Everything in Team, plus", feats: ["Approval workflows on decisions", "SAML single sign-on", "Audit log kept for a year", "Retention policies by workspace", "Priority support, 4-hour reply"] },
+  ];
+
+  const S = { period: "year", cur: "USD", seats: 24 };
+
+  // seats ↔ slider: four equal stretches, one per tier
+  const BANDS = [[1, 10], [10, 50], [50, 200], [200, 500]];
+  const toSeats = (v) => { const b = Math.min(3, Math.floor(v / 100)); const [a, z] = BANDS[b]; return Math.round(a + (z - a) * ((v - b * 100) / 100)); };
+  const toSlider = (n) => { for (let b = 0; b < 4; b++) { const [a, z] = BANDS[b]; if (n <= z) return b * 100 + ((n - a) / (z - a)) * 100; } return 400; };
+  const tierOf = (n) => TIERS.findIndex(([max]) => n <= max);
+  const rateOf = (n) => TIERS[tierOf(n)][1];
+
+  const fmtCache = {};
+  const fmt = (cur, digits) => (fmtCache[cur + digits] ||= new Intl.NumberFormat("en-US", { style: "currency", currency: cur, minimumFractionDigits: digits, maximumFractionDigits: digits }));
+  const money = (v, cur, keepCents) => {
+    const r = Math.round(v * 100) / 100;
+    const d = keepCents && !Number.isInteger(r) ? 2 : (Number.isInteger(r) ? 0 : 2);
+    return fmt(cur, d).format(r);
+  };
+  const wholeMoney = (v, cur) => fmt(cur, 0).format(Math.round(v));
+  function parts(v, cur) {
+    const r = Math.round(v * 100) / 100;
+    const p = fmt(cur, Number.isInteger(r) ? 0 : 2).formatToParts(r);
+    const i = p.findIndex((x) => x.type === "currency");
+    const num = p.filter((x) => x.type !== "currency" && x.type !== "literal").map((x) => x.value).join("");
+    return { sym: p[i].value, after: i > 0, num };
+  }
+  const perSeat = (plan) => {
+    const m = plan.list * (1 - rateOf(S.seats)) * FX[S.cur];
+    return S.period === "year" ? (m * 10) / 12 : m;
+  };
+
+  // rolling digits
+  function roll(el, str) {
+    const chars = [...str];
+    const old = [...el.children];
+    const sameShape = old.length === chars.length && chars.every((c, i) => /\d/.test(c) === old[i].classList.contains("d"));
+    const animate = !reduce.matches && el.dataset.ready;
+    if (sameShape) {
+      chars.forEach((c, i) => {
+        if (/\d/.test(c)) old[i].firstChild.style.transform = `translateY(${-c * 10}%)`;
+        else old[i].textContent = c;
+      });
+    } else {
+      const prev = old.filter((o) => o.classList.contains("d")).map((o) => o.dataset.v);
+      let k = prev.length - chars.filter((c) => /\d/.test(c)).length;
+      const nodes = chars.map((c) => {
+        if (!/\d/.test(c)) { const s = document.createElement("span"); s.className = "c"; s.textContent = c; return s; }
+        const d = document.createElement("span"); d.className = "d";
+        const st = document.createElement("span"); st.className = "strip";
+        st.innerHTML = "<span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>";
+        const from = animate ? (prev[k] ?? "0") : c; k++;
+        st.style.transform = `translateY(${-from * 10}%)`;
+        d.appendChild(st); return d;
+      });
+      el.replaceChildren(...nodes);
+      if (animate) { void el.offsetWidth; chars.forEach((c, i) => { if (/\d/.test(c)) nodes[i].firstChild.style.transform = `translateY(${-c * 10}%)`; }); }
+    }
+    chars.forEach((c, i) => { if (/\d/.test(c)) el.children[i].dataset.v = c; });
+    el.dataset.ready = "1";
+  }
+
+  // build cards
+  const plansEl = $("#plans");
+  plansEl.innerHTML = PLANS.map((p) => `
+    <article class="plan" id="card-${p.id}" aria-labelledby="h-${p.id}">
+      <span class="flag" id="flag-${p.id}"></span>
+      <h3 id="h-${p.id}">${p.name}</h3>
+      <p class="desc">${p.desc}</p>
+      <div class="price" aria-hidden="true"><span class="cur"></span><span class="roll"></span><span class="cur cur-after"></span></div>
+      <span class="sr" data-sr></span>
+      <p class="per"></p>
+      <p class="total"></p>
+      <p class="cap-note">Essentials covers teams of up to ${p.cap || 0} seats. Team is the next step up.</p>
+      <a class="btn ${p.id === "team" ? "btn-solid" : "btn-line"}" href="#" data-cta>Start with ${p.name}</a>
+      <ul><li class="lead">${p.lead}</li>${p.feats.map((f) => `<li>${ic("check")}<span>${f}</span></li>`).join("")}</ul>
+    </article>`).join("");
+
+  function render() {
+    const tier = tierOf(S.seats);
+    if (!render.picked) { $("#pick").value = S.seats > 200 ? "enterprise" : "team"; cmp.dataset.show = $("#pick").value; }
+    const rec = S.seats > 200 ? "enterprise" : "team";
+    const yr = S.period === "year";
+    PLANS.forEach((p) => {
+      const card = $("#card-" + p.id);
+      const each = perSeat(p);
+      const pr = parts(each, S.cur);
+      $(".price .cur", card).textContent = pr.after ? "" : pr.sym;
+      $(".cur-after", card).textContent = pr.after ? pr.sym : "";
+      roll($(".roll", card), pr.num);
+      const capped = p.cap && S.seats > p.cap;
+      card.classList.toggle("capped", !!capped);
+      $("[data-sr]", card).textContent = `${money(each, S.cur)} per seat per month`;
+      $(".per", card).textContent = yr ? "per seat / month, billed yearly" : "per seat / month, billed monthly";
+      const tot = yr ? each * 12 * S.seats : each * S.seats;
+      const listTot = (yr ? p.list * FX[S.cur] * 12 : p.list * FX[S.cur]) * S.seats;
+      $(".total", card).innerHTML = (tot < listTot - 0.5 ? `<s>${wholeMoney(listTot, S.cur)}</s>` : "") + `${wholeMoney(tot, S.cur)} ${yr ? "a year" : "a month"} for ${S.seats.toLocaleString("en-US")} ${S.seats === 1 ? "seat" : "seats"}`;
+      const cta = $("[data-cta]", card);
+      if (capped) { cta.setAttribute("aria-disabled", "true"); cta.classList.add("is-off"); cta.textContent = `Up to ${p.cap} seats`; }
+      else { cta.removeAttribute("aria-disabled"); cta.classList.remove("is-off"); cta.textContent = `Start with ${p.name}`; }
+      $(`[data-pp="${p.id}"]`).textContent = capped ? `Up to ${p.cap} seats` : `${money(each, S.cur)} / seat / mo`;
+    });
+    // recommendation
+    ["essentials", "team", "business", "enterprise"].forEach((id) => {
+      const box = id === "enterprise" ? $("#ent") : $("#card-" + id);
+      const on = id === rec;
+      box.classList.toggle("rec", on);
+      $("#flag-" + id).textContent = on ? `Recommended for ${S.seats} seats` : "";
+      $$(`.cmp [data-col="${id}"]`).forEach((c) => c.classList.toggle("hl", on));
+    });
+    const teamBtn = $("#card-team [data-cta]");
+    teamBtn.classList.toggle("btn-solid", rec === "team"); teamBtn.classList.toggle("btn-line", rec !== "team");
+    $("#entBtn").className = "btn " + (rec === "enterprise" ? "btn-solid" : "btn-line");
+    $("#entNote").textContent = S.seats > 200 ? `Volume pricing for ${S.seats} seats` : "Annual contract, from 100 seats";
+
+    // controls
+    $("#tierNow").textContent = tier === 0 ? "List price" : `${Math.round(TIERS[tier][1] * 100)}% volume rate`;
+    $$(".ticks span").forEach((s, i) => s.classList.toggle("on", i === tier));
+    const v = toSlider(S.seats);
+    $("#seatRange").value = v;
+    $("#seatRange").setAttribute("aria-valuetext", `${S.seats} ${S.seats === 1 ? "seat" : "seats"}`);
+    $$(".rail b").forEach((b, i) => { b.style.width = Math.max(0, Math.min(100, v - i * 100)) + "%"; });
+    if (document.activeElement !== $("#seatNum")) $("#seatNum").value = S.seats;
+    $("#saveNote").textContent = yr ? "2 months free" : "Yearly saves 2 months";
+    $("#vatNote").textContent = S.cur === "SAR" || S.cur === "AED" ? `Prices in ${S.cur} exclude VAT, added at checkout.` : "Prices exclude VAT and sales tax.";
+    clearTimeout(render.t);
+    render.t = setTimeout(() => {
+      $("#live").textContent = `${S.seats} seats, billed ${yr ? "yearly" : "monthly"}. Team is ${money(perSeat(PLANS[1]), S.cur)} per seat a month. Recommended: ${rec === "team" ? "Team" : "Enterprise"}.`;
+    }, 500);
+  }
+
+  // billing radiogroup
+  const billBtns = $$("#bill button");
+  function setPeriod(v, focus) {
+    S.period = v;
+    billBtns.forEach((b) => { const on = b.dataset.v === v; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+    render();
+  }
+  billBtns.forEach((b) => b.addEventListener("click", () => setPeriod(b.dataset.v)));
+  $("#bill").addEventListener("keydown", (e) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+    e.preventDefault(); setPeriod(S.period === "year" ? "month" : "year", true);
+  });
+  $("#cur").addEventListener("change", (e) => { S.cur = e.target.value; render(); });
+
+  // seats
+  const range = $("#seatRange"), num = $("#seatNum"), err = $("#seatErr");
+  const setSeats = (n) => { S.seats = Math.max(1, Math.min(500, Math.round(n))); render(); };
+  range.addEventListener("input", () => { setSeats(toSeats(+range.value)); clearErr(); });
+  range.addEventListener("keydown", (e) => {
+    const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 }[e.key];
+    if (e.key === "Home") { e.preventDefault(); setSeats(1); return; }
+    if (e.key === "End") { e.preventDefault(); setSeats(500); return; }
+    if (step) { e.preventDefault(); setSeats(S.seats + step * (e.shiftKey ? 10 : 1)); }
+  });
+  function clearErr() { err.textContent = ""; num.removeAttribute("aria-invalid"); }
+  function commitNum() {
+    const raw = num.value.replace(/[\s,]/g, "");
+    if (raw === "") { err.textContent = "Enter a number of seats"; num.setAttribute("aria-invalid", "true"); return; }
+    if (!/^\d+$/.test(raw)) { err.textContent = "Whole numbers only"; num.setAttribute("aria-invalid", "true"); return; }
+    const n = +raw;
+    if (n < 1) { setSeats(1); err.textContent = "The minimum is 1 seat"; return; }
+    if (n > 500) { setSeats(500); num.value = 500; err.textContent = "Over 500? Talk to sales"; return; }
+    clearErr(); setSeats(n);
+  }
+  num.addEventListener("input", () => {
+    const raw = num.value.replace(/[\s,]/g, "");
+    if (/^\d+$/.test(raw) && +raw >= 1 && +raw <= 500) { clearErr(); setSeats(+raw); }
+  });
+  num.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); commitNum(); }
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); clearErr(); setSeats(S.seats + (e.key === "ArrowUp" ? 1 : -1) * (e.shiftKey ? 10 : 1)); num.value = S.seats; }
+  });
+  num.addEventListener("blur", () => { commitNum(); if (!num.getAttribute("aria-invalid")) num.value = S.seats; });
+
+  // disabled CTAs
+  document.addEventListener("click", (e) => { const a = e.target.closest('[aria-disabled="true"]'); if (a) e.stopImmediatePropagation(); }, true);
+
+  // comparison table
+  const Y = "y", N = "n";
+  const GROUPS = [
+    ["Capture", [
+      ["Meeting notes", "Notes for every calendar meeting, written live and editable afterwards.", ["Unlimited", "Unlimited", "Unlimited", "Unlimited"]],
+      ["Live transcription", "Speech to text while the meeting runs, with automatic language detection.", ["12 languages", "38 languages", "38 languages", "38 + custom vocabulary"]],
+      ["AI summaries", "A short summary, the decisions made and the open questions, sent when the meeting ends.", ["30 per member a month", "Unlimited", "Unlimited", "Unlimited"]],
+      ["Speaker identification", null, [Y, Y, Y, Y]],
+      ["Recording storage", null, ["90 days", "Unlimited", "Unlimited", "Unlimited, with legal hold"]],
+    ]],
+    ["Decisions", [
+      ["Decision log", "Every decision recorded with who made it, when, and the meeting it came from.", [Y, Y, Y, Y]],
+      ["Decision search", null, ["This workspace", "All workspaces", "All workspaces", "All workspaces"]],
+      ["Action items to task tracker", "Action items become tasks in the tracker your team already uses, and close when the task does.", [N, Y, Y, Y]],
+      ["Approval workflows", "Route a decision to named approvers before it becomes final.", [N, N, Y, Y]],
+      ["Decision digest by email", null, ["Weekly", "Daily or weekly", "Daily or weekly", "Daily or weekly"]],
+    ]],
+    ["Collaboration", [
+      ["Comments and mentions", null, [Y, Y, Y, Y]],
+      ["Guests", "People outside your company who can read and comment on shared notes. Guests are free.", [N, "5 per meeting", "Unlimited", "Unlimited"]],
+      ["Shared templates", null, ["3", "Unlimited", "Unlimited", "Unlimited"]],
+    ]],
+    ["Admin and security", [
+      ["SAML single sign-on", null, [N, N, Y, Y]],
+      ["SCIM provisioning", "Create, update and remove members automatically from your identity provider.", [N, N, N, Y]],
+      ["Audit log", null, [N, "30 days", "1 year", "Unlimited, with export"]],
+      ["Retention policies", "Delete or keep notes and recordings on a schedule you set per workspace.", [N, N, Y, Y]],
+      ["Data residency", "Where your notes, recordings and transcripts are stored at rest.", ["US", "US or EU", "US or EU", "US, EU, KSA or UAE"]],
+    ]],
+    ["Support", [
+      ["Support", null, ["Email", "Email, 1 business day", "Priority, 4 hours", "Named success manager"]],
+      ["Uptime SLA", null, [N, N, "99.9%", "99.95%"]],
+      ["Onboarding", null, ["Self-serve", "Self-serve", "Guided session", "Tailored rollout"]],
+    ]],
+  ];
+  const COLS = ["essentials", "team", "business", "enterprise"];
+  const cmp = $("#cmp");
+  let tipN = 0;
+  GROUPS.forEach(([g, rows], gi) => {
+    const tb = document.createElement("tbody");
+    tb.innerHTML = `<tr class="grp"><th colspan="5" scope="colgroup"><button type="button" aria-expanded="true" aria-controls="g${gi}">${ic("chev")}${g}<small>${rows.length} features</small></button></th></tr>`;
+    cmp.appendChild(tb);
+    const body = document.createElement("tbody"); body.id = "g" + gi;
+    body.innerHTML = rows.map(([name, tip, vals]) => `<tr><th scope="row"><span class="feat-name">${name}${tip ? `<button type="button" class="info" aria-label="About ${name}" aria-expanded="false" data-tip="${tip}" id="tip${tipN++}">${ic("info")}</button>` : ""}</span></th>${vals.map((v, i) => `<td data-col="${COLS[i]}">${v === Y ? `${ic("check")}<span class="sr">Included</span>` : v === N ? `<span class="no" aria-hidden="true">—</span><span class="sr">Not included</span>` : v}</td>`).join("")}</tr>`).join("");
+    cmp.appendChild(body);
+  });
+  function setGroup(btn, open) {
+    btn.setAttribute("aria-expanded", open);
+    const body = document.getElementById(btn.getAttribute("aria-controls"));
+    body.hidden = !open;
+    if (open && !reduce.matches) { $$("tr", body).forEach((tr) => { tr.classList.remove("fade-in"); void tr.offsetWidth; tr.classList.add("fade-in"); }); }
+    syncAll();
+  }
+  const grpBtns = $$(".grp button");
+  grpBtns.forEach((b) => b.addEventListener("click", () => setGroup(b, b.getAttribute("aria-expanded") !== "true")));
+  const allBtn = $("#toggleAll");
+  function syncAll() { allBtn.textContent = grpBtns.every((b) => b.getAttribute("aria-expanded") === "false") ? "Expand all" : "Collapse all"; }
+  allBtn.addEventListener("click", () => { const open = allBtn.textContent === "Expand all"; grpBtns.forEach((b) => setGroup(b, open)); });
+
+  // mobile column picker
+  $("#pick").addEventListener("change", (e) => { render.picked = true; cmp.dataset.show = e.target.value; });
+
+  // sticky header shadow
+  const headCells = $$(".cmp thead th");
+  const onScroll = () => { const t = cmp.getBoundingClientRect(); const stuck = t.top < 0 && t.bottom > 120; headCells.forEach((th) => th.classList.toggle("stuck", stuck)); };
+  addEventListener("scroll", onScroll, { passive: true });
+
+  // tooltips
+  const tip = $("#tip");
+  let tipFor = null;
+  function showTip(btn) {
+    tipFor = btn;
+    tip.textContent = btn.dataset.tip;
+    btn.setAttribute("aria-describedby", "tip"); btn.setAttribute("aria-expanded", "true");
+    const r = btn.getBoundingClientRect();
+    tip.style.left = "0px"; tip.classList.add("show");
+    const w = tip.offsetWidth;
+    const left = Math.max(12, Math.min(innerWidth - w - 12, r.left + r.width / 2 - 20));
+    tip.style.left = left + scrollX + "px";
+    tip.style.top = r.bottom + scrollY + 8 + "px";
+    tip.style.setProperty("--ax", (r.left + r.width / 2 - left - 5) + "px");
+  }
+  function hideTip() {
+    if (!tipFor) return;
+    tipFor.removeAttribute("aria-describedby"); tipFor.setAttribute("aria-expanded", "false");
+    tip.classList.remove("show"); tipFor = null;
+  }
+  cmp.addEventListener("mouseover", (e) => { const b = e.target.closest(".info"); if (b && b !== tipFor) showTip(b); });
+  cmp.addEventListener("mouseout", (e) => { const b = e.target.closest(".info"); if (b && !b.contains(e.relatedTarget) && document.activeElement !== b) hideTip(); });
+  cmp.addEventListener("focusin", (e) => { const b = e.target.closest(".info"); if (b) showTip(b); });
+  cmp.addEventListener("focusout", (e) => { if (e.target.closest(".info")) hideTip(); });
+  cmp.addEventListener("click", (e) => { const b = e.target.closest(".info"); if (b) { if (tipFor === b) hideTip(); else showTip(b); } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hideTip(); });
+  document.addEventListener("pointerdown", (e) => { if (tipFor && !e.target.closest(".info")) hideTip(); });
+  addEventListener("resize", hideTip);
+
+  // faq
+  const FAQ = [
+    ["Who counts as a seat?", "Anyone who can create or edit notes. People who only read notes, and guests from outside your company, are free and unlimited on every plan. You can switch someone between editor and viewer at any time."],
+    ["What happens when we add people mid-year?", "New seats are prorated to the end of your billing period and appear on your next invoice. If adding them moves you into a new volume tier, the lower rate applies to every seat from that day."],
+    ["Can we switch between monthly and yearly billing?", "Yes. Moving to yearly takes effect straight away and we credit what is left of your current month. Moving back to monthly starts when your yearly term ends."],
+    ["Which currencies and payment methods do you accept?", "We invoice in US dollars, euros, pounds sterling, Saudi riyals and UAE dirhams. Pay by card on any plan, or by bank transfer on yearly Business and Enterprise contracts. VAT is added where it applies."],
+    ["Where is our data stored, and can we export it?", "In the US by default, with the EU available from Team and KSA or UAE regions on Enterprise. You can export every note, transcript and decision as Markdown or JSON whenever you like, including after you cancel."],
+  ];
+  $("#faq").innerHTML = FAQ.map(([q, a], i) => `<div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="a${i}" id="q${i}">${q}<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="a${i}" role="region" aria-labelledby="q${i}"><div><p>${a}</p></div></div></div>`).join("");
+  $$(".qa button").forEach((b) => b.addEventListener("click", () => {
+    const qa = b.closest(".qa"); const open = !qa.classList.contains("open");
+    qa.classList.toggle("open", open); b.setAttribute("aria-expanded", open);
+  }));
+  // first answer starts open
+  $(".qa").classList.add("open"); $(".qa button").setAttribute("aria-expanded", "true");
+
+  // contact form
+  const form = $("#sales"), email = $("#workEmail"), eErr = $("#emailErr"), sBtn = $("#salesBtn");
+  const FREE = /@(gmail|yahoo|hotmail|outlook|icloud|proton|aol)\./i;
+  form.addEventListener("submit", (e) => e.preventDefault());
+  email.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); send(); } });
+  sBtn.addEventListener("click", send);
+  function send() {
+    if (sBtn.disabled) return;
+    const v = email.value.trim();
+    let msg = "";
+    if (!v) msg = "Enter your work email so we can reply.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = "That email address looks incomplete.";
+    else if (FREE.test(v)) msg = "Please use your company address, not a personal one.";
+    eErr.textContent = msg;
+    if (msg) email.setAttribute("aria-invalid", "true"); else email.removeAttribute("aria-invalid");
+    if (msg) { email.focus(); return; }
+    sBtn.disabled = true; sBtn.innerHTML = '<span class="spin" aria-hidden="true"></span>Sending';
+    setTimeout(() => {
+      $("#doneMsg").textContent = `Ifeoma will email ${v} within one business day with a proposal for ${$("#size").value.toLowerCase()}.`;
+      form.classList.add("sent");
+    }, 900);
+  }
+  email.addEventListener("input", () => { if (eErr.textContent) { eErr.textContent = ""; email.removeAttribute("aria-invalid"); } });
+
+  render();
+})();
+</script>
+</body>
+</html>

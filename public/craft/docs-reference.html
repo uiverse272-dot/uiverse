@@ -1,0 +1,1230 @@
+<!doctype html>
+<!-- Developer docs page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A dark reference page for an invented jobs SDK: a backoff visualizer whose sliders redraw the retry
+     timeline live, synced package-manager and language tabs, fuzzy search on / or ⌘K, and a scroll-spy TOC. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retries and backoff — Taskwire docs</title>
+<style>
+:root {
+  --bg: #0d0f0e; --panel: #131614; --raise: #1b1f1c; --line: #252a26; --line-2: #363c37;
+  --ink: #eef1ea; --body: #c6ccc2; --soft: #a2a99f; --dim: #858d83;
+  --cit: #d6f24f; --cit-soft: rgba(214, 242, 79, .17); --on-cit: #161c03; --warn: #f2b866;
+  --k: #f0a583; --s: #b7d98f; --n: #93c9e6; --t: #8fd6c8; --f: #ebe4c6; --p: #c9cfc5; --c: #8b9389;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --nav-w: 272px; --rail-w: 256px; --head: 56px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--body); font: 15px/1.6 var(--sans); overflow: hidden; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+a { color: inherit; }
+button, a, select { transition: color .15s, background-color .15s, border-color .15s, text-decoration-color .15s; }
+ul, ol { list-style: none; }
+svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+:focus-visible { outline: 2px solid var(--cit); outline-offset: 2px; border-radius: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border: 1px solid var(--line-2); border-radius: 4px; font: 500 11px/1 var(--sans); color: var(--soft); background: var(--bg); }
+code { font-family: var(--mono); font-size: .86em; }
+
+/* the shell: nothing scrolls but the middle */
+.shell { display: grid; grid-template: var(--head) minmax(0, 1fr) / var(--nav-w) minmax(0, 1fr) var(--rail-w); height: 100dvh; }
+.top { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; border-bottom: 1px solid var(--line); position: relative; z-index: 5; background: var(--bg); }
+.brand { display: flex; align-items: center; gap: 8px; padding: 0 16px 0 20px; min-width: 0; }
+.menu { display: none; width: 36px; height: 36px; border-radius: 6px; place-items: center; margin-right: 4px; color: var(--soft); }
+.logo { display: flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 650; font-size: 15px; letter-spacing: -.012em; text-decoration: none; }
+.logo svg { width: 20px; height: 20px; fill: none; stroke: var(--cit); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ver { position: relative; margin-left: 8px; display: flex; align-items: center; }
+.ver select { appearance: none; height: 28px; padding: 0 24px 0 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--soft); cursor: pointer; }
+.ver select:hover { border-color: var(--line-2); color: var(--ink); }
+.ver select option { background: var(--raise); color: var(--ink); }
+.ver svg { position: absolute; right: 6px; width: 12px; height: 12px; pointer-events: none; color: var(--soft); }
+.searchwrap { width: min(768px, 100%); margin: 0 auto; padding: 0 40px; }
+.searchbtn { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 380px; height: 34px; padding: 0 8px 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--dim); font-size: 13.5px; }
+.searchbtn:hover { border-color: var(--line-2); color: var(--soft); }
+.searchbtn span { flex: 1; text-align: left; }
+.searchbtn kbd + kbd { margin-left: -4px; }
+.tools { display: flex; justify-content: flex-end; gap: 8px; padding: 0 20px 0 12px; }
+.star { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; color: var(--body); font-variant-numeric: tabular-nums; }
+.star:hover { border-color: var(--line-2); color: var(--ink); }
+.star b { font-weight: 500; color: var(--soft); padding-left: 8px; border-left: 1px solid var(--line); }
+.star[aria-pressed="true"] svg { fill: var(--cit); stroke: var(--cit); }
+.bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--cit); transform: scaleX(0); transform-origin: left; display: none; }
+
+/* left nav */
+.nav { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding: 16px 12px 16px 12px; border-right: 1px solid var(--line); scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.g + .g { margin-top: 4px; }
+.g > button { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 32px; padding: 0 8px; border-radius: 6px; color: var(--ink); font-size: 13.5px; font-weight: 600; text-align: left; }
+.g > button:hover { background: var(--raise); }
+.g > button svg { color: var(--dim); width: 14px; height: 14px; transition: transform .2s ease-out; }
+.g > button[aria-expanded="true"] svg { transform: rotate(90deg); }
+.g > div { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .2s ease-out, visibility .2s; }
+.g > button[aria-expanded="true"] + div { grid-template-rows: 1fr; visibility: visible; }
+.g ul { overflow: hidden; min-height: 0; padding-left: 8px; }
+.g li:first-child { padding-top: 2px; }
+.g li:last-child { padding-bottom: 8px; }
+.g li button { display: block; width: 100%; padding: 4px 8px 4px 12px; border-left: 1px solid var(--line); color: var(--soft); font-size: 13.5px; line-height: 20px; text-align: left; }
+.g li button:hover { color: var(--ink); border-left-color: var(--dim); }
+.g li button[aria-current="page"] { color: var(--cit); border-left: 1px solid var(--cit); box-shadow: inset 1px 0 0 var(--cit); font-weight: 500; }
+.navfoot { margin-top: auto; padding: 24px 8px 4px; font-size: 13px; }
+.navfoot li + li { margin-top: 4px; }
+.navfoot button { display: flex; align-items: center; gap: 8px; color: var(--soft); padding: 2px 0; }
+.navfoot button:hover { color: var(--ink); }
+.scrim { position: fixed; inset: var(--head) 0 0 0; background: rgba(5, 6, 5, .6); opacity: 0; pointer-events: none; transition: opacity .2s ease-out; z-index: 3; display: none; }
+
+/* the middle */
+.main { position: relative; min-width: 0; min-height: 0; overflow: hidden auto; scroll-padding-top: 24px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; outline: none; }
+.page { width: min(768px, 100%); margin: 0 auto; padding: 28px 40px 48px; }
+.crumbs { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 28px; font-size: 13px; color: var(--dim); }
+.crumbs > span { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.crumbs svg { width: 12px; height: 12px; }
+.crumbs b { font-weight: 500; color: var(--soft); }
+h1 { margin-top: 8px; color: var(--ink); font-size: 38px; line-height: 44px; font-weight: 650; letter-spacing: -.026em; }
+.lede { margin-top: 12px; font-size: 17px; line-height: 27px; color: var(--body); }
+.meta { margin-top: 12px; font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums; }
+h2, h3 { position: relative; color: var(--ink); scroll-margin-top: 24px; outline: none; transition: color .5s ease-out; }
+h2 { margin-top: 48px; font-size: 22px; line-height: 30px; font-weight: 620; letter-spacing: -.016em; }
+h3 { margin-top: 32px; font-size: 16px; line-height: 24px; font-weight: 620; letter-spacing: -.006em; }
+h2.flash, h3.flash { color: var(--cit); transition: none; }
+.anchor { display: inline-flex; vertical-align: -2px; margin-left: 8px; color: var(--dim); opacity: 0; transition: opacity .15s, color .15s; border-radius: 4px; position: relative; }
+h2:hover .anchor, h3:hover .anchor, .anchor:focus-visible { opacity: 1; }
+.anchor:hover { color: var(--cit); }
+.anchor em { position: absolute; right: -6px; bottom: calc(100% + 6px); padding: 2px 8px; border-radius: 4px; background: var(--raise); border: 1px solid var(--line-2); color: var(--ink); font: 500 12px/18px var(--sans); white-space: nowrap; letter-spacing: 0; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.anchor.ok em { opacity: 1; }
+.page p { margin-top: 12px; }
+.page p code, li code, td code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); white-space: nowrap; }
+.page p a, .callout a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.page p a:hover, .callout a:hover { text-decoration-color: var(--cit); }
+sup { font-size: .72em; line-height: 0; }
+
+/* segmented language switch */
+.seg { display: inline-flex; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.seg button { height: 22px; padding: 0 8px; border-radius: 4px; font-size: 12px; color: var(--soft); white-space: nowrap; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-selected="true"] { background: var(--raise); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
+
+/* the visualizer */
+.viz { margin-top: 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.vhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.vhead strong { color: var(--ink); font-size: 13.5px; font-weight: 600; }
+.presets { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.presets button { height: 26px; padding: 0 8px; border-radius: 5px; font-size: 12.5px; color: var(--soft); }
+.presets button:hover { color: var(--ink); }
+.presets button[aria-pressed="true"] { background: var(--raise); color: var(--ink); }
+.sliders { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.sl { padding: 12px 16px 10px; min-width: 0; }
+.sl + .sl { border-left: 1px solid var(--line); }
+.sl div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.sl label { font-size: 12.5px; color: var(--soft); white-space: nowrap; }
+.sl output { color: var(--ink); font: 500 13px/20px var(--mono); white-space: nowrap; }
+input[type="range"] { --v: 50%; appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 24px; margin-top: 2px; background: none; cursor: pointer; }
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, var(--cit) var(--v), var(--line-2) var(--v)); }
+input[type="range"]::-moz-range-track { height: 2px; background: var(--line-2); }
+input[type="range"]::-moz-range-progress { height: 2px; background: var(--cit); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 18px; margin-top: -8px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--panel); transition: background .15s; }
+input[type="range"]::-moz-range-thumb { width: 8px; height: 18px; border: 0; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--panel); }
+input[type="range"]:hover::-webkit-slider-thumb, input[type="range"]:active::-webkit-slider-thumb { background: var(--cit); }
+input[type="range"]:focus-visible { outline: none; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { background: var(--cit); box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--cit); }
+input[type="range"]:focus-visible::-moz-range-thumb { background: var(--cit); box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--cit); }
+
+.chart { position: relative; padding: 8px 16px 12px; }
+.rowgrid { display: grid; grid-template-columns: 68px minmax(0, 1fr) 60px 68px; column-gap: 12px; align-items: center; }
+.chead { height: 24px; font-size: 11.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.chead .n { text-align: right; }
+.axis { position: relative; height: 16px; margin-inline: 6px; }
+.axis span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; line-height: 16px; }
+.axis span:first-child { transform: none; }
+.gridlay { position: absolute; left: 16px; right: 16px; top: 32px; bottom: 12px; pointer-events: none; }
+.gridlay > div { position: relative; height: 100%; margin-inline: 6px; grid-column: 2; }
+.gridlay i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); }
+.gridlay .head { background: var(--cit); width: 1px; left: 0; opacity: 0; }
+.rows { position: relative; height: 216px; overflow: clip; overflow-clip-margin: 8px; }
+.row { height: var(--rh, 36px); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--soft); border-radius: 4px; transition: color .15s; }
+.row[hidden] { display: none; }
+.row .l { white-space: nowrap; }
+.row .n { text-align: right; white-space: nowrap; color: var(--body); }
+.row .n small { display: block; font-size: 10.5px; line-height: 12px; color: var(--warn); }
+.row .at { color: var(--dim); }
+.tr { position: relative; height: 100%; margin-inline: 6px; }
+.tr i { position: absolute; left: 0; top: 50%; width: 100%; transform-origin: left center; transition: transform .22s ease-out, opacity .15s; }
+.band { height: 12px; margin-top: -6px; background: var(--cit-soft); }
+.wait { height: 2px; margin-top: -1px; background: var(--cit); }
+.dotw { height: 0; }
+.dotw::after { content: ""; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 2px var(--panel); transition: transform .15s ease-out, background .15s; }
+.row.last .dotw::after { background: var(--panel); box-shadow: 0 0 0 2px var(--panel), inset 0 0 0 2px var(--ink); }
+.row:hover { color: var(--ink); }
+.row:hover .dotw::after { background: var(--cit); transform: scale(1.2); }
+.row.last:hover .dotw::after { background: var(--panel); box-shadow: 0 0 0 2px var(--panel), inset 0 0 0 2px var(--cit); }
+.chart.playing .row:not(.fired) { color: var(--dim); }
+.chart.playing .row:not(.fired) i { opacity: .28; }
+.row.fired .dotw::after { animation: hit .3s ease-out; }
+@keyframes hit { from { transform: scale(1.7); background: var(--cit); } }
+.tip { position: absolute; z-index: 2; left: 0; top: 0; max-width: 260px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--raise); font-size: 12px; line-height: 16px; color: var(--ink); font-variant-numeric: tabular-nums; pointer-events: none; opacity: 0; transition: opacity .12s; white-space: nowrap; }
+.tip.on { opacity: 1; }
+.tip span { color: var(--soft); }
+.vfoot { display: grid; gap: 10px; padding: 12px 16px 12px; border-top: 1px solid var(--line); }
+.say { font-size: 13.5px; line-height: 20px; color: var(--soft); min-height: 40px; }
+.say b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.snip { display: flex; align-items: flex-start; gap: 12px; padding: 8px 8px 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.snip code { flex: 1; min-width: 0; font-size: 12.5px; line-height: 20px; color: var(--p); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ctl { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 5px; font-size: 12.5px; color: var(--soft); white-space: nowrap; }
+.ctl:hover:not([aria-disabled="true"]) { background: var(--raise); color: var(--ink); }
+.ctl[aria-disabled="true"] { color: var(--dim); opacity: .6; cursor: default; }
+.ctl svg { width: 14px; height: 14px; }
+.copy { min-width: 74px; justify-content: center; flex: none; }
+.copy.ok { color: var(--cit); }
+.vbtns { display: flex; align-items: center; gap: 4px; }
+.vsum { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.vsum .say { margin: 0; }
+.vsum .vbtns { flex: none; }
+
+/* code blocks */
+.code { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; }
+.chd { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 6px 6px 6px 12px; border-bottom: 1px solid var(--line); }
+.chd .file { font: 12.5px/20px var(--mono); color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.chd .r { display: flex; align-items: center; gap: 8px; flex: none; }
+.pmtabs { display: flex; gap: 2px; margin-left: -6px; min-width: 0; }
+.pmtabs button { height: 26px; padding: 0 8px; border-radius: 5px; font: 12.5px/1 var(--mono); color: var(--soft); }
+.pmtabs button:hover { color: var(--ink); }
+.pmtabs button[aria-selected="true"] { background: var(--raise); color: var(--cit); }
+pre { overflow-x: auto; padding: 12px 0; font: 13px/21px var(--mono); color: var(--p); scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+pre:focus-visible { outline-offset: -2px; }
+pre code { display: inline-block; min-width: 100%; font-size: inherit; counter-reset: ln; }
+pre.fade code { animation: fade .16s ease-out; }
+@keyframes fade { from { opacity: 0; } }
+.ln { display: block; padding: 0 16px 0 12px; white-space: pre; counter-increment: ln; }
+.numbered .ln::before { content: counter(ln); display: inline-block; width: 20px; margin-right: 16px; text-align: right; color: #5f665e; user-select: none; }
+.ln.hi { background: rgba(214, 242, 79, .07); box-shadow: inset 2px 0 0 var(--cit); }
+.ln.hi::before { color: var(--soft); }
+.c { color: var(--c); } .k { color: var(--k); } .s { color: var(--s); } .n2 { color: var(--n); } .t { color: var(--t); } .f { color: var(--f); } .p { color: var(--p); } .dollar { color: var(--dim); user-select: none; }
+
+/* callouts */
+.callout { display: flex; gap: 12px; margin-top: 16px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; line-height: 22px; }
+.callout svg { margin-top: 3px; color: var(--soft); }
+.callout b { color: var(--ink); font-weight: 600; }
+.callout code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
+.callout.warn { border-color: rgba(242, 184, 102, .34); background: rgba(242, 184, 102, .045); }
+.callout.warn svg, .callout.warn b { color: var(--warn); }
+
+/* table */
+.tablewrap { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 20px; }
+th { padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 500; color: var(--dim); background: var(--panel); border-bottom: 1px solid var(--line); }
+td { padding: 10px 12px; vertical-align: top; border-top: 1px solid var(--line); }
+tr:first-child td { border-top: 0; }
+td:first-child { white-space: nowrap; }
+td:first-child code { padding: 0; border: 0; background: none; color: var(--ink); font-size: 13px; }
+td.ty, td.de { font-family: var(--mono); font-size: 12.5px; color: var(--soft); white-space: nowrap; }
+td.ty { color: var(--t); }
+td.de { color: var(--s); }
+td.de.none { color: var(--dim); }
+.metrics { margin-top: 16px; display: grid; gap: 8px; font-size: 14px; }
+.metrics li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.metrics li:last-child { border-bottom: 0; padding-bottom: 0; }
+.metrics code { color: var(--ink); padding: 0; border: 0; background: none; font-size: 13px; }
+
+/* footer of the page */
+.vote { display: grid; gap: 12px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.vrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vrow > span { color: var(--ink); font-weight: 500; font-size: 14px; }
+.vbtn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 13.5px; color: var(--body); }
+.vbtn:hover { border-color: var(--line-2); color: var(--ink); }
+.vbtn[aria-pressed="true"] { border-color: var(--cit); color: var(--cit); }
+.fb { display: grid; gap: 8px; max-width: 520px; animation: rise .2s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+.fb[hidden] { display: none; }
+.fb label { font-size: 13px; color: var(--soft); }
+.fb textarea { width: 100%; min-height: 72px; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel); resize: vertical; font-size: 14px; line-height: 20px; outline: none; transition: border-color .15s; }
+.fb textarea:focus { border-color: var(--cit); }
+.fb textarea[aria-invalid="true"] { border-color: var(--warn); }
+.fb div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fb small { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.fb small.bad { color: var(--warn); }
+.send { height: 30px; padding: 0 12px; border-radius: 6px; background: var(--cit); color: var(--on-cit); font-size: 13px; font-weight: 600; transition: filter .15s; }
+.send:hover { filter: brightness(1.08); }
+.thanks { font-size: 14px; color: var(--body); animation: rise .2s ease-out; }
+.thanks button { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+.pager button { display: grid; gap: 2px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; text-align: left; min-width: 0; }
+.pager button:hover { border-color: var(--line-2); }
+.pager button:hover b { color: var(--cit); }
+.pager span { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--dim); }
+.pager span svg { width: 12px; height: 12px; }
+.pager b { color: var(--ink); font-size: 14.5px; font-weight: 550; transition: color .15s; }
+.pager .nx { text-align: right; justify-items: end; grid-column: 2; }
+.colophon { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 32px; font-size: 12.5px; color: var(--dim); }
+
+/* right rail */
+.rail { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding: 28px 20px 16px 16px; border-left: 1px solid var(--line); font-size: 13px; line-height: 20px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.rail h4 { color: var(--ink); font-size: 12.5px; font-weight: 600; margin-bottom: 8px; }
+.toc { position: relative; padding-left: 12px; }
+.toc::before, .toc i { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.toc i { background: var(--cit); transform: scaleY(0); transform-origin: top; }
+.toc a { display: block; padding: 4px 0; color: var(--soft); text-decoration: none; }
+.toc a:hover { color: var(--ink); }
+.toc li.sub a { padding-left: 12px; }
+.toc a[aria-current="true"] { color: var(--ink); font-weight: 500; }
+.readout { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; color: var(--dim); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.readout button { color: var(--soft); display: inline-flex; align-items: center; gap: 4px; }
+.readout button:hover { color: var(--ink); }
+.readout svg { width: 12px; height: 12px; }
+.more { display: none; }
+.more section { margin-top: 32px; }
+.more li { padding: 8px 0; border-top: 1px solid var(--line); color: var(--soft); }
+.more li:first-child { border-top: 0; padding-top: 0; }
+.more li b { display: block; color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.more li code { color: var(--body); }
+.more button { color: var(--soft); text-align: left; }
+.more button:hover { color: var(--ink); }
+.more table { font-size: 13px; }
+.more td { padding: 4px 0; border: 0; color: var(--soft); }
+.more td:last-child { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.railfoot { display: none; margin-top: auto; padding-top: 24px; }
+.railfoot button { display: flex; align-items: center; gap: 8px; color: var(--soft); padding: 2px 0; }
+.railfoot button:hover { color: var(--ink); }
+@media (min-height: 1100px) { .more, .railfoot { display: block; } }
+
+/* on-this-page bar for narrow screens */
+.otp { display: none; position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line); }
+.otp > button { display: flex; align-items: center; gap: 8px; width: 100%; height: 40px; padding: 0 24px; font-size: 13px; color: var(--soft); text-align: left; }
+.otp > button b { color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.otp > button svg { transition: transform .2s ease-out; }
+.otp > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.otp ol { display: grid; padding: 4px 24px 12px; font-size: 14px; border-top: 1px solid var(--line); }
+.otp ol[hidden] { display: none; }
+.otp a { display: block; padding: 6px 0; color: var(--soft); text-decoration: none; }
+.otp a[aria-current="true"] { color: var(--ink); font-weight: 500; }
+.otp li.sub a { padding-left: 12px; }
+
+/* version notice and other pages */
+.notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding: 8px 8px 8px 12px; border: 1px solid rgba(242, 184, 102, .34); border-radius: 6px; background: rgba(242, 184, 102, .045); font-size: 13.5px; animation: rise .2s ease-out; }
+.notice[hidden] { display: none; }
+.notice button { flex: none; height: 26px; padding: 0 8px; border-radius: 5px; color: var(--ink); background: var(--raise); font-size: 12.5px; }
+.stub .lede { max-width: 620px; }
+.stub .callout { margin-top: 24px; }
+.back { margin-top: 16px; }
+
+/* search */
+dialog { position: fixed; left: 50%; top: min(12vh, 96px); transform: translateX(-50%); width: min(640px, calc(100vw - 32px)); max-height: min(560px, calc(100dvh - 48px)); border: 1px solid var(--line-2); border-radius: 12px; background: var(--panel); color: var(--body); box-shadow: 0 16px 48px rgba(0, 0, 0, .5); overflow: hidden; padding: 0; }
+dialog[open] { display: flex; animation: pop .16s ease-out; }
+dialog::backdrop { background: rgba(5, 6, 5, .62); animation: fade .16s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(.985); } }
+.sbox { display: flex; flex-direction: column; width: 100%; min-height: 0; }
+.sfield { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 14px; border-bottom: 1px solid var(--line); color: var(--soft); flex: none; }
+.sfield input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font-size: 16px; color: var(--ink); }
+.sfield input::placeholder { color: var(--dim); }
+.slist { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 8px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.sgroup { padding: 8px 8px 4px; font-size: 12px; color: var(--dim); font-weight: 500; }
+.opt { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; padding: 6px 8px; border-radius: 6px; color: var(--body); text-align: left; font-size: 14px; }
+.opt svg { color: var(--dim); }
+.opt span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.opt small { font-size: 12.5px; color: var(--dim); white-space: nowrap; }
+.opt mark { background: none; color: var(--cit); font-weight: 600; }
+.opt[aria-selected="true"] { background: var(--raise); color: var(--ink); }
+.opt[aria-selected="true"] svg { color: var(--ink); }
+.sempty { padding: 32px 16px; text-align: center; font-size: 14px; color: var(--soft); overflow-wrap: anywhere; }
+.sempty b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+.sempty button { margin-top: 12px; height: 30px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 6px; font-size: 13px; color: var(--ink); }
+.sfoot { display: flex; gap: 16px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); flex: none; }
+.sfoot span { display: flex; align-items: center; gap: 4px; }
+
+/* tablet and phone: the rails fold away */
+@media (max-width: 1180px) {
+  .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--head) minmax(0, 1fr); }
+  .top { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .brand { padding: 0 0 0 12px; }
+  .menu { display: grid; }
+  .searchwrap { padding: 0 16px; margin: 0; }
+  .tools { padding: 0 16px 0 0; }
+  .rail { display: none; }
+  .nav { position: fixed; top: var(--head); left: 0; bottom: 0; width: min(304px, 86vw); background: var(--bg); z-index: 4; transform: translateX(-100%); visibility: hidden; transition: transform .22s ease-out, visibility .22s; }
+  .scrim { display: block; }
+  body.drawer .nav { transform: none; visibility: visible; }
+  body.drawer .scrim { opacity: 1; pointer-events: auto; }
+  .otp { display: block; }
+  .bar { display: block; }
+  .page { padding: 24px 24px 40px; }
+}
+@media (max-width: 640px) {
+  .page { padding: 20px 16px 32px; }
+  .otp > button { padding: 0 16px; }
+  .otp ol { padding: 4px 16px 12px; }
+  h1 { font-size: 30px; line-height: 36px; }
+  .lede { font-size: 16px; line-height: 25px; }
+  h2 { font-size: 20px; line-height: 28px; margin-top: 40px; }
+  .brand { padding-left: 4px; gap: 4px; }
+  .menu { margin-right: 0; }
+  .ver { margin-left: 6px; }
+  .searchwrap { padding: 0 4px; margin-left: auto; width: auto; }
+  .searchbtn { width: 36px; height: 36px; padding: 0; justify-content: center; border: 0; background: none; color: var(--soft); }
+  .searchbtn span, .searchbtn kbd { display: none; }
+  .tools { display: none; }
+  .crumbs { flex-wrap: wrap; }
+  .vhead strong { width: 100%; }
+  .presets { margin-left: -8px; }
+  .sliders { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sl { padding: 12px 12px 8px; }
+  .sl:nth-child(odd) { border-left: 0; }
+  .sl:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .chart { padding: 8px 12px 12px; }
+  .gridlay { left: 12px; right: 12px; }
+  .rowgrid { grid-template-columns: 16px minmax(0, 1fr) 54px; column-gap: 8px; }
+  .chead > span:nth-child(1) { visibility: hidden; }
+  .at, .chead .atl { display: none; }
+  .row .w { display: none; }
+  .norow { left: 28px; }
+  .vfoot { padding: 12px; }
+  .vsum { flex-direction: column; gap: 8px; }
+  .vsum .vbtns { margin-left: -8px; }
+  .say { min-height: 60px; }
+  .snip { flex-direction: column; gap: 4px; }
+  .snip .copy { align-self: flex-end; }
+  /* the table reads as a list */
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  table, tbody, tr, td { display: block; }
+  tr { padding: 12px; border-top: 1px solid var(--line); }
+  tr:first-child { border-top: 0; }
+  td, tr:first-child td { padding: 0; border: 0; }
+  td.ty, td.de { display: inline; white-space: normal; overflow-wrap: anywhere; margin-right: 8px; }
+  td:first-child { margin-bottom: 2px; }
+  td:last-child { margin-top: 6px; }
+  .pager { grid-template-columns: minmax(0, 1fr); }
+  .pager .nx { grid-column: 1; }
+  .numbered .ln::before { width: 16px; margin-right: 12px; }
+  .sfoot span:last-child { display: none; }
+  dialog { top: 16px; }
+  .anchor { opacity: .7; }
+}
+@media (hover: none) { .anchor { opacity: .7; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  #replay { display: none; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.7l5.9-.8z"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 4 2.8 20h18.4zM12 10v4.5M12 17.5h.01"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 4 8 20M16 4l-2 16"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7zM14 3v5h5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><path d="M4 8h3l9 8h4M4 16h3l2.5-2.2M13 10.2 16 8h4M18 5.5 20.5 8 18 10.5M18 13.5l2.5 2.5-2.5 2.5"/></symbol>
+  <symbol id="i-yes" viewBox="0 0 24 24"><path d="M8 11v9H4v-9zM8 11l4-8a2.5 2.5 0 0 1 2.5 2.5V9H20l-1.8 11H8"/></symbol>
+  <symbol id="i-no" viewBox="0 0 24 24"><path d="M8 13V4H4v9zM8 13l4 8a2.5 2.5 0 0 0 2.5-2.5V15H20L18.2 4H8"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+</defs></svg>
+
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <button class="menu" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="nav"><svg class="i"><use href="#i-menu"/></svg></button>
+      <a class="logo" href="#" id="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17M12 5.5v9a4.5 4.5 0 0 0 4.5 4.5h4"/></svg>Taskwire</a>
+      <div class="ver"><label class="sr" for="ver">Docs version</label>
+        <select id="ver"><option value="4.2">v4.2</option><option value="4.1">v4.1</option><option value="3.9">v3.9</option></select>
+        <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></div>
+    </div>
+    <div class="searchwrap"><button class="searchbtn" id="open-search" aria-haspopup="dialog" aria-label="Search the docs"><svg class="i"><use href="#i-search"/></svg><span>Search the docs</span><kbd>/</kbd><kbd id="mod">⌘K</kbd></button></div>
+    <div class="tools"><button class="star" id="star" aria-pressed="false" aria-label="Star Taskwire, 8,612 stars"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg>Star<b id="stars">8.6k</b></button></div>
+    <i class="bar" id="bar"></i>
+  </header>
+
+  <aside class="nav" id="nav" aria-label="Documentation"></aside>
+  <div class="scrim" id="scrim"></div>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="otp" id="otp">
+      <button id="otp-btn" aria-expanded="false" aria-controls="otp-list"><svg class="i" aria-hidden="true"><use href="#i-list"/></svg><b id="otp-now">How the delay grows</b><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+      <ol id="otp-list" hidden></ol>
+    </div>
+    <div class="page">
+      <div class="notice" id="notice" role="status" hidden><span id="notice-t"></span><button id="notice-go">Go to latest</button></div>
+
+      <article id="doc">
+        <div class="crumbs">
+          <span><span>Reliability</span><svg class="i" aria-hidden="true"><use href="#i-right"/></svg><b>Retries and backoff</b></span>
+          <div class="seg" role="tablist" aria-label="Code language" data-langs><button role="tab" data-lang="ts">TypeScript</button><button role="tab" data-lang="py">Python</button></div>
+        </div>
+        <h1 id="top" tabindex="-1">Retries and backoff</h1>
+        <p class="lede">A job that throws isn't a failed job until it runs out of attempts. Until then, Taskwire puts it back on the queue with a longer wait each time, so a struggling dependency gets room to recover instead of a stampede.</p>
+
+        <h2 id="delay" tabindex="-1">How the delay grows</h2>
+        <p>Each retry waits <code>base × factor<sup>n−1</sup></code>, held at <code data-py="max_delay">maxDelay</code>, then spread by jitter so a thousand failed jobs don't all wake in the same second.</p>
+
+        <section class="viz" id="viz" aria-label="Backoff visualizer">
+          <div class="vhead">
+            <strong>Backoff visualizer</strong>
+            <div class="presets" id="presets" role="group" aria-label="Example policies"></div>
+          </div>
+          <div class="sliders">
+            <div class="sl"><div><label for="s-base">Base delay</label><output id="o-base" for="s-base"></output></div><input id="s-base" type="range" min="0" max="9" step="1"></div>
+            <div class="sl"><div><label for="s-factor">Multiplier</label><output id="o-factor" for="s-factor"></output></div><input id="s-factor" type="range" min="1" max="4" step="0.25"></div>
+            <div class="sl"><div><label for="s-attempts">Max attempts</label><output id="o-attempts" for="s-attempts"></output></div><input id="s-attempts" type="range" min="1" max="12" step="1"></div>
+            <div class="sl"><div><label for="s-jitter">Jitter</label><output id="o-jitter" for="s-jitter"></output></div><input id="s-jitter" type="range" min="0" max="100" step="5"></div>
+          </div>
+          <div class="chart" id="chart">
+            <div class="rowgrid chead" aria-hidden="true"><span>Attempt</span><div class="axis" id="axis"></div><span class="n">Wait</span><span class="n atl">Fires at</span></div>
+            <div class="gridlay rowgrid" aria-hidden="true"><div id="gridlines"></div></div>
+            <ol class="rows" id="rows"></ol>
+            <div class="tip" id="tip" aria-hidden="true"></div>
+          </div>
+          <div class="vfoot">
+            <div class="vsum">
+              <p class="say" id="say"></p>
+              <div class="vbtns">
+                <button class="ctl" id="reroll"><svg class="i" aria-hidden="true"><use href="#i-dice"/></svg>Re-roll</button>
+                <button class="ctl" id="replay"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg>Replay</button>
+              </div>
+            </div>
+            <div class="snip"><code id="snip"></code><button class="ctl copy" data-copy="snip"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button></div>
+          </div>
+          <p class="sr" id="say-live" aria-live="polite"></p>
+        </section>
+
+        <h2 id="configure" tabindex="-1">Configure a job</h2>
+        <p>Retries are built into the core package from 4.0, so there's nothing extra to add unless you're upgrading.</p>
+        <div class="code" data-block="install"></div>
+        <p>Set the policy on the job definition. The highlighted lines are the ones the visualizer writes for you.</p>
+        <div class="code" data-block="config"></div>
+        <div class="callout"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><div><b>Attempts include the first run.</b> <code>attempts: 6</code> means one run and five retries. Set it to <code>1</code> to turn retries off for a job.</div></div>
+
+        <h3 id="queue-defaults" tabindex="-1">Defaults for a whole queue</h3>
+        <p>A policy on the queue applies to every job in it. Anything set on a job wins, field by field, so a job can change <code>attempts</code> and keep the queue's <code>backoff</code>.</p>
+        <div class="code" data-block="queue"></div>
+
+        <h2 id="parameters" tabindex="-1">Parameters</h2>
+        <p>All of these go under <code>retry</code> on a job or a queue. Durations are strings such as <code>"500ms"</code>, <code>"2s"</code> or <code>"5m"</code>.</p>
+        <div class="tablewrap"><table>
+          <thead><tr><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">What it does</th></tr></thead>
+          <tbody id="params"></tbody>
+        </table></div>
+
+        <h2 id="retry-on" tabindex="-1">Retry only what can recover</h2>
+        <p>Every thrown error is retried by default, which wastes attempts on failures that will never succeed, like a validation error or a 404. Pass <code data-py="retry_on">retryOn</code> to decide per failure: return <code data-py="True">true</code> to follow the policy, <code data-py="False">false</code> to give up now, or <code data-py="After(seconds)">{ after }</code> to wait for a specific time.</p>
+        <div class="code" data-block="retryon"></div>
+        <div class="callout warn" role="note"><svg class="i" aria-hidden="true"><use href="#i-warn"/></svg><div><b>Handlers can run more than once.</b> If a worker dies after a charge goes through but before the job is marked done, the next attempt charges again. Guard side effects with an <a href="#" data-go="idempotency">idempotency key</a>.</div></div>
+
+        <h2 id="dead-letter" tabindex="-1">When attempts run out</h2>
+        <p>A job that uses its last attempt moves to the queue's dead-letter list, along with its payload, its final error and its attempt history. It stays there for 14 days. <code data-py="on_give_up">onGiveUp</code> runs once, right after the move, which makes it a good place to tell someone.</p>
+        <div class="code" data-block="giveup"></div>
+
+        <h3 id="replay-cli" tabindex="-1">Replay from the command line</h3>
+        <p>Fixed the bug? Send the dead jobs back through with a fresh set of attempts. Add <code>--dry-run</code> to see what would go first.</p>
+        <div class="code" data-block="cli"></div>
+
+        <h2 id="watch" tabindex="-1">Watch retries in production</h2>
+        <p>A rising retry rate is usually the first sign of a dependency in trouble, well before anything reaches the dead-letter list. The metrics exporter adds three counters, each labelled by queue and job name.</p>
+        <div class="code" data-block="metrics"></div>
+        <ul class="metrics">
+          <li><code>taskwire_job_attempts_total</code>Every run, including the first.</li>
+          <li><code>taskwire_job_retries_total</code>Runs that followed a failure. Alert on this one first.</li>
+          <li><code>taskwire_job_dead_total</code>Jobs that used their last attempt.</li>
+        </ul>
+      </article>
+
+      <article id="stub" class="stub" hidden></article>
+
+      <footer>
+        <div class="vote" id="vote">
+          <div class="vrow" id="vote-row"><span id="vote-q">Was this helpful?</span>
+            <button class="vbtn" data-vote="yes" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-yes"/></svg>Yes</button>
+            <button class="vbtn" data-vote="no" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-no"/></svg>No</button>
+          </div>
+          <form class="fb" id="fb" hidden novalidate>
+            <label for="fb-text" id="fb-label">What was missing?</label>
+            <textarea id="fb-text" maxlength="200" aria-describedby="fb-count"></textarea>
+            <div><small id="fb-count" aria-live="polite">200 characters left</small><button class="send" type="button">Send feedback</button></div>
+          </form>
+        </div>
+        <nav class="pager" id="pager" aria-label="Previous and next page"></nav>
+        <p class="colophon"><span>Updated 14 October 2026</span><span>Taskwire is MIT licensed. Docs under CC BY 4.0.</span></p>
+      </footer>
+    </div>
+  </main>
+
+  <aside class="rail" id="rail" aria-label="On this page">
+    <div id="toc-wrap">
+      <h4>On this page</h4>
+      <div class="toc"><i id="toc-fill"></i><ol id="toc"></ol></div>
+      <div class="readout"><span id="pct">0% read</span><button id="to-top"><svg class="i" aria-hidden="true"><use href="#i-up"/></svg>Top</button></div>
+    </div>
+    <div class="more">
+      <section><h4>Changed recently</h4><ul>
+        <li><b>4.2.0</b><span data-py-html="&lt;code&gt;retry_on&lt;/code&gt; can return &lt;code&gt;After(seconds)&lt;/code&gt; to honour a server's wait."><code>retryOn</code> can return <code>{ after }</code> to honour a server's wait.</span></li>
+        <li><b>4.1.3</b>Jitter now applies after the cap, so held waits still spread.</li>
+        <li><b>4.0.0</b><code>retry.delay</code> became <code>backoff.base</code>.</li>
+      </ul></section>
+      <section><h4>Read next</h4><ul>
+        <li><button data-go="dead-letter-queues">Dead-letter queues</button></li>
+        <li><button data-go="idempotency">Idempotency keys</button></li>
+        <li><button data-go="rate-limited">Backing off a rate-limited API</button></li>
+        <li><button data-go="webhooks">Delivering webhooks</button></li>
+      </ul></section>
+      <section><h4>Runs on</h4><table><tbody><tr><td>Node</td><td>20 and up</td></tr><tr><td>Bun</td><td>1.1 and up</td></tr><tr><td>Python</td><td>3.10 and up</td></tr></tbody></table></section>
+    </div>
+    <div class="railfoot">
+      <button id="edit"><svg class="i" aria-hidden="true"><use href="#i-edit"/></svg><span>Edit this page</span></button>
+      <button id="report"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg><span>Report a problem</span></button>
+    </div>
+  </aside>
+</div>
+
+<dialog id="search" aria-label="Search the docs">
+  <div class="sbox">
+    <div class="sfield"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="q" autocomplete="off" spellcheck="false" placeholder="Search headings and pages" role="combobox" aria-expanded="true" aria-controls="slist" aria-autocomplete="list" aria-label="Search headings and pages">
+      <kbd>esc</kbd></div>
+    <div class="slist" id="slist" role="listbox" aria-label="Results"></div>
+    <div class="sfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>/</kbd> or <kbd id="mod2">⌘K</kbd> anywhere</span></div>
+  </div>
+</dialog>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const icon = (n) => `<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const main = $("#main");
+
+/* ---------- the docs tree ---------- */
+const NAV = [
+  ["Getting started", 1, [
+    ["intro", "Introduction", "What Taskwire does, and when a plain queue is enough."],
+    ["quickstart", "Quickstart", "Install the package, define a job and run a worker in five minutes."],
+    ["first-job", "Your first job", "A worked example that sends a receipt and survives a restart."],
+    ["layout", "Project layout", "Where jobs, queues and workers live in a real codebase."]]],
+  ["Core concepts", 0, [
+    ["jobs", "Jobs and handlers", "What a job is, how payloads are stored and what a handler receives."],
+    ["queues", "Queues", "Naming, ordering and when one queue should become two."],
+    ["workers", "Workers", "How workers claim jobs, and what happens when one disappears."],
+    ["priorities", "Priorities", "Letting urgent work overtake a backlog without starving the rest."],
+    ["schemas", "Payload schemas", "Validating payloads on the way in, and changing them safely later."]]],
+  ["Reliability", 1, [
+    ["retries", "Retries and backoff", ""],
+    ["dead-letter-queues", "Dead-letter queues", "Where jobs go after their last attempt, and how to get them back."],
+    ["idempotency", "Idempotency keys", "Making a handler safe to run twice, with keys that expire on their own."],
+    ["timeouts", "Timeouts and heartbeats", "Telling a slow job from a dead one."],
+    ["concurrency", "Concurrency limits", "Capping parallel runs per queue, per job or per customer."],
+    ["shutdown", "Graceful shutdown", "Finishing what's in hand before a deploy takes the worker away."]]],
+  ["Scheduling", 1, [
+    ["cron", "Cron schedules", "Recurring jobs that run once across the fleet, not once per worker."],
+    ["delayed", "Delayed jobs", "Run this in two hours, or at a set time in the customer's zone."],
+    ["rate-limits", "Rate limiting", "Keeping a queue under a provider's limit with a token bucket."],
+    ["timezones", "Time zones", "How schedules behave across daylight-saving changes."]]],
+  ["Workflows", 0, [
+    ["chains", "Chains", "Passing one job's result to the next."],
+    ["fanout", "Fan-out and fan-in", "Splitting work across many jobs and collecting the results."],
+    ["sagas", "Sagas", "Undoing finished steps when a later one fails for good."],
+    ["approval", "Waiting for a person", "Pausing a workflow until someone approves it."]]],
+  ["Guides", 0, [
+    ["rate-limited", "Backing off a rate-limited API", "A full policy for a provider that answers 429 with a wait."],
+    ["webhooks", "Delivering webhooks", "A delivery schedule that spans three days without losing an event."],
+    ["budgets", "Retry budgets", "Stopping a whole fleet from retrying itself into an outage."],
+    ["testing", "Testing failures", "Forcing a handler to fail on its third attempt, in a unit test."]]],
+  ["Deploying", 0, [
+    ["broker", "Choosing a broker", "What each supported backend gives up and what it gets you."],
+    ["containers", "Running in containers", "Health checks, signals and sizing for long-lived workers."],
+    ["serverless", "Serverless workers", "Running handlers in functions that only live for a minute."],
+    ["scaling", "Scaling workers", "Scaling on queue age rather than on CPU."]]],
+  ["Observability", 0, [
+    ["metrics", "Metrics", "Counters and histograms the exporter adds, and which to alert on."],
+    ["tracing", "Tracing", "Following one request through every job it starts."],
+    ["logs", "Structured logs", "What the context logger adds to every line."],
+    ["alerts", "Alerting", "Three alerts worth having on the first day."]]],
+  ["API reference", 0, [
+    ["api-job", "defineJob", "Every option a job definition accepts."],
+    ["api-queue", "defineQueue", "Every option a queue accepts."],
+    ["api-worker", "Worker", "Starting, pausing and stopping a worker from code."],
+    ["api-client", "Client", "Enqueueing, cancelling and inspecting jobs."],
+    ["api-errors", "Error types", "RateLimitError, PermanentError and the rest."],
+    ["api-cli", "Command line", "Every command the taskwire binary understands."]]],
+];
+const FLAT = NAV.flatMap(([g, , items]) => items.map(([id, name, desc]) => ({ id, name, desc, group: g })));
+const pageById = (id) => FLAT.find((p) => p.id === id);
+let userToggled = false, here = "retries";
+
+function drawNav() {
+  $("#nav").innerHTML = NAV.map(([g, open, items], gi) => `<div class="g" data-g="${gi}">
+    <button aria-expanded="${open ? "true" : "false"}" data-toggle="${gi}">${g}${icon("right")}</button>
+    <div><ul>${items.map(([id, name]) => `<li><button data-go="${id}">${name}</button></li>`).join("")}</ul></div></div>`).join("") +
+    `<ul class="navfoot"><li><button data-toast="status">${icon("pulse")}<span id="status-t">All systems normal</span></button></li><li><button data-toast="community">${icon("chat")}<span>Ask the community</span></button></li></ul>`;
+}
+drawNav();
+function openForHeight() { if (!userToggled && innerHeight >= 1200) $$("[data-toggle]").forEach((b) => b.setAttribute("aria-expanded", "true")); }
+openForHeight();
+
+/* ---------- language and package manager ---------- */
+const state = { lang: "ts", pm: { ts: "npm", py: "pip" } };
+const PMS = { ts: ["npm", "pnpm", "yarn", "bun"], py: ["pip", "uv", "poetry"] };
+const ADD = { npm: "npm install", pnpm: "pnpm add", yarn: "yarn add", bun: "bun add", pip: "pip install", uv: "uv add", poetry: "poetry add" };
+const RUN = { npm: "npx", pnpm: "pnpm dlx", yarn: "yarn dlx", bun: "bunx", pip: "python -m", uv: "uv run", poetry: "poetry run" };
+const BLOCKS = {
+  install: { pm: (m, l) => `${ADD[m]} ${l === "ts" ? "taskwire@^4.2" : '"taskwire>=4.2"'}` },
+  metrics: { pm: (m, l) => `${ADD[m]} ${l === "ts" ? "@taskwire/metrics" : '"taskwire[metrics]"'}` },
+  cli: { pm: (m) => `${RUN[m]} taskwire dlq replay --queue emails --since 1h` },
+  config: {
+    file: { ts: "jobs/invoice-email.ts", py: "jobs/invoice_email.py" }, hi: { ts: [6, 7, 8, 9], py: [6, 7, 8, 9] },
+    ts: `import { defineJob } from "taskwire";
+import { sendInvoice } from "../billing";
+
+export const invoiceEmail = defineJob({
+  name: "invoice.email",
+  retry: {
+    attempts: 6,
+    backoff: { base: "2s", factor: 2, jitter: 0.25, maxDelay: "5m" },
+  },
+  async run({ invoiceId }, ctx) {
+    ctx.log.info("sending", { attempt: ctx.attempt });
+    await sendInvoice(invoiceId);
+  },
+});`,
+    py: `from taskwire import job, Retry, Backoff
+from billing import send_invoice
+
+@job(
+    name="invoice.email",
+    retry=Retry(
+        attempts=6,
+        backoff=Backoff(base="2s", factor=2, jitter=0.25, max_delay="5m"),
+    ),
+)
+async def invoice_email(invoice_id: str, ctx):
+    ctx.log.info("sending", attempt=ctx.attempt)
+    await send_invoice(invoice_id)`,
+  },
+  queue: {
+    file: { ts: "queues.ts", py: "queues.py" }, hi: { ts: [3], py: [4] },
+    ts: `export const emails = defineQueue("emails", {
+  concurrency: 20,
+  retry: { attempts: 4, backoff: { base: "500ms", factor: 3 } },
+});`,
+    py: `emails = Queue(
+    "emails",
+    concurrency=20,
+    retry=Retry(attempts=4, backoff=Backoff(base="500ms", factor=3)),
+)`,
+  },
+  retryon: {
+    file: { ts: "jobs/sync-contacts.ts", py: "jobs/sync_contacts.py" }, hi: { ts: [4, 5, 6], py: [3, 4] },
+    ts: `retry: {
+  attempts: 8,
+  retryOn(error) {
+    if (error instanceof RateLimitError) {
+      return { after: error.retryAfter }; // the server named its wait
+    }
+    if (error.status >= 400 && error.status < 500) {
+      return false; // a bad request stays bad
+    }
+    return true;
+  },
+},`,
+    py: `def retry_on(error):
+    # the server named its wait
+    if isinstance(error, RateLimitError):
+        return After(error.retry_after)
+    # a bad request stays bad
+    if 400 <= error.status < 500:
+        return False
+    return True
+
+retry = Retry(attempts=8, retry_on=retry_on)`,
+  },
+  giveup: {
+    file: { ts: "jobs/invoice-email.ts", py: "jobs/invoice_email.py" }, hi: { ts: [4, 5, 6], py: [3, 4, 5] },
+    ts: `export const invoiceEmail = defineJob({
+  name: "invoice.email",
+  retry: { attempts: 6 },
+  async onGiveUp({ invoiceId }, error, ctx) {
+    await ctx.enqueue(notifyBilling, { invoiceId, reason: error.message });
+  },
+  async run({ invoiceId }) { /* as above */ },
+});`,
+    py: `@job(name="invoice.email", retry=Retry(attempts=6))
+async def invoice_email(invoice_id: str): ...  # as above
+
+@invoice_email.on_give_up
+async def tell_billing(invoice_id: str, error, ctx):
+    await ctx.enqueue(notify_billing, invoice_id, reason=str(error))`,
+  },
+};
+
+/* a hand-written tokenizer: enough grammar for the snippets on this page */
+const KW = { ts: "import|from|export|const|let|async|await|function|return|if|new|instanceof|true|false|null", py: "from|import|def|async|await|return|if|True|False|None|isinstance" };
+function hl(src, lang) {
+  if (lang === "sh") {
+    const [, cmd, rest] = src.match(/^(\S+(?: dlx| run| -m)?)(.*)$/s);
+    return `<span class="f">${esc(cmd)}</span>` + rest.replace(/("[^"]*")|(--[\w-]+)|[^"-]+|-/g, (t, s, f) => s ? `<span class="s">${esc(s)}</span>` : f ? `<span class="k">${f}</span>` : esc(t));
+  }
+  const comment = lang === "py" ? "#.*$" : "\\/\\/.*$|\\/\\*.*?\\*\\/";
+  const re = new RegExp(`(${comment})|("(?:[^"\\\\]|\\\\.)*")|(@[a-z_.]+)|\\b(${KW[lang]})\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b([A-Z]\\w*)\\b|\\b([a-zA-Z_]\\w*)(?=\\()|\\b([a-zA-Z_]\\w*)(?=\\s*[:=](?!=))`, "gm");
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index)); last = m.index + m[0].length;
+    const cls = m[1] ? "c" : m[2] ? "s" : m[3] ? "f" : m[4] ? "k" : m[5] ? "n2" : m[6] ? "t" : m[7] ? "f" : "p";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+  }
+  return out + esc(src.slice(last));
+}
+function codeHtml(src, lang, hi = [], prefix = "") {
+  return `<code>${hl(src, lang).split("\n").map((l, i) => `<span class="ln${hi.includes(i + 1) ? " hi" : ""}">${prefix}${l}</span>`).join("")}</code>`;
+}
+
+/* build each block once, then repaint: the tab you're on keeps its focus */
+$$("[data-block]").forEach((el) => {
+  const b = BLOCKS[el.dataset.block];
+  const left = b.pm ? `<div class="pmtabs" role="tablist" aria-label="Package manager"></div>` : `<span class="file"></span>`;
+  const right = b.pm ? "" : `<div class="seg" role="tablist" aria-label="Code language"><button role="tab" data-lang="ts">TS</button><button role="tab" data-lang="py">Py</button></div>`;
+  el.innerHTML = `<div class="chd">${left}<div class="r">${right}<button class="ctl copy" data-copy-block>${icon("copy")}<span>Copy</span></button></div></div><pre tabindex="0" class="${b.pm ? "" : "numbered"}" aria-label="Code"></pre>`;
+});
+function paintCode(animate) {
+  const { lang } = state;
+  $$("[data-block]").forEach((el) => {
+    const b = BLOCKS[el.dataset.block], pre = $("pre", el);
+    if (b.pm) {
+      const m = state.pm[lang], tabs = $(".pmtabs", el);
+      if (tabs.dataset.for !== lang) { tabs.dataset.for = lang; tabs.innerHTML = PMS[lang].map((p) => `<button role="tab" data-pm="${p}">${p}</button>`).join(""); }
+      $$("[data-pm]", tabs).forEach((t) => { const on = t.dataset.pm === m; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; });
+      el._raw = b.pm(m, lang);
+      pre.innerHTML = codeHtml(el._raw, "sh", [], '<span class="dollar">$ </span>');
+    } else {
+      $(".file", el).textContent = b.file[lang];
+      el._raw = b[lang];
+      pre.innerHTML = codeHtml(b[lang], lang, b.hi[lang]);
+    }
+    if (animate) { pre.classList.remove("fade"); void pre.offsetWidth; pre.classList.add("fade"); }
+  });
+  $$("[data-lang]").forEach((t) => { const on = t.dataset.lang === lang; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; });
+  $$("[data-py]").forEach((c) => { c.dataset.ts ??= c.textContent; c.textContent = lang === "py" ? c.dataset.py : c.dataset.ts; });
+  $$("[data-py-html]").forEach((c) => { c.dataset.tsHtml ??= c.innerHTML; c.innerHTML = lang === "py" ? c.dataset.pyHtml : c.dataset.tsHtml; });
+  drawParams(); drawSnippet();
+}
+/* switching changes the height of everything above you: keep the control you pressed where it was */
+function steady(el, fn) { const y = el.getBoundingClientRect().top; fn(); main.scrollTop += el.getBoundingClientRect().top - y; }
+
+const PARAMS = [
+  ["attempts", "attempts", "number", "int", "5", "Total runs, including the first. <code>1</code> turns retries off."],
+  ["backoff.base", "backoff.base", "Duration", "str", '"1s"', "Wait before the second attempt."],
+  ["backoff.factor", "backoff.factor", "number", "float", "2", "Multiplies each later wait. <code>1</code> gives a fixed delay."],
+  ["backoff.jitter", "backoff.jitter", "0 to 1", "0 to 1", "0.2", "Spread around each wait. <code>0.25</code> means up to 25% either way."],
+  ["backoff.maxDelay", "backoff.max_delay", "Duration", "str", '"5m"', "Longest any one wait can be, before jitter."],
+  ["retryOn", "retry_on", "function", "callable", null, "Decides per failure whether to retry, give up or wait."],
+  ["onGiveUp", "on_give_up", "function", "callable", null, "Runs once, after the last attempt fails."],
+];
+function drawParams() {
+  const py = state.lang === "py";
+  $("#params").innerHTML = PARAMS.map(([a, b, c, d, e, f]) => `<tr><td><code>${py ? b : a}</code></td><td class="ty">${py ? d : c}</td><td class="de${e ? "" : " none"}">${e ?? "none"}</td><td>${f}</td></tr>`).join("");
+}
+
+/* ---------- the backoff visualizer ---------- */
+const BASES = [100, 250, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000];
+const CAP = 300000, DEFAULT = { base: 4, factor: 2, attempts: 6, jitter: 25 };
+const PRESETS = [["Default", DEFAULT], ["Flaky API", { base: 2, factor: 2, attempts: 5, jitter: 50 }], ["Rate limited", { base: 8, factor: 1.5, attempts: 6, jitter: 10 }], ["Webhooks", { base: 6, factor: 3, attempts: 8, jitter: 25 }]];
+const V = { ...DEFAULT };
+const words = (ms) => ms < 1000 ? `${ms} milliseconds` : ms < 60000 ? `${ms / 1000} seconds` : `${ms / 60000} minute`;
+function dur(ms) {
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  if (ms < 10000) return `${(ms / 1000).toFixed(1).replace(/\.0$/, "")} s`;
+  if (ms < 60000) return `${Math.round(ms / 1000)} s`;
+  const t = Math.round(ms / 1000);
+  if (t < 3600) return `${Math.floor(t / 60)}m ${String(t % 60).padStart(2, "0")}s`;
+  return `${Math.floor(t / 3600)}h ${String(Math.floor(t / 60) % 60).padStart(2, "0")}m`;
+}
+const baseStr = (ms) => ms < 1000 ? `${ms}ms` : ms < 60000 ? `${ms / 1000}s` : `${ms / 60000}m`;
+function mulberry(seed) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+let noise = [];
+function roll(seed) { const r = mulberry(seed); noise = Array.from({ length: 12 }, () => r() * 2 - 1); }
+roll(11);
+
+$("#rows").innerHTML = Array.from({ length: 12 }, (_, i) => `<li class="row rowgrid" data-i="${i}"><span class="l"><span class="w">Attempt </span>${i + 1}</span><span class="tr"><i class="band"></i><i class="wait"></i><i class="dotw"></i></span><span class="n w8"></span><span class="n at"></span></li>`).join("");
+const rowEls = $$(".row");
+let plan = [], domain = 1;
+function compute() {
+  const base = BASES[V.base], j = V.jitter / 100; let t = 0;
+  plan = [{ n: 1, at: 0, prev: 0, wait: 0, lo: 0, hi: 0, nom: 0, capped: false }];
+  for (let i = 1; i < V.attempts; i++) {
+    const raw = base * V.factor ** (i - 1), nom = Math.min(raw, CAP), wait = nom * (1 + j * noise[i]);
+    plan.push({ n: i + 1, prev: t, wait, at: t + wait, lo: t + nom * (1 - j), hi: t + nom * (1 + j), nom, capped: raw > CAP });
+    t += wait;
+  }
+  domain = Math.max(plan.at(-1).hi, plan.at(-1).at, 1000);
+}
+const NICE = [100, 200, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000, 120000, 300000, 600000, 900000, 1800000, 3600000, 7200000, 14400000];
+const tick = (ms) => ms === 0 ? "0" : ms < 1000 ? `${ms} ms` : ms < 60000 ? `${ms / 1000} s` : ms % 60000 ? `${Math.floor(ms / 60000)}m ${ms % 60000 / 1000}s` : ms < 3600000 ? `${ms / 60000}m` : ms % 3600000 ? `${Math.floor(ms / 3600000)}h ${ms % 3600000 / 60000}m` : `${ms / 3600000}h`;
+
+function drawViz() {
+  compute();
+  const inputs = { base: "#s-base", factor: "#s-factor", attempts: "#s-attempts", jitter: "#s-jitter" };
+  for (const k in inputs) { const el = $(inputs[k]); el.value = V[k]; el.style.setProperty("--v", `${(V[k] - el.min) / (el.max - el.min) * 100}%`); }
+  const baseMs = BASES[V.base];
+  $("#o-base").textContent = baseStr(baseMs); $("#s-base").setAttribute("aria-valuetext", words(baseMs));
+  $("#o-factor").textContent = `×${V.factor}`; $("#s-factor").setAttribute("aria-valuetext", `times ${V.factor}`);
+  $("#o-attempts").textContent = V.attempts; $("#s-attempts").setAttribute("aria-valuetext", `${V.attempts} ${V.attempts === 1 ? "attempt" : "attempts"}`);
+  $("#o-jitter").textContent = V.jitter ? `±${V.jitter}%` : "off"; $("#s-jitter").setAttribute("aria-valuetext", V.jitter ? `plus or minus ${V.jitter} percent` : "off");
+
+  /* axis */
+  const step = NICE.find((s) => domain / s <= 5) ?? NICE.at(-1);
+  let ticks = [];
+  for (let t = 0; t <= domain * .97; t += step) ticks.push(t);
+  $("#axis").innerHTML = ticks.map((t) => `<span style="left:${t / domain * 100}%">${tick(t)}</span>`).join("");
+  $("#gridlines").innerHTML = ticks.map((t) => `<i style="left:${t / domain * 100}%"></i>`).join("") + `<i class="head" id="head"></i>`;
+
+  /* rows */
+  const rh = Math.min(36, 216 / V.attempts);
+  rowEls.forEach((row, i) => {
+    const p = plan[i]; row.hidden = !p;
+    if (!p) return;
+    row.style.setProperty("--rh", `${rh}px`);
+    row.classList.toggle("last", i === plan.length - 1 && plan.length > 1);
+    const pct = (v) => v / domain * 100;
+    const [band, wait, dot] = $$("i", row);
+    band.style.transform = `translateX(${pct(p.lo)}%) scaleX(${(p.hi - p.lo) / domain})`;
+    wait.style.transform = `translateX(${pct(p.prev)}%) scaleX(${p.wait / domain})`;
+    dot.style.transform = `translateX(${pct(p.at)}%)`;
+    $(".w8", row).innerHTML = i === 0 ? '<span style="color:var(--dim)">first</span>' : `${dur(p.wait)}${p.capped && rh >= 30 ? "<small>at the cap</small>" : ""}`;
+    $(".at", row).textContent = dur(p.at).replace(/^0 ms$/, "0");
+  });
+
+  /* in words */
+  const L = plan.at(-1), held = plan.filter((p) => p.capped).length, longest = Math.max(...plan.map((p) => p.wait));
+  let say;
+  if (V.attempts === 1) say = "One attempt and no retries. If it throws, the job goes straight to the dead-letter list.";
+  else {
+    const shape = V.factor === 1 ? "A fixed delay: " : "";
+    const cap = held ? ` ${held === 1 ? "One wait is" : `${held} waits are`} held at the <b>5m</b> cap.` : "";
+    say = `${shape}<b>${V.attempts} attempts</b> over about <b>${dur(L.at)}</b>, with a longest wait of <b>${dur(longest)}</b>.${cap} If attempt ${V.attempts} throws, the job moves to the dead-letter list.`;
+  }
+  $("#say").innerHTML = say;
+  clearTimeout(drawViz.live); drawViz.live = setTimeout(() => { $("#say-live").textContent = $("#say").textContent; }, 500);
+  const dis = V.jitter === 0;
+  $("#reroll").setAttribute("aria-disabled", dis);
+  $("#reroll").title = dis ? "Jitter is off, so every run is the same" : "Draw new jitter";
+  const same = PRESETS.findIndex(([, p]) => p.base === V.base && p.factor === V.factor && p.attempts === V.attempts && p.jitter === V.jitter);
+  $$("#presets button").forEach((b, i) => b.setAttribute("aria-pressed", i === same));
+  drawSnippet();
+}
+function drawSnippet() {
+  const base = baseStr(BASES[V.base]), f = V.factor, j = V.jitter / 100;
+  const noJ = V.jitter === 0;
+  const ts = `retry: { attempts: ${V.attempts}, backoff: { base: "${base}", factor: ${f}${noJ ? "" : `, jitter: ${j}`}, maxDelay: "5m" } }`;
+  const py = `retry=Retry(attempts=${V.attempts}, backoff=Backoff(base="${base}", factor=${f}${noJ ? "" : `, jitter=${j}`}, max_delay="5m"))`;
+  const s = state.lang === "py" ? py : ts;
+  $("#snip").dataset.raw = s;
+  $("#snip").innerHTML = hl(s, state.lang);
+}
+$("#presets").innerHTML = PRESETS.map(([n], i) => `<button data-preset="${i}" aria-pressed="false">${n}</button>`).join("");
+for (const k of ["base", "factor", "attempts", "jitter"]) $("#s-" + k).addEventListener("input", (e) => { stopPlay(); V[k] = +e.target.value; drawViz(); });
+$("#presets").addEventListener("click", (e) => { const b = e.target.closest("[data-preset]"); if (!b) return; stopPlay(); Object.assign(V, PRESETS[+b.dataset.preset][1]); drawViz(); });
+let seed = 11;
+$("#reroll").addEventListener("click", () => { if (V.jitter === 0) return; stopPlay(); roll(++seed); drawViz(); });
+
+/* hover a row for its range */
+const tip = $("#tip");
+rowEls.forEach((row, i) => {
+  row.addEventListener("pointerenter", (e) => {
+    if (e.pointerType === "touch") return;
+    const p = plan[i]; if (!p) return;
+    tip.innerHTML = i === 0 ? `Attempt 1 <span>runs as soon as a worker claims the job</span>` : `Attempt ${p.n} <span>${V.jitter ? `fires between ${dur(p.lo)} and ${dur(p.hi)}` : `fires at ${dur(p.at)}`}</span>`;
+    const c = $("#chart").getBoundingClientRect(), d = $(".dotw", row).getBoundingClientRect(), tr = $(".tr", row).getBoundingClientRect(), w = tip.offsetWidth;
+    const x = Math.min(c.width - w - 8, Math.max(8, tr.left - c.left + (p.at / domain) * tr.width - w / 2));
+    const y = d.top - c.top - tip.offsetHeight - 10;
+    tip.style.transform = `translate(${x}px, ${y < 0 ? d.top - c.top + 12 : y}px)`;
+    tip.classList.add("on");
+  });
+  row.addEventListener("pointerleave", () => tip.classList.remove("on"));
+});
+
+/* replay: a playhead walks the timeline and each attempt fires as it passes */
+let playing = 0;
+function stopPlay() { if (!playing) return; cancelAnimationFrame(playing); playing = 0; $("#chart").classList.remove("playing"); rowEls.forEach((r) => r.classList.remove("fired")); const h = $("#head"); if (h) h.style.opacity = 0; }
+function play() {
+  if (still) return;
+  stopPlay();
+  const head = $("#head"), chart = $("#chart"), dur_ = 1900 + plan.length * 60; let t0 = 0;
+  chart.classList.add("playing"); head.style.opacity = 1;
+  const frame = (t) => {
+    t0 ||= t;
+    const p = Math.min(1, (t - t0) / dur_), now = p * domain;
+    head.style.left = `${p * 100}%`;
+    plan.forEach((a, i) => { if (a.at <= now) rowEls[i].classList.add("fired"); });
+    if (p < 1) playing = requestAnimationFrame(frame);
+    else { playing = 0; setTimeout(() => { if (!playing) { chart.classList.remove("playing"); head.style.opacity = 0; rowEls.forEach((r) => r.classList.remove("fired")); } }, 260); }
+  };
+  playing = requestAnimationFrame(frame);
+}
+$("#replay").addEventListener("click", play);
+
+/* ---------- tabs and copy, everywhere on the page ---------- */
+document.addEventListener("click", (e) => {
+  const lang = e.target.closest("[data-lang]"), pm = e.target.closest("[data-pm]"), cb = e.target.closest(".copy");
+  if (lang && lang.dataset.lang !== state.lang) steady(lang, () => { state.lang = lang.dataset.lang; paintCode(true); buildIndex(); });
+  if (pm && pm.dataset.pm !== state.pm[state.lang]) steady(pm, () => { state.pm[state.lang] = pm.dataset.pm; paintCode(true); });
+  if (cb) {
+    const block = cb.closest("[data-block]");
+    copyText(block ? block._raw : $("#snip").dataset.raw);
+    cb.classList.add("ok"); cb.querySelector("use").setAttribute("href", "#i-check"); cb.querySelector("span").textContent = "Copied";
+    clearTimeout(cb._t); cb._t = setTimeout(() => { cb.classList.remove("ok"); cb.querySelector("use").setAttribute("href", "#i-copy"); cb.querySelector("span").textContent = "Copy"; }, 1600);
+  }
+});
+function copyText(t) { try { navigator.clipboard?.writeText(t)?.catch?.(() => {}); } catch {} }
+/* arrow keys walk any tab list */
+document.addEventListener("keydown", (e) => {
+  const tab = e.target.closest?.('[role="tab"]');
+  if (!tab || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+  e.preventDefault();
+  const tabs = $$('[role="tab"]', tab.parentElement), i = tabs.indexOf(tab);
+  const to = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[to].click(); tabs[to].focus();
+});
+
+/* ---------- table of contents and scroll-spy ---------- */
+const heads = $$("#doc h2, #doc h3");
+const tocHtml = heads.map((h) => `<li class="${h.tagName === "H3" ? "sub" : ""}"><a href="#${h.id}" data-to="${h.id}">${h.textContent}</a></li>`).join("");
+$("#toc").innerHTML = tocHtml; $("#otp-list").innerHTML = tocHtml;
+heads.forEach((h) => {
+  const a = document.createElement("a");
+  a.className = "anchor"; a.href = "#" + h.id; a.setAttribute("aria-label", `Copy a link to ${h.textContent}`);
+  a.innerHTML = `${icon("link")}<em aria-hidden="true">Link copied</em>`;
+  a.addEventListener("click", (e) => { e.preventDefault(); copyText(`/docs/reliability/retries#${h.id}`); a.classList.add("ok"); clearTimeout(a._t); a._t = setTimeout(() => a.classList.remove("ok"), 1400); });
+  h.append(a);
+});
+function goTo(id, flash) {
+  const h = document.getElementById(id); if (!h) return;
+  const y = main.scrollTop + h.getBoundingClientRect().top - main.getBoundingClientRect().top - ($("#otp").offsetHeight || 0) - 24;
+  main.scrollTo({ top: Math.max(0, y), behavior: still ? "auto" : "smooth" });
+  h.focus({ preventScroll: true });
+  spy.lock = id; spy.cur = null; spy();
+  if (flash) { h.classList.add("flash"); setTimeout(() => h.classList.remove("flash"), 500); }
+}
+document.addEventListener("click", (e) => {
+  const to = e.target.closest("[data-to]");
+  if (to) { e.preventDefault(); setOtp(false); goTo(to.dataset.to); }
+});
+function spy() {
+  const tops = main.getBoundingClientRect().top + ($("#otp").offsetHeight || 0) + 96, docOn = !$("#doc").hidden;
+  const max = main.scrollHeight - main.clientHeight, p = max > 0 ? Math.min(1, main.scrollTop / max) : 0;
+  $("#toc-fill").style.transform = `scaleY(${p})`; $("#bar").style.transform = `scaleX(${p})`;
+  $("#pct").textContent = `${Math.round(p * 100)}% read`;
+  if (!docOn) return;
+  let cur = heads[0];
+  for (const h of heads) if (h.getBoundingClientRect().top <= tops) cur = h;
+  if (p > .995) cur = heads.at(-1);
+  if (spy.lock) cur = document.getElementById(spy.lock);
+  if (cur === spy.cur) return;
+  spy.cur = cur;
+  $$("[data-to]").forEach((a) => { if (a.dataset.to === cur.id) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+  $("#otp-now").textContent = cur.firstChild.textContent;
+}
+let spyQ = 0;
+/* a jump keeps its heading lit until you scroll by hand */
+for (const ev of ["wheel", "touchstart", "keydown", "pointerdown"]) main.addEventListener(ev, () => { if (spy.lock) { spy.lock = null; spy(); } }, { passive: true });
+main.addEventListener("scroll", () => { if (!spyQ) spyQ = requestAnimationFrame(() => { spyQ = 0; spy(); }); }, { passive: true });
+$("#to-top").addEventListener("click", () => (spy.lock = null, main.scrollTo({ top: 0, behavior: still ? "auto" : "smooth" })));
+function setOtp(on) { $("#otp-list").hidden = !on; $("#otp-btn").setAttribute("aria-expanded", on); }
+$("#otp-btn").addEventListener("click", () => setOtp($("#otp-list").hidden));
+document.addEventListener("click", (e) => { if (!$("#otp-list").hidden && !e.target.closest("#otp")) setOtp(false); });
+
+/* ---------- pages ---------- */
+function setCurrent(id) {
+  $$("#nav [data-go]").forEach((b) => { if (b.dataset.go === id) { b.setAttribute("aria-current", "page"); b.closest(".g").querySelector("[data-toggle]").setAttribute("aria-expanded", "true"); } else b.removeAttribute("aria-current"); });
+}
+function drawPager() {
+  const i = FLAT.findIndex((p) => p.id === here), a = FLAT[i - 1], b = FLAT[i + 1];
+  $("#pager").innerHTML = (a ? `<button data-go="${a.id}"><span>${icon("prev")}Previous</span><b>${a.name}</b></button>` : "") + (b ? `<button class="nx" data-go="${b.id}"><span>Next${icon("next")}</span><b>${b.name}</b></button>` : "");
+}
+function route(id, focusIt = true) {
+  here = id; const home = id === "retries", p = pageById(id);
+  $("#doc").hidden = !home; $("#stub").hidden = home;
+  $("#toc-wrap").style.visibility = home ? "" : "hidden";
+  $("#otp").style.display = home ? "" : "none";
+  if (!home) $("#stub").innerHTML = `<div class="crumbs"><span><span>${p.group}</span>${icon("right")}<b>${p.name}</b></span></div>
+    <h1 tabindex="-1">${p.name}</h1><p class="lede">${p.desc}</p>
+    <div class="callout">${icon("info")}<div>This one-file page carries a single article. The rest of the tree works, so you can see how a page swap feels, but <b>${p.name}</b> has no body here.</div></div>
+    <button class="vbtn back" data-go="retries">${icon("prev")}Back to Retries and backoff</button>`;
+  setCurrent(id); drawPager(); resetVote(); main.scrollTop = 0; spy.lock = null; spy.cur = null; spy();
+  if (focusIt) $("h1", home ? $("#doc") : $("#stub")).focus({ preventScroll: true });
+  drawer(false);
+}
+document.addEventListener("click", (e) => {
+  const g = e.target.closest("[data-go]");
+  if (g) { e.preventDefault(); route(g.dataset.go); return; }
+  const t = e.target.closest("[data-toggle]");
+  if (t) { userToggled = true; t.setAttribute("aria-expanded", t.getAttribute("aria-expanded") !== "true"); }
+});
+$("#home").addEventListener("click", (e) => { e.preventDefault(); route("intro"); });
+
+/* the version select */
+const VER = { "4.1": "You're reading the docs for <b>4.1</b>. <code>retryOn</code> can't name its own wait until 4.2.", "3.9": "You're reading the docs for <b>3.9</b>. <code>backoff.base</code> was called <code>retry.delay</code> until 4.0." };
+function setVersion(v) {
+  $("#ver").value = v;
+  const n = $("#notice"); n.hidden = !VER[v];
+  if (VER[v]) $("#notice-t").innerHTML = VER[v];
+}
+$("#ver").addEventListener("change", (e) => { setVersion(e.target.value); main.scrollTop = 0; });
+$("#notice-go").addEventListener("click", () => { setVersion("4.2"); $("#ver").focus(); });
+
+/* star */
+$("#star").addEventListener("click", (e) => {
+  const b = e.currentTarget, on = b.getAttribute("aria-pressed") !== "true";
+  b.setAttribute("aria-pressed", on); $("#stars").textContent = on ? "8,613" : "8.6k";
+  b.setAttribute("aria-label", `Star Taskwire, ${on ? "8,613" : "8,612"} stars`);
+});
+$("#edit").addEventListener("click", () => { $("#edit span").textContent = "Opens the source file"; setTimeout(() => $("#edit span").textContent = "Edit this page", 1400); });
+$("#report").addEventListener("click", () => { voteFor("no"); $("#fb-text").focus(); });
+$$("[data-toast]").forEach((b) => b.addEventListener("click", () => { const s = b.querySelector("span"), was = s.textContent; s.textContent = b.dataset.toast === "status" ? "12 of 12 services up" : "Opens the forum"; clearTimeout(b._t); b._t = setTimeout(() => s.textContent = was, 1400); }));
+
+/* ---------- feedback ---------- */
+const voteTpl = $("#vote").innerHTML;
+function resetVote() { $("#vote").innerHTML = voteTpl; wireVote(); }
+function voteFor(v) {
+  $$("[data-vote]").forEach((x) => x.setAttribute("aria-pressed", x.dataset.vote === v));
+  const fb = $("#fb"); fb.hidden = false; fb.dataset.v = v;
+  $("#fb-label").textContent = v === "yes" ? "What worked? (optional)" : "What was missing?";
+  count();
+}
+function count() { const left = 200 - $("#fb-text").value.length, c = $("#fb-count"); c.className = ""; c.textContent = `${left} character${left === 1 ? "" : "s"} left`; $("#fb-text").removeAttribute("aria-invalid"); }
+function wireVote() {
+  $$("[data-vote]").forEach((b) => b.addEventListener("click", () => { voteFor(b.dataset.vote); $("#fb-text").focus({ preventScroll: true }); $("#fb").scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" }); }));
+  $("#fb-text").addEventListener("input", count);
+  /* the frame is sandboxed without forms, so a submit event never fires: send from the button, or ⌘↵ in the field */
+  $("#fb").addEventListener("submit", (e) => e.preventDefault());
+  $("#fb .send").addEventListener("click", send);
+  $("#fb-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(); } });
+  function send() {
+    const fb = $("#fb"), text = $("#fb-text").value.trim();
+    if (fb.dataset.v === "no" && !text) { const c = $("#fb-count"); c.textContent = "A few words help us fix it."; c.className = "bad"; $("#fb-text").setAttribute("aria-invalid", "true"); $("#fb-text").focus(); return; }
+    $("#vote").innerHTML = `<p class="thanks" role="status">Thanks. Your note goes to the people who wrote this page. <button id="vote-again">Change your answer</button></p>`;
+    $("#vote-again").addEventListener("click", resetVote);
+  }
+}
+wireVote();
+
+/* ---------- search ---------- */
+const dlg = $("#search"), q = $("#q");
+let INDEX = [], hits = [], sel = 0, opener = null;
+/* words a heading answers to, beyond its own title */
+const KEYS = { delay: "jitter exponential formula multiplier base", configure: "install setup definejob npm pip", "queue-defaults": "definequeue inherit concurrency", parameters: "options maxdelay max_delay factor attempts jitter", "retry-on": "retryon retry_on errors 429 4xx rate limit after", "dead-letter": "dead letter dlq ongiveup on_give_up give up", "replay-cli": "cli dlq replay dry-run", watch: "metrics counters prometheus alert" };
+function buildIndex() {
+  INDEX = heads.map((h) => ({ kind: "head", id: h.id, label: h.firstChild.textContent, path: h.tagName === "H3" ? "Section" : "Heading", keys: KEYS[h.id] || "" }))
+    .concat(FLAT.filter((p) => p.id !== here).map((p) => ({ kind: "page", id: p.id, label: p.name, path: p.group, keys: p.desc.toLowerCase() })));
+}
+/* a title match first; failing that, a whole-word start in what the entry is about */
+function find(x, needle) {
+  const m = fuzzy(x.label, needle); if (m) return m;
+  const n = needle.trim().toLowerCase();
+  if (n.length < 3) return null;
+  const at = (" " + x.keys).indexOf(" " + n);
+  return at < 0 ? null : { score: 200 - at * .1, at: [], via: n };
+}
+/* letters in order; runs and word starts score higher, and a plain substring beats them all */
+function fuzzy(text, needle) {
+  const t = text.toLowerCase(), n = needle.toLowerCase().replace(/\s+/g, "");
+  if (!n) return { score: 0, at: [] };
+  const sub = t.indexOf(needle.toLowerCase().trim());
+  if (sub >= 0) return { score: 1000 - sub, at: Array.from({ length: needle.trim().length }, (_, i) => sub + i) };
+  let from = 0, score = 0, prev = -2; const at = [];
+  for (const ch of n) {
+    const i = t.indexOf(ch, from);
+    if (i < 0) return null;
+    score += i === prev + 1 ? 8 : 1;
+    if (i === 0 || t[i - 1] === " ") score += 6;
+    at.push(i); prev = i; from = i + 1;
+  }
+  return { score: score - at[0] * .25 - (at.at(-1) - at[0]) * .1, at };
+}
+const marked = (s, at) => [...s].map((c, i) => at.includes(i) ? `<mark>${esc(c)}</mark>` : esc(c)).join("");
+function search() {
+  const needle = q.value;
+  buildIndex();
+  let page, docs;
+  const onDoc = here === "retries";
+  if (!needle.trim()) {
+    page = onDoc ? INDEX.filter((x) => x.kind === "head").slice(0, 6).map((x) => ({ x, m: { at: [] } })) : [];
+    docs = ["dead-letter-queues", "idempotency", "rate-limited", "api-job"].filter((id) => id !== here).map((id) => ({ x: INDEX.find((y) => y.id === id && y.kind === "page"), m: { at: [] } }));
+  } else {
+    const scored = INDEX.filter((x) => onDoc || x.kind === "page").map((x) => ({ x, m: find(x, needle) })).filter((r) => r.m).sort((a, b) => b.m.score - a.m.score);
+    page = scored.filter((r) => r.x.kind === "head").slice(0, 6);
+    docs = scored.filter((r) => r.x.kind === "page").slice(0, 8);
+  }
+  hits = [...page, ...docs]; sel = 0;
+  const list = $("#slist");
+  if (!hits.length) {
+    list.innerHTML = `<div class="sempty"><b>Nothing matches “${esc(needle.trim())}”</b>Try a word from a heading, like “jitter” or “queue”.<br><button id="s-clear">Clear the search</button></div>`;
+    $("#s-clear").addEventListener("click", () => { q.value = ""; search(); q.focus(); });
+  } else {
+    const row = (r, i) => `<button class="opt" role="option" tabindex="-1" id="o${i}" data-o="${i}">${icon(r.x.kind === "head" ? "hash" : "doc")}<span>${marked(r.x.label, r.m.at)}</span><small>${r.m.via ? `mentions “${esc(r.m.via)}”` : r.x.path}</small></button>`;
+    list.innerHTML = (page.length ? `<p class="sgroup" role="presentation">On this page</p>${page.map((r, i) => row(r, i)).join("")}` : "") + (docs.length ? `<p class="sgroup" role="presentation">${needle.trim() ? "Other pages" : "Often read next"}</p>${docs.map((r, i) => row(r, i + page.length)).join("")}` : "");
+  }
+  paintSel();
+}
+function paintSel(scroll = true) {
+  $$(".opt").forEach((o) => o.setAttribute("aria-selected", +o.dataset.o === sel));
+  const cur = document.getElementById("o" + sel);
+  if (cur) q.setAttribute("aria-activedescendant", cur.id); else q.removeAttribute("aria-activedescendant");
+  if (cur && scroll) cur.scrollIntoView({ block: "nearest" });
+}
+function pick() {
+  const r = hits[sel]; if (!r) return;
+  closeSearch(false);
+  if (r.x.kind === "head") goTo(r.x.id, true); else route(r.x.id);
+}
+function openSearch() { if (dlg.open) return; opener = document.activeElement; q.value = ""; search(); dlg.showModal(); q.focus(); }
+function closeSearch(restore = true) { if (!dlg.open) return; dlg.close(); if (restore && opener?.focus) opener.focus(); }
+$("#open-search").addEventListener("click", openSearch);
+q.addEventListener("input", search);
+q.addEventListener("keydown", (e) => {
+  const n = hits.length;
+  if (e.key === "ArrowDown" && n) { e.preventDefault(); sel = (sel + 1) % n; paintSel(); }
+  if (e.key === "ArrowUp" && n) { e.preventDefault(); sel = (sel - 1 + n) % n; paintSel(); }
+  if (e.key === "Enter") { e.preventDefault(); pick(); }
+});
+$("#slist").addEventListener("mousemove", (e) => { const o = e.target.closest(".opt"); if (o && +o.dataset.o !== sel) { sel = +o.dataset.o; paintSel(false); } });
+$("#slist").addEventListener("click", (e) => { const o = e.target.closest(".opt"); if (o) { sel = +o.dataset.o; pick(); } });
+dlg.addEventListener("click", (e) => { if (e.target === dlg) closeSearch(); });
+dlg.addEventListener("cancel", (e) => { e.preventDefault(); closeSearch(); });
+const typing = (el) => el && (el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && el.type !== "range") || el.tagName === "SELECT" || el.isContentEditable);
+addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); dlg.open ? closeSearch() : openSearch(); return; }
+  if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !typing(document.activeElement) && !dlg.open) { e.preventDefault(); openSearch(); return; }
+  if (e.key === "Escape") { if (document.body.classList.contains("drawer")) { drawer(false); $("#menu").focus(); } setOtp(false); }
+  /* the page scrolls in a pane, so give it the arrow keys when nothing else wants them */
+  if (document.activeElement === document.body && ["ArrowDown", "ArrowUp", "PageDown", "PageUp", " ", "Home", "End"].includes(e.key)) main.focus({ preventScroll: true });
+});
+if (!/Mac|iPhone|iPad/.test(navigator.platform)) { $("#mod").textContent = "Ctrl K"; $("#mod2").textContent = "Ctrl K"; }
+
+/* ---------- the drawer on narrow screens ---------- */
+function drawer(on) {
+  document.body.classList.toggle("drawer", on);
+  $("#menu").setAttribute("aria-expanded", on); $("#menu").setAttribute("aria-label", on ? "Close navigation" : "Open navigation");
+  main.inert = on;
+  if (on) ($("#nav [aria-current]") || $("#nav button")).focus();
+}
+$("#menu").addEventListener("click", () => drawer(!document.body.classList.contains("drawer")));
+$("#scrim").addEventListener("click", () => { drawer(false); $("#menu").focus(); });
+
+/* ---------- go ---------- */
+addEventListener("resize", () => { openForHeight(); spy(); if (innerWidth > 1180 && document.body.classList.contains("drawer")) drawer(false); });
+paintCode(false); drawViz(); route("retries", false); buildIndex();
+$("#nav [aria-current]").scrollIntoView({ block: "nearest" });
+if (!still) setTimeout(play, 500);
+</script>
+</body>
+</html>

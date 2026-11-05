@@ -1,0 +1,979 @@
+<!doctype html>
+<!-- Arabic store admin — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A right-to-left commerce dashboard in Arabic: Hijri and Gregorian dates, a ١٢٣ / 123 switch that redraws
+     every figure on the page, a sales chart whose months run right to left, and orders you can filter and open. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>رواق — لوحة المتجر</title>
+<style>
+:root {
+  --bg: #f5f3ef; --card: #ffffff; --line: #e8e3dc; --line-2: #d9d2c8; --ink: #1d1820; --body: #3b3540; --muted: #6a6370;
+  --acc: #74295a; --acc-2: #8f3b71; --acc-soft: #f5eaf1; --acc-mid: #d7b3c9;
+  --side: #1f1621; --side-2: #2b2030; --side-ink: #f3ebf1; --side-muted: #b9aab6;
+  --ok: #1f7a4d; --ok-bg: #e3f2e9; --bad: #b3372e; --bad-bg: #fbe8e5; --amber: #94580a; --amber-bg: #fcefd8; --blue: #23599c; --blue-bg: #e6eef9; --grey: #625b67; --grey-bg: #efecef;
+  --ar: "SF Arabic", "Geeza Pro", "Segoe UI", "Noto Sans Arabic", Tahoma, sans-serif;
+  --r: 10px; --r-s: 8px;
+  --shadow: 0 1px 2px rgba(31, 22, 33, .04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--body); font: 14px/1.6 var(--ar); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button, input { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+ul, ol { list-style: none; }
+svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+svg.s { width: 16px; height: 16px; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+[data-v], [data-d], [data-t] { display: inline-block; }
+
+/* ---------- frame ---------- */
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; background: linear-gradient(to left, var(--side) 248px, transparent 248px); }
+.side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; background: var(--side); color: var(--side-ink); padding: 20px 16px; z-index: 30; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px; }
+.brand svg { width: 32px; height: 32px; flex: none; }
+.brand b { display: block; font-size: 20px; font-weight: 700; line-height: 1.2; }
+.brand small { display: block; font-size: 12px; color: var(--side-muted); }
+.store { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px; border: 1px solid #3a2d3e; border-radius: var(--r-s); }
+.store .logo { width: 32px; height: 32px; border-radius: 6px; background: #f5eaf1; color: var(--acc); display: grid; place-items: center; font-weight: 700; font-size: 15px; flex: none; }
+.store b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.store small { display: block; font-size: 12px; color: var(--side-muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav h2 { margin: 16px 12px 4px; font-size: 12px; font-weight: 500; color: var(--side-muted); }
+.nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 12px; border-radius: var(--r-s); color: var(--side-muted); font-size: 14px; text-align: start; transition: background-color .15s, color .15s; }
+.nav button:hover { background: var(--side-2); color: var(--side-ink); }
+.nav button[aria-current="page"] { background: var(--side-2); color: #fff; }
+.nav button[aria-current="page"]::before { content: ""; position: absolute; inset-inline-start: -16px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: #e2a9cb; }
+.nav .count { margin-inline-start: auto; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 6px; background: #e2a9cb; color: var(--side); font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.me { margin-top: auto; display: flex; align-items: center; gap: 12px; padding: 16px 8px 0; border-top: 1px solid #3a2d3e; }
+.me .av { width: 36px; height: 36px; border-radius: 50%; background: #e2a9cb; color: var(--side); display: grid; place-items: center; font-weight: 700; flex: none; }
+.me b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.me small { display: block; font-size: 12px; color: var(--side-muted); }
+.me button { margin-inline-start: auto; width: 36px; height: 36px; border-radius: var(--r-s); display: grid; place-items: center; color: var(--side-muted); }
+.me button:hover { background: var(--side-2); color: #fff; }
+.scrim { display: none; }
+
+.main { min-width: 0; padding: 0 32px 40px; }
+.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 16px; height: 72px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.icon-btn.menu { display: none; }
+.search { position: relative; display: flex; align-items: center; gap: 8px; width: 380px; height: 40px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-s); background: var(--card); color: var(--muted); transition: border-color .15s, box-shadow .15s; }
+.search:focus-within { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(116, 41, 90, .12); }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: none; color: var(--ink); }
+.search input::placeholder { color: var(--muted); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search kbd { direction: ltr; padding: 0 6px; height: 22px; border: 1px solid var(--line-2); border-radius: 5px; font: 500 12px/20px system-ui, sans-serif; color: var(--muted); }
+.search:focus-within kbd { visibility: hidden; }
+.date { margin-inline-start: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.date svg { color: var(--muted); }
+.date b { display: block; color: var(--ink); font-weight: 600; font-size: 13.5px; line-height: 1.4; }
+.date span { display: block; line-height: 1.4; }
+.digits { display: flex; padding: 3px; border: 1px solid var(--line-2); border-radius: var(--r-s); background: var(--card); }
+.digits button { position: relative; min-width: 48px; height: 32px; padding: 0 10px; border-radius: 6px; color: var(--muted); font-size: 14px; font-weight: 600; transition: color .2s; }
+.digits button[aria-pressed="true"] { color: #fff; }
+.digits .knob { position: absolute; top: 3px; height: 32px; border-radius: 6px; background: var(--acc); transition: transform .25s cubic-bezier(.3, .7, .2, 1), width .25s; }
+.digits { position: relative; }
+.digits button { z-index: 1; }
+.icon-btn { position: relative; width: 40px; height: 40px; border-radius: var(--r-s); display: grid; place-items: center; color: var(--body); border: 1px solid var(--line-2); background: var(--card); transition: border-color .15s; }
+.icon-btn:hover { border-color: var(--muted); }
+.icon-btn .dot { position: absolute; top: -6px; inset-inline-start: -6px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; border: 2px solid var(--bg); background: var(--acc); color: #fff; font-size: 11px; font-weight: 700; line-height: 16px; }
+.icon-btn .dot[hidden] { display: none; }
+
+/* popover */
+.pop { position: absolute; top: calc(100% + 8px); inset-inline-end: 0; z-index: 40; width: 360px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 12px 32px rgba(31, 22, 33, .14); transform-origin: top left; animation: pop .18s ease-out; }
+.pop[hidden] { display: none; }
+@keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.pop header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.pop header b { color: var(--ink); font-size: 15px; }
+.link { color: var(--acc); font-size: 13px; font-weight: 600; }
+.link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.pop li button { display: flex; gap: 12px; width: 100%; padding: 12px 16px; text-align: start; border-bottom: 1px solid var(--line); transition: background-color .15s; }
+.pop li:last-child button { border: 0; border-radius: 0 0 var(--r) var(--r); }
+.pop li button:hover { background: #faf8f6; }
+.pop li .ic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--acc-soft); color: var(--acc); flex: none; }
+.pop li p { color: var(--ink); font-size: 13.5px; line-height: 1.5; }
+.pop li small { color: var(--muted); font-size: 12px; }
+.pop li.unread p { font-weight: 600; }
+.pop li.unread .ic { box-shadow: 0 0 0 2px var(--card), 0 0 0 3px var(--acc); }
+
+/* page head */
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 28px 0 20px; }
+h1 { font-size: 28px; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.head p { margin-top: 4px; color: var(--muted); }
+.head .acts { display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: var(--r-s); border: 1px solid var(--line-2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s; }
+.btn:hover { border-color: var(--muted); }
+.btn.pri { background: var(--acc); border-color: var(--acc); color: #fff; }
+.btn.pri:hover { background: var(--acc-2); }
+.btn.danger { color: var(--bad); }
+.btn.danger:hover { border-color: var(--bad); }
+.btn.done { color: var(--ok); border-color: #b8dcc6; background: var(--ok-bg); }
+
+/* grid */
+.grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; grid-template-areas: "kpi kpi" "chart city" "heat rev" "orders aside"; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); min-width: 0; }
+.card > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.card h2 { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+.card h2 + p, .card header p { font-size: 13px; color: var(--muted); }
+
+/* KPIs */
+.kpis { grid-area: kpi; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.kpi { position: relative; padding: 20px 20px 16px; }
+.kpi h3 { font-size: 13.5px; font-weight: 500; color: var(--muted); }
+.kpi .val { display: block; margin-top: 8px; font-size: 28px; font-weight: 700; line-height: 1.2; color: var(--ink); letter-spacing: -.01em; white-space: nowrap; }
+.kpi .val small { font-size: 15px; font-weight: 600; color: var(--muted); margin-inline-start: 4px; }
+.kpi .foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.kpi svg.spark { position: absolute; inset-inline-end: 20px; top: 18px; width: 88px; height: 26px; overflow: visible; }
+.delta { display: inline-flex; align-items: center; gap: 2px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 12.5px; font-weight: 700; }
+.delta svg { width: 14px; height: 14px; stroke-width: 2.25; }
+.delta.up { background: var(--ok-bg); color: var(--ok); }
+.delta.down { background: var(--bad-bg); color: var(--bad); }
+
+/* chart */
+.chart { grid-area: chart; }
+.seg { display: flex; padding: 3px; border-radius: var(--r-s); background: #f1ede8; }
+.seg button { height: 30px; padding: 0 12px; border-radius: 6px; color: var(--muted); font-size: 13px; font-weight: 600; transition: background-color .15s, color .15s, box-shadow .15s; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(31, 22, 33, .12); }
+.sum { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; padding: 0 20px 4px; }
+.sum .big { font-size: 22px; font-weight: 700; color: var(--ink); }
+.sum .lab { font-size: 13px; color: var(--muted); margin-inline-end: 8px; }
+.legend { display: flex; gap: 16px; margin-inline-start: auto; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--acc); }
+.legend i.ly { height: 0; width: 16px; border-top: 2px dashed #9c94a0; border-radius: 0; background: none; }
+.plot { position: relative; height: 288px; margin: 0 8px 8px; outline: none; border-radius: var(--r-s); }
+.plot:focus-visible { outline: 2px solid var(--acc); }
+.plot svg { display: block; width: 100%; height: 100%; }
+.plot text { font-family: var(--ar); font-size: 12px; fill: var(--muted); }
+.plot .bar { fill: var(--acc); transition: opacity .15s; transform-box: fill-box; transform-origin: bottom; }
+.plot.on .bar { opacity: .35; }
+.plot.on .bar.hot { opacity: 1; }
+.tip { position: absolute; z-index: 5; min-width: 184px; padding: 12px; border-radius: var(--r-s); background: var(--ink); color: #fff; font-size: 13px; line-height: 1.6; pointer-events: none; box-shadow: 0 8px 20px rgba(31, 22, 33, .2); transition: opacity .12s, transform .15s ease-out; }
+.tip[hidden] { display: block; opacity: 0; }
+.tip b { display: block; margin-bottom: 4px; font-size: 13.5px; }
+.tip p { display: flex; justify-content: space-between; gap: 16px; color: #d9d0d6; }
+.tip p span:last-child { color: #fff; font-weight: 600; }
+
+/* cities */
+.city { grid-area: city; display: flex; flex-direction: column; }
+.cities { padding: 4px 20px 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; justify-content: space-between; }
+.cities li { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: baseline; }
+.cities b { color: var(--ink); font-weight: 600; }
+.cities .amt { font-size: 13px; color: var(--muted); }
+.cities .amt strong { color: var(--ink); font-weight: 600; margin-inline-end: 8px; }
+.track { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: #f1ede8; overflow: hidden; }
+.track i { display: block; height: 100%; border-radius: 3px; background: var(--acc); transform-origin: right; }
+.cities li:nth-child(n + 3) .track i { background: var(--acc-mid); }
+.cities li:nth-child(2) .track i { background: #a8638f; }
+
+/* orders */
+.orders { grid-area: orders; display: flex; flex-direction: column; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px; border-bottom: 1px solid var(--line); }
+.filters button { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-s); font-size: 13px; color: var(--body); transition: background-color .15s, border-color .15s, color .15s; }
+.filters button:hover { border-color: var(--muted); }
+.filters button small { font-size: 12px; color: var(--muted); }
+.filters button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.filters button[aria-pressed="true"] small { color: #cfc5cc; }
+table { width: 100%; border-collapse: collapse; }
+th { height: 40px; padding: 0 12px; font-size: 12.5px; font-weight: 500; color: var(--muted); text-align: start; white-space: nowrap; background: #faf8f6; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { padding-inline-start: 20px; }
+th:last-child, td:last-child { padding-inline-end: 16px; }
+td { height: 60px; padding: 0 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tbody tr { cursor: pointer; transition: background-color .12s; }
+tbody tr:hover { background: #fbf9f7; }
+tbody tr:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+tbody tr:last-child td { border-bottom: 0; }
+.num { color: var(--ink); font-weight: 600; }
+td small { display: block; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.who { display: flex; align-items: center; gap: 10px; }
+.who .av { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--acc-soft); color: var(--acc); font-weight: 700; font-size: 13px; flex: none; }
+.who b { display: block; color: var(--ink); font-weight: 600; line-height: 1.4; }
+.money { color: var(--ink); font-weight: 600; }
+.st { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; }
+.st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.st.processing { background: var(--amber-bg); color: var(--amber); }
+.st.shipped { background: var(--blue-bg); color: var(--blue); }
+.st.completed { background: var(--ok-bg); color: var(--ok); }
+.st.cancelled { background: var(--grey-bg); color: var(--grey); }
+td.go { width: 40px; color: var(--muted); }
+tbody tr:hover td.go { color: var(--acc); }
+.empty td { height: auto; padding: 48px 20px; text-align: center; white-space: normal; cursor: default; }
+.empty b { display: block; color: var(--ink); font-size: 15px; }
+.empty p { margin: 4px 0 16px; color: var(--muted); }
+tr.empty:hover { background: none; }
+.tfoot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding: 12px 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+/* aside: products + stock */
+.aside { grid-area: aside; display: flex; flex-direction: column; gap: 24px; }
+.prods { padding: 0 20px 8px; }
+.prods li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.thumb { width: 44px; height: 44px; border-radius: var(--r-s); background: #f3efe9; display: grid; place-items: center; }
+.thumb svg { width: 32px; height: 32px; }
+.prods b, .stock b { display: block; color: var(--ink); font-weight: 600; font-size: 13.5px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prods small, .stock small { display: block; color: var(--muted); font-size: 12px; }
+.prods .amt2 { text-align: end; font-size: 13px; color: var(--ink); font-weight: 600; }
+.prods .amt2 small { font-weight: 400; }
+.stock { padding: 0 20px 12px; }
+.stock li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.stock .lvl { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.stock .lvl .track { flex: 1; height: 4px; }
+.stock .lvl .track i { background: var(--bad); }
+.stock .btn { height: 32px; padding: 0 12px; font-size: 13px; }
+
+/* heatmap */
+.heat { grid-area: heat; }
+.hm { position: relative; padding: 0 20px 20px; }
+.hm-grid { display: grid; grid-template-columns: 56px repeat(12, minmax(0, 1fr)); gap: 4px; }
+.hm-grid .d { font-size: 12.5px; color: var(--muted); align-self: center; }
+.hm-grid .h { font-size: 11.5px; color: var(--muted); text-align: start; white-space: nowrap; }
+.cell { height: 28px; border-radius: 4px; transition: box-shadow .12s; }
+.cell:hover, .cell:focus-visible { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ink); outline: none; }
+.scale { display: flex; align-items: center; gap: 4px; margin-top: 16px; font-size: 12px; color: var(--muted); }
+.scale i { width: 20px; height: 10px; border-radius: 2px; }
+.scale span:first-child { margin-inline-end: 4px; } .scale span:last-child { margin-inline-start: 4px; }
+.hm .note { margin-inline-start: auto; color: var(--body); }
+.hm .note b { color: var(--ink); }
+
+/* reviews */
+.rev { grid-area: rev; }
+.revs { padding: 0 20px 12px; }
+.revs li { padding: 12px 0 14px; border-top: 1px solid var(--line); }
+.revs .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.revs b { color: var(--ink); font-weight: 600; font-size: 13.5px; }
+.stars { display: inline-flex; gap: 1px; color: #c58a12; }
+.stars svg { width: 14px; height: 14px; fill: currentColor; stroke: none; }
+.stars svg.off { color: #ddd5c9; }
+.revs p { margin-top: 4px; font-size: 13.5px; line-height: 1.65; color: var(--body); }
+.revs small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+.page-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 16px; padding-top: 8px; font-size: 12.5px; color: var(--muted); }
+
+/* drawer */
+dialog.drawer { position: fixed; inset: 0; margin: 0; margin-inline-start: auto; width: min(460px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh; padding: 0; border: 0; background: var(--card); color: var(--body); box-shadow: 0 0 40px rgba(31, 22, 33, .18); overflow: hidden; }
+dialog.drawer[open] { display: flex; flex-direction: column; animation: slide .28s cubic-bezier(.2, .8, .2, 1); }
+dialog.drawer.closing { animation: slide-out .2s ease-in forwards; }
+dialog.drawer::backdrop { background: rgba(31, 22, 33, .36); animation: fade .25s ease-out; }
+dialog.drawer.closing::backdrop { animation: fade .2s ease-in reverse forwards; }
+@keyframes slide { from { transform: translateX(-100%); } }
+@keyframes slide-out { to { transform: translateX(-100%); } }
+@keyframes fade { from { opacity: 0; } }
+.d-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--line); }
+.d-head h2 { font-size: 20px; font-weight: 700; color: var(--ink); outline: none; }
+.d-head p { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.d-head .st { margin-top: 8px; }
+.x { width: 36px; height: 36px; border-radius: var(--r-s); display: grid; place-items: center; color: var(--body); flex: none; }
+.x:hover { background: #f1ede8; }
+.d-body { flex: 1; overflow: auto; padding: 8px 24px 24px; }
+.d-body h3 { margin: 20px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.steps li { position: relative; display: flex; gap: 12px; padding-bottom: 14px; font-size: 13.5px; color: var(--muted); }
+.steps li::before { content: ""; position: relative; z-index: 1; width: 12px; height: 12px; margin-top: 5px; border-radius: 50%; border: 2px solid var(--line-2); background: var(--card); flex: none; }
+.steps li::after { content: ""; position: absolute; inset-inline-start: 5px; top: 18px; bottom: 0; width: 2px; background: var(--line); }
+.steps li:last-child::after { display: none; }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { border-color: var(--acc); background: var(--acc); }
+.steps li.done::after { background: var(--acc); }
+.steps li.now { color: var(--ink); font-weight: 600; }
+.steps li.now::before { border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+.steps li.stop::before { border-color: var(--grey); background: var(--grey); }
+.steps small { margin-inline-start: auto; color: var(--muted); font-weight: 400; font-size: 12px; }
+.box { padding: 12px 16px; border: 1px solid var(--line); border-radius: var(--r-s); font-size: 13.5px; }
+.box .who { margin-bottom: 8px; }
+.box dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; }
+.box dt { color: var(--muted); }
+.box dd { color: var(--ink); }
+.items li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.items b { display: block; color: var(--ink); font-weight: 600; font-size: 13.5px; line-height: 1.4; }
+.items small { color: var(--muted); font-size: 12px; }
+.items .money { font-size: 13.5px; }
+.totals { margin-top: 12px; font-size: 13.5px; }
+.totals p { display: flex; justify-content: space-between; padding: 3px 0; color: var(--body); }
+.totals p.grand { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--ink); font-weight: 700; font-size: 16px; }
+.totals p.vat { color: var(--muted); font-size: 12.5px; }
+.d-foot { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--line); background: #fbf9f7; }
+.d-foot .btn.pri { flex: 1; }
+.confirm { width: 100%; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink); }
+.confirm p { flex: 1 1 100%; margin-bottom: 4px; }
+.confirm .btn { flex: 1; }
+.btn.red { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; z-index: 60; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--r-s); background: var(--ink); color: #fff; font-size: 13.5px; box-shadow: 0 8px 24px rgba(31, 22, 33, .24); transform: translate(-50%, 0); transition: opacity .2s, transform .2s ease-out; }
+.toast[hidden] { display: flex; opacity: 0; transform: translate(-50%, 8px); pointer-events: none; }
+.toast svg { color: #9fe0bb; }
+
+/* ---------- tablet: an icon rail ---------- */
+@media (max-width: 1180px) {
+  .app { grid-template-columns: 72px minmax(0, 1fr); background: linear-gradient(to left, var(--side) 72px, transparent 72px); }
+  .side { padding: 20px 12px; align-items: center; }
+  .brand { padding: 0 0 20px; }
+  .brand div, .store, .nav h2, .nav button span, .me div, .me button { display: none; }
+  .nav { gap: 4px; }
+  .nav button { width: 48px; justify-content: center; padding: 0; }
+  .nav button[aria-current="page"]::before { inset-inline-start: -12px; }
+  .nav .count { position: absolute; top: 2px; inset-inline-end: 0; min-width: 18px; height: 16px; padding: 0 4px; font-size: 10.5px; line-height: 16px; }
+  .me { padding: 16px 0 0; }
+  .main { padding: 0 24px 32px; }
+  .search { width: auto; flex: 1; max-width: 320px; }
+  .date .hijri-only { display: none; }
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "kpi kpi" "chart chart" "city rev" "heat heat" "orders orders" "aside aside"; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .aside { gap: 24px; }
+  .aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+@media (max-width: 900px) {
+  .date { display: none; }
+  .search { max-width: none; }
+}
+/* ---------- phone ---------- */
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0, 1fr); background: none; }
+  .side { position: fixed; inset: 0 0 0 auto; width: 280px; height: 100dvh; padding: 20px 16px; align-items: stretch; transform: translateX(100%); visibility: hidden; transition: transform .28s cubic-bezier(.2, .8, .2, 1), visibility 0s .28s; }
+  .side.open { transform: none; visibility: visible; transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
+  .brand { padding: 0 8px 20px; }
+  .brand div, .store, .nav h2, .me div, .me button { display: block; }
+  .store, .me { display: flex; }
+  .me button { display: grid; }
+  .nav button { width: 100%; justify-content: flex-start; padding: 0 12px; }
+  .nav button span { display: inline; }
+  .nav .count { position: static; margin-inline-start: auto; min-width: 22px; height: 20px; font-size: 12px; line-height: 20px; }
+  .nav button[aria-current="page"]::before { inset-inline-start: -16px; }
+  .scrim { position: fixed; inset: 0; z-index: 25; display: block; background: rgba(31, 22, 33, .4); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .main { padding: 0 16px 32px; }
+  .top { flex-wrap: wrap; height: auto; gap: 8px 8px; padding: 12px 0; }
+  .icon-btn.menu { display: grid; }
+  .top .title { display: flex; flex-direction: column; justify-content: center; line-height: 1.3; }
+  .top .title b { color: var(--ink); font-size: 16px; }
+  .top .title small { color: var(--muted); font-size: 12px; }
+  .digits { margin-inline-start: auto; }
+  .digits button { min-width: 44px; padding: 0 8px; }
+  .search { order: 5; flex: 1 1 100%; max-width: none; }
+  .search kbd { display: none; }
+  .pop { position: fixed; top: 64px; inset-inline: 16px; width: auto; }
+  .head { flex-direction: column; align-items: stretch; gap: 16px; padding: 20px 0 16px; }
+  h1 { font-size: 24px; }
+  .head .acts .btn { flex: 1; }
+  .grid { gap: 16px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "kpi" "chart" "orders" "city" "aside" "heat" "rev"; }
+  .kpis { gap: 12px; }
+  .kpi { padding: 16px 16px 12px; }
+  .kpi .val { font-size: 21px; }
+  .kpi .val small { font-size: 13px; }
+  .kpi svg.spark { display: none; }
+  .kpi .foot { flex-wrap: wrap; gap: 4px 8px; }
+  .card > header { padding: 16px; flex-wrap: wrap; }
+  .sum { padding: 0 16px 4px; }
+  .legend { margin-inline-start: 0; width: 100%; }
+  .plot { height: 240px; margin: 0 4px 8px; }
+  .filters { padding: 0 16px 12px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .filters button { flex: none; }
+  thead { display: none; }
+  table, tbody { display: block; }
+  tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child { border-bottom: 0; }
+  td { display: block; height: auto; padding: 0 !important; border: 0; }
+  td.c-who { grid-column: 1; grid-row: 1 / span 2; }
+  td.c-num { grid-column: 2; grid-row: 1; text-align: end; }
+  td.c-tot { grid-column: 2; grid-row: 2; text-align: end; }
+  td.c-st { grid-column: 1; grid-row: 3; padding-inline-start: 42px !important; }
+  td.c-pay, td.c-qty, td.go { display: none; }
+  td.c-num small { display: inline; margin-inline-start: 6px; }
+  .empty { display: block !important; }
+  .aside { display: flex; align-items: stretch; gap: 16px; }
+  .hm { padding: 0 16px 16px; }
+  .hm-grid { grid-template-columns: 44px repeat(12, minmax(0, 1fr)); gap: 3px; }
+  .hm-grid .h:nth-child(4n + 1) { visibility: hidden; }
+  .cell { height: 22px; }
+  .scale { flex-wrap: wrap; }
+  .hm .note { margin-inline-start: 0; flex-basis: 100%; margin-top: 8px; }
+  .page-foot { flex-direction: column; }
+  .toast { bottom: 16px; max-width: calc(100vw - 32px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-5.5h-5V20H4z"/></symbol>
+  <symbol id="i-orders" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z"/><path d="M9 8.5h6M9 12.5h6"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z"/><path d="M4 7.5 12 11l8-3.5M12 11v9"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.25"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M15.5 5.5a3 3 0 0 1 0 6M17 14.5c2 .5 3.2 2.1 3.5 5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.3V4.5h7.8l9.2 9.2-7.8 7.8z"/><circle cx="8" cy="9" r="1.25"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16M8.5 16v-4M12.5 16V8M16.5 16v-6"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 16.5V6H3v10.5h1.5M14 9.5h3.8l3.2 3.5v3.5h-1.5M9.5 16.5h5.5"/><circle cx="7" cy="17" r="2"/><circle cx="17.5" cy="17" r="2"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 14.5h4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9.5M18.5 7H20M4 17h3.5M12.5 17H20"/><circle cx="16" cy="7" r="2.25"/><circle cx="10" cy="17" r="2.25"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5h4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 18.5v-13M7 10.5l5-5 5 5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5.5v13M7 13.5l5 5 5-5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V4h10v4M6 17H4v-7h16v7h-2"/><path d="M7 14h10v6H7z"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h4.5v16H14M15 12H4.5M8.5 8l-4 4 4 4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19.5h18z"/><path d="M12 10v4.5M12 17v.5"/></symbol>
+</defs></svg>
+
+<div class="app">
+  <aside class="side" id="side" aria-label="القائمة الرئيسية">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#e2a9cb"/><path d="M6 25V14.5a5 5 0 0 1 10 0V25M16 25V14.5a5 5 0 0 1 10 0V25" fill="none" stroke="#1f1621" stroke-width="2.25"/><path d="M4.5 25h23" stroke="#1f1621" stroke-width="2.25" stroke-linecap="round"/></svg>
+      <div><b>رواق</b><small>لوحة إدارة المتجر</small></div>
+    </div>
+    <div class="store"><span class="logo" aria-hidden="true">ن</span><div><b>دار نسمة للعطور</b><small class="ltr">nasma.store</small></div></div>
+    <nav class="nav" id="nav">
+      <button aria-current="page" data-go="top"><svg class="i" aria-hidden="true"><use href="#i-home"/></svg><span>الرئيسية</span></button>
+      <button data-go="orders"><svg class="i" aria-hidden="true"><use href="#i-orders"/></svg><span>الطلبات</span><b class="count" id="nav-count"></b></button>
+      <button data-go="aside"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg><span>المنتجات</span></button>
+      <button data-go="rev"><svg class="i" aria-hidden="true"><use href="#i-users"/></svg><span>العملاء</span></button>
+      <button data-go="chart"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg><span>التقارير</span></button>
+      <h2>المتجر</h2>
+      <button data-go="soon"><svg class="i" aria-hidden="true"><use href="#i-tag"/></svg><span>الخصومات</span></button>
+      <button data-go="soon"><svg class="i" aria-hidden="true"><use href="#i-truck"/></svg><span>الشحن والتوصيل</span></button>
+      <button data-go="soon"><svg class="i" aria-hidden="true"><use href="#i-card"/></svg><span>المدفوعات</span></button>
+      <button data-go="soon"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg><span>الإعدادات</span></button>
+    </nav>
+    <div class="me"><span class="av" aria-hidden="true">س</span><div><b>سارة القحطاني</b><small>مديرة المتجر</small></div><button id="logout" aria-label="تسجيل الخروج"><svg class="i" aria-hidden="true"><use href="#i-out"/></svg></button></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <header class="top">
+      <button class="icon-btn menu" id="menu" aria-label="فتح القائمة" aria-controls="side" aria-expanded="false"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <label class="search"><svg class="i s" aria-hidden="true"><use href="#i-search"/></svg><span class="sr">ابحث في الطلبات</span>
+        <input id="q" type="search" placeholder="ابحث برقم الطلب أو اسم العميل أو المدينة" autocomplete="off" aria-controls="tbody"><kbd aria-hidden="true">/</kbd></label>
+      <div class="date" id="date" aria-label="تاريخ اليوم"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg><div><b id="hijri"></b><span id="greg"></span></div></div>
+      <div class="digits" role="group" aria-label="شكل الأرقام" id="digits"><span class="knob" id="thumb" aria-hidden="true"></span><button data-nu="arab" aria-pressed="true" lang="ar" aria-label="أرقام عربية مشرقية">١٢٣</button><button data-nu="latn" aria-pressed="false" lang="en" aria-label="أرقام لاتينية">123</button></div>
+      <div style="position:relative">
+        <button class="icon-btn" id="bell" aria-label="الإشعارات" aria-expanded="false" aria-controls="pop"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg><span class="dot" id="dot"></span></button>
+        <div class="pop" id="pop" hidden role="dialog" aria-label="الإشعارات">
+          <header><b>الإشعارات</b><button class="link" id="readall">تحديد الكل كمقروء</button></header>
+          <ul id="notes"></ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="head" id="top">
+      <div><h1>صباح الخير يا سارة</h1><p id="lede"></p></div>
+      <div class="acts"><button class="btn" id="export"><svg class="i s" aria-hidden="true"><use href="#i-dl"/></svg>تصدير التقرير</button><button class="btn pri" id="new"><svg class="i s" aria-hidden="true"><use href="#i-plus"/></svg>منتج جديد</button></div>
+    </div>
+
+    <div class="grid">
+      <section class="kpis" id="kpis" aria-label="مؤشرات الشهر"></section>
+
+      <section class="card chart" id="chart" aria-labelledby="c-t">
+        <header><div><h2 id="c-t">المبيعات الشهرية</h2><p>آخر <span data-v="12" data-f="int"></span> شهراً مقارنة بالسنة السابقة</p></div>
+          <div class="seg" role="group" aria-label="المقياس" id="series"><button data-s="rev" aria-pressed="true">المبيعات</button><button data-s="ord" aria-pressed="false">الطلبات</button></div></header>
+        <div class="sum"><span class="lab" id="sum-lab"></span><span class="big" id="sum-big"></span><span class="delta up" id="sum-d"></span>
+          <span class="legend" aria-hidden="true"><span><i></i>هذه السنة</span><span><i class="ly"></i>السنة السابقة</span></span></div>
+        <div class="plot" id="plot" tabindex="0" role="img" aria-roledescription="رسم بياني" aria-describedby="plot-live">
+          <svg id="svg" aria-hidden="true"></svg>
+          <div class="tip" id="tip" hidden></div>
+        </div>
+        <p class="sr" id="plot-live" aria-live="polite"></p>
+      </section>
+
+      <section class="card city" id="city" aria-labelledby="ct-t">
+        <header><div><h2 id="ct-t">المبيعات حسب المدينة</h2><p>أكتوبر <span data-v="2026" data-f="year"></span></p></div></header>
+        <ul class="cities" id="cities"></ul>
+      </section>
+
+      <section class="card orders" id="orders" aria-labelledby="o-t">
+        <header><div><h2 id="o-t">أحدث الطلبات</h2><p id="o-sub"></p></div><button class="link" id="all-orders">عرض كل الطلبات</button></header>
+        <div class="filters" role="group" aria-label="تصفية حسب الحالة" id="filters"></div>
+        <table>
+          <caption class="sr">أحدث الطلبات. اضغط على أي صف لعرض تفاصيل الطلب.</caption>
+          <thead><tr><th scope="col">الطلب</th><th scope="col">العميل</th><th scope="col">القطع</th><th scope="col">الدفع</th><th scope="col">الإجمالي</th><th scope="col">الحالة</th><th scope="col"><span class="sr">التفاصيل</span></th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="tfoot"><span id="o-count"></span><span>الأسعار تشمل ضريبة القيمة المضافة</span></div>
+      </section>
+
+      <div class="aside" id="aside">
+        <section class="card" aria-labelledby="p-t">
+          <header><div><h2 id="p-t">الأكثر مبيعاً</h2><p>هذا الشهر</p></div></header>
+          <ul class="prods" id="prods"></ul>
+        </section>
+        <section class="card" id="stock-card" aria-labelledby="s-t">
+          <header><div><h2 id="s-t">مخزون منخفض</h2><p>أقل من حدّ إعادة الطلب</p></div></header>
+          <ul class="stock" id="stock"></ul>
+        </section>
+      </div>
+
+      <section class="card heat" aria-labelledby="h-t">
+        <header><div><h2 id="h-t">أوقات الطلب</h2><p>عدد الطلبات حسب اليوم والساعة، آخر <span data-v="30" data-f="int"></span> يوماً</p></div></header>
+        <div class="hm"><div class="hm-grid" id="hm" role="grid" aria-label="الطلبات حسب اليوم والساعة"></div>
+          <div class="scale" aria-hidden="true"><span>أقل</span><i style="background:#f4ecf1"></i><i style="background:#e3c4d7"></i><i style="background:#c38bad"></i><i style="background:#9a4f80"></i><i style="background:#6b2453"></i><span>أكثر</span><span class="note" id="peak"></span></div>
+          <div class="tip" id="htip" hidden></div></div>
+      </section>
+
+      <section class="card rev" id="rev" aria-labelledby="r-t">
+        <header><div><h2 id="r-t">آراء العملاء</h2><p>متوسط التقييم <span data-v="4.8" data-f="dec"></span> من <span data-v="5" data-f="int"></span></p></div></header>
+        <ul class="revs" id="revs"></ul>
+      </section>
+
+      <p class="page-foot"><span id="updated"></span><span>رواق — بيانات تجريبية لمتجر افتراضي</span></p>
+    </div>
+  </div>
+</div>
+
+<dialog class="drawer" id="drawer" aria-labelledby="d-title">
+  <div class="d-head"><div><h2 id="d-title" tabindex="-1"></h2><p id="d-when"></p><span id="d-st"></span></div><button class="x" id="d-close" aria-label="إغلاق التفاصيل"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="d-body" id="d-body"></div>
+  <div class="d-foot" id="d-foot"></div>
+</dialog>
+<div class="toast" id="toast" role="status" hidden><svg class="i s" aria-hidden="true"><use href="#i-check"/></svg><span id="toast-t"></span></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/* ---------- numbers: everything with a figure goes through here, so one switch redraws the page ---------- */
+let NU = "arab";
+const LOC = () => "ar-SA-u-nu-" + NU;
+const nf = (o) => new Intl.NumberFormat(LOC(), o);
+const SAR = " ر.س";
+const F = {
+  int: (v) => nf({ maximumFractionDigits: 0 }).format(v),
+  year: (v) => nf({ useGrouping: false }).format(v),
+  dec: (v) => nf({ minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v),
+  sar: (v) => nf({ maximumFractionDigits: 0 }).format(v) + SAR,
+  sar2: (v) => nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) + SAR,
+  pct: (v) => nf({ style: "percent", maximumFractionDigits: 1 }).format(v),
+  pct1: (v) => nf({ style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v),
+  dpct: (v) => nf({ style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" }).format(v),
+  compact: (v) => nf({ notation: "compact", maximumFractionDigits: 1 }).format(v),
+};
+const IND = "٠١٢٣٤٥٦٧٨٩";
+const digits = (s) => NU === "arab" ? String(s).replace(/\d/g, (d) => IND[d]) : String(s);
+/* codes read left to right; Arabic-Indic digit groups would otherwise swap places, so pin each gap with a mark */
+const code = (s) => NU === "arab" ? "\u200e" + digits(s).replace(/([ \-])/g, "\u200e$1\u200e") : String(s);
+/* the demo's "today" (Riyadh). Swap for new Date() in a real store. */
+const NOW = new Date("2026-11-03T09:24:00+03:00");
+const TZ = "Asia/Riyadh";
+const dtf = (o, cal = "gregory") => new Intl.DateTimeFormat(`ar-SA-u-ca-${cal}-nu-${NU}`, { timeZone: TZ, ...o });
+const dayKey = (d) => dtf({ year: "numeric", month: "numeric", day: "numeric" }, "gregory").format(d);
+const T = {
+  time: (d) => dtf({ hour: "numeric", minute: "2-digit" }).format(d),
+  when(d) {
+    const y = new Date(NOW - 864e5);
+    if (dayKey(d) === dayKey(NOW)) return "اليوم، " + T.time(d);
+    if (dayKey(d) === dayKey(y)) return "أمس، " + T.time(d);
+    return dtf({ day: "numeric", month: "long" }).format(d) + "، " + T.time(d);
+  },
+  day: (d) => dtf({ day: "numeric", month: "long" }).format(d),
+  full: (d) => dtf({ weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d) + "، " + T.time(d),
+};
+/* write a figure into an element and remember how, so the switch can redraw it */
+const v = (val, f, cls = "") => `<span data-v="${val}" data-f="${f}"${cls ? ` class="${cls}"` : ""}>${F[f](val)}</span>`;
+const d = (s, ltr) => `<span data-d="${esc(s)}"${ltr ? " data-ltr" : ""}>${esc(ltr ? code(s) : digits(s))}</span>`;
+const c = (s) => `<span class="ltr" dir="ltr">${d(s, true)}</span>`;
+const t = (date, f) => `<span data-t="${date.toISOString()}" data-f="${f}">${T[f](date)}</span>`;
+function paint(root = document) {
+  for (const el of $$("[data-v]", root)) el.textContent = F[el.dataset.f](+el.dataset.v);
+  for (const el of $$("[data-d]", root)) el.textContent = "ltr" in el.dataset ? code(el.dataset.d) : digits(el.dataset.d);
+  for (const el of $$("[data-t]", root)) el.textContent = T[el.dataset.f](new Date(el.dataset.t));
+}
+
+/* ---------- data ---------- */
+const MONTHS = Array.from({ length: 12 }, (_, i) => new Date(Date.UTC(2025, 10 + i, 15)));
+const SERIES = {
+  rev: { now: [318400, 296750, 342180, 461920, 548300, 352640, 341980, 405120, 329760, 358410, 432860, 486320], last: [262100, 249800, 281500, 318900, 452600, 296300, 301700, 352400, 284900, 309200, 371600, 418500], f: "sar", name: "المبيعات" },
+  ord: { now: [868, 812, 931, 1236, 1452, 958, 921, 1087, 893, 966, 1188, 1284], last: [741, 702, 789, 884, 1236, 812, 829, 961, 784, 846, 1009, 1131], f: "int", name: "الطلبات" },
+};
+const KPI = [
+  { name: "المبيعات", now: 486320, prev: 432860, f: "sar", spark: SERIES.rev.now },
+  { name: "الطلبات", now: 1284, prev: 1188, f: "int", spark: SERIES.ord.now },
+  { name: "متوسط قيمة الطلب", now: 378.75, prev: 364.36, f: "sar2", spark: SERIES.rev.now.map((r, i) => r / SERIES.ord.now[i]) },
+  { name: "العملاء الجدد", now: 312, prev: 326, f: "int", spark: [241, 228, 262, 341, 398, 276, 259, 301, 255, 284, 326, 312] },
+];
+const PRODUCTS = {
+  oud: { name: "دهن عود كمبودي", size: "12 مل", price: 890, art: "vial" },
+  layl: { name: "عطر ليل الحجاز", size: "100 مل", price: 420, art: "bottle" },
+  musk: { name: "مسك أبيض ناعم", size: "50 مل", price: 175, art: "round" },
+  bakh: { name: "بخور الورد الطائفي", size: "200 غ", price: 145, art: "jar" },
+  mabk: { name: "مبخرة نحاسية صغيرة", size: "قطعة واحدة", price: 260, art: "burner" },
+  maam: { name: "معمول عود هندي", size: "50 غ", price: 95, art: "jar" },
+  sand: { name: "عطر صندل وزعفران", size: "75 مل", price: 340, art: "bottle" },
+};
+const STATUS = { processing: "قيد التجهيز", shipped: "تم الشحن", completed: "مكتمل", cancelled: "ملغي" };
+const PAY = { card: "بطاقة", cod: "عند الاستلام", bank: "تحويل بنكي" };
+const ORDERS = [
+  [10492, "ريم العتيبي", "الرياض", "حي الياسمين", "2026-11-03T08:58", [["layl", 1], ["musk", 2], ["bakh", 1]], "processing", "card", "4821"],
+  [10491, "سلمان خان", "الرياض", "حي العليا", "2026-11-03T08:15", [["maam", 2]], "processing", "cod"],
+  [10490, "نورة الشهري", "جدة", "حي الروضة", "2026-11-03T07:41", [["oud", 1]], "processing", "card", "1107"],
+  [10489, "عبدالله الغامدي", "مكة", "حي العزيزية", "2026-11-02T21:30", [["mabk", 1], ["bakh", 3], ["maam", 2]], "shipped", "bank"],
+  [10488, "لمى الزهراني", "المدينة", "حي قباء", "2026-11-02T18:12", [["musk", 1]], "shipped", "card", "3390"],
+  [10487, "خالد المطيري", "الرياض", "حي النرجس", "2026-11-02T14:50", [["layl", 1], ["sand", 1]], "cancelled", "card", "7716"],
+  [10486, "ماريا سانتوس", "الدمام", "حي الشاطئ", "2026-11-02T11:05", [["musk", 2]], "shipped", "cod"],
+  [10485, "هيفاء القرني", "جدة", "حي الشاطئ", "2026-11-01T20:44", [["oud", 1], ["layl", 1], ["bakh", 2]], "completed", "card", "5502"],
+  [10484, "ماجد الحربي", "الرياض", "حي الملقا", "2026-11-01T16:20", [["sand", 1]], "completed", "bank"],
+  [10483, "دانة السبيعي", "الدمام", "حي الفيصلية", "2026-10-31T19:02", [["mabk", 1], ["maam", 1]], "completed", "card", "2264"],
+  [10482, "تركي العنزي", "الرياض", "حي الربوة", "2026-10-31T13:37", [["bakh", 2]], "cancelled", "cod"],
+  [10481, "أمل باوزير", "جدة", "حي الحمراء", "2026-10-30T22:16", [["oud", 2]], "completed", "card", "9045"],
+].map(([id, name, city, hood, at, items, status, pay, last4], i) => {
+  const sub = items.reduce((s, [p, q]) => s + PRODUCTS[p].price * q, 0), ship = sub >= 500 ? 0 : 25;
+  return { id, name, city, hood, at: new Date(at + ":00+03:00"), items, status, pay, last4, sub, ship, total: sub + ship,
+    phone: `+966 5${(i * 7 + 3) % 10} ${String(214 + i * 61).slice(-3)} ${String(8830 + i * 417).slice(-4)}`, track: status === "shipped" || status === "completed" ? `RWQ-${48213 + i * 97}-SA` : "" };
+});
+const CITIES = [["الرياض", 186740], ["جدة", 117210], ["الدمام", 66630], ["مكة", 54470], ["المدينة", 38420], ["مدن أخرى", 22850]];
+const TOP = [["oud", 214], ["layl", 388], ["musk", 512], ["bakh", 693], ["sand", 141]];
+const STOCK = [["sand", 4, 20], ["oud", 6, 15], ["mabk", 9, 25]];
+const REVIEWS = [
+  ["نورة الشهري", 5, "مسك أبيض ناعم", "الرائحة ثابتة طوال اليوم والتغليف أنيق جداً. وصل الطلب إلى جدة خلال يومين.", "2026-11-02T19:10"],
+  ["سلمان خان", 4, "معمول عود هندي", "جودة ممتازة مقابل السعر، أتمنى توفّر عبوة أكبر.", "2026-11-01T12:30"],
+  ["هيفاء القرني", 5, "دهن عود كمبودي", "أصلي وفوّاح، وهذه ثالث مرة أطلبه. شكراً على الهدية الصغيرة مع الطلب.", "2026-10-31T21:05"],
+];
+const DAYS = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
+const HOURS = [6, 2, 1, 1, 3, 9, 14, 16, 18, 24, 34, 22];
+const HEAT = DAYS.map((_, di) => HOURS.map((h, hi) => { let f = [1, .9, .85, .9, 1, 1.35, .8][di]; if (di === 6 && hi >= 4 && hi <= 6) f *= .45; if (di === 6 && hi >= 9) f *= 1.5; return Math.round(h * f * 4.2 + ((di * 5 + hi * 3) % 7)); }));
+
+/* ---------- icons and drawings ---------- */
+const ico = (id, c = "i") => `<svg class="${c}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const ART = {
+  vial: '<rect x="12" y="4" width="8" height="5" rx="1" fill="#74295a"/><path d="M11 9h10v17a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2z" fill="#c9a26b"/><path d="M13 14h6v8h-6z" fill="#f6efe2"/>',
+  bottle: '<rect x="13" y="3" width="6" height="5" rx="1" fill="#1d1820"/><rect x="7" y="9" width="18" height="19" rx="3" fill="#74295a"/><rect x="11" y="14" width="10" height="7" rx="1" fill="#f5eaf1"/>',
+  round: '<rect x="13" y="3" width="6" height="6" rx="1.5" fill="#c9a26b"/><circle cx="16" cy="19" r="10" fill="#efe9f0" stroke="#d7b3c9" stroke-width="1.5"/><circle cx="16" cy="19" r="4" fill="#d7b3c9"/>',
+  jar: '<rect x="8" y="6" width="16" height="5" rx="1.5" fill="#1d1820"/><path d="M9 11h14v15a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2z" fill="#b8763e"/><rect x="11" y="16" width="10" height="6" rx="1" fill="#f6efe2"/>',
+  burner: '<path d="M10 9c0-3 2.7-5 6-5s6 2 6 5z" fill="#c08a3e"/><path d="M8 9h16l-2 9H10z" fill="#d9a24f"/><path d="M14 18h4v5h-4z" fill="#b8763e"/><path d="M10 23h12l1 4H9z" fill="#c08a3e"/>',
+};
+const thumb = (k) => `<span class="thumb" aria-hidden="true"><svg viewBox="0 0 32 32">${ART[PRODUCTS[k].art]}</svg></span>`;
+
+/* ---------- header ---------- */
+function headerDates() {
+  $("#hijri").textContent = dtf({ weekday: "long", day: "numeric", month: "long", year: "numeric" }, "islamic-umalqura").format(NOW);
+  $("#greg").textContent = dtf({ day: "numeric", month: "long", year: "numeric" }).format(NOW) + " م";
+}
+$("#lede").innerHTML = `أداء أكتوبر ${v(2026, "year")} مقارنة بسبتمبر، وآخر الطلبات حتى ${t(NOW, "time")}`;
+$("#updated").innerHTML = `آخر تحديث: ${t(NOW, "full")}`;
+
+/* ---------- KPIs ---------- */
+function spark(arr) {
+  const max = Math.max(...arr), min = Math.min(...arr), W = 96, H = 32;
+  /* newest at the left: time runs the way the page reads */
+  const pts = arr.map((y, i) => [W - i * W / (arr.length - 1), H - 2 - (y - min) / (max - min) * (H - 6)]);
+  const p = pts.map(([x, y], i) => (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1)).join("");
+  const [lx, ly] = pts[pts.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${p}" fill="none" stroke="#c38bad" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${lx}" cy="${ly}" r="3" fill="#74295a"/></svg>`;
+}
+const deltaHtml = (ch) => `<span class="delta ${ch >= 0 ? "up" : "down"}">${ico(ch >= 0 ? "up" : "down")}${v(Math.abs(ch), "pct1")}<span class="sr">${ch >= 0 ? " ارتفاع" : " انخفاض"}</span></span>`;
+$("#kpis").innerHTML = KPI.map((k) => {
+  const ch = k.now / k.prev - 1, money = k.f.startsWith("sar");
+  const val = money ? `<span data-v="${k.now}" data-f="${k.f === "sar" ? "int" : "dec2"}"></span><small>ر.س</small>` : v(k.now, k.f);
+  return `<article class="card kpi"><h3>${k.name}</h3><span class="val">${val}</span><p class="foot">${deltaHtml(ch)}<span>عن سبتمبر</span></p>${spark(k.spark)}</article>`;
+}).join("");
+F.dec2 = (x) => nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(x);
+
+/* ---------- chart: twelve months, oldest on the right ---------- */
+let series = "rev", hot = -1;
+const plot = $("#plot"), svgEl = $("#svg"), tip = $("#tip");
+const monthName = (i, o = { month: "short" }) => dtf({ ...o, timeZone: "UTC" }).format(MONTHS[i]);
+function niceMax(m) { const p = Math.pow(10, Math.floor(Math.log10(m))), n = m / p; return (n <= 1.2 ? 1.2 : n <= 1.6 ? 1.6 : n <= 2 ? 2 : n <= 2.4 ? 2.4 : n <= 3 ? 3 : n <= 4 ? 4 : n <= 6 ? 6 : n <= 8 ? 8 : 10) * p; }
+let geo = null;
+function drawChart(grow) {
+  const S = SERIES[series], W = plot.clientWidth, H = plot.clientHeight;
+  const mr = W < 500 ? 44 : 56, ml = 8, mt = 16, mb = 32, iw = W - mr - ml, ih = H - mt - mb;
+  const max = niceMax(Math.max(...S.now, ...S.last)), step = iw / 12, bw = Math.min(32, step * .52);
+  const x = (i) => W - mr - (i + .5) * step, y = (val) => mt + ih - val / max * ih;
+  geo = { x, step, W, mr, mt };
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const val = max / 4 * k, yy = y(val); g += `<line x1="${ml}" x2="${W - mr + 6}" y1="${yy}" y2="${yy}" stroke="${k ? "#efebe5" : "#d9d2c8"}"/><text x="${W - 4}" y="${yy + 4}" text-anchor="start" direction="rtl">${S.f === "sar" ? F.compact(val) : F.int(val)}</text>`; }
+  let bars = "", labels = "";
+  S.now.forEach((val, i) => {
+    const h = ih - (y(val) - mt), yy = y(val);
+    bars += `<path class="bar${i === hot ? " hot" : ""}" data-i="${i}" d="M${x(i) - bw / 2} ${mt + ih}V${yy + 3}q0-3 3-3h${bw - 6}q3 0 3 3V${mt + ih}z"/>`;
+    /* narrow screens label every other month, always keeping the latest */
+    const thin = step < 40, yr = thin ? i === 1 || i === 3 : i === 0 || MONTHS[i].getUTCMonth() === 0;
+    if (thin && (11 - i) % 2 && i !== hot) return;
+    labels += `<text x="${x(i)}" y="${H - 12}" text-anchor="middle" ${i === hot ? 'fill="#1d1820" font-weight="600"' : ""}>${monthName(i)}</text>`;
+    if (yr) labels += `<text x="${x(i)}" y="${H}" text-anchor="middle" font-size="10.5">${F.year(MONTHS[i].getUTCFullYear())}</text>`;
+  });
+  const lp = S.last.map((val, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(val).toFixed(1)).join("");
+  const dots = S.last.map((val, i) => `<circle cx="${x(i)}" cy="${y(val)}" r="${i === hot ? 4 : 2.5}" fill="#fff" stroke="#8b8290" stroke-width="1.5"/>`).join("");
+  svgEl.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svgEl.innerHTML = g + (hot >= 0 ? `<rect x="${x(hot) - step / 2}" y="${mt}" width="${step}" height="${ih}" fill="#f7f1f4"/>` : "") + bars + `<path d="${lp}" fill="none" stroke="#8b8290" stroke-width="1.75" stroke-dasharray="4 4"/>` + dots + labels;
+  plot.classList.toggle("on", hot >= 0);
+  if (grow && !still) $$(".bar", svgEl).forEach((b, i) => b.animate([{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }], { duration: 420, delay: i * 22, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }));
+  summary();
+}
+function summary() {
+  const S = SERIES[series], sum = (a) => a.reduce((s, n) => s + n, 0);
+  if (hot < 0) {
+    $("#sum-lab").textContent = `إجمالي ${S.name} خلال السنة`;
+    $("#sum-big").innerHTML = v(sum(S.now), S.f);
+    $("#sum-d").outerHTML = `<span id="sum-d">${deltaHtml(sum(S.now) / sum(S.last) - 1)}</span>`;
+  } else {
+    $("#sum-lab").textContent = `${S.name} في ${monthName(hot, { month: "long", year: "numeric" })}`;
+    $("#sum-big").innerHTML = v(S.now[hot], S.f);
+    $("#sum-d").outerHTML = `<span id="sum-d">${deltaHtml(S.now[hot] / S.last[hot] - 1)}</span>`;
+  }
+  plot.setAttribute("aria-label", `${S.name} الشهرية لآخر اثني عشر شهراً. استخدم الأسهم للتنقل بين الأشهر.`);
+}
+function setHot(i, showTip) {
+  hot = i; drawChart(false);
+  if (i < 0) { tip.hidden = true; return; }
+  const S = SERIES[series], ch = S.now[i] / S.last[i] - 1;
+  tip.innerHTML = `<b>${monthName(i, { month: "long", year: "numeric" })}</b><p><span>هذه السنة</span><span>${F[S.f](S.now[i])}</span></p><p><span>السنة السابقة</span><span>${F[S.f](S.last[i])}</span></p><p><span>التغيّر</span><span>${F.dpct(ch)}</span></p>`;
+  const tw = 196, cx = geo.x(i);
+  let left = cx - tw - 16; if (left < 8) left = cx + 16;
+  tip.style.left = left + "px"; tip.style.top = "24px";
+  tip.hidden = !showTip;
+  $("#plot-live").textContent = `${monthName(i, { month: "long", year: "numeric" })}: ${F[S.f](S.now[i])}، ${F.dpct(ch)} عن السنة السابقة`;
+}
+plot.addEventListener("pointermove", (e) => {
+  const r = plot.getBoundingClientRect(), px = e.clientX - r.left;
+  const i = Math.max(0, Math.min(11, Math.floor((geo.W - geo.mr - px) / geo.step)));
+  if (i !== hot || tip.hidden) setHot(i, true);
+});
+plot.addEventListener("pointerleave", () => setHot(-1));
+plot.addEventListener("keydown", (e) => {
+  /* left is later in time here, because the months run right to left */
+  const k = e.key, cur = hot < 0 ? 11 : hot;
+  let n = null;
+  if (k === "ArrowLeft") n = hot < 0 ? 11 : Math.min(11, cur + 1);
+  if (k === "ArrowRight") n = hot < 0 ? 11 : Math.max(0, cur - 1);
+  if (k === "Home") n = 0; if (k === "End") n = 11;
+  if (k === "Escape" && hot >= 0) { e.preventDefault(); setHot(-1); return; }
+  if (n !== null) { e.preventDefault(); setHot(n, true); }
+});
+plot.addEventListener("blur", () => setHot(-1));
+$("#series").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-s]"); if (!b || b.dataset.s === series) return;
+  series = b.dataset.s; $$("#series button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  const h = hot; hot = -1; tip.hidden = true; drawChart(true); if (h >= 0) setHot(h, false);
+});
+new ResizeObserver(() => drawChart(false)).observe(plot);
+
+/* ---------- cities ---------- */
+const cityTotal = CITIES.reduce((s, c) => s + c[1], 0);
+$("#cities").innerHTML = CITIES.map(([n, val]) => `<li><b>${n}</b><span class="amt"><strong>${v(val / cityTotal, "pct")}</strong>${v(val, "sar")}</span><span class="track"><i style="width:${(val / CITIES[0][1] * 100).toFixed(1)}%"></i></span></li>`).join("");
+
+/* ---------- orders ---------- */
+let filter = "all", query = "";
+const FILTERS = [["all", "الكل"], ...Object.entries(STATUS)];
+const fold = (s) => s.toLowerCase().replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[٠-٩]/g, (c) => IND.indexOf(c)).replace(/[ً-ٟ]/g, "");
+ORDERS.forEach((o) => o.hay = fold([o.id, o.name, o.city, o.hood, STATUS[o.status], ...o.items.map(([p]) => PRODUCTS[p].name)].join(" ")));
+const stPill = (s) => `<span class="st ${s}">${STATUS[s]}</span>`;
+const qty = (o) => o.items.reduce((s, [, q]) => s + q, 0);
+const payTxt = (o) => o.pay === "card" ? `بطاقة ${c("•••• " + o.last4)}` : PAY[o.pay];
+function matches(f = filter) { return ORDERS.filter((o) => (f === "all" || o.status === f) && (!query || o.hay.includes(query))); }
+function renderFilters() {
+  $("#filters").innerHTML = FILTERS.map(([k, n]) => `<button data-f="${k}" aria-pressed="${k === filter}">${n}<small>${v(matches(k).length, "int")}</small></button>`).join("");
+}
+function renderOrders(fade) {
+  const list = matches();
+  renderFilters();
+  $("#tbody").innerHTML = list.length ? list.map((o) => `<tr tabindex="0" data-id="${o.id}" aria-haspopup="dialog" aria-label="الطلب ${digits(o.id)}، ${o.name}، ${STATUS[o.status]}">
+    <td class="c-num"><span class="num ltr">#${d(o.id)}</span><small>${t(o.at, "when")}</small></td>
+    <td class="c-who"><div class="who"><span class="av" aria-hidden="true">${o.name[0]}</span><div><b>${o.name}</b><small>${o.city}</small></div></div></td>
+    <td class="c-qty">${v(qty(o), "int")}</td><td class="c-pay">${payTxt(o)}</td>
+    <td class="c-tot"><span class="money">${v(o.total, "sar2")}</span></td><td class="c-st">${stPill(o.status)}</td><td class="go">${ico("chev", "i s")}</td></tr>`).join("")
+    : `<tr class="empty"><td colspan="7"><b>لا توجد طلبات ${filter === "all" ? "" : "«" + STATUS[filter] + "» "}تطابق «${esc($("#q").value.trim())}»</b><p>جرّب رقم الطلب أو اسم العميل أو اسم المدينة.</p><button class="btn" data-clear>مسح البحث</button></td></tr>`;
+  const all = ORDERS.length;
+  $("#o-count").innerHTML = `يعرض ${v(list.length, "int")} من ${v(all, "int")} طلباً`;
+  $("#o-sub").innerHTML = `${v(ORDERS.filter((o) => o.status === "processing").length, "int")} بانتظار التجهيز اليوم`;
+  $("#nav-count").innerHTML = v(ORDERS.filter((o) => o.status === "processing").length, "int");
+  if (fade && !still) $$("#tbody tr").forEach((r, i) => r.animate([{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 220, delay: i * 18, easing: "ease-out", fill: "backwards" }));
+}
+$("#filters").addEventListener("click", (e) => { const b = e.target.closest("[data-f]"); if (!b || b.dataset.f === filter) return; filter = b.dataset.f; renderOrders(true); $(`#filters [data-f="${filter}"]`).focus(); });
+const q = $("#q");
+q.addEventListener("input", () => { query = fold(q.value.trim()); renderOrders(false); });
+q.addEventListener("keydown", (e) => { if (e.key === "Escape" && q.value) { e.preventDefault(); q.value = ""; query = ""; renderOrders(false); } if (e.key === "Enter") { e.preventDefault(); const r = $("#tbody tr[data-id]"); if (r) $("#orders").scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" }); } });
+$("#tbody").addEventListener("click", (e) => {
+  if (e.target.closest("[data-clear]")) { q.value = ""; query = ""; renderOrders(false); q.focus(); return; }
+  const r = e.target.closest("tr[data-id]"); if (r) openOrder(+r.dataset.id, r);
+});
+$("#tbody").addEventListener("keydown", (e) => { const r = e.target.closest("tr[data-id]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openOrder(+r.dataset.id, r); } });
+$("#all-orders").addEventListener("click", () => { filter = "all"; q.value = ""; query = ""; renderOrders(true); toast("تُعرض الآن كل الطلبات الاثنا عشر"); });
+
+/* ---------- the drawer ---------- */
+const drawer = $("#drawer");
+let opened = null, opener = null, askCancel = false;
+const STEPS = ["تم استلام الطلب", "تم الدفع", "قيد التجهيز", "تم الشحن", "تم التسليم"];
+function stepIndex(o) { return { processing: 2, shipped: 3, completed: 4, cancelled: 2 }[o.status]; }
+function fillDrawer() {
+  const o = opened, si = stepIndex(o);
+  $("#d-title").innerHTML = `طلب <span class="ltr">#${d(o.id)}</span>`;
+  $("#d-when").innerHTML = t(o.at, "full");
+  $("#d-st").innerHTML = stPill(o.status);
+  const stamp = (k) => { const x = new Date(+o.at + k * 36e5 * [0, .02, 1.5, 20, 52][k] / Math.max(k, 1)); return x <= NOW ? `<small>${t(x, "when")}</small>` : ""; };
+  const steps = o.status === "cancelled"
+    ? `<li class="done">${STEPS[0]}${stamp(0)}</li><li class="done">${o.pay === "cod" ? "بانتظار الدفع عند الاستلام" : STEPS[1]}</li><li class="stop now">أُلغي الطلب${o.pay === "cod" ? "" : "، واستُرد المبلغ"}</li>`
+    : STEPS.map((s, k) => `<li class="${k < si || (k === si && o.status === "completed") ? "done" : k === si ? "now" : ""}">${k === 1 && o.pay === "cod" ? "الدفع عند الاستلام" : s}${k <= si ? stamp(k) : ""}</li>`).join("");
+  $("#d-body").innerHTML = `
+    <h3>حالة الطلب</h3><ol class="steps">${steps}</ol>
+    <h3>العميل</h3><div class="box"><div class="who"><span class="av" aria-hidden="true">${o.name[0]}</span><div><b>${o.name}</b><small>${o.hood}، ${o.city}</small></div></div>
+      <dl><dt>الجوال</dt><dd>${c(o.phone)}</dd><dt>الدفع</dt><dd>${o.pay === "card" ? `بطاقة ائتمانية ${c("•••• " + o.last4)}` : PAY[o.pay]}</dd>${o.track ? `<dt>رقم الشحنة</dt><dd>${c(o.track)}</dd>` : ""}</dl></div>
+    <h3>المنتجات</h3><ul class="items">${o.items.map(([p, n]) => `<li>${thumb(p)}<div><b>${PRODUCTS[p].name}</b><small>${d(PRODUCTS[p].size)} · الكمية ${v(n, "int")}</small></div><span class="money">${v(PRODUCTS[p].price * n, "sar2")}</span></li>`).join("")}</ul>
+    <div class="totals"><p><span>المجموع الفرعي</span><span>${v(o.sub, "sar2")}</span></p><p><span>الشحن</span><span>${o.ship ? v(o.ship, "sar2") : "مجاني"}</span></p>
+      <p class="grand"><span>الإجمالي</span><span>${v(o.total, "sar2")}</span></p><p class="vat"><span>يشمل ضريبة القيمة المضافة (${v(.15, "pct")})</span><span>${v(o.total * .15 / 1.15, "sar2")}</span></p></div>`;
+  const next = { processing: ["shipped", "تأكيد الشحن", "truck"], shipped: ["completed", "تأكيد التسليم", "check"] }[o.status];
+  $("#d-foot").innerHTML = askCancel
+    ? `<div class="confirm" role="alert"><p>إلغاء الطلب <span class="ltr">#${d(o.id)}</span> سيُعيد ${o.pay === "cod" ? "القطع إلى المخزون" : `${v(o.total, "sar2")} إلى العميل`}. لا يمكن التراجع عن ذلك.</p><button class="btn red" data-a="cancel-yes">نعم، ألغِ الطلب</button><button class="btn" data-a="cancel-no">تراجع</button></div>`
+    : (next ? `<button class="btn pri" data-a="next" data-to="${next[0]}">${ico(next[2], "i s")}${next[1]}</button>` : "") +
+      `<button class="btn" data-a="print">${ico("print", "i s")}الفاتورة</button>` + (o.status === "processing" ? `<button class="btn danger" data-a="cancel">إلغاء الطلب</button>` : "");
+}
+function openOrder(id, from) {
+  opened = ORDERS.find((o) => o.id === id); opener = from || null; askCancel = false;
+  fillDrawer();
+  drawer.classList.remove("closing");
+  if (!drawer.open) drawer.showModal();
+  $("#d-body").scrollTop = 0;
+  $("#d-title").focus();
+}
+function closeDrawer() {
+  if (!drawer.open || drawer.classList.contains("closing")) return;
+  const done = () => { drawer.classList.remove("closing"); drawer.close(); const back = opener && document.contains(opener) ? opener : $(`#tbody tr[data-id="${opened.id}"]`); back?.focus(); };
+  if (still) return done();
+  drawer.classList.add("closing"); setTimeout(done, 190);
+}
+$("#d-close").addEventListener("click", closeDrawer);
+drawer.addEventListener("cancel", (e) => { e.preventDefault(); if (askCancel) { askCancel = false; fillDrawer(); $('[data-a="cancel"]')?.focus(); } else closeDrawer(); });
+drawer.addEventListener("click", (e) => { if (e.target === drawer) { const r = drawer.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right) closeDrawer(); } });
+$("#d-foot").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const o = opened, a = b.dataset.a;
+  if (a === "next") { o.status = b.dataset.to; if (!o.track) o.track = `RWQ-${48213 + (10492 - o.id) * 97}-SA`; afterChange(o.status === "shipped" ? `شُحن الطلب #${digits(o.id)} وأُرسل رقم التتبع إلى العميل` : `اكتمل الطلب #${digits(o.id)}`); }
+  if (a === "print") toast(`جُهّزت فاتورة الطلب #${digits(o.id)} للطباعة`);
+  if (a === "cancel") { askCancel = true; fillDrawer(); $('[data-a="cancel-no"]').focus(); }
+  if (a === "cancel-no") { askCancel = false; fillDrawer(); $('[data-a="cancel"]').focus(); }
+  if (a === "cancel-yes") { o.status = "cancelled"; askCancel = false; afterChange(`أُلغي الطلب #${digits(o.id)}`); }
+});
+function afterChange(msg) {
+  fillDrawer(); renderOrders(false); $("#d-title").focus(); toast(msg);
+  /* the row the drawer came from may have been filtered away: fall back to the table */
+  if (opener && !document.contains(opener)) opener = $(`#tbody tr[data-id="${opened.id}"]`) || $("#filters button[aria-pressed=true]");
+}
+
+/* ---------- products, stock, reviews ---------- */
+const maxUnits = Math.max(...TOP.map(([, n]) => n));
+$("#prods").innerHTML = TOP.map(([k, n]) => `<li>${thumb(k)}<div><b>${PRODUCTS[k].name}</b><small>${d(PRODUCTS[k].size)} · المباع: ${v(n, "int")}</small></div><span class="amt2">${v(PRODUCTS[k].price * n, "sar")}<small>${v(PRODUCTS[k].price, "sar")} للقطعة</small></span></li>`).join("");
+$("#stock").innerHTML = STOCK.map(([k, left, min]) => `<li><div><b>${PRODUCTS[k].name}</b><small>المتبقي: ${v(left, "int")} · حدّ الطلب: ${v(min, "int")}</small></div><button class="btn" data-restock="${k}">إعادة الطلب</button>
+  <span class="lvl"><span class="track"><i style="width:${left / min * 100}%"></i></span></span></li>`).join("");
+$("#stock").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-restock]"); if (!b || b.classList.contains("done")) return;
+  b.classList.add("done"); b.innerHTML = `${ico("check", "i s")}طُلبت`; b.setAttribute("aria-disabled", "true");
+  toast(`أُرسل طلب توريد «${PRODUCTS[b.dataset.restock].name}» إلى المورّد`);
+});
+const stars = (n) => `<span class="stars" role="img" aria-label="${n} من 5">${[1, 2, 3, 4, 5].map((k) => `<svg class="${k > n ? "off" : ""}" aria-hidden="true"><use href="#i-star"/></svg>`).join("")}</span>`;
+$("#revs").innerHTML = REVIEWS.map(([n, s, p, txt, at]) => `<li><div class="row"><b>${n}</b>${stars(s)}</div><p>${txt}</p><small>${p} · ${t(new Date(at + ":00+03:00"), "day")}</small></li>`).join("");
+
+/* ---------- heatmap: hours run right to left, like the chart ---------- */
+const hmMax = Math.max(...HEAT.flat());
+const RAMP = ["#f4ecf1", "#e3c4d7", "#c38bad", "#9a4f80", "#6b2453"];
+const hourLabel = (h) => dtf({ hour: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 0, 1, h)));
+function renderHeat() {
+  let h = `<span></span>` + HOURS.map((_, i) => `<span class="h">${i % 2 ? "" : hourLabel(i * 2)}</span>`).join("");
+  HEAT.forEach((row, di) => {
+    h += `<span class="d" role="rowheader">${DAYS[di]}</span>` + row.map((n, hi) => { const lvl = Math.min(4, Math.floor(n / hmMax * 5)); return `<span class="cell" role="gridcell" tabindex="${di === 0 && hi === 0 ? 0 : -1}" data-di="${di}" data-hi="${hi}" style="background:${RAMP[lvl]}" aria-label="${DAYS[di]} من ${hourLabel(hi * 2)} إلى ${hourLabel((hi * 2 + 2) % 24)}: ${F.int(n)} طلباً"></span>`; }).join("");
+  });
+  $("#hm").innerHTML = h;
+  let best = [0, 0]; HEAT.forEach((r, di) => r.forEach((n, hi) => { if (n > HEAT[best[0]][best[1]]) best = [di, hi]; }));
+  $("#peak").innerHTML = `الذروة: <b>${DAYS[best[0]]}، ${hourLabel(best[1] * 2)} – ${hourLabel(best[1] * 2 + 2)}</b>`;
+}
+const htip = $("#htip");
+function showCell(c) {
+  if (!c) { htip.hidden = true; return; }
+  const di = +c.dataset.di, hi = +c.dataset.hi, n = HEAT[di][hi];
+  htip.innerHTML = `<b>${DAYS[di]}</b><p><span>${hourLabel(hi * 2)} – ${hourLabel((hi * 2 + 2) % 24)}</span><span>الطلبات: ${F.int(n)}</span></p>`;
+  const box = $(".hm").getBoundingClientRect(), r = c.getBoundingClientRect();
+  htip.hidden = false;
+  let left = r.left - box.left + r.width / 2 - htip.offsetWidth / 2;
+  left = Math.max(8, Math.min(box.width - htip.offsetWidth - 8, left));
+  htip.style.left = left + "px"; htip.style.top = (r.top - box.top - htip.offsetHeight - 8) + "px";
+}
+$("#hm").addEventListener("pointerover", (e) => showCell(e.target.closest(".cell")));
+$("#hm").addEventListener("pointerleave", () => showCell(null));
+$("#hm").addEventListener("focusin", (e) => showCell(e.target.closest(".cell")));
+$("#hm").addEventListener("focusout", () => showCell(null));
+$("#hm").addEventListener("keydown", (e) => {
+  const c = e.target.closest(".cell"); if (!c) return;
+  let di = +c.dataset.di, hi = +c.dataset.hi;
+  const mv = { ArrowLeft: [0, 1], ArrowRight: [0, -1], ArrowUp: [-1, 0], ArrowDown: [1, 0] }[e.key];
+  if (!mv) return; e.preventDefault();
+  di = Math.max(0, Math.min(6, di + mv[0])); hi = Math.max(0, Math.min(11, hi + mv[1]));
+  const n = $(`.cell[data-di="${di}"][data-hi="${hi}"]`); c.tabIndex = -1; n.tabIndex = 0; n.focus();
+});
+
+/* ---------- notifications ---------- */
+const NOTES = [
+  { ic: "orders", txt: () => `طلب جديد <span class="ltr">#${digits(10492)}</span> من ريم العتيبي`, ago: 26, act: () => openOrder(10492, bell) },
+  { ic: "alert", txt: () => "مخزون منخفض: عطر صندل وزعفران", sub: () => `المتبقي: ${F.int(4)} · `, ago: 74, act: () => jump("stock-card") },
+  { ic: "star", txt: () => "تقييم جديد بخمس نجوم على مسك أبيض ناعم", ago: 860, act: () => jump("rev") },
+];
+NOTES[0].unread = NOTES[1].unread = true;
+function agoTxt(m) { return m < 60 ? `قبل ${F.int(m)} دقيقة` : m < 120 ? "قبل ساعة" : m < 180 ? "قبل ساعتين" : m < 1440 ? `قبل ${F.int(Math.round(m / 60))} ساعة` : "أمس"; }
+function renderNotes() {
+  const unread = NOTES.filter((n) => n.unread).length;
+  $("#notes").innerHTML = NOTES.map((n, i) => `<li class="${n.unread ? "unread" : ""}"><button data-n="${i}"><span class="ic">${ico(n.ic, "i s")}</span><span><p>${n.txt()}</p><small>${n.sub ? n.sub() : ""}${agoTxt(n.ago)}${n.unread ? '<span class="sr">، غير مقروء</span>' : ""}</small></span></button></li>`).join("");
+  $("#dot").hidden = !unread; $("#dot").textContent = F.int(unread);
+  $("#readall").hidden = !unread;
+  bell.setAttribute("aria-label", unread ? `الإشعارات، ${F.int(unread)} غير مقروءة` : "الإشعارات");
+}
+const pop = $("#pop"), bell = $("#bell");
+function setPop(on) { pop.hidden = !on; bell.setAttribute("aria-expanded", on); if (on) $("#notes button")?.focus(); }
+bell.addEventListener("click", (e) => { e.stopPropagation(); setPop(pop.hidden); });
+$("#readall").addEventListener("click", () => { NOTES.forEach((n) => n.unread = false); renderNotes(); $("#notes button").focus(); });
+$("#notes").addEventListener("click", (e) => { const b = e.target.closest("[data-n]"); if (!b) return; const n = NOTES[+b.dataset.n]; n.unread = false; renderNotes(); setPop(false); n.act(); });
+document.addEventListener("click", (e) => { if (!pop.hidden && !e.target.closest("#pop")) setPop(false); });
+pop.addEventListener("keydown", (e) => { if (e.key === "Escape") { setPop(false); bell.focus(); } });
+
+/* ---------- navigation, menu, toasts ---------- */
+function jump(id) {
+  const el = id === "top" ? document.body : document.getElementById(id);
+  const y = id === "top" ? 0 : el.getBoundingClientRect().top + scrollY - $(".top").offsetHeight - 16;
+  scrollTo({ top: y, behavior: still ? "auto" : "smooth" });
+}
+$("#nav").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-go]"); if (!b) return;
+  if (b.dataset.go === "soon") { toast(`صفحة «${b.textContent.trim()}» ليست ضمن هذا العرض`); return; }
+  $$("#nav [data-go]").forEach((x) => x.removeAttribute("aria-current")); b.setAttribute("aria-current", "page");
+  setMenu(false); jump(b.dataset.go);
+});
+const side = $("#side"), menu = $("#menu"), scrim = $("#scrim");
+function setMenu(on) { side.classList.toggle("open", on); scrim.classList.toggle("on", on); menu.setAttribute("aria-expanded", on); if (on) $("#nav button").focus(); else if (document.activeElement && side.contains(document.activeElement) && matchMedia("(max-width: 760px)").matches) menu.focus(); }
+menu.addEventListener("click", () => setMenu(true));
+scrim.addEventListener("click", () => setMenu(false));
+side.addEventListener("keydown", (e) => { if (e.key === "Escape" && side.classList.contains("open")) setMenu(false); });
+$("#logout").addEventListener("click", () => toast("هذا عرض تجريبي، لا يوجد حساب لتسجيل الخروج منه"));
+$("#export").addEventListener("click", () => toast(`جُهّز تقرير أكتوبر ${F.year(2026)} بصيغة CSV`));
+$("#new").addEventListener("click", () => toast("نموذج المنتج الجديد ليس ضمن هذا العرض"));
+let tt;
+function toast(msg) { $("#toast-t").textContent = msg; $("#toast").hidden = false; clearTimeout(tt); tt = setTimeout(() => $("#toast").hidden = true, 2600); }
+addEventListener("keydown", (e) => {
+  const typing = /INPUT|TEXTAREA/.test(document.activeElement?.tagName);
+  if ((e.key === "/" && !typing) || (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey))) { if (drawer.open) return; e.preventDefault(); q.focus(); q.select(); }
+});
+
+/* ---------- the switch: ١٢٣ / 123 ---------- */
+const thumbEl = $("#thumb");
+function placeThumb() { const b = $(`#digits [data-nu="${NU}"]`); thumbEl.style.width = b.offsetWidth + "px"; thumbEl.style.transform = `translateX(${b.offsetLeft - 3}px)`; thumbEl.style.left = "3px"; }
+function setDigits(nu) {
+  if (nu === NU) return;
+  NU = nu;
+  $$("#digits button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.nu === nu));
+  placeThumb();
+  headerDates(); paint(); renderHeat(); renderNotes(); drawChart(false); if (hot >= 0) setHot(hot, !tip.hidden);
+  $$("#tbody tr[data-id]").forEach((r) => { const o = ORDERS.find((x) => x.id === +r.dataset.id); r.setAttribute("aria-label", `الطلب ${digits(o.id)}، ${o.name}، ${STATUS[o.status]}`); });
+  if (!still) {
+    const els = $$("[data-v], [data-d], [data-t], #hijri, #greg, .plot text, .hm-grid .h").filter((el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && r.width; });
+    els.forEach((el, i) => el.animate([{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }], { duration: 260, delay: Math.min(i * 6, 180), easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }));
+  }
+}
+$("#digits").addEventListener("click", (e) => { const b = e.target.closest("[data-nu]"); if (b) setDigits(b.dataset.nu); });
+
+/* ---------- first paint ---------- */
+headerDates(); paint(); renderOrders(false); renderHeat(); renderNotes(); drawChart(false); placeThumb();
+addEventListener("resize", placeThumb);
+</script>
+</body>
+</html>

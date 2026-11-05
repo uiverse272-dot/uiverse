@@ -1,0 +1,874 @@
+<!doctype html>
+<!-- Shop filters — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A clothing category page whose filters really filter: facets that count and disable themselves,
+     a two-handled price range over a live histogram, removable chips, sorting and a 2/3/4-column grid
+     that reflows with FLIP. Below 900px the rail becomes a bottom sheet. Garments are drawn in SVG. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Selvedge — Autumn wardrobe</title>
+<style>
+  :root {
+    --bg: #f5f3ed; --tile: #e8e4da; --ink: #1d1b18; --soft: #625e55; --faint: #8d897e; --line: #dbd7cc; --dim: #d6d1c5; --thread: #a62f1f; --paper: #fbfaf6;
+    --sans: "Helvetica Neue", Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.4 var(--sans); font-variant-numeric: tabular-nums; min-height: 100svh; -webkit-font-smoothing: antialiased; }
+  body.locked { overflow: hidden; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  svg { display: block; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* the bolt's woven edge, with its red thread */
+  .edge { height: 7px; background: var(--paper); border-bottom: 1px solid var(--line); position: relative; }
+  .edge::after { content: ""; position: absolute; left: 0; right: 0; top: 3px; height: 1px; background: repeating-linear-gradient(90deg, var(--thread) 0 5px, transparent 5px 7px); }
+  .bar { display: flex; align-items: baseline; gap: 24px; padding: 14px 32px 13px; border-bottom: 1px solid var(--line); }
+  .mark { font: 500 21px/1 var(--serif); letter-spacing: -.01em; }
+  .crumb { color: var(--soft); font-size: 13px; }
+  .crumb b { font-weight: 400; color: var(--ink); }
+  .crumb i { font-style: normal; color: var(--faint); margin: 0 6px; }
+  .bag { margin-left: auto; font-size: 13px; color: var(--soft); display: flex; align-items: center; gap: 6px; }
+  .bag svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+  .bag b { font-weight: 500; color: var(--ink); min-width: 1ch; display: inline-block; }
+  .bag b.bump { animation: bump .28s var(--ease); }
+  @keyframes bump { 40% { transform: translateY(-3px); color: var(--thread); } }
+
+  .shop { display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; }
+
+  /* rail */
+  .rail { position: sticky; top: 0; max-height: 100svh; overflow-y: auto; padding: 8px 24px 24px 32px; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; background: var(--bg); }
+  .sheet-head, .sheet-foot { display: none; }
+  .grp { border-bottom: 1px solid var(--line); }
+  .grp:last-child { border-bottom: 0; }
+  .grp > h2 { font: inherit; }
+  .gh { display: flex; align-items: center; width: 100%; gap: 8px; height: 40px; font-size: 13px; font-weight: 500; text-align: left; }
+  .gh span { margin-left: auto; color: var(--soft); font-weight: 400; font-size: 12.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gh svg { width: 14px; height: 14px; flex: none; fill: none; stroke: var(--soft); stroke-width: 1.5; stroke-linecap: round; transition: transform .22s var(--ease); }
+  .gh[aria-expanded="false"] svg { transform: rotate(-90deg); }
+  .gb { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .22s var(--ease); }
+  .gb.shut { grid-template-rows: 0fr; }
+  .gi { overflow: hidden; min-height: 0; padding: 2px 3px 0; margin: 0 -3px; }
+  .gi > :last-child { margin-bottom: 14px; }
+
+  /* checkbox rows */
+  .opt { display: flex; align-items: center; gap: 10px; height: 28px; cursor: pointer; font-size: 13.5px; }
+  .opt em { margin-left: auto; font-style: normal; color: var(--soft); font-size: 12.5px; }
+  .opt input { appearance: none; width: 15px; height: 15px; border: 1px solid #a7a296; border-radius: 2px; background: var(--paper); flex: none; display: grid; place-items: center; cursor: pointer; transition: background .15s, border-color .15s; }
+  .opt input::after { content: ""; width: 4px; height: 8px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: translateY(-1px) rotate(45deg) scale(0); transition: transform .15s var(--ease); }
+  .opt input:checked { background: var(--ink); border-color: var(--ink); }
+  .opt input:checked::after { transform: translateY(-1px) rotate(45deg) scale(1); }
+  .opt:hover input:not(:disabled) { border-color: var(--ink); }
+  .opt.off { color: #8e8a7f; cursor: default; }
+  .opt.off em { color: #8e8a7f; }
+  .opt.off input { background: transparent; border-color: var(--dim); cursor: default; }
+
+  /* size toggles */
+  .sizes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .sz { height: 32px; border: 1px solid var(--line); border-radius: 2px; font-size: 12.5px; background: var(--paper); transition: background .15s, color .15s, border-color .15s; }
+  .sz:hover:not(:disabled) { border-color: var(--ink); }
+  .sz[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .sz:disabled { cursor: default; color: #8e8a7f; background: linear-gradient(to top right, transparent calc(50% - .5px), var(--dim) calc(50% - .5px), var(--dim) calc(50% + .5px), transparent calc(50% + .5px)); }
+
+  /* colour swatches: squares cut from the cloth */
+  .cols { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .cs { aspect-ratio: 1; border-radius: 2px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); position: relative; transition: transform .15s var(--ease); }
+  .cs:hover:not(:disabled) { transform: translateY(-1px); }
+  .cs[aria-pressed="true"] { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+  .cs:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .cs:disabled { cursor: default; opacity: .32; }
+  .cs:disabled::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - .75px), var(--bg) calc(50% - .75px), var(--bg) calc(50% + .75px), transparent calc(50% + .75px)); }
+
+  /* switch */
+  .toggle { display: flex; align-items: center; gap: 8px; height: 44px; width: 100%; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .toggle em { margin-left: auto; font-style: normal; font-weight: 400; color: var(--soft); font-size: 12.5px; }
+  .toggle input { appearance: none; width: 30px; height: 18px; border-radius: 9px; background: #c6c1b4; position: relative; cursor: pointer; flex: none; transition: background .18s; }
+  .toggle input::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .18s var(--ease); }
+  .toggle input:checked { background: var(--ink); }
+  .toggle input:checked::after { transform: translateX(12px); }
+  .toggle.off { color: #8e8a7f; cursor: default; }
+  .toggle.off input { background: var(--dim); cursor: default; }
+
+  /* price range: signature */
+  .range { position: relative; margin: 2px 9px 0; padding-top: 58px; touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .hist { position: absolute; left: 0; right: 0; top: 0; height: 56px; display: flex; align-items: flex-end; gap: 1px; pointer-events: none; }
+  .hist i { flex: 1; height: 100%; transform-origin: bottom; transform: scaleY(var(--h, 0)); transition: transform .24s var(--ease); background: var(--dim); }
+  .hist.in { clip-path: inset(0 var(--r, 0%) 0 var(--l, 0%)); }
+  .hist.in i { background: var(--ink); }
+  .track { position: relative; height: 18px; display: flex; align-items: center; }
+  .track::before { content: ""; position: absolute; left: -9px; right: -9px; height: 1px; background: var(--faint); }
+  .fill { position: absolute; height: 2px; background: var(--thread); left: var(--l, 0%); right: var(--r, 0%); }
+  .thumb { position: absolute; top: 0; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink); left: 0; cursor: grab; touch-action: none; transition: transform .15s var(--ease), box-shadow .15s; box-shadow: 0 1px 2px rgba(29, 27, 24, .22); }
+  .thumb::before { content: ""; position: absolute; inset: -11px; border-radius: 50%; }
+  .thumb:hover { transform: scale(1.1); }
+  .thumb.grab { cursor: grabbing; transform: scale(1.18); }
+  .limits { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 8px; margin: 10px 0 0; }
+  .limits label { display: grid; gap: 3px; font-size: 12px; color: var(--soft); }
+  .money { display: flex; align-items: center; height: 34px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); padding: 0 8px; transition: border-color .15s; }
+  .money:focus-within { border-color: var(--ink); }
+  .money span { color: var(--soft); font-size: 13px; }
+  .money input { width: 100%; min-width: 0; border: 0; outline: none; background: none; font-size: 13.5px; padding-left: 3px; color: var(--ink); }
+  .limits i { color: var(--faint); font-style: normal; padding-bottom: 8px; }
+
+  /* top of the results */
+  main { min-width: 0; padding: 0 32px 56px; min-height: calc(100svh - 64px); border-left: 1px solid var(--line); }
+  .head { display: flex; align-items: baseline; gap: 12px; padding: 20px 0 2px; }
+  h1 { font: 500 30px/1.15 var(--serif); letter-spacing: -.012em; }
+  #count { color: var(--soft); font-size: 13.5px; }
+  .tools { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 0; min-height: 56px; background: var(--bg); }
+  .filters-open { display: none; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--ink); border-radius: 2px; font-weight: 500; font-size: 13.5px; }
+  .filters-open svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; flex: 1; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px 0 10px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); font-size: 13px; transition: border-color .15s, background .15s; }
+  .chip svg { width: 12px; height: 12px; fill: none; stroke: var(--soft); stroke-width: 1.5; stroke-linecap: round; }
+  .chip:hover { border-color: var(--ink); }
+  .chip:hover svg { stroke: var(--ink); }
+  .chip i { width: 10px; height: 10px; border-radius: 1px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+  .clear { font-size: 13px; color: var(--soft); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; padding: 6px 4px; }
+  .clear:hover { color: var(--ink); }
+  .right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+  .sort { position: relative; }
+  .sort > button { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 2px; font-size: 13.5px; white-space: nowrap; }
+  .sort > button span { color: var(--soft); }
+  .sort > button svg { width: 14px; height: 14px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; transition: transform .18s var(--ease); }
+  .sort > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .menu { position: absolute; right: 0; top: calc(100% + 4px); min-width: 190px; background: var(--paper); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 8px 24px -8px rgba(29, 27, 24, .22); padding: 4px; z-index: 20; list-style: none; outline: none; opacity: 0; transform: translateY(-4px); pointer-events: none; visibility: hidden; transition: opacity .15s, transform .15s var(--ease), visibility 0s .15s; }
+  .menu.on { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition-delay: 0s; }
+  .menu li { display: flex; align-items: center; justify-content: space-between; height: 34px; padding: 0 10px; border-radius: 2px; font-size: 13.5px; cursor: pointer; }
+  .menu li.cur { background: var(--tile); }
+  .menu li svg { width: 14px; height: 14px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; visibility: hidden; }
+  .menu li[aria-selected="true"] svg { visibility: visible; }
+  .colsw { display: flex; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); }
+  .colsw button { width: 34px; height: 34px; display: grid; place-items: center; color: var(--faint); border-right: 1px solid var(--line); transition: color .15s, background .15s; }
+  .colsw button:last-child { border-right: 0; }
+  .colsw button:hover { color: var(--ink); }
+  .colsw button[aria-pressed="true"] { color: var(--ink); background: var(--tile); }
+  .colsw svg { width: 16px; height: 16px; fill: currentColor; }
+
+  /* grid */
+  .grid { position: relative; display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 24px 16px; }
+  .card { min-width: 0; transform-origin: top left; background: var(--bg); }
+  .art { position: relative; aspect-ratio: 4 / 5; background: var(--tile); overflow: hidden; }
+  .art svg.g-art { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 4px 5px rgba(58, 46, 28, .2)); }
+  .g { fill: var(--g); transition: fill .24s var(--ease); }
+  .g1 { fill: var(--g1); transition: fill .24s var(--ease); }
+  .g2 { fill: var(--g2); transition: fill .24s var(--ease); }
+  .g3 { fill: var(--g3); transition: fill .24s var(--ease); }
+  .ln { fill: none; stroke: var(--ln); stroke-width: .9; }
+  .st { fill: none; stroke: var(--st); stroke-width: .7; stroke-dasharray: 2 1.5; }
+  .fold { fill: none; stroke: #000; stroke-opacity: .075; stroke-linecap: round; }
+  .hl { fill: none; stroke: #fff; stroke-opacity: .09; stroke-linecap: round; }
+  .bt { fill: var(--bt); stroke: rgba(0, 0, 0, .3); stroke-width: .5; }
+  .tag { position: absolute; left: 10px; top: 9px; font-size: 12px; color: var(--ink); }
+  .tag.low { color: var(--thread); }
+  .add { position: absolute; right: 8px; bottom: 8px; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 2px; background: var(--paper); box-shadow: 0 0 0 1px rgba(29, 27, 24, .08); opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s var(--ease), background .15s, color .15s; }
+  .add svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .add:hover { background: var(--ink); color: #fff; }
+  .add.done { opacity: 1; transform: none; background: var(--ink); color: #fff; }
+  .card:hover .add, .add:focus-visible { opacity: 1; transform: none; }
+  @media (hover: none) { .add { opacity: 1; transform: none; } }
+  .card.out .art svg.g-art { opacity: .55; }
+  .info { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 12px; padding-top: 9px; }
+  .info h3 { font-size: 13.5px; font-weight: 500; line-height: 1.3; }
+  .info .pr { font-size: 13.5px; }
+  .info .cn { color: var(--soft); font-size: 12.5px; }
+  .sws { grid-column: 1 / -1; display: flex; flex-wrap: wrap; margin: 2px 0 0 -6px; }
+  .sw { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 2px; }
+  .sw i { width: 12px; height: 12px; border-radius: 1px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); transition: box-shadow .15s; }
+  .sw[aria-pressed="true"] i { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14), 0 0 0 1.5px var(--bg), 0 0 0 2.5px var(--ink); }
+
+  /* nothing fits */
+  .none { display: grid; justify-items: center; text-align: center; padding: 48px 16px 64px; }
+  .none svg { width: 200px; height: 112px; fill: none; stroke: var(--faint); stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 20px; }
+  .none h2 { font: 500 24px/1.2 var(--serif); letter-spacing: -.01em; margin-bottom: 8px; }
+  .none p { color: var(--soft); max-width: 46ch; font-size: 14px; text-wrap: balance; }
+  .none .acts { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: center; margin-top: 20px; }
+  .primary { height: 44px; padding: 0 18px; background: var(--ink); color: #fff; border-radius: 2px; font-weight: 500; font-size: 14px; transition: background .15s; }
+  .primary:hover { background: #3a3631; }
+
+  .scrim { position: fixed; inset: 0; background: rgba(29, 27, 24, .4); z-index: 30; opacity: 0; pointer-events: none; transition: opacity .22s; }
+
+  /* below 900 the rail is a bottom sheet */
+  @media (max-width: 899.98px) {
+    .bar { padding: 12px 16px 11px; }
+    .shop { grid-template-columns: minmax(0, 1fr); }
+    main { padding: 0 16px 40px; border-left: 0; }
+    .head { padding-top: 16px; flex-wrap: wrap; }
+    h1 { font-size: 26px; }
+    .filters-open { display: inline-flex; }
+    .chips { order: 5; flex-basis: 100%; }
+    .chips:empty { display: none; }
+    .tools { gap: 8px 10px; }
+    .rail { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: min(100%, 640px); margin: 0 auto; z-index: 40; max-height: min(88svh, 720px); padding: 0; border-right: 0; border-radius: 10px 10px 0 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); transform: translateY(102%); visibility: hidden; transition: transform .28s var(--ease), visibility .28s; box-shadow: 0 -12px 32px -16px rgba(29, 27, 24, .3); }
+    .rail.open { transform: none; visibility: visible; }
+    .scrim.on { opacity: 1; pointer-events: auto; }
+    .sheet-head { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; padding: 18px 16px 10px; position: relative; flex: none; border-bottom: 1px solid var(--line); touch-action: none; }
+    .sheet-head::before { content: ""; position: absolute; left: 50%; top: 7px; width: 36px; height: 3px; margin-left: -18px; border-radius: 2px; background: var(--dim); }
+    .sheet-head b { font: 500 19px/1.2 var(--serif); }
+    .sheet-head button { width: 36px; height: 36px; display: grid; place-items: center; margin: -4px -8px -4px 0; }
+    .sheet-head svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; }
+    .rail-scroll { flex: 1; overflow-y: auto; padding: 0 16px 8px; min-height: 0; overscroll-behavior: contain; }
+    .gh { height: 44px; }
+    .opt { height: 34px; }
+    .sz { height: 38px; }
+    .cols { gap: 8px; }
+    .cs { max-height: 44px; aspect-ratio: auto; height: 44px; }
+    .sheet-foot { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); flex: none; }
+    .sheet-foot .primary { width: 100%; height: 48px; }
+    .thumb::before { inset: -14px; }
+  }
+  @media (max-width: 599.98px) {
+    .grid { --cols: 2 !important; gap: 20px 12px; }
+    .colsw { display: none; }
+    .bar .crumb { display: none; }
+    .sort > button span { display: none; }
+  }
+  @media (min-width: 600px) and (max-width: 1099.98px) {
+    .colsw button:last-child { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="vol" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".17"/><stop offset=".2" stop-color="#000" stop-opacity=".01"/><stop offset=".5" stop-color="#fff" stop-opacity=".05"/><stop offset=".8" stop-color="#000" stop-opacity=".01"/><stop offset="1" stop-color="#000" stop-opacity=".19"/></linearGradient>
+  <linearGradient id="fall" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".07"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".13"/></linearGradient>
+  <pattern id="knit" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><path d="M.6 0v2.4" stroke="#000" stroke-opacity=".1" stroke-width=".8"/><path d="M0 1.2h2.4" stroke="#fff" stroke-opacity=".035" stroke-width=".7"/></pattern>
+  <pattern id="rib" width="3.2" height="4" patternUnits="userSpaceOnUse"><path d="M.8 0v4" stroke="#000" stroke-opacity=".2" stroke-width="1"/><path d="M2.4 0v4" stroke="#fff" stroke-opacity=".08" stroke-width=".9"/></pattern>
+  <pattern id="cable" width="11" height="11" patternUnits="userSpaceOnUse"><path d="M2 0v11M9 0v11" stroke="#000" stroke-opacity=".12" stroke-width="1.1"/><path d="M3.5 0c4 3 4 8 0 11M7.5 0c-4 3-4 8 0 11" fill="none" stroke="#000" stroke-opacity=".11" stroke-width=".9"/></pattern>
+  <pattern id="twill" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(55)"><path d="M0 .6h2.2" stroke="#fff" stroke-opacity=".085" stroke-width=".6"/><path d="M0 1.7h2.2" stroke="#000" stroke-opacity=".1" stroke-width=".6"/></pattern>
+  <pattern id="weave" width="2" height="2" patternUnits="userSpaceOnUse"><path d="M0 .5h2" stroke="#000" stroke-opacity=".05" stroke-width=".6"/><path d="M.5 0v2" stroke="#fff" stroke-opacity=".05" stroke-width=".6"/></pattern>
+  <pattern id="check" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M0 0h8v22H0z" fill="#000" fill-opacity=".1"/><path d="M0 0h22v8H0z" fill="#000" fill-opacity=".1"/><path d="M0 15h22M15 0v22" stroke="#fff" stroke-opacity=".12" stroke-width=".7"/></pattern>
+  <pattern id="cord" width="1.8" height="4" patternUnits="userSpaceOnUse"><path d="M.5 0v4" stroke="#000" stroke-opacity=".32" stroke-width=".8"/></pattern>
+</defs></svg>
+
+<div class="edge" aria-hidden="true"></div>
+<header class="bar">
+  <p class="mark">Selvedge</p>
+  <p class="crumb">Clothing<i>/</i><b>Autumn wardrobe</b></p>
+  <p class="bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4zM9 11V6a3 3 0 0 1 6 0v5"/></svg>Bag <b id="bagN" aria-live="polite">0</b></p>
+</header>
+
+<div class="shop">
+  <aside class="rail" id="rail" aria-label="Filters">
+    <div class="sheet-head" id="sheetHead"><b>Filters</b><button id="sheetClose" aria-label="Close filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="rail-scroll" id="railScroll"></div>
+    <div class="sheet-foot"><button class="clear" id="sheetClear">Clear all</button><button class="primary" id="sheetShow">Show 0 results</button></div>
+  </aside>
+  <main>
+    <div class="head"><h1>Autumn wardrobe</h1><p id="count" role="status" aria-live="polite"></p></div>
+    <div class="tools" id="tools">
+      <button class="filters-open" id="filtersOpen" aria-haspopup="dialog" aria-controls="rail"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span id="filtersLabel">Filters</span></button>
+      <div class="chips" id="chips" role="group" aria-label="Active filters"></div>
+      <div class="right">
+        <div class="sort">
+          <button id="sortBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="sortMenu"><span>Sort:</span><b id="sortLabel" style="font-weight:500">Featured</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <ul class="menu" id="sortMenu" role="listbox" aria-label="Sort by" tabindex="-1"></ul>
+        </div>
+        <div class="colsw" id="colsw" role="group" aria-label="Columns"></div>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="none" id="none" hidden>
+      <svg viewBox="0 0 200 112" aria-hidden="true"><path d="M8 18h184"/><path d="M60 18v8a6 6 0 1 1-6 6"/><path d="M54 40 26 62a3 3 0 0 0 2 5h52a3 3 0 0 0 2-5z"/><path d="M104 18v8a6 6 0 1 1-6 6"/><path d="m98 40-28 22a3 3 0 0 0 2 5h52a3 3 0 0 0 2-5z"/><path d="M148 18v8a6 6 0 1 1-6 6"/><path d="m142 40-28 22a3 3 0 0 0 2 5h52a3 3 0 0 0 2-5z"/></svg>
+      <h2>Nothing fits all of that</h2>
+      <p id="noneWhy"></p>
+      <div class="acts"><button class="primary" id="noneFix"></button><button class="clear" id="noneClear">Clear all filters</button></div>
+    </div>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const gbp = (n) => "£" + n;
+
+  /* ---------- the cloth ---------- */
+  const COLOURS = {
+    Ecru: "#e6dfcd", Stone: "#c4b79f", Camel: "#b4874f", Rust: "#a24f2c", Oxblood: "#5e2026", Forest: "#2f4b3b",
+    Olive: "#6d6c42", Chambray: "#8ba1b5", Indigo: "#2a3b5e", Navy: "#1f2a40", Slate: "#646e78", Charcoal: "#37393d",
+  };
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const toHex = (a) => "#" + a.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("");
+  const mix = (h, to, t) => toHex(hex(h).map((v, i) => v + (to[i] - v) * t));
+  const lum = (h) => { const [r, g, b] = hex(h); return (.299 * r + .587 * g + .114 * b) / 255; };
+  function paintVars(el, name) {
+    const c = COLOURS[name], light = lum(c) > .55, black = [18, 14, 10], white = [255, 250, 240];
+    el.style.setProperty("--g", c);
+    el.style.setProperty("--g1", mix(c, black, .14));
+    el.style.setProperty("--g2", mix(c, black, .38));
+    el.style.setProperty("--g3", mix(c, white, light ? .25 : .07));
+    el.style.setProperty("--ln", light ? "rgba(40,30,15,.28)" : "rgba(0,0,0,.42)");
+    el.style.setProperty("--st", light ? "rgba(50,40,20,.42)" : "rgba(255,245,225,.3)");
+    el.style.setProperty("--bt", light ? "#8d7a5c" : "#d9d0bb");
+    el.style.setProperty("--stripe", name === "Navy" || name === "Indigo" ? "#e6dfcd" : "#1f2a40");
+  }
+
+  /* ---------- the drawings: 240 × 300, each half drawn once and mirrored ---------- */
+  const sil = (d, t) => `<path class="g" d="${d}"/>${t ? `<path fill="url(#${t})" d="${d}"/>` : ""}<path fill="url(#vol)" d="${d}"/><path fill="url(#fall)" d="${d}"/>`;
+  const fill = (cls, d, t) => `<path class="${cls}" d="${d}"/>${t ? `<path fill="url(#${t})" d="${d}"/>` : ""}`;
+  const mir = (s) => `<g transform="matrix(-1 0 0 1 240 0)">${s}</g>`;
+  const both = (s) => s + mir(s);
+  const ln = (d) => `<path class="ln" d="${d}"/>`, st = (d) => `<path class="st" d="${d}"/>`;
+  const fo = (d, w = 5) => `<path class="fold" stroke-width="${w}" d="${d}"/>`, hl = (d, w = 3) => `<path class="hl" stroke-width="${w}" d="${d}"/>`;
+  const bt = (x, y, r = 2.1) => `<circle class="bt" cx="${x}" cy="${y}" r="${r}"/>`;
+  /* proportion: shorten a body from its shoulder line, or reshape a whole piece about a point */
+  const sy = (k, y0, s) => `<g transform="matrix(1 0 0 ${k} 0 ${(y0 * (1 - k)).toFixed(2)})">${s}</g>`;
+  const sxy = (kx, ky, x0, y0, s) => `<g transform="matrix(${kx} 0 0 ${ky} ${(x0 * (1 - kx)).toFixed(2)} ${(y0 * (1 - ky)).toFixed(2)})">${s}</g>`;
+
+  const SLEEVE = "M86 62C72 65 62 74 57 90L29 204C28 208 29 210 32 211L50 216C53 217 55 216 56 212L81 132Z";
+  const CUFF = "M32.500 190 28.800 205C28.500 208 29.500 210 32 211L50 216C53 217 55 216 56 212L60.500 197Z";
+  const sleeve = (t) => both(sil(SLEEVE, t) + fo("M64 104C60 130 52 158 46 184", 4) + hl("M72 86C66 100 62 116 58 134", 2) + fill("g1", CUFF, t) + ln("M32.500 190 60.500 197") + st("M31.700 193.500 59.500 200.500") + fo("M78 128C72 122 66 118 60 118", 3));
+  const SHIRT_BODY = "M86 62 103 51C110 56 130 56 137 51L154 62C160 78 162 100 160 130L165 258C150 270 134 275 120 275 106 275 90 270 75 258L80 130C78 100 80 78 86 62Z";
+  const shirtCollar = () => `<path class="g2" d="M103 51C110 44 130 44 137 51 130 57 110 57 103 51Z"/>` + both(`<path class="g3" d="M102.500 49.500C105 47 108 46 111 46L120 62 109.500 79 93 58.500C95 54 98.500 51.500 102.500 49.500Z"/>${ln("M102.500 49.500C105 47 108 46 111 46L120 62 109.500 79 93 58.500C95 54 98.500 51.500 102.500 49.500Z")}${st("M96.500 58.200 109.700 75 117.600 62.200")}`);
+  const placket = (from = 62, to = 275) => `<path class="g3" opacity=".6" d="M114.500 ${from}H125.500V${to}H114.500Z"/>` + ln(`M114.500 ${from}V${to}`) + ln(`M125.500 ${from}V${to}`) + st(`M116.500 ${from + 4}V${to - 2}`) + st(`M123.500 ${from + 4}V${to - 2}`);
+  const buttons = (ys, x = 120, r) => ys.map((y) => bt(x, y, r)).join("");
+  const patch = (x, y, w, h, flap) => `<path class="ln" d="M${x} ${y}h${w}v${h - 5}l-${w / 2} 5-${w / 2}-5z"/>` + st(`M${x + 1.500} ${y + 2}h${w - 3}v${h - 7}l-${(w - 3) / 2} 5-${(w - 3) / 2}-5z`) + (flap ? `<path class="g1" d="M${x - 1} ${y - 1}h${w + 2}v9l-${w / 2 + 1} 4-${w / 2 + 1}-4z"/>` + ln(`M${x - 1} ${y - 1}h${w + 2}v9l-${w / 2 + 1} 4-${w / 2 + 1}-4z`) : "");
+
+  const shirt = ({ tex = "weave", pocket = 1, band } = {}) => {
+    return sleeve(tex) + sy(.84, 62, sil(SHIRT_BODY, tex)
+      + fo("M94 132C100 170 90 214 99 266", 7) + fo("M149 142C142 182 152 226 143 268", 7) + fo("M84 118C94 116 100 122 104 132", 3) + fo("M156 118C146 116 140 122 136 132", 3) + hl("M108 92C106 130 110 190 106 250", 4) + st("M76.500 256C92 268 106 272 120 272 134 272 148 268 163.500 256")
+      + placket() + (pocket ? patch(133, 104, 21, 27) : "")
+      + (band ? `<path class="g2" d="M103 51C110 46 130 46 137 51 130 56 110 56 103 51Z"/><path class="g1" d="M101 52C108 58 132 58 139 52L137 45C130 40 110 40 103 45Z"/>` + ln("M101 52C108 58 132 58 139 52") : shirtCollar())
+      + buttons([80, 106, 134, 162, 190, 218, 246]));
+  };
+  const overshirt = ({ tex = "twill" } = {}) => {
+    const body = "M86 60 103 49C110 54 130 54 137 49L154 60C161 78 164 100 163 130L167 262H73L77 130C76 100 79 78 86 60Z";
+    return sleeve(tex) + sy(.86, 60, sil(body, tex)
+      + fo("M92 134C96 180 88 220 92 258", 7) + fo("M150 134C146 180 154 220 150 258", 7) + hl("M106 96C104 140 108 200 106 250", 4) + st("M74 257.500H166")
+      + placket(60, 262) + patch(133, 96, 22, 26) + patch(84, 186, 26, 34) + patch(130, 186, 26, 34)
+      + shirtCollar() + buttons([78, 110, 142, 174, 206, 238], 120, 2.5));
+  };
+  const SWEATER = "M84 66C92 60 100 56 106 54 112 62 128 62 134 54 140 56 148 60 156 66 162 82 165 106 163 132L165 248H75L77 132C75 106 78 82 84 66Z";
+  const knitSleeves = (t) => both(sil("M84 66C72 70 62 78 56 96L31 206 55 214 80 136Z", t) + fo("M66 108C60 136 52 164 47 192", 4) + fill("g1", "M31 206 55 214 51 232C43 231 34 228 27 224Z", "rib") + ln("M31 206 55 214") + fo("M80 134C72 128 66 124 60 124", 3));
+  const sweater = ({ tex = "knit", roll } = {}) => knitSleeves(tex) + sy(.88, 66, sil(SWEATER, tex)
+    + fo("M92 130C98 170 90 210 96 244", 8) + fo("M150 136C143 176 152 214 146 244", 8) + hl("M112 90C110 130 114 190 112 240", 5) + fo("M82 120C92 118 98 124 102 134", 3) + fo("M158 120C148 118 142 124 138 134", 3)
+    + fill("g1", "M75 248H165L163.500 270C140 274 100 274 76.500 270Z", "rib") + ln("M75 248H165")
+    + (roll ? fill("g1", "M99 56C96 46 98 36 104 32 114 28 126 28 136 32 142 36 144 46 141 56 132 66 108 66 99 56Z", "rib") + `<path class="g2" d="M105 35C112 31 128 31 135 35 128 41 112 41 105 35Z"/>` + ln("M99 48C110 56 130 56 141 48")
+      : fill("g1", "M103 52C108 42 132 42 137 52 138 55 136 58 134 59 128 68 112 68 106 59 104 58 102 55 103 52Z", "rib") + `<path class="g2" d="M109 51C114 45 126 45 131 51 126 59 114 59 109 51Z"/>`));
+  const cardigan = ({ tex = "knit" } = {}) => knitSleeves(tex) + sy(.88, 66, sil(SWEATER, tex)
+    + `<path class="g2" d="M106 54C112 48 128 48 134 54L121 118H119Z"/>`
+    + fo("M92 130C98 170 90 210 96 244", 8) + fo("M150 136C143 176 152 214 146 244", 8)
+    + fill("g1", "M75 248H165L163.500 270C140 274 100 274 76.500 270Z", "rib") + ln("M75 248H165")
+    + fill("g1", "M99 58C102 56 104 55 106 54L120 116 126 116V272H114V124Z", "rib") + fill("g1", "M141 58C138 56 136 55 134 54L126 116V124Z", "rib") + ln("M114 272V124L99 58") + ln("M126 272V116L141 58")
+    + `<path class="ln" d="M84 196h22v30H84z"/><path class="ln" d="M134 196h22v30h-22z"/>` + fill("g1", "M84 196h22v5H84z", "rib") + fill("g1", "M134 196h22v5h-22z", "rib")
+    + buttons([134, 162, 190, 218, 246], 120, 3));
+  const TEE = "M90 70 106 60C112 68 128 68 134 60L150 70 156 112C154 150 155 200 158 252 134 256 106 256 82 252 85 200 86 150 84 112Z";
+  const teeSleeves = (t) => both(sil("M90 70C76 74 62 84 46 106L68 134 84 112Z", t) + st("M49 109.500 69.500 130") + fo("M72 92C74 104 76 112 80 118", 3));
+  const teeBody = (t) => teeSleeves(t) + sil(TEE, t) + fo("M94 124C100 164 90 206 98 248", 8) + fo("M148 130C142 170 152 210 144 248", 8) + hl("M112 96C110 140 114 200 112 244", 5) + fo("M86 112C94 112 98 116 102 124", 3) + fo("M154 112C146 112 142 116 138 124", 3) + st("M83 247C106 251 134 251 157 247");
+  const teeNeck = () => fill("g1", "M104 58C109 50 131 50 136 58 137 61 135 63 133 64 127 71 113 71 107 64 105 63 103 61 104 58Z", "rib") + `<path class="g2" d="M109 57C114 53 126 53 131 57 126 64 114 64 109 57Z"/>`;
+  const TEEFIT = (s) => sxy(1.16, .84, 120, 60, s);
+  const tee = ({ tex = "weave", pocket } = {}) => TEEFIT(teeBody(tex) + teeNeck() + (pocket ? patch(134, 96, 20, 24) : ""));
+  let clipN = 0;
+  const breton = () => {
+    const id = "bc" + clipN++;
+    const lines = Array.from({ length: 13 }, (_, i) => 94 + i * 12.500).map((y) => `<path stroke="var(--stripe)" stroke-width="4.200" d="M30 ${y}H210" fill="none"/>`).join("");
+    const sl = Array.from({ length: 4 }, (_, i) => 88 + i * 11).map((y) => `<path stroke="var(--stripe)" stroke-width="4" d="M30 ${y}L90 ${y + 8}" fill="none"/>`).join("");
+    return TEEFIT(`<clipPath id="${id}"><path d="${TEE}"/></clipPath><clipPath id="${id}s"><path d="M90 70C76 74 62 84 46 106L68 134 84 112Z"/></clipPath>`
+      + teeSleeves("weave") + both(`<g clip-path="url(#${id}s)">${sl}</g>`) + sil(TEE, "weave") + `<g clip-path="url(#${id})">${lines}</g>`
+      + fo("M94 124C100 164 90 206 98 248", 8) + fo("M148 130C142 170 152 210 144 248", 8) + teeNeck());
+  };
+  const polo = ({ tex = "knit" } = {}) => TEEFIT(teeBody(tex)
+    + `<path class="g2" d="M106 60C112 54 128 54 134 60 128 66 112 66 106 60Z"/>` + `<path class="g3" opacity=".55" d="M115 64h10v38h-10z"/>` + ln("M115 64v38h10V64") + buttons([76, 90], 120, 1.900)
+    + both(fill("g1", "M105 59C108 55 112 53 114 53L120 66 110 80 96 66C98 62 101 60 105 59Z", "rib") + ln("M105 59C108 55 112 53 114 53L120 66 110 80 96 66C98 62 101 60 105 59Z")));
+  const LEG = "M120 46H83C80 68 76 98 75 132L83 284H111L118 136 120 124Z";
+  const trousers = ({ tex = "weave", pleat = 1, draw } = {}) => both(sil(LEG, tex) + ln("M83 50 97 86") + ln("M97.500 50V284") .replace("ln", "ln") + fo("M86 180C92 186 104 186 110 182", 4) + fo("M84 224C90 228 104 228 110 226", 4) + hl("M90 90C88 130 90 200 92 270", 4) + st("M83.300 278.500H111.300") + (pleat ? ln("M105 47l1.500 22") : ""))
+    + (draw ? fill("g1", "M84 28C100 32 140 32 156 28L159 46H81Z", "rib") + ln("M81 46H159") + `<path fill="none" stroke="var(--g3)" stroke-width="1.500" d="M118 36C114 52 110 58 108 62M122 36C126 52 130 58 133 62"/>`
+      : `<path class="g1" d="M84 30H156L159 46H81Z"/>` + ln("M81 46H159") + st("M84 33H156") + st("M82 43.500H158") + both(`<path class="g1" d="M95 28h5v20h-5z"/>` + ln("M95 28h5v20h-5z")) + bt(120, 38, 2.400))
+    + ln("M120 46V124") + st("M127 47C127 92 126 108 120 120");
+  const jeans = ({ raw = 1, tex = "twill", hem = "#d6d2c5" } = {}) => {
+    const y = "#c98a3a";
+    const pk = `<path fill="none" stroke="${y}" stroke-width=".9" d="M82 56C88 78 102 76 108 50"/><path fill="none" stroke="${y}" stroke-width=".9" d="M79.500 62C88 86 106 82 111 50"/><circle fill="${y}" cx="82.500" cy="58" r="1.300"/><circle fill="${y}" cx="107" cy="52" r="1.300"/>`;
+    return both(sil("M120 46H83C80 68 77 98 76 132L86 284H112L118 136 120 124Z", tex) + pk + fo("M90 170C96 178 106 178 112 172", 4) + fo("M88 214C94 220 106 220 112 216", 4) + hl("M94 90C92 140 95 210 98 262", 5)
+        + (raw ? `<path fill="${hem}" d="M85 264H112.900L112 284H86Z"/><path fill="#a62f1f" d="M86.800 264H88.400L88.900 284H87.300Z"/><path fill="#fff" fill-opacity=".8" d="M88.400 264H89.300L89.800 284H88.900Z"/>` + ln("M85 264H112.900") : st("M85.500 278.500H112")))
+      + `<path class="g1" d="M84 30H156L159 46H81Z"/><path fill="url(#twill)" d="M84 30H156L159 46H81Z"/>` + ln("M81 46H159") + `<path fill="none" stroke="${y}" stroke-width=".8" d="M84 33H156M82 43.500H158M120 46V122M127 47C127 92 126 108 120 120"/>`
+      + both(`<path class="g1" d="M94 28h5.500v20H94z"/>` + `<path fill="none" stroke="${y}" stroke-width=".7" d="M94 28h5.500v20H94z"/>`)
+      + `<circle fill="#c7c1b0" cx="120" cy="38" r="2.700"/><circle fill="none" stroke="rgba(0,0,0,.4)" stroke-width=".6" cx="120" cy="38" r="1.600"/>`;
+  };
+  const coat = ({ tex = "weave", belt } = {}) => {
+    const body = "M88 54 106 44H134L152 54C158 70 160 94 159 122L169 286H71L81 122C80 94 82 70 88 54Z";
+    const sl = both(sil("M88 54C74 58 64 68 58 86L31 206C30 210 31 212 34 213L54 218C57 219 59 218 60 214L83 130Z", tex) + fo("M68 100C62 130 54 160 47 190", 4) + ln("M36 196 62 203") + (belt ? `<path class="g1" d="M34.500 198 62 205 60.700 210 33.300 203Z"/>` : ""));
+    return sl + sil(body, tex)
+      + fo("M94 130C100 180 86 230 92 282", 9) + fo("M148 130C142 180 156 230 150 282", 9) + hl("M108 120C108 170 104 230 104 280", 5)
+      + `<path class="g2" d="M107 45C114 50 126 50 133 45L122 122H118Z"/>`
+      + `<path d="M126 110V286" class="ln"/><path d="M129 112V286" class="st"/>`
+      + both(`<path class="g1" d="M106 43 118 124 112 128 91 100 100 84 91 76 100 52Z"/><path fill="url(#${tex})" d="M106 43 118 124 112 128 91 100 100 84 91 76 100 52Z"/>` + ln("M106 43 118 124 112 128 91 100 100 84 91 76 100 52Z") + ln("M100 84 106 80"))
+      + (belt ? `<path class="g1" d="M79.500 150C100 154 140 154 160.500 150L161 162C140 166 100 166 79 162Z"/><path fill="url(#${tex})" d="M79.500 150C100 154 140 154 160.500 150L161 162C140 166 100 166 79 162Z"/>` + ln("M79.500 150C100 154 140 154 160.500 150L161 162C140 166 100 166 79 162Z") + `<rect x="112" y="150" width="16" height="16" rx="1.500" fill="none" stroke="var(--bt)" stroke-width="2"/>` + fo("M116 166C114 200 112 240 112 284", 3) + fo("M136 166C138 200 142 240 144 284", 3) : "")
+      + buttons(belt ? [136, 186, 218] : [140, 186], 110, 2.800) + buttons(belt ? [136, 186, 218] : [140, 186], 136, 2.800)
+      + `<path class="ln" d="M84 ${belt ? 206 : 200}l20 5" /><path class="ln" d="M156 ${belt ? 206 : 200}l-20 5"/>`;
+  };
+  const vest = ({ tex } = {}) => {
+    const body = "M92 60 106 48C112 54 128 54 134 48L148 60C146 78 150 94 159 106L162 246C140 252 100 252 78 246L81 106C90 94 94 78 92 60Z";
+    const rows = [72, 92, 114, 138, 162, 186, 210, 232].map((y) => {
+      const x = y < 100 ? 92 : 80;
+      return `<path class="fold" stroke-width="3.500" d="M${x} ${y}Q120 ${y + 7} ${240 - x} ${y}"/>` + `<path class="hl" stroke-width="3" d="M${x} ${y + 6}Q120 ${y + 13} ${240 - x} ${y + 6}"/>` + ln(`M${x} ${y}Q120 ${y + 7} ${240 - x} ${y}`);
+    }).join("");
+    return sxy(1.1, .8, 120, 40, sil(body, tex) + rows
+      + `<path class="g2" d="M106 48C112 54 128 54 134 48 128 42 112 42 106 48Z"/>` + fill("g1", "M102 38C110 34 130 34 138 38L136 50C128 56 112 56 104 50Z") + ln("M102 38C110 34 130 34 138 38L136 50C128 56 112 56 104 50Z") + `<path class="g2" d="M107 39C114 36 126 36 133 39 126 43 114 43 107 39Z"/>`
+      + `<path d="M120 54V249" stroke="var(--g2)" stroke-width="2.200" fill="none"/><path d="M120 54V249" stroke="#fff" stroke-opacity=".25" stroke-width=".7" stroke-dasharray="1 1.400" fill="none"/><rect x="118.300" y="60" width="3.400" height="7" rx="1" fill="var(--bt)"/>`
+      + `<path class="g2" d="M92 174 103 200 100 202 89 176Z"/><path class="g2" d="M148 174 137 200 140 202 151 176Z"/>`);
+  };
+  const field = ({ tex = "weave" } = {}) => {
+    const body = "M86 60 104 50C110 55 130 55 136 50L154 60C161 78 165 100 164 130L168 266C148 271 92 271 72 266L76 130C75 100 79 78 86 60Z";
+    return sleeve(tex) + sy(.86, 60, sil(body, tex)
+      + fo("M92 134C98 180 86 220 92 262", 8) + fo("M150 134C144 180 156 220 150 262", 8) + hl("M104 84C100 130 106 190 102 250", 6) + hl("M142 90C146 140 136 200 140 250", 5)
+      + ln("M77 96C94 92 146 92 163 96") + st("M77 99C94 95 146 95 163 99")
+      + `<path d="M120 58V269" stroke="var(--g2)" stroke-width="2.400" fill="none"/>` + `<path class="g3" opacity=".3" d="M112 60h6v209h-6z"/>` + ln("M112 60v209")
+      + patch(80, 176, 30, 40, 1) + patch(130, 176, 30, 40, 1) + patch(133, 112, 20, 22, 1)
+      + buttons([206, 206], 95, 2.100) + bt(145, 192, 2.100) + bt(95, 192, 2.100)
+      + `<path fill="#4a3826" d="M103 50C110 56 130 56 137 50L136 41C128 37 112 37 104 41Z"/>`
+      + both(`<path fill="#4a3826" d="M103 41.500C106 39.500 110 38.500 113 39L120 60 106 78 90 58C92 50 98 45 103 41.500Z"/><path fill="url(#cord)" d="M103 41.500C106 39.500 110 38.500 113 39L120 60 106 78 90 58C92 50 98 45 103 41.500Z"/>`)
+      + `<path fill="#2e2318" d="M108 44C114 41 126 41 132 44 126 49 114 49 108 44Z"/>`);
+  };
+  const ART = { shirt, overshirt, sweater, cardigan, tee, breton, polo, trousers, jeans, coat, vest, field };
+
+  /* ---------- the stock ---------- */
+  const LETTERS = ["XS", "S", "M", "L", "XL", "XXL"], WAISTS = ["30", "32", "34"], ALLS = [...LETTERS.slice(1), ...WAISTS, "36", "XS"];
+  const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "28", "30", "32", "34", "36", "38"];
+  const P = [
+    ["Heavy oxford shirt", "Shirts", "shirt", {}, 88, ["Ecru", "Chambray", "Forest"], "S M L XL XXL", "Organic cotton", 1, 1, 22],
+    ["Lambswool crew", "Knitwear", "sweater", {}, 124, ["Oxblood", "Stone", "Navy", "Forest"], "XS S M L XL", "Wool", 1, 2, 9],
+    ["Canvas chore jacket", "Outerwear", "overshirt", {}, 148, ["Indigo", "Olive", "Rust"], "S M L XL", "Organic cotton", 1, 3, 4, "New"],
+    ["Fisherman roll neck", "Knitwear", "sweater", { roll: 1, tex: "cable" }, 188, ["Ecru", "Navy"], "S M L", "Wool", 1, 4, 31],
+    ["Waxed field jacket", "Outerwear", "field", {}, 268, ["Forest", "Camel"], "M L XL", "Waxed cotton", 1, 5, 12],
+    ["Brushed flannel shirt", "Shirts", "shirt", { tex: "check", pocket: 1 }, 96, ["Rust", "Forest", "Charcoal"], "S M L XL", "Organic cotton", 1, 6, 15, "New"],
+    ["13oz selvedge jean", "Trousers", "jeans", {}, 148, ["Indigo", "Charcoal"], "28 30 32 34 36", "Selvedge denim", 1, 7, 44],
+    ["Heavyweight tee", "T-shirts", "tee", {}, 34, ["Ecru", "Charcoal", "Olive", "Rust", "Navy"], "XS S M L XL XXL", "Organic cotton", 1, 8, 50],
+    ["Shawl cardigan", "Knitwear", "cardigan", {}, 218, ["Camel", "Charcoal"], "S M L XL", "Wool", 1, 9, 19, "Low stock"],
+    ["Pleated wool trouser", "Trousers", "trousers", {}, 168, ["Charcoal", "Stone", "Navy"], "30 32 34 36", "Wool", 1, 10, 26],
+    ["Quilted gilet", "Outerwear", "vest", {}, 128, ["Olive", "Navy", "Charcoal"], "S M L XL", "Organic cotton", 1, 11, 7],
+    ["Breton stripe tee", "T-shirts", "breton", {}, 46, ["Ecru", "Navy"], "XS S M L", "Organic cotton", 1, 12, 64],
+    ["Wool overcoat", "Outerwear", "coat", {}, 395, ["Camel", "Charcoal", "Navy"], "M L XL", "Wool", 1, 13, 3, "New"],
+    ["Linen camp shirt", "Shirts", "shirt", { pocket: 0 }, 78, ["Ecru", "Olive", "Stone"], "S M L", "Linen", 0, 14, 70],
+    ["Straight chino", "Trousers", "trousers", { pleat: 0 }, 92, ["Stone", "Olive", "Navy"], "28 30 32 34 36 38", "Organic cotton", 1, 15, 40],
+    ["Cotton knit polo", "Knitwear", "polo", {}, 84, ["Rust", "Olive", "Ecru"], "S M L XL", "Organic cotton", 1, 16, 33],
+    ["Chambray work shirt", "Shirts", "shirt", { tex: "twill" }, 112, ["Chambray", "Indigo"], "S M L XL XXL", "Selvedge denim", 1, 17, 28],
+    ["Belted cotton mac", "Outerwear", "coat", { belt: 1 }, 328, ["Stone", "Navy"], "S M L", "Waxed cotton", 1, 18, 11, "Low stock"],
+    ["Pocket tee", "T-shirts", "tee", { pocket: 1 }, 38, ["Stone", "Forest"], "S M L XL", "Organic cotton", 1, 19, 58],
+    ["Drawstring linen trouser", "Trousers", "trousers", { draw: 1, pleat: 0 }, 86, ["Ecru", "Slate"], "S M L", "Linen", 1, 20, 66],
+    ["Merino cardigan", "Knitwear", "cardigan", {}, 158, ["Slate", "Forest", "Oxblood"], "XS S M L", "Wool", 1, 21, 17],
+    ["Band-collar poplin", "Shirts", "shirt", { band: 1, pocket: 0 }, 72, ["Ecru", "Slate"], "S M L XL", "Organic cotton", 0, 22, 80],
+    ["Linen tee", "T-shirts", "tee", {}, 52, ["Ecru", "Camel"], "S M L XL", "Linen", 1, 23, 24],
+    ["15oz raw selvedge jean", "Trousers", "jeans", { hem: "#e2dcc9" }, 198, ["Indigo"], "30 32 34", "Selvedge denim", 1, 24, 2, "New"],
+  ].map((r, i) => ({ id: i, n: r[0], c: r[1], t: r[2], o: r[3], p: r[4], col: r[5], sz: r[6].split(" "), m: r[7], st: !!r[8], rank: r[9], age: r[10], tag: r[11] }));
+  const CATS = ["T-shirts", "Shirts", "Knitwear", "Trousers", "Outerwear"];
+  const MATS = ["Organic cotton", "Wool", "Linen", "Selvedge denim", "Waxed cotton"];
+  const MIN = 20, MAX = 400, BIN = 10, STEP = 5, GAP = 10, BINS = (MAX - MIN) / BIN;
+  const SORTS = [["featured", "Featured", (a, b) => a.rank - b.rank], ["new", "Newest", (a, b) => a.age - b.age], ["low", "Price, low to high", (a, b) => a.p - b.p || a.rank - b.rank], ["high", "Price, high to low", (a, b) => b.p - a.p || a.rank - b.rank]];
+
+  /* ---------- state: opens already filtered, so the page shows what it can do ---------- */
+  const f = { cat: new Set(["Shirts", "Knitwear", "Outerwear"]), size: new Set(), colour: new Set(), mat: new Set(), stock: false, lo: 60, hi: 280 };
+  let sort = "featured", cols = 4, bag = 0;
+  /* the switch offers what the width can carry */
+  const maxCols = () => innerWidth < 600 ? 2 : innerWidth < 1100 ? 3 : 4;
+  const eff = () => Math.min(cols, maxCols());
+
+  const has = { cat: (p, v) => p.c === v, size: (p, v) => p.sz.includes(v), colour: (p, v) => p.col.includes(v), mat: (p, v) => p.m === v };
+  const anyIn = (p, g) => !f[g].size || [...f[g]].some((v) => has[g](p, v));
+  const passes = (p, skip) => ["cat", "size", "colour", "mat"].every((g) => g === skip || anyIn(p, g)) && (skip === "stock" || !f.stock || p.st) && (skip === "price" || (p.p >= f.lo && p.p <= f.hi));
+  const results = () => P.filter((p) => passes(p));
+  const facet = (g, v) => P.filter((p) => passes(p, g) && has[g](p, v)).length;
+  const priceActive = () => f.lo > MIN || f.hi < MAX;
+  const plural = (n) => n + (n === 1 ? " piece" : " pieces");
+
+  /* every chip is one removable condition */
+  function conditions() {
+    const out = [];
+    for (const v of f.cat) out.push({ k: "cat:" + v, label: v, rm: () => f.cat.delete(v) });
+    for (const v of f.size) out.push({ k: "size:" + v, label: "Size " + v, rm: () => f.size.delete(v) });
+    for (const v of f.colour) out.push({ k: "colour:" + v, label: v, c: COLOURS[v], rm: () => f.colour.delete(v) });
+    for (const v of f.mat) out.push({ k: "mat:" + v, label: v, rm: () => f.mat.delete(v) });
+    if (priceActive()) out.push({ k: "price", label: `${gbp(f.lo)}–${gbp(f.hi)}`, rm: () => { f.lo = MIN; f.hi = MAX; } });
+    if (f.stock) out.push({ k: "stock", label: "In stock", rm: () => { f.stock = false; } });
+    return out;
+  }
+  function snapshot() { return { cat: new Set(f.cat), size: new Set(f.size), colour: new Set(f.colour), mat: new Set(f.mat), stock: f.stock, lo: f.lo, hi: f.hi }; }
+  function restore(s) { Object.assign(f, s); }
+  function biggestBlocker() {
+    let best = null;
+    for (const c of conditions()) {
+      const s = snapshot(); c.rm(); const n = results().length; restore(s);
+      if (!best || n > best.n) best = { ...c, n };
+    }
+    return best;
+  }
+
+  /* ---------- the rail ---------- */
+  const CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  function group(key, title, body, shut) {
+    return `<section class="grp"><h2><button class="gh" aria-expanded="${!shut}" aria-controls="g-${key}">${CHEV}${title}<span id="gs-${key}"></span></button></h2><div class="gb${shut ? " shut" : ""}" id="g-${key}"><div class="gi"${shut ? " inert" : ""}>${body}</div></div></section>`;
+  }
+  const optRow = (g, v) => `<label class="opt" data-g="${g}" data-v="${v}"><input type="checkbox"><span>${v}</span><em></em></label>`;
+  $("railScroll").innerHTML =
+    group("price", "Price", `<div class="range" id="range">
+        <div class="hist" id="histAll" aria-hidden="true">${"<i></i>".repeat(BINS)}</div>
+        <div class="hist in" id="histIn" aria-hidden="true">${"<i></i>".repeat(BINS)}</div>
+        <div class="track"><div class="fill" id="fill"></div>
+          <div class="thumb" id="tLo" role="slider" tabindex="0" aria-label="Lowest price" aria-valuemin="${MIN}" aria-valuemax="${MAX}"></div>
+          <div class="thumb" id="tHi" role="slider" tabindex="0" aria-label="Highest price" aria-valuemin="${MIN}" aria-valuemax="${MAX}"></div></div>
+      </div>
+      <div class="limits"><label>From<span class="money"><span>£</span><input id="inLo" inputmode="numeric" autocomplete="off" aria-label="Lowest price in pounds"></span></label><i>–</i><label>To<span class="money"><span>£</span><input id="inHi" inputmode="numeric" autocomplete="off" aria-label="Highest price in pounds"></span></label></div>`)
+    + group("cat", "Category", `<div>${CATS.map((v) => optRow("cat", v)).join("")}</div>`)
+    + group("size", "Size", `<div class="sizes">${SIZES.map((v) => `<button class="sz" data-g="size" data-v="${v}">${v}</button>`).join("")}</div>`)
+    + group("colour", "Colour", `<div class="cols">${Object.keys(COLOURS).map((v) => `<button class="cs" data-g="colour" data-v="${v}" style="--c:${COLOURS[v]}"></button>`).join("")}</div>`)
+    + group("mat", "Material", `<div>${MATS.map((v) => optRow("mat", v)).join("")}</div>`, true)
+    + `<section class="grp"><label class="toggle"><span>In stock only</span><em id="stockN"></em><input type="checkbox" id="stock" role="switch"></label></section>`;
+
+  document.querySelectorAll("[data-g]").forEach((el) => {
+    const { g, v } = el.dataset;
+    const input = el.querySelector("input");
+    const act = () => { f[g].has(v) ? f[g].delete(v) : f[g].add(v); render(); };
+    if (input) input.addEventListener("change", act); else el.addEventListener("click", act);
+    if (g === "colour") {
+      el.addEventListener("pointerenter", () => { $("gs-colour").textContent = v; });
+      el.addEventListener("focus", () => { $("gs-colour").textContent = v; });
+      el.addEventListener("pointerleave", paintColourLabel);
+      el.addEventListener("blur", paintColourLabel);
+    }
+  });
+  function paintColourLabel() { const a = [...f.colour]; $("gs-colour").textContent = a.length === 0 ? "" : a.length === 1 ? a[0] : a.length + " chosen"; }
+  document.querySelectorAll(".gh").forEach((b) => b.addEventListener("click", () => {
+    const body = $(b.getAttribute("aria-controls")), open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    body.classList.toggle("shut", open);
+    body.firstElementChild.inert = open;
+  }));
+  $("stock").addEventListener("change", (e) => { f.stock = e.target.checked; render(); });
+
+  /* ---------- the price range ---------- */
+  const pct = (v) => (v - MIN) / (MAX - MIN) * 100;
+  const snap = (v) => Math.round(v / STEP) * STEP;
+  function setLo(v) { f.lo = Math.max(MIN, Math.min(snap(v), f.hi - GAP)); }
+  function setHi(v) { f.hi = Math.min(MAX, Math.max(snap(v), f.lo + GAP)); }
+  function paintRange() {
+    const l = pct(f.lo), r = 100 - pct(f.hi);
+    const range = $("range");
+    range.style.setProperty("--l", l + "%"); range.style.setProperty("--r", r + "%");
+    $("tLo").style.left = l + "%"; $("tHi").style.left = pct(f.hi) + "%";
+    for (const [t, v] of [[$("tLo"), f.lo], [$("tHi"), f.hi]]) { t.setAttribute("aria-valuenow", v); t.setAttribute("aria-valuetext", gbp(v)); }
+    if (document.activeElement !== $("inLo")) $("inLo").value = f.lo;
+    if (document.activeElement !== $("inHi")) $("inHi").value = f.hi;
+    /* the two handles sit on one line, so the nearer end must stay on top at the extremes */
+    $("tLo").style.zIndex = f.lo > MAX - 40 ? 2 : 1;
+    $("tHi").style.zIndex = f.lo > MAX - 40 ? 1 : 2;
+  }
+  /* each piece spreads a little into its neighbours, so a small catalogue still reads as a distribution */
+  const KERNEL = [.2, .55, 1, .55, .2];
+  function spread(list) {
+    const b = new Array(BINS).fill(0);
+    for (const p of list) {
+      const i = Math.min(BINS - 1, Math.floor((p.p - MIN) / BIN));
+      KERNEL.forEach((w, k) => { const j = i + k - 2; if (j >= 0 && j < BINS) b[j] += w; });
+    }
+    return b;
+  }
+  const PEAK = Math.max(...spread(P));
+  function paintHist() {
+    const bins = spread(P.filter((p) => passes(p, "price")));
+    for (const row of [$("histAll"), $("histIn")]) [...row.children].forEach((b, i) => b.style.setProperty("--h", bins[i] > .1 ? (.05 + .95 * bins[i] / PEAK).toFixed(3) : 0));
+  }
+  let dragging = null;
+  const trackRect = () => $("range").getBoundingClientRect();
+  const valueAt = (x) => { const r = trackRect(); return MIN + (Math.max(0, Math.min(1, (x - r.left) / r.width))) * (MAX - MIN); };
+  $("range").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    const v = valueAt(e.clientX);
+    dragging = Math.abs(v - f.lo) < Math.abs(v - f.hi) || (Math.abs(v - f.lo) === Math.abs(v - f.hi) && v < f.lo) ? "lo" : "hi";
+    const t = dragging === "lo" ? $("tLo") : $("tHi");
+    t.classList.add("grab"); t.focus({ preventScroll: true });
+    $("range").setPointerCapture(e.pointerId);
+    (dragging === "lo" ? setLo : setHi)(v);
+    schedule();
+  });
+  $("range").addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    (dragging === "lo" ? setLo : setHi)(valueAt(e.clientX));
+    paintRange();
+    schedule();
+  });
+  const endDrag = () => { if (!dragging) return; $("tLo").classList.remove("grab"); $("tHi").classList.remove("grab"); dragging = null; render(); };
+  $("range").addEventListener("pointerup", endDrag);
+  $("range").addEventListener("pointercancel", endDrag);
+  let scheduled = 0, lastRender = 0;
+  function schedule() {
+    paintRange();
+    if (scheduled) return;
+    scheduled = requestAnimationFrame(() => {
+      scheduled = 0;
+      /* during a drag the grid only re-lays when the set of results changed */
+      render();
+    });
+  }
+  for (const [t, set, get] of [[$("tLo"), setLo, () => f.lo], [$("tHi"), setHi, () => f.hi]]) {
+    t.addEventListener("keydown", (e) => {
+      const d = { ArrowLeft: -STEP, ArrowDown: -STEP, ArrowRight: STEP, ArrowUp: STEP, PageDown: -BIN, PageUp: BIN }[e.key];
+      if (d !== undefined) { e.preventDefault(); set(get() + d); render(); }
+      else if (e.key === "Home") { e.preventDefault(); set(t.id === "tLo" ? MIN : f.lo + GAP); render(); }
+      else if (e.key === "End") { e.preventDefault(); set(t.id === "tHi" ? MAX : f.hi - GAP); render(); }
+    });
+  }
+  function commitPrice() {
+    const lo = parseInt($("inLo").value.replace(/\D/g, ""), 10), hi = parseInt($("inHi").value.replace(/\D/g, ""), 10);
+    let a = Number.isNaN(lo) ? f.lo : lo, b = Number.isNaN(hi) ? f.hi : hi;
+    if (a > b) [a, b] = [b, a];
+    a = Math.max(MIN, Math.min(MAX - GAP, a)); b = Math.min(MAX, Math.max(a + GAP, b));
+    f.lo = snap(a); f.hi = Math.max(f.lo + GAP, snap(b)); f.hi = Math.min(MAX, f.hi);
+    $("inLo").value = f.lo; $("inHi").value = f.hi;
+    render();
+  }
+  for (const i of [$("inLo"), $("inHi")]) {
+    i.addEventListener("blur", commitPrice);
+    i.addEventListener("focus", () => i.select());
+    i.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); i.blur(); i.focus(); } if (e.key === "Escape") { i.value = i === $("inLo") ? f.lo : f.hi; } });
+  }
+
+  /* ---------- the grid ---------- */
+  const SWAP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>', TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg>';
+  const cards = P.map((p) => {
+    const el = document.createElement("article");
+    el.className = "card" + (p.st ? "" : " out");
+    el.innerHTML = `<div class="art"><svg class="g-art" viewBox="0 0 240 300" role="img" aria-label="${p.n}"><g class="fig">${ART[p.t](p.o)}</g></svg>${p.st ? (p.tag ? `<span class="tag${p.tag === "Low stock" ? " low" : ""}">${p.tag}</span>` : "") : `<span class="tag">Sold out</span>`}${p.st ? `<button class="add" aria-label="Add ${p.n} to bag">${SWAP}</button>` : ""}</div>
+      <div class="info"><h3>${p.n}</h3><span class="pr">${gbp(p.p)}</span><span class="cn"></span><span></span>
+      ${p.col.length > 1 ? `<div class="sws" role="group" aria-label="Colourways of ${p.n}">${p.col.map((c) => `<button class="sw" data-c="${c}" aria-label="${c}" title="${c}" style="--c:${COLOURS[c]}"><i></i></button>`).join("")}</div>` : ""}</div>`;
+    const card = { p, el, picked: null, shown: null };
+    el.querySelectorAll(".sw").forEach((b) => b.addEventListener("click", () => { card.picked = b.dataset.c; paintCard(card); }));
+    const add = el.querySelector(".add");
+    if (add) add.addEventListener("click", () => {
+      bag++; $("bagN").textContent = bag;
+      $("bagN").classList.remove("bump"); void $("bagN").offsetWidth; $("bagN").classList.add("bump");
+      add.classList.add("done"); add.innerHTML = TICK; add.setAttribute("aria-label", `${p.n} added to bag`);
+      clearTimeout(add.h); add.h = setTimeout(() => { add.classList.remove("done"); add.innerHTML = SWAP; add.setAttribute("aria-label", `Add ${p.n} to bag`); }, 1200);
+    });
+    return card;
+  });
+  /* centre every drawing in its frame; shorter pieces are brought up a little, as a stylist would frame them */
+  for (const c of cards) $("grid").appendChild(c.el);
+  for (const c of cards) {
+    const g = c.el.querySelector(".fig"), b = g.getBBox();
+    const k = Math.max(1, Math.min(1.12, 232 / b.height, 214 / b.width)), cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+    g.setAttribute("transform", `translate(${(120 - cx * k).toFixed(1)} ${(150 - cy * k).toFixed(1)}) scale(${k.toFixed(3)})`);
+  }
+  function paintCard(card) {
+    /* a colour filter shows the garment in that colour, unless someone picked a colourway themselves */
+    const match = card.p.col.find((c) => f.colour.has(c));
+    const c = (card.picked && (!f.colour.size || f.colour.has(card.picked)) ? card.picked : null) || match || card.picked || card.p.col[0];
+    if (card.shown !== c) { paintVars(card.el, c); card.shown = c; card.el.querySelector(".cn").textContent = c; }
+    card.el.querySelectorAll(".sw").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === c)));
+  }
+
+  /* ---------- FLIP ---------- */
+  let shownKey = "", gridLater = 0, settle = false;
+  function flip(mutate) {
+    if (reduced.matches) { mutate(); return; }
+    const grid = $("grid"), first = new Map();
+    for (const c of cards) if (c.el.isConnected && !c.el.hidden) first.set(c.el, c.el.getBoundingClientRect());
+    const leaving = [];
+    mutate();
+    const gridBox = grid.getBoundingClientRect();
+    for (const c of cards) {
+      const el = c.el, a = first.get(el);
+      if (el.hidden) {
+        if (a && !grid.hidden) {
+          const ghost = el.cloneNode(true);
+          ghost.hidden = false; ghost.setAttribute("aria-hidden", "true"); ghost.inert = true;
+          Object.assign(ghost.style, { position: "absolute", left: a.left - gridBox.left + "px", top: a.top - gridBox.top + "px", width: a.width + "px", height: a.height + "px", margin: 0, pointerEvents: "none", zIndex: 0 });
+          grid.appendChild(ghost);
+          ghost.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(.97)" }], { duration: 140, easing: "ease-out" }).onfinish = () => ghost.remove();
+          leaving.push(ghost);
+        }
+        continue;
+      }
+      el.getAnimations().forEach((x) => x.cancel());
+      const b = el.getBoundingClientRect();
+      if (!a) {
+        el.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 240, delay: 60, fill: "backwards", easing: "cubic-bezier(.2,.7,.2,1)" });
+      } else {
+        const dx = a.left - b.left, dy = a.top - b.top, sx = a.width / b.width, sy = a.height / b.height;
+        if (Math.abs(dx) > .5 || Math.abs(dy) > .5 || Math.abs(sx - 1) > .01) {
+          el.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sx})` }, { transform: "none" }], { duration: 280, easing: "cubic-bezier(.2,.7,.2,1)" });
+        }
+      }
+    }
+  }
+
+  /* ---------- paint everything ---------- */
+  function render() {
+    const list = results();
+    /* counts and what can still be chosen */
+    document.querySelectorAll("[data-g]").forEach((el) => {
+      const { g, v } = el.dataset, n = facet(g, v), on = f[g].has(v), off = !n && !on;
+      const input = el.querySelector("input");
+      if (input) {
+        input.checked = on; input.disabled = off; el.classList.toggle("off", off);
+        el.querySelector("em").textContent = n;
+      } else {
+        el.setAttribute("aria-pressed", String(on));
+        el.disabled = off;
+        el.setAttribute("aria-label", `${g === "size" ? "Size " : ""}${v}, ${plural(n)}`);
+      }
+    });
+    $("stock").checked = f.stock;
+    const inStock = P.filter((p) => passes(p, "stock") && p.st).length;
+    $("stockN").textContent = inStock;
+    $("stock").disabled = !inStock && !f.stock;
+    $("stock").closest(".toggle").classList.toggle("off", $("stock").disabled);
+    $("gs-cat").textContent = f.cat.size === 1 ? [...f.cat][0] : f.cat.size ? f.cat.size + " chosen" : "";
+    $("gs-size").textContent = [...f.size].join(", ");
+    $("gs-mat").textContent = f.mat.size === 1 ? [...f.mat][0] : f.mat.size ? f.mat.size + " chosen" : "";
+    $("gs-price").textContent = priceActive() ? `${gbp(f.lo)}–${gbp(f.hi)}` : "";
+    paintColourLabel();
+    paintHist(); paintRange();
+
+    const conds = conditions();
+    $("count").textContent = `${list.length} of ${plural(P.length)}`;
+    const word = list.length === 1 ? "result" : "results";
+    $("sheetShow").textContent = `Show ${list.length} ${word}`;
+    $("sheetClear").style.visibility = conds.length ? "visible" : "hidden";
+    $("filtersLabel").textContent = conds.length ? `Filters (${conds.length})` : "Filters";
+
+    /* chips: rebuilt only when they change, so focus and clicks survive a drag */
+    const key = conds.map((c) => c.k + c.label).join("|");
+    if (key !== $("chips").dataset.k) {
+      const hadFocus = $("chips").contains(document.activeElement) ? [...$("chips").children].indexOf(document.activeElement) : -1;
+      $("chips").dataset.k = key;
+      $("chips").innerHTML = conds.map((c, i) => `<button class="chip" data-i="${c.k}" aria-label="Remove filter: ${c.label}">${c.c ? `<i style="--c:${c.c}"></i>` : ""}${c.label}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>`).join("") + (conds.length ? `<button class="clear" id="clear">Clear all</button>` : "");
+      if (hadFocus >= 0) ([...$("chips").children][Math.min(hadFocus, $("chips").children.length - 1)] || $("sortBtn")).focus();
+    }
+
+    /* the grid */
+    const sorted = [...list].sort(SORTS.find((s) => s[0] === sort)[2]);
+    const newKey = sorted.map((p) => p.id).join(",") + "|" + eff();
+    $("colsw").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(+x.dataset.n === eff())));
+    cards.forEach(paintCard);
+    /* while a handle is held, the counts follow it live and the grid settles once the hand rests */
+    clearTimeout(gridLater);
+    if (newKey !== shownKey && dragging && !settle) { gridLater = setTimeout(() => { settle = true; render(); settle = false; }, 160); }
+    else if (newKey !== shownKey) {
+      const go = () => {
+        const grid = $("grid"), ids = new Set(sorted.map((p) => p.id));
+        grid.style.setProperty("--cols", eff());
+        for (const c of cards) c.el.hidden = !ids.has(c.p.id);
+        for (const p of sorted) grid.appendChild(cards[p.id].el);
+        for (const c of cards) if (c.el.hidden) grid.appendChild(c.el);
+        grid.hidden = !sorted.length;
+      };
+      shownKey ? flip(go) : go();
+      shownKey = newKey;
+    }
+
+    /* nothing fits: name the condition doing most of the blocking, and offer to lift it */
+    const empty = $("grid").hidden;
+    if (empty !== !$("none").hidden || empty) {
+      $("none").hidden = !empty;
+      if (empty) {
+        const b = biggestBlocker();
+        if (b) {
+          $("noneWhy").textContent = `${b.k === "price" ? "Your price range" : "“" + b.label + "”"} is ruling out the most. Without it you’d see ${plural(b.n)}.`;
+          $("noneFix").textContent = `Remove ${b.label}`;
+          $("noneFix").dataset.k = b.k;
+        }
+      }
+    }
+  }
+  $("noneFix").addEventListener("click", () => {
+    const c = conditions().find((x) => x.k === $("noneFix").dataset.k);
+    if (c) { c.rm(); render(); $("sortBtn").focus(); }
+  });
+  function clearAll() { f.cat.clear(); f.size.clear(); f.colour.clear(); f.mat.clear(); f.stock = false; f.lo = MIN; f.hi = MAX; render(); }
+  $("noneClear").addEventListener("click", () => { clearAll(); $("sortBtn").focus(); });
+  $("sheetClear").addEventListener("click", clearAll);
+  $("chips").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "clear") { clearAll(); $("sortBtn").focus(); return; }
+    const c = conditions().find((x) => x.k === b.dataset.i);
+    if (c) { c.rm(); render(); }
+  });
+
+  /* ---------- column switch ---------- */
+  const barsIcon = (n) => { const w = (16 - (n - 1) * 1.500) / n; return `<svg viewBox="0 0 16 16" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<rect x="${(i * (w + 1.500)).toFixed(2)}" y="1" width="${w.toFixed(2)}" height="14" rx=".5"/>`).join("")}</svg>`; };
+  $("colsw").innerHTML = [2, 3, 4].map((n) => `<button data-n="${n}" aria-label="${n} columns" aria-pressed="${n === eff()}" title="${n} columns">${barsIcon(n)}</button>`).join("");
+  $("colsw").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    cols = +b.dataset.n;
+    render();
+  });
+
+  /* ---------- sort listbox ---------- */
+  const menu = $("sortMenu"), sortBtn = $("sortBtn");
+  menu.innerHTML = SORTS.map(([k, l], i) => `<li role="option" id="so-${k}" data-k="${k}" aria-selected="${k === sort}"><span>${l}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></li>`).join("");
+  let cur = 0;
+  const items = [...menu.children];
+  const paintCur = () => { items.forEach((li, i) => li.classList.toggle("cur", i === cur)); menu.setAttribute("aria-activedescendant", items[cur].id); };
+  function openMenu() { cur = SORTS.findIndex((s) => s[0] === sort); paintCur(); menu.classList.add("on"); sortBtn.setAttribute("aria-expanded", "true"); menu.focus({ preventScroll: true }); }
+  function closeMenu(back = true) { menu.classList.remove("on"); sortBtn.setAttribute("aria-expanded", "false"); if (back) sortBtn.focus({ preventScroll: true }); }
+  function choose(i) {
+    sort = SORTS[i][0]; $("sortLabel").textContent = SORTS[i][1];
+    items.forEach((li, x) => li.setAttribute("aria-selected", String(x === i)));
+    closeMenu(); render();
+  }
+  sortBtn.addEventListener("click", () => menu.classList.contains("on") ? closeMenu() : openMenu());
+  sortBtn.addEventListener("keydown", (e) => { if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); openMenu(); } });
+  menu.addEventListener("keydown", (e) => {
+    const n = items.length;
+    if (e.key === "ArrowDown") { e.preventDefault(); cur = (cur + 1) % n; paintCur(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); cur = (cur - 1 + n) % n; paintCur(); }
+    else if (e.key === "Home") { e.preventDefault(); cur = 0; paintCur(); }
+    else if (e.key === "End") { e.preventDefault(); cur = n - 1; paintCur(); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(cur); }
+    else if (e.key === "Escape") { e.preventDefault(); closeMenu(); }
+    else if (e.key === "Tab") { closeMenu(false); }
+  });
+  menu.addEventListener("pointermove", (e) => { const li = e.target.closest("li"); if (li) { cur = items.indexOf(li); paintCur(); } });
+  menu.addEventListener("click", (e) => { const li = e.target.closest("li"); if (li) choose(items.indexOf(li)); });
+  document.addEventListener("pointerdown", (e) => { if (menu.classList.contains("on") && !e.target.closest(".sort")) closeMenu(false); });
+
+  /* ---------- the bottom sheet ---------- */
+  const rail = $("rail"), scrim = $("scrim");
+  const isSheet = () => matchMedia("(max-width: 899.98px)").matches;
+  function openSheet() {
+    rail.classList.add("open"); scrim.classList.add("on"); document.body.classList.add("locked");
+    rail.setAttribute("role", "dialog"); rail.setAttribute("aria-modal", "true");
+    setTimeout(() => $("sheetClose").focus({ preventScroll: true }), 30);
+  }
+  function closeSheet() {
+    rail.classList.remove("open"); scrim.classList.remove("on"); document.body.classList.remove("locked");
+    rail.removeAttribute("role"); rail.removeAttribute("aria-modal"); rail.style.transform = "";
+    if (isSheet()) $("filtersOpen").focus({ preventScroll: true });
+  }
+  $("filtersOpen").addEventListener("click", openSheet);
+  $("sheetClose").addEventListener("click", closeSheet);
+  $("sheetShow").addEventListener("click", closeSheet);
+  scrim.addEventListener("click", closeSheet);
+  addEventListener("keydown", (e) => {
+    if (!rail.classList.contains("open")) return;
+    if (e.key === "Escape") { e.preventDefault(); closeSheet(); }
+    if (e.key === "Tab") {
+      const els = [...rail.querySelectorAll("button, input, [tabindex='0']")].filter((x) => !x.disabled && x.offsetParent !== null && !x.closest("[inert]"));
+      const a = els[0], z = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+      else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+    }
+  });
+  /* drag the sheet's head down to dismiss */
+  let dragY = null;
+  $("sheetHead").addEventListener("pointerdown", (e) => { if (e.target.closest("button")) return; dragY = e.clientY; $("sheetHead").setPointerCapture(e.pointerId); rail.style.transition = "none"; });
+  $("sheetHead").addEventListener("pointermove", (e) => { if (dragY === null) return; rail.style.transform = `translateY(${Math.max(0, e.clientY - dragY)}px)`; });
+  const dropSheet = (e) => { if (dragY === null) return; const d = e.clientY - dragY; dragY = null; rail.style.transition = ""; rail.style.transform = ""; if (d > 80) closeSheet(); };
+  $("sheetHead").addEventListener("pointerup", dropSheet);
+  $("sheetHead").addEventListener("pointercancel", dropSheet);
+  matchMedia("(max-width: 899.98px)").addEventListener("change", (e) => { if (!e.matches && rail.classList.contains("open")) closeSheet(); });
+  for (const q of ["(max-width: 599.98px)", "(max-width: 1099.98px)"]) matchMedia(q).addEventListener("change", render);
+
+  render();
+</script>
+</body>
+</html>

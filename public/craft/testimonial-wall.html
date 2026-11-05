@@ -1,0 +1,294 @@
+<!doctype html>
+<!-- Testimonial wall — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A dark wall of quotes from engineers, in columns that loop up and down in opposite directions.
+     Hover a column to stop it, filter by who's talking, and reduced motion gets a still masonry grid. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dockside — what teams say</title>
+<style>
+:root {
+  --bg: #0a1113; --surface: #101a1d; --raise: #152226; --line: #1e2c30; --line-2: #2e4247;
+  --ink: #edf2f2; --text: #d3dddd; --soft: #93a6a9; --amber: #ffb547;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gap: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body { color: var(--ink); font: 15px/1.5 var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.page { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100svh; min-height: 560px; max-width: 1280px; margin: 0 auto; padding: 40px 48px 0; }
+.calm .page, .nojs .page { height: auto; padding-bottom: 48px; }
+
+/* heading */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px 32px; padding-bottom: 24px; }
+h1 { font-size: 44px; line-height: 1.06; letter-spacing: -.028em; font-weight: 600; text-wrap: balance; }
+.sub { grid-column: 1; margin-top: -4px; max-width: 58ch; color: var(--soft); font-size: 16px; }
+.rating { grid-column: 2; grid-row: 1 / span 2; align-self: end; display: grid; justify-items: end; gap: 6px; text-align: right; }
+.rating b { font-size: 28px; line-height: 1; font-weight: 600; letter-spacing: -.02em; }
+.rating b small { font-size: 15px; font-weight: 400; color: var(--soft); letter-spacing: 0; margin-left: 4px; }
+.rating p { font-size: 13px; color: var(--soft); }
+.stars { position: relative; display: block; width: 88px; height: 16px; }
+.stars span { position: absolute; inset: 0; display: flex; gap: 2px; overflow: hidden; }
+.stars svg { flex: none; width: 16px; height: 16px; }
+.stars .off svg { fill: var(--line-2); }
+.stars .on { width: 96%; }
+.stars .on svg { fill: var(--amber); }
+
+/* filters and pause */
+.bar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; border-bottom: 1px solid var(--line); }
+.filters { position: relative; display: flex; flex-wrap: wrap; gap: 0 24px; }
+.filters button { position: relative; display: inline-flex; align-items: baseline; gap: 6px; height: 44px; padding: 12px 0 0; color: var(--soft); font-size: 15px; font-weight: 500; transition: color .15s ease-out; }
+.filters button:hover { color: var(--ink); }
+.filters button[aria-pressed="true"] { color: var(--ink); }
+.filters button span { font: 500 12px var(--mono); color: var(--soft); }
+.filters button::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--amber); transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.2, .7, .2, 1); }
+.filters button[aria-pressed="true"]::after { transform: none; }
+.filters button:focus-visible { outline-offset: -2px; }
+.pause { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px 0 8px; margin-bottom: 6px; border-radius: 6px; color: var(--soft); font-size: 14px; flex: none; transition: color .15s ease-out, background-color .15s ease-out; }
+.pause:hover { color: var(--ink); background: var(--surface); }
+.pause svg { width: 16px; height: 16px; fill: currentColor; }
+.calm .pause, .nojs .pause { display: none; }
+
+/* the wall */
+.wall { position: relative; display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: var(--gap); min-height: 0; overflow: hidden; outline: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 calc(100% - 96px), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 72px, #000 calc(100% - 96px), transparent 100%);
+  transition: opacity .18s ease-out; }
+.wall.fade { opacity: 0; }
+.col { min-width: 0; }
+.track { padding-top: 24px; will-change: transform; animation: up var(--dur, 60s) linear infinite; animation-delay: var(--delay, 0s); }
+.col.down .track { animation-name: down; }
+@keyframes up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+.col:hover .track, .wall:focus-within .track, .wall.held .track { animation-play-state: paused; }
+.slot { padding-bottom: var(--gap); }
+
+/* still: a masonry grid */
+.calm .wall, .nojs .wall { display: block; columns: var(--cols, 3); column-gap: var(--gap); overflow: visible; -webkit-mask-image: none; mask-image: none; padding-top: 24px; }
+.calm .wall .card, .nojs .wall .card { break-inside: avoid; margin-bottom: var(--gap); }
+.nojs .wall { --cols: 3; }
+
+/* cards */
+.card { display: flex; flex-direction: column; gap: 20px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; transition: transform .2s ease-out, border-color .2s ease-out, background-color .2s ease-out, box-shadow .2s ease-out; }
+.col .card:hover { transform: translateY(-4px); background: var(--raise); border-color: var(--line-2); box-shadow: 0 14px 28px -18px rgba(0, 0, 0, .9); }
+.card blockquote p { color: var(--text); }
+.card.short blockquote p { color: var(--ink); font-size: 19px; line-height: 1.35; letter-spacing: -.012em; font-weight: 500; }
+.card code { font: 500 13px var(--mono); color: var(--ink); background: var(--raise); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); white-space: nowrap; }
+.res .fig { font-size: 36px; line-height: 1; font-weight: 600; letter-spacing: -.03em; color: var(--amber); }
+.res .lab { margin-top: -12px; font: 500 12.5px/1.3 var(--mono); color: var(--soft); }
+.res .fig + .lab { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.who { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.3; }
+.who b { display: block; color: var(--ink); font-weight: 600; }
+.who small { display: block; color: var(--soft); font-size: 13px; }
+.tile { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; font: 600 13px/1 var(--sans); letter-spacing: .02em; background: var(--tb); color: var(--tf); }
+.t1 { --tb: #1f3b37; --tf: #b3e4d7; } .t2 { --tb: #3e301d; --tf: #f2cf97; } .t3 { --tb: #26324b; --tf: #bccaf0; }
+.t4 { --tb: #432a2b; --tf: #efbab4; } .t5 { --tb: #303c27; --tf: #cde2ad; } .t6 { --tb: #352d43; --tf: #d6c6ec; }
+
+.note { position: absolute; left: 50%; bottom: 24px; z-index: 2; transform: translate(-50%, 8px); padding: 8px 14px; border-radius: 8px; background: var(--raise); border: 1px solid var(--line-2); color: var(--ink); font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .18s ease-out, transform .18s ease-out; }
+.note.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 999px) {
+  .page { padding: 32px 32px 0; }
+  h1 { font-size: 36px; }
+  .nojs .wall { --cols: 2; }
+}
+@media (max-width: 720px) {
+  .top { grid-template-columns: minmax(0, 1fr); }
+  .rating { grid-column: 1; grid-row: auto; justify-items: start; text-align: left; grid-template-columns: auto auto; align-items: center; gap: 4px 12px; margin-top: 8px; }
+  .rating p { grid-column: 1 / -1; }
+}
+@media (max-width: 599px) {
+  .page { padding: 24px 16px 0; min-height: 640px; }
+  h1 { font-size: 30px; }
+  .sub { font-size: 15px; margin-top: 0; }
+  .filters button { font-size: 14px; height: 40px; padding-top: 10px; }
+  .top { grid-template-columns: minmax(0, 1fr) auto; }
+  h1, .sub { grid-column: 1 / -1; }
+  .rating { grid-column: 1; grid-row: 3; grid-template-columns: auto 1fr; }
+  .bar { display: contents; }
+  .pause { grid-column: 2; grid-row: 3; align-self: start; margin: 0 -8px 0 0; }
+  .filters { grid-column: 1 / -1; grid-row: 4; margin-top: 8px; border-bottom: 1px solid var(--line); gap: 0 16px; }
+  .nojs .wall { --cols: 1; }
+  .card.short blockquote p { font-size: 18px; }
+}
+@media (max-width: 479px) {
+  .filters button span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  .card, .wall, .note, .filters button, .filters button::after, .pause { transition: none; }
+}
+</style>
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body class="nojs">
+<main class="page">
+  <header class="top">
+    <h1>The build stopped being the slow part.</h1>
+    <p class="sub">What engineers, platform teams and founders tell us after moving their pipelines to Dockside.</p>
+    <div class="rating">
+      <span class="stars" role="img" aria-label="Rated 4.8 out of 5">
+        <span class="off"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="st" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg></span>
+        <span class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#st"/></svg></span>
+      </span>
+      <b>4.8<small>out of 5</small></b>
+      <p>from 1,312 reviews on independent sites</p>
+    </div>
+    <div class="bar">
+      <div class="filters" id="filters" role="group" aria-label="Show quotes from">
+        <button type="button" data-f="all" aria-pressed="true">All <span>36</span></button>
+        <button type="button" data-f="eng" aria-pressed="false">Engineers <span>12</span></button>
+        <button type="button" data-f="plat" aria-pressed="false">Platform leads <span>12</span></button>
+        <button type="button" data-f="found" aria-pressed="false">Founders <span>12</span></button>
+      </div>
+      <button class="pause" id="pause" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" id="pause-ic"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg><span id="pause-t">Pause</span></button>
+    </div>
+  </header>
+
+  <section class="wall" id="wall" aria-label="Quotes from Dockside customers" tabindex="-1">
+    <article class="card res" data-g="eng"><p class="fig">38 → 9 min</p><p class="lab">median build on main</p><blockquote><p>“Most of that was the remote cache finally hitting on the second run instead of the fifth. Same monorepo, same tests, nobody rewrote anything.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">WK</span><span><b>Wanjiru Kamau</b><small>Staff engineer, Tessellate</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“We run about 1,900 pipelines a day across 140 repositories. Moving them took two of us three weeks, and most of that went into deleting the caching scripts we'd written ourselves.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">SM</span><span><b>Sofia Marchetti</b><small>Head of platform, Quayline</small></span></footer></article>
+    <article class="card short" data-g="found"><blockquote><p>“Our CI bill is smaller than the coffee budget.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">RP</span><span><b>Rangi Parata</b><small>Founder, Pebblestack</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“The flaky-test quarantine is the feature I didn't know I wanted. It retries the test, and if it passes on the retry it opens a ticket with the failure log and lets my PR through. I've stopped pressing Rerun all like it's a slot machine.”</p></blockquote><footer class="who"><span class="tile t4" aria-hidden="true">TH</span><span><b>Tomás Herrera</b><small>Backend engineer, Parcelwise</small></span></footer></article>
+    <article class="card res" data-g="plat"><p class="fig">−31%</p><p class="lab">runner spend, first month</p><blockquote><p>“Idle runners shut down after 90 seconds instead of sitting warm all night. We didn't change a single pipeline to get it.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">OB</span><span><b>Olusegun Bello</b><small>Platform lead, Ferrous Health</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“We're six engineers. I didn't want anyone to become the CI person, and nobody has. The defaults were right for us, and when they weren't, the docs had the exact flag.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">YR</span><span><b>Yusuf Rahimi</b><small>CTO and co-founder, Plotline</small></span></footer></article>
+    <article class="card short" data-g="eng"><blockquote><p>“Review apps are up before the reviewer opens the PR.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">AT</span><span><b>Aiko Tanaka</b><small>Frontend engineer, Moonrake</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“Required checks can depend on paths now. A docs change no longer waits 25 minutes for the iOS suite.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">RM</span><span><b>Rahul Mehta</b><small>Platform engineering manager, Coppice</small></span></footer></article>
+    <article class="card res" data-g="found"><p class="fig">14 deploys</p><p class="lab">on launch day</p><blockquote><p>“Every one had a review app our designer could click before it merged. Nobody stayed late.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">CR</span><span><b>Camila Reyes</b><small>Co-founder, Halftone</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“When a job fails I can SSH into the runner for ten minutes before it's torn down. A CI-only failure used to cost me an afternoon of print statements.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">DV</span><span><b>Dmitri Volkov</b><small>Senior engineer, Larchmont Labs</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“The audit log shows who approved which deploy to production, from which commit, and when. Our auditor stopped asking for screenshots.”</p></blockquote><footer class="who"><span class="tile t4" aria-hidden="true">HO</span><span><b>Hannah Okoro</b><small>Director of infrastructure, Harrowgate</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“I signed off on the move on a Friday. By Monday the slowest pipeline in the company was the one we hadn't moved yet.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">IS</span><span><b>Ingrid Solberg</b><small>CEO, Fjordmark</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“<code>dockside test --changed</code> runs only what my diff touches, on my laptop and in the pipeline, against the same cache. I trust a green check again.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">PR</span><span><b>Priyanka Rao</b><small>Mobile engineer, Fernhill</small></span></footer></article>
+    <article class="card short" data-g="plat"><blockquote><p>“Nobody on call has been paged for runner disk space since March.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">JL</span><span><b>Jae-won Lim</b><small>SRE lead, Greyhaven</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“A release used to mean someone babysitting the pipeline all afternoon. Now I find out it shipped from the changelog.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">BT</span><span><b>Bao Tran</b><small>Founder, Ledgerline</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“Docker layer caching that survives between branches. Our image builds went from eleven minutes to under two.”</p></blockquote><footer class="who"><span class="tile t4" aria-hidden="true">KA</span><span><b>Kwame Asante</b><small>Infrastructure engineer, Brightwell</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“Self-hosted runners for the GPU jobs, hosted runners for everything else, one config file. I expected that to be the hard part. It took an afternoon.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">FB</span><span><b>Fatima Zahra Benali</b><small>Platform engineer, Lumen Atlas</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“We open-sourced our SDK, and the free minutes for public repos covered every contributor's pull request in the first month.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">MH</span><span><b>Mariam Haddad</b><small>Co-founder, Cartograph</small></span></footer></article>
+    <article class="card short" data-g="eng"><blockquote><p>“Our pipeline file is 40 lines now. It was 310.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">LN</span><span><b>Lena Novak</b><small>Software engineer, Hallgrim</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“Secrets are scoped per environment and per branch, so a pull request from a fork can't read the production keys. I can explain that to security in one sentence.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">LB</span><span><b>Lukas Becker</b><small>Staff platform engineer, Wendell &amp; Co</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“Candidates ask what our build time is. I like giving the answer now.”</p></blockquote><footer class="who"><span class="tile t4" aria-hidden="true">DK</span><span><b>Dániel Kovács</b><small>CTO, Mossgrove</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“Test splitting uses real timings from the last 50 runs, so all twelve shards finish within seconds of each other instead of one straggler holding up the merge.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">MY</span><span><b>Mehmet Yıldız</b><small>Engineer, Saltmarsh</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“Queue time is a graph I glance at, not a Slack thread I read. The median wait for a runner is four seconds.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">AL</span><span><b>Ana Lima</b><small>Developer productivity lead, Riverbend</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“Two of our engineers used to spend Fridays on build infrastructure. They ship product on Fridays now.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">SI</span><span><b>Sana Iqbal</b><small>Co-founder, Furrow</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“Logs stream while the step runs, and the failing line is the first thing on the page. Small thing. I notice it forty times a day.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">CM</span><span><b>Chloé Martin</b><small>Full-stack engineer, Orchard &amp; Pine</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“The cache view shows which file busted the key. It was a lockfile a bot rewrote on every run. One-line fix, twelve minutes back on every build.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">NK</span><span><b>Nilufar Karimova</b><small>Backend engineer, Tidewater</small></span></footer></article>
+    <article class="card res" data-g="plat"><p class="fig">11 → 2</p><p class="lab">CI pages to on-call, per month</p><blockquote><p>“Most of those pages were runners out of disk or a stuck cache volume. Dockside cleans up both on its own.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">MK</span><span><b>Marta Kowalczyk</b><small>Platform lead, Northgate Freight</small></span></footer></article>
+    <article class="card res" data-g="found"><p class="fig">$2,140 → $610</p><p class="lab">monthly CI bill</p><blockquote><p>“Same number of builds. Most of the saving was the cache, the rest was runners that stop when they're done.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">ED</span><span><b>Elif Demir</b><small>Co-founder, Quillmark</small></span></footer></article>
+    <article class="card short" data-g="eng"><blockquote><p>“Simulator boots are cached. That alone paid for it.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">OG</span><span><b>Owen Gallagher</b><small>iOS engineer, Brambling</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“We set a minutes budget per repository, and the dashboard shows who spends them on what. Talking to finance went from a quarterly argument to a link.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">AF</span><span><b>Ahmed Farouk</b><small>Head of developer experience, Sandhill</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“We had one person who understood our build scripts, and she wanted to work on product. Moving to Dockside was how we let her.”</p></blockquote><footer class="who"><span class="tile t4" aria-hidden="true">LF</span><span><b>Lucía Fernández</b><small>CTO, Saltbox</small></span></footer></article>
+    <article class="card" data-g="eng"><blockquote><p>“Matrix builds across four Node versions used to queue behind each other. Now they start together, and the slowest one is done in six minutes.”</p></blockquote><footer class="who"><span class="tile t2" aria-hidden="true">SN</span><span><b>Sipho Ndlovu</b><small>Engineer, Kilnworks</small></span></footer></article>
+    <article class="card short" data-g="plat"><blockquote><p>“Rollbacks are one click, and they keep the audit trail.”</p></blockquote><footer class="who"><span class="tile t3" aria-hidden="true">GM</span><span><b>Grace Mensah</b><small>Infrastructure lead, Okapi Health</small></span></footer></article>
+    <article class="card short" data-g="found"><blockquote><p>“Onboarding a new engineer doesn't include a CI walkthrough any more.”</p></blockquote><footer class="who"><span class="tile t1" aria-hidden="true">NB</span><span><b>Nikhil Bose</b><small>Founder, Tallyhouse</small></span></footer></article>
+    <article class="card" data-g="plat"><blockquote><p>“Deploy gates read our error budget. If the canary burns through it, the rollout stops itself and the pipeline says why in plain words.”</p></blockquote><footer class="who"><span class="tile t5" aria-hidden="true">TL</span><span><b>Tobias Lindqvist</b><small>Staff SRE, Copperline</small></span></footer></article>
+    <article class="card" data-g="found"><blockquote><p>“A preview link on every pull request changed how we sell. Customers try the feature on a real URL the day it's built.”</p></blockquote><footer class="who"><span class="tile t6" aria-hidden="true">HS</span><span><b>Hamid Sultani</b><small>Co-founder, Mapleworks</small></span></footer></article>
+  </section>
+  <p class="note" id="note" role="status" aria-live="polite"></p>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const root = document.documentElement, body = document.body, wall = $("wall");
+body.classList.remove("nojs");
+const motion = matchMedia("(prefers-reduced-motion: reduce)");
+const calm = () => motion.matches;
+
+/* the cards in the page are the source: no scripts, or reduced motion, shows them as a still grid */
+const CARDS = [...wall.querySelectorAll(".card")].map((el) => ({ el, g: el.dataset.g }));
+const LABEL = { all: "everyone", eng: "engineers", plat: "platform leads", found: "founders" };
+const SPEED = 22;                 /* px per second, the same for every column */
+const PHASE = [0, .38, .7];       /* each column starts at a different point of its loop */
+let filter = "all", held = false, shape = "";
+
+const colsFor = (w) => (w >= 900 ? 3 : w >= 560 ? 2 : 1);
+const pick = () => CARDS.filter((c) => filter === "all" || c.g === filter);
+
+function slot(card, hidden) {
+  const s = document.createElement("div");
+  s.className = "slot";
+  const el = card.el.cloneNode(true);
+  if (hidden) { s.setAttribute("aria-hidden", "true"); s.inert = true; }
+  s.append(el);
+  return s;
+}
+
+function build() {
+  const list = pick(), n = colsFor(wall.clientWidth || innerWidth);
+  wall.style.setProperty("--cols", n);
+  wall.replaceChildren();
+  body.classList.toggle("calm", calm());
+  if (calm()) { for (const c of list) wall.append(c.el.cloneNode(true)); shape = `calm|${n}`; return; }
+
+  const target = Math.max(wall.clientHeight, 360) * 1.12;
+  for (let c = 0; c < n; c++) {
+    const col = document.createElement("div");
+    col.className = "col" + (c % 2 ? " down" : "");
+    const track = document.createElement("div");
+    track.className = "track";
+    col.append(track); wall.append(col);
+    const mine = list.filter((_, i) => i % n === c);
+    for (const card of mine) track.append(slot(card, false));
+    /* a short column borrows from the others so one pass is taller than the wall and never shows a card twice at once */
+    const others = list.filter((x) => !mine.includes(x));
+    let k = c;
+    while (filter === "all" && track.offsetHeight < target && others.length) { track.append(slot(others[k % others.length], true)); k += 2; if (k > c + others.length * 2) break; }
+    while (track.offsetHeight < target && mine.length) for (const card of mine) track.append(slot(card, true));
+    const pass = track.offsetHeight;
+    for (const s of [...track.children]) { const d = s.cloneNode(true); d.setAttribute("aria-hidden", "true"); d.inert = true; track.append(d); }
+    const dur = pass / SPEED;
+    track.style.setProperty("--dur", `${dur.toFixed(2)}s`);
+    track.style.setProperty("--delay", `${(-dur * PHASE[c]).toFixed(2)}s`);
+  }
+  shape = `${n}|${wall.clientHeight}`;
+}
+
+/* filters: a quick crossfade while the columns are rebuilt */
+const fbtns = [...$("filters").querySelectorAll("button")];
+let swapT = 0;
+function setFilter(f, announce = true) {
+  if (f === filter) return;
+  filter = f;
+  fbtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.f === f)));
+  clearTimeout(swapT);
+  const done = () => {
+    build(); wall.classList.remove("fade");
+    if (announce) say(`Showing ${pick().length} quotes from ${LABEL[f]}`);
+  };
+  if (calm()) return done();
+  wall.classList.add("fade");
+  swapT = setTimeout(done, 180);
+}
+fbtns.forEach((b, i) => {
+  b.addEventListener("click", () => setFilter(b.dataset.f));
+  b.addEventListener("keydown", (e) => {
+    const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (step) { e.preventDefault(); const nb = fbtns[(i + step + fbtns.length) % fbtns.length]; nb.focus(); nb.click(); }
+  });
+});
+
+/* pause everything; hovering a column, or focus inside the wall, pauses only for as long as it lasts */
+function setHeld(v) {
+  held = v;
+  wall.classList.toggle("held", v);
+  $("pause").setAttribute("aria-pressed", String(v));
+  $("pause-t").textContent = v ? "Play" : "Pause";
+  $("pause-ic").innerHTML = v ? '<path d="M7 4.5v15l12-7.5z"/>' : '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+}
+$("pause").addEventListener("click", () => setHeld(!held));
+
+let noteT = 0;
+function say(t) { const n = $("note"); n.textContent = t; n.classList.add("on"); clearTimeout(noteT); noteT = setTimeout(() => n.classList.remove("on"), 1600); }
+
+let rT = 0;
+addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { const n = colsFor(wall.clientWidth); if (shape !== (calm() ? `calm|${n}` : `${n}|${wall.clientHeight}`)) build(); }, 140); });
+motion.addEventListener("change", build);
+build();
+</script>
+</body>
+</html>

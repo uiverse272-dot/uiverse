@@ -1,0 +1,964 @@
+<!doctype html>
+<!-- Job board — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A jobs board set like a newspaper's classifieds: search, a filter rail with live counts and a salary
+     range, a full posting with a salary band, a short application with a simulated CV upload, saved roles,
+     and j / k to read down the list. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roster — Design and engineering jobs</title>
+<style>
+:root {
+  --paper: #f7f4ee; --paper-2: #efebe1; --white: #fffdf9; --ink: #111110; --soft: #55524a; --dim: #6a665c; --line: #d8d3c5; --red: #cf3413; --red-ink: #b02a0e;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: "Helvetica Neue", Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font: 14px/1.45 var(--sans); font-variant-numeric: tabular-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { border: 0; background: none; cursor: pointer; }
+a { color: inherit; }
+ul { list-style: none; }
+svg { display: block; }
+.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.app { display: grid; grid-template-rows: auto auto minmax(0, 1fr); height: 100svh; }
+
+/* masthead */
+.mast { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 24px; padding: 14px 24px 10px; border-bottom: 2px solid var(--ink); }
+.mast .line { color: var(--soft); font-size: 13px; padding-bottom: 5px; }
+h1 { font: 700 38px/1 var(--serif); letter-spacing: -.02em; text-align: center; }
+h1 a { text-decoration: none; }
+.tabs { display: flex; justify-content: flex-end; gap: 20px; }
+.tab { height: 30px; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; color: var(--soft); transition: color .15s, border-color .15s; }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--ink); border-color: var(--ink); }
+.tab b { font-weight: 500; }
+
+/* search */
+.find { display: grid; grid-template-columns: 1fr 340px auto; border-bottom: 1px solid var(--ink); background: var(--white); }
+.fld { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 24px; border-right: 1px solid var(--line); min-width: 0; }
+.fld .i { color: var(--soft); }
+.fld input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: none; font: 400 19px/1 var(--serif); }
+.fld input::placeholder { color: var(--dim); }
+.fld:focus-within { box-shadow: inset 0 -2px 0 var(--ink); }
+.fld .x { display: none; width: 28px; height: 28px; place-items: center; color: var(--soft); }
+.fld .x:hover { color: var(--ink); }
+.fld.has .x { display: grid; }
+.fld .x .i { width: 16px; height: 16px; }
+.slash { min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; color: var(--soft); }
+.fld.has .slash, .fld:focus-within .slash { display: none; }
+.sw { display: flex; align-items: center; gap: 12px; padding: 0 24px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.sw input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.sw i { position: relative; width: 34px; height: 18px; border: 1px solid var(--ink); background: var(--white); transition: background .15s; flex: none; }
+.sw i::after { content: ""; position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; background: var(--ink); transition: transform .18s var(--ease), background .15s; }
+.sw input:checked + i { background: var(--ink); }
+.sw input:checked + i::after { transform: translateX(16px); background: var(--white); }
+.sw input:focus-visible + i { outline: 2px solid var(--red); outline-offset: 2px; }
+
+/* the three columns */
+.cols { display: grid; grid-template-columns: 264px 472px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); min-height: 0; }
+.rail, .list, .post { min-height: 0; min-width: 0; }
+.rail, .rows, .scroll { position: relative; }
+#cvFile { position: fixed; left: 0; top: 0; }
+
+/* rail */
+.rail { overflow-y: auto; border-right: 1px solid var(--ink); padding: 0 24px 32px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; transition: opacity .15s; }
+.rail[inert] { opacity: .45; }
+.railhead { display: flex; align-items: baseline; justify-content: space-between; padding: 16px 0 12px; }
+.railhead h2 { font: 700 19px/1.2 var(--serif); }
+.reset { color: var(--red-ink); font-size: 13px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.reset[hidden] { display: none; }
+.railclose.sq { display: none; }
+fieldset { border: 0; border-top: 1px solid var(--line); padding: 12px 0 14px; }
+legend { float: left; width: 100%; font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+legend + * { clear: both; }
+.ck { display: flex; align-items: center; gap: 10px; min-height: 28px; cursor: pointer; }
+.ck input { appearance: none; -webkit-appearance: none; width: 16px; height: 16px; border: 1px solid var(--ink); background: var(--white); display: grid; place-items: center; flex: none; cursor: pointer; transition: background .12s; }
+.ck input:checked { background: var(--ink); }
+.ck input:checked::after { content: ""; width: 9px; height: 5px; border: 1.5px solid var(--white); border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
+.ck span { flex: 1; }
+.ck small { font-size: 13px; color: var(--soft); }
+.ck:hover span { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.ck.none span, .ck.none small { color: var(--dim); }
+.range { display: flex; justify-content: space-between; font-weight: 500; }
+.dual { position: relative; height: 24px; margin-top: 4px; }
+.dual .tr { position: absolute; left: 0; right: 0; top: 11px; height: 1px; background: var(--ink); opacity: .3; }
+.dual .fl { position: absolute; top: 10px; height: 3px; background: var(--ink); }
+.dual input { position: absolute; inset: 0; width: 100%; height: 24px; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; outline: none; }
+.dual input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 14px; height: 20px; background: var(--ink); border: 2px solid var(--paper); cursor: ew-resize; }
+.dual input::-moz-range-thumb { pointer-events: auto; width: 12px; height: 18px; border-radius: 0; background: var(--ink); border: 2px solid var(--paper); cursor: ew-resize; }
+.dual input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--red); outline-offset: 1px; }
+.note { color: var(--soft); font-size: 12.5px; margin-top: 2px; }
+.pays { width: 100%; border-collapse: collapse; }
+.pays button { display: flex; justify-content: space-between; gap: 12px; width: 100%; min-height: 28px; align-items: center; text-align: left; }
+.pays button:hover span { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.pays button[aria-pressed="true"] span { font-weight: 700; }
+.pays b { font-weight: 500; }
+
+/* list */
+.list { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-right: 1px solid var(--ink); }
+.lhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 48px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+.lhead .n { font: 700 19px/1 var(--serif); white-space: nowrap; }
+.lhead .r { display: flex; align-items: center; gap: 8px; }
+.sort { display: flex; align-items: center; gap: 6px; color: var(--soft); font-size: 13px; white-space: nowrap; }
+.sort select { -webkit-appearance: none; appearance: none; border: 0; background: none; padding: 4px 16px 4px 2px; color: var(--ink); font-weight: 500; font-size: 13px; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(-45deg, transparent 50%, var(--ink) 50%); background-size: 5px 5px; background-position: right 6px center, right 1px center; background-repeat: no-repeat; }
+.filtersbtn { display: none; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--ink); font-weight: 500; font-size: 13px; }
+.filtersbtn .i { width: 16px; height: 16px; }
+.rows { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; overscroll-behavior: contain; }
+.rowwrap { position: relative; border-bottom: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 2px 14px; width: 100%; padding: 14px 24px; text-align: left; transition: background .12s; --mbg: var(--paper); }
+.row:hover { background: var(--paper-2); --mbg: var(--paper-2); }
+.row:focus-visible { outline-offset: -3px; }
+.row .mk { grid-row: span 3; width: 40px; height: 40px; margin-top: 2px; }
+.row .t { font: 600 18px/1.25 var(--serif); letter-spacing: -.005em; padding-right: 8px; }
+.row mark { background: none; color: inherit; box-shadow: inset 0 -2px 0 var(--red); }
+.row .pay { font-weight: 600; white-space: nowrap; line-height: 22px; padding-right: 26px; }
+.row .co { color: var(--soft); grid-column: 2; }
+.row .when { color: var(--soft); font-size: 13px; text-align: right; padding-right: 26px; white-space: nowrap; }
+.row .tags { grid-column: 2 / 4; display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; color: var(--soft); }
+.row .tags span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.row .tags span + span::before { content: ""; width: 3px; height: 3px; background: currentColor; margin: 0 7px 0 -7px; opacity: .6; }
+.row .applied { color: var(--red-ink); font-weight: 600; }
+.row[aria-current="true"] { background: var(--ink); color: var(--white); --mbg: var(--ink); }
+.row[aria-current="true"] .co, .row[aria-current="true"] .when, .row[aria-current="true"] .tags { color: #cfcabd; }
+.row[aria-current="true"] .applied { color: var(--white); }
+.row[aria-current="true"]:focus-visible { outline-color: var(--paper); outline-offset: -4px; }
+.rowsave { position: absolute; right: 16px; top: 12px; width: 32px; height: 32px; display: grid; place-items: center; opacity: 0; transition: opacity .12s, transform .15s var(--ease); }
+.rowwrap:hover .rowsave, .rowsave:focus-visible, .rowsave[aria-pressed="true"] { opacity: 1; }
+.rowsave:active { transform: scale(.9); }
+.rowsave[aria-pressed="true"] .i { fill: var(--red); stroke: var(--red); }
+.rowwrap:has([aria-current="true"]) .rowsave { color: var(--white); }
+.rowwrap:has([aria-current="true"]) .rowsave[aria-pressed="true"] .i { fill: var(--white); stroke: var(--white); }
+.blank { padding: 56px 32px; text-align: center; }
+.blank h3 { font: 600 24px/1.2 var(--serif); margin-bottom: 8px; }
+.blank p { color: var(--soft); max-width: 340px; margin: 0 auto 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid var(--ink); font-weight: 500; white-space: nowrap; transition: background .12s, color .12s, border-color .12s; }
+.btn:hover { background: var(--ink); color: var(--white); }
+.btn.apply { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+.btn.apply:hover { background: var(--red-ink); border-color: var(--red-ink); }
+.btn.apply[disabled] { background: none; border-color: var(--line); color: var(--soft); cursor: default; }
+.btn.ink { background: var(--ink); color: var(--white); }
+.btn.ink:hover { background: #000; }
+.btn .i { width: 16px; height: 16px; }
+.btn[aria-pressed="true"] .i { fill: currentColor; }
+.keys { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 24px; border-top: 1px solid var(--ink); font-size: 12.5px; color: var(--soft); background: var(--paper); }
+kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; margin-right: 4px; border: 1px solid #a9a496; font: 500 11.5px/1 var(--sans); color: var(--ink); background: var(--white); }
+
+/* posting */
+.post { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); background: var(--white); }
+.bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 32px; border-bottom: 1px solid var(--line); }
+.bar .back { display: none; align-items: center; gap: 6px; font-weight: 500; height: 40px; margin-right: 8px; white-space: nowrap; }
+.bar .pos { color: var(--soft); font-size: 13px; margin-right: 4px; white-space: nowrap; }
+.sq { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); transition: border-color .12s; }
+.sq:hover:not(:disabled) { border-color: var(--ink); }
+.sq:disabled { color: var(--line); cursor: default; }
+.sq .i { width: 16px; height: 16px; }
+.bar .sp { flex: 1; }
+.prevnext { display: contents; }
+.bar .btn { height: 36px; }
+.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+article { padding: 28px 32px 48px; max-width: 760px; }
+article.enter { animation: rise .22s var(--ease); }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.byline { display: flex; align-items: center; gap: 12px; --mbg: var(--white); }
+.byline .mk { width: 40px; height: 40px; }
+.byline b { display: block; font-weight: 600; }
+.byline small { font-size: 13px; color: var(--soft); }
+h2.title { font: 600 40px/1.08 var(--serif); letter-spacing: -.02em; margin: 16px 0 16px; text-wrap: balance; }
+.standfirst { font: 400 19px/1.4 var(--serif); color: #2c2b27; max-width: 60ch; text-wrap: pretty; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 20px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.facts div { padding: 10px 12px 10px 0; }
+.facts div + div { padding-left: 12px; border-left: 1px solid var(--line); }
+.facts dt { font-size: 12.5px; color: var(--soft); }
+.facts dd { font-weight: 600; }
+.sec { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 0 16px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.sec h3 { font: 600 16px/1.35 var(--serif); }
+.sec p { font-size: 15px; line-height: 1.55; max-width: 60ch; }
+.sec p + p { margin-top: 10px; }
+.sec li { position: relative; padding-left: 16px; font-size: 15px; line-height: 1.5; max-width: 60ch; }
+.sec li + li { margin-top: 6px; }
+.sec li::before { content: ""; position: absolute; left: 0; top: 10px; width: 6px; height: 1px; background: var(--ink); }
+.sec a { font-weight: 500; }
+.band { position: relative; height: 80px; margin-top: 2px; }
+.band .ax { position: absolute; left: 0; right: 0; top: 37px; height: 5px; border-top: 1px solid var(--ink); background: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 16.666%); background-size: calc(100% - 1px) 100%; }
+.band .mk2 { position: absolute; top: 38px; height: 16px; background: repeating-linear-gradient(135deg, #8f8a7c 0 1px, transparent 1px 5px); border: 1px solid #8f8a7c; border-width: 0 1px; }
+.band .me { position: absolute; top: 22px; height: 15px; background: var(--red); }
+.band span { position: absolute; font-size: 13px; white-space: nowrap; transform: translateX(-50%); }
+.band .top { top: 0; font-weight: 600; }
+.band .bot { bottom: 0; color: var(--soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--soft); margin-top: 8px; }
+.legend i { display: inline-block; width: 16px; height: 10px; margin-right: 6px; background: var(--red); vertical-align: -1px; }
+.legend i.h { background: repeating-linear-gradient(135deg, #b7b1a1 0 1px, transparent 1px 4px); box-shadow: inset 0 0 0 1px #b7b1a1; }
+.sim li { padding: 0; }
+.sim li::before { display: none; }
+.sim button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; width: 100%; padding: 8px 0; text-align: left; border-top: 1px solid var(--line); font-size: 14px; }
+.sim li:first-child button { border-top: 0; padding-top: 0; }
+.sim button b { font: 600 16px/1.3 var(--serif); }
+.sim button small { display: block; font-size: 13px; color: var(--soft); }
+.sim button:hover b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.sim .p { font-weight: 500; white-space: nowrap; }
+.endapply { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0 0; }
+.endapply p { font: 400 16px/1.35 var(--serif); color: var(--soft); max-width: 40ch; }
+
+/* application */
+dialog { margin: auto; width: min(560px, calc(100vw - 32px)); max-height: calc(100svh - 32px); border: 1px solid var(--ink); background: var(--white); color: var(--ink); overflow-y: auto; opacity: 0; transform: translateY(10px); transition: opacity .2s var(--ease), transform .22s var(--ease); }
+dialog::backdrop { background: rgba(17, 17, 16, .5); opacity: 0; transition: opacity .2s; }
+dialog.in { opacity: 1; transform: none; }
+dialog.in::backdrop { opacity: 1; }
+.dh { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 24px 16px; border-bottom: 2px solid var(--ink); }
+.dh h2 { font: 600 28px/1.12 var(--serif); letter-spacing: -.01em; }
+.dh p { color: var(--soft); margin-top: 4px; }
+.dx { width: 32px; height: 32px; display: grid; place-items: center; flex: none; margin: -4px -6px 0 0; }
+.dx:hover { background: var(--paper-2); }
+form.ap { padding: 8px 24px 24px; }
+.f { padding-top: 16px; }
+.f label, .f .lab { display: block; font-weight: 600; font-size: 13px; }
+.f label small, .f .lab small { font-weight: 400; color: var(--soft); }
+.f input[type=text], .f input[type=email] { display: block; width: 100%; height: 40px; border: 0; border-bottom: 1px solid var(--ink); background: none; outline: none; font: 400 18px/1 var(--serif); border-radius: 0; }
+.f input:focus { box-shadow: 0 1px 0 var(--ink); }
+.f input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 1px 0 var(--red); }
+.err { display: none; align-items: flex-start; gap: 6px; margin-top: 6px; color: var(--red-ink); font-size: 13px; }
+.err.on { display: flex; }
+.err .i { width: 14px; height: 14px; margin-top: 2px; }
+.drop { display: block; width: 100%; margin-top: 8px; padding: 20px 16px; border: 1px dashed #8f8a7c; background: var(--paper); text-align: center; transition: background .12s, border-color .12s; }
+.drop:hover, .drop.over { background: var(--paper-2); border-color: var(--ink); }
+.drop.over { border-style: solid; }
+.drop.bad { border-color: var(--red); }
+.drop b { display: block; font: 600 16px/1.3 var(--serif); }
+.drop u { text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.drop small { color: var(--soft); font-size: 13px; }
+.file { display: none; margin-top: 8px; padding: 12px; border: 1px solid var(--ink); background: var(--paper); }
+.file.on { display: block; }
+.file .h { display: flex; align-items: center; gap: 10px; }
+.file .nm { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file .st { color: var(--soft); font-size: 13px; white-space: nowrap; }
+.file .lk { font-size: 13px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; white-space: nowrap; }
+.file .pg { height: 3px; margin-top: 10px; background: var(--line); }
+.file .pg i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .12s linear; }
+.file.done .pg { display: none; }
+.file.done .st { color: var(--ink); }
+.da { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.da p { color: var(--soft); font-size: 13px; max-width: 30ch; }
+.da .btn { min-width: 148px; height: 44px; }
+.sent { padding: 32px 24px 24px; }
+.sent svg.tick { width: 48px; height: 48px; margin-bottom: 16px; }
+.sent svg.tick path { stroke-dasharray: 60; animation: draw .35s var(--ease) both .05s; }
+@keyframes draw { from { stroke-dashoffset: 60; } }
+.sent h2 { font: 600 40px/1.05 var(--serif); letter-spacing: -.02em; margin-bottom: 8px; }
+.sent p { font-size: 15px; line-height: 1.5; max-width: 46ch; }
+.sent dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; margin: 16px 0 24px; padding: 12px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.sent dt { color: var(--soft); }
+.sent dd { font-weight: 500; overflow-wrap: anywhere; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 40; display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: var(--ink); color: var(--white); opacity: 0; transform: translate(-50%, 8px); pointer-events: none; transition: opacity .18s var(--ease), transform .18s var(--ease); white-space: nowrap; max-width: calc(100vw - 32px); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast button { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; color: #ffb7a4; }
+.toast button[hidden] { display: none; }
+.scrim { display: none; }
+
+@media (max-width: 1320px) {
+  .cols { grid-template-columns: 232px 392px minmax(0, 1fr); }
+  .rail { padding: 0 16px 32px; } .row { padding: 14px 16px; } .lhead, .keys { padding-left: 16px; padding-right: 16px; }
+  .rowsave { right: 8px; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .facts div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .sec { grid-template-columns: 1fr; gap: 8px; }
+  h2.title { font-size: 34px; }
+}
+@media (max-width: 1099px) {
+  .cols { grid-template-columns: 348px minmax(0, 1fr); }
+  .filtersbtn { display: flex; }
+  .sort span { display: none; }
+  .rail { position: fixed; left: 0; top: 0; bottom: 0; z-index: 30; width: min(320px, 88vw); background: var(--paper); transform: translateX(-102%); visibility: hidden; transition: transform .22s var(--ease), visibility 0s .22s; }
+  .showrail .rail { transform: none; visibility: visible; transition: transform .22s var(--ease); }
+  .scrim { display: block; position: fixed; inset: 0; z-index: 29; background: rgba(17, 17, 16, .4); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .showrail .scrim { opacity: 1; pointer-events: auto; }
+  .railclose.sq { display: grid; }
+  .rail .showN { display: flex !important; }
+  .keys { display: none; }
+  .list { grid-template-rows: auto minmax(0, 1fr); }
+  .mast { grid-template-columns: auto 1fr; padding: 12px 16px 8px; }
+  .mast .line { display: none; }
+  h1 { text-align: left; font-size: 32px; }
+  .find { grid-template-columns: 1fr 220px auto; }
+  .fld { padding: 0 16px; } .sw { padding: 0 16px; }
+  .slash { display: none; }
+  .bar { padding: 0 24px; } article { padding: 24px 24px 40px; }
+  .bar .pos { display: none; }
+  .endapply p { display: none; }
+}
+@media (max-width: 719px) {
+  .find { grid-template-columns: 1fr auto; }
+  .fld { height: 48px; }
+  .fld:first-child { grid-column: 1 / 3; border-right: 0; border-bottom: 1px solid var(--line); }
+  .fld input { font-size: 17px; }
+  .cols { grid-template-columns: 1fr; position: relative; }
+  .list { border-right: 0; }
+  .row[aria-current="true"] { background: none; color: inherit; --mbg: var(--paper); }
+  .row[aria-current="true"] .co, .row[aria-current="true"] .when, .row[aria-current="true"] .tags { color: var(--soft); }
+  .rowwrap:has([aria-current="true"]) .rowsave { color: inherit; }
+  .rowwrap:has([aria-current="true"]) .rowsave[aria-pressed="true"] .i { fill: var(--red); stroke: var(--red); }
+  .row[aria-current="true"] .applied { color: var(--red-ink); }
+  .rowsave { opacity: 1; }
+  .post { position: fixed; inset: 0; z-index: 20; visibility: hidden; opacity: 0; transform: translateX(16px); transition: opacity .2s var(--ease), transform .2s var(--ease), visibility 0s .2s; }
+  .reading .post { visibility: visible; opacity: 1; transform: none; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .bar { padding: 0 16px; gap: 6px; }
+  .bar .back { display: flex; }
+  .bar .prevnext { display: none; }
+.shareL { display: none; }
+#share { width: 40px; padding: 0; }
+  article { padding: 20px 16px 40px; }
+  h2.title { font-size: 30px; }
+  .tabs { gap: 14px; }
+  .rail { width: 100%; }
+  .toast { white-space: normal; left: 16px; right: 16px; transform: translateY(8px); justify-content: space-between; }
+  .toast.on { transform: none; }
+  dialog { width: 100vw; max-width: 100vw; height: 100svh; max-height: 100svh; border: 0; margin: 0; }
+  .da { flex-direction: column-reverse; align-items: stretch; } .da p { max-width: none; }
+  .row .pay, .row .when { padding-right: 26px; }
+}
+@media (max-width: 400px) {
+  .row { grid-template-columns: 40px minmax(0, 1fr); }
+  .row .pay { grid-column: 2; grid-row: 3; padding: 0; }
+  .row .when { display: none; }
+  .row .t { padding-right: 28px; }
+  .row .mk { grid-row: span 3; }
+  .row .tags { grid-column: 2; }
+  .bar .btn.apply { padding: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
+  .sent svg.tick path { stroke-dashoffset: 0; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6.5 4h11v16.5l-5.5-4-5.5 4z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 7v7M12 16.5v1.5"/><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><rect x="13" y="5" width="4" height="4"/><rect x="7" y="15" width="4" height="4"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6.5 3.5h7l4 4v13h-11z"/><path d="M13.5 3.5v4h4"/></symbol>
+</defs></svg>
+
+<div class="app" id="app">
+  <header class="mast">
+    <p class="line">Design and engineering roles, each one read by a person before it runs.</p>
+    <h1><a href="#" id="home">Roster</a></h1>
+    <nav class="tabs" aria-label="Lists">
+      <button class="tab" id="tabAll" aria-current="page">All roles <b id="nAll"></b></button>
+      <button class="tab" id="tabSaved">Saved <b id="nSaved"></b></button>
+    </nav>
+  </header>
+
+  <form class="find" id="find" role="search">
+    <label class="fld" id="qBox">
+      <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+      <span class="sr">Job title, skill or company</span>
+      <input id="q" type="text" autocomplete="off" spellcheck="false" placeholder="Job title, skill or company">
+      <span class="slash" aria-hidden="true">/</span>
+      <button class="x" type="button" id="qx" aria-label="Clear search"><svg class="i"><use href="#i-x"/></svg></button>
+    </label>
+    <label class="fld" id="locBox">
+      <svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>
+      <span class="sr">City, country or region</span>
+      <input id="loc" type="text" list="places" autocomplete="off" spellcheck="false" placeholder="City or country">
+      <datalist id="places"></datalist>
+      <button class="x" type="button" id="locx" aria-label="Clear location"><svg class="i"><use href="#i-x"/></svg></button>
+    </label>
+    <label class="sw"><input type="checkbox" id="remote"><i aria-hidden="true"></i>Remote</label>
+  </form>
+
+  <div class="cols">
+    <aside class="rail" id="rail" aria-label="Filters">
+      <div class="railhead">
+        <h2>Refine</h2>
+        <button class="reset" id="reset" hidden>Clear all</button>
+        <button class="railclose sq" id="railClose" aria-label="Close filters"><svg class="i"><use href="#i-x"/></svg></button>
+      </div>
+      <fieldset><legend>Role</legend><div id="fRole"></div></fieldset>
+      <fieldset><legend>Seniority</legend><div id="fSen"></div></fieldset>
+      <fieldset>
+        <legend>Salary, USD a year</legend>
+        <p class="range"><span id="sLo"></span><span id="sHi"></span></p>
+        <div class="dual"><div class="tr"></div><div class="fl" id="sFill"></div>
+          <input type="range" id="sMin" min="60" max="320" step="5" value="60" aria-label="Lowest salary">
+          <input type="range" id="sMax" min="60" max="320" step="5" value="320" aria-label="Highest salary">
+        </div>
+        <p class="note">Keeps any role whose range overlaps yours.</p>
+      </fieldset>
+      <fieldset><legend>Company size</legend><div id="fSize"></div></fieldset>
+      <fieldset>
+        <legend>Visa</legend>
+        <label class="ck"><input type="checkbox" id="visa"><span>Sponsors visas</span><small id="visaN"></small></label>
+      </fieldset>
+      <button class="btn ink showN" id="showN" style="display:none;width:100%;margin:8px 0 16px"></button>
+      <fieldset class="paysf"><legend>Median by role</legend><div class="pays" id="pays"></div></fieldset>
+    </aside>
+
+    <section class="list" aria-label="Roles">
+      <div class="lhead">
+        <p class="n" id="count" aria-live="polite"></p>
+        <div class="r">
+          <label class="sort"><span>Sort</span>
+            <select id="sort" aria-label="Sort roles"><option value="match">Editor's order</option><option value="new">Newest</option><option value="pay">Highest pay</option></select>
+          </label>
+          <button class="filtersbtn" id="filtersBtn"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Filters<span id="fN"></span></button>
+        </div>
+      </div>
+      <ul class="rows" id="rows"></ul>
+      <p class="keys" aria-hidden="true"><span><kbd>J</kbd><kbd>K</kbd>move</span><span><kbd>S</kbd>save</span><span><kbd>A</kbd>apply</span><span><kbd>/</kbd>search</span></p>
+    </section>
+
+    <section class="post" id="post" aria-label="Job posting">
+      <div class="bar" id="bar"></div>
+      <div class="scroll" id="scroll" tabindex="-1"></div>
+    </section>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<dialog id="dlg" aria-labelledby="dT"></dialog>
+<div class="toast" id="toast" role="status"><span id="toastT"></span><button id="toastU" hidden>Undo</button></div>
+<input type="file" id="cvFile" class="sr" accept=".pdf,.doc,.docx" tabindex="-1" aria-hidden="true">
+
+<script>
+const $ = (id) => document.getElementById(id);
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wideQ = matchMedia("(min-width: 720px)");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ic = (n) => `<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+
+/* ---------- companies: marks are drawn from a shape and a letter ---------- */
+const SIZES = ["1–10", "11–50", "51–200", "201–1,000", "1,000+"];
+const CO = {
+  brack: { n: "Brackwater", what: "Flood insurance priced street by street", size: 2, city: "Rotterdam", mark: ["cut", "B"], lead: "Anneke de Vries", lr: "Head of Product", reply: "5 days",
+    about: "Twenty-odd people in a converted pumping station, working with hydrologists to give homeowners a flood price they can understand. We shipped to four Dutch insurers last year and start in Bangladesh in spring.",
+    perks: ["Four-day weeks through August", "€3,000 a year for courses and books", "Twenty-eight days' leave plus Dutch holidays", "Rail pass, because the office is at the end of a tram line"] },
+  ondine: { n: "Ondine Health", what: "Home dialysis, run from a phone", size: 3, city: "Toronto", mark: ["circle", "O"], lead: "Thandiwe Moyo", lr: "Director of Design", reply: "4 days",
+    about: "We make the software nurses and patients use to run dialysis at home. Most of our users are over sixty, many have poor eyesight, and a mistake can mean a hospital stay, so we test on the wards every other week.",
+    perks: ["Full family health and dental from day one", "Sixteen weeks' paid parental leave for all parents", "A week on the wards every year, paid", "Home office budget of $2,000"] },
+  mire: { n: "Mirepoix", what: "Stock and rotas for independent restaurants", size: 2, city: "Lyon", mark: ["arch", "M"], lead: "Camille Fournier-Diallo", lr: "VP Engineering", reply: "6 days",
+    about: "Twelve hundred kitchens use Mirepoix to count stock on a greasy tablet at midnight. We're profitable, we've never run an ad, and everyone on the team does a shift in a real kitchen in their first month.",
+    perks: ["Profit share paid every December", "Thirty days' leave", "Lunch out on us, every Friday", "Works council and a published salary grid"] },
+  sext: { n: "Sextant", what: "Port scheduling for container terminals", size: 4, city: "Singapore", mark: ["diamond", "S"], lead: "Rajan Pillai", lr: "CTO", reply: "7 days",
+    about: "A ship waiting outside a port burns money and diesel. Sextant plans berths, cranes and trucks for eleven terminals across Asia and the Gulf, re-planning every few minutes as the weather and the tides change.",
+    perks: ["Relocation and visa handled for you and your family", "Fifteen per cent annual bonus target", "Twenty-five days' leave", "Two terminal visits a year"] },
+  kiln: { n: "Kiln Robotics", what: "Arms that glaze and load ceramics", size: 1, city: "Stoke-on-Trent", mark: ["slab", "K"], lead: "Oluwaseun Adeyemi", lr: "Co-founder", reply: "3 days",
+    about: "Nine of us, four robots and a very dusty workshop. Potteries are short of people for the hardest jobs on the floor, and we build the arms that do them. Our first three factories went live this year.",
+    perks: ["Early equity, with a ten-year exercise window", "Twenty-five days' leave plus Christmas week", "Pottery wheel in the workshop, tuition included", "Lunch from the canteen next door"] },
+  lant: { n: "Lantern Bay", what: "Public radio and podcasts for the Gulf Coast", size: 2, city: "Remote", mark: ["ring", "L"], lead: "Marisol Quintero", lr: "Digital Director", reply: "8 days",
+    about: "A non-profit broadcaster with four million listeners and a website that hasn't kept up with them. We've raised the money to rebuild the player, the newsroom tools and the membership system, in the open.",
+    perks: ["Union contract with published pay bands", "Thirty days' leave and a winter shutdown", "Full health cover with no premium", "Everything we build is open source"] },
+  cart: { n: "Cartouche", what: "Online signing for notaries and registries", size: 3, city: "Seoul", mark: ["split", "C"], lead: "Ji-woo Han", lr: "Head of Design", reply: "5 days",
+    about: "Land registries in six countries accept documents signed on Cartouche. It's careful, slow-moving work where the type on a certificate matters as much as the cryptography behind it.",
+    perks: ["Monthly housing allowance in Seoul", "Annual trip to wherever the team is working", "Six weeks' sabbatical after four years", "Language classes in Korean or English"] },
+  pat: { n: "Patina Grid", what: "Software for small hydro and solar co-ops", size: 2, city: "Nairobi", mark: ["square", "P"], lead: "Wanjiru Kamau", lr: "Head of Engineering", reply: "4 days",
+    about: "Community energy co-ops across East Africa use Patina to read meters, take mobile payments and balance a local grid with one person on call. Connections are slow and phones are old, so we count every kilobyte.",
+    perks: ["Visits to a co-op site twice a year", "Equity for everyone, with the terms in writing", "Solar panel stipend for your own home", "Twenty-six days' leave"] },
+  anse: { n: "Anselm Bio", what: "Lab notebooks for protein engineers", size: 3, city: "Berlin", mark: ["notch", "A"], lead: "Leonie Brandt", lr: "VP Product", reply: "6 days",
+    about: "Scientists at sixty labs plan experiments in Anselm and see the results line up against every earlier run. Our users hold PhDs and have opinions about keyboard shortcuts, which we like very much.",
+    perks: ["Thirty days' leave", "BVG pass and a bike-lease scheme", "€5,000 relocation to Berlin", "Conference budget with no approval needed"] },
+  saff: { n: "Saffron Pay", what: "Money home for migrant workers", size: 4, city: "Dubai", mark: ["circle", "Sf"], lead: "Farah Al-Mansoori", lr: "SVP Product", reply: "5 days",
+    about: "Two million people use Saffron to send wages home from the Gulf to Kerala, Dhaka and Manila, most of them on a cheap Android phone in a second language. Fees are our only revenue, and we publish them.",
+    perks: ["Tax-free salary and an annual flight home", "Family health insurance", "Housing allowance", "Five weeks' leave"] },
+  otsu: { n: "Otsu", what: "Maps of the world's hiking and cycling paths", size: 1, city: "Remote", mark: ["cut", "Ō"], lead: "Haruka Nishimura", lr: "Founder", reply: "3 days",
+    about: "A small, stubborn team mapping footpaths that the big maps miss. Half a million walkers pay us ten dollars a year, nobody has ever seen an ad, and the whole company meets for a week's walk each autumn.",
+    perks: ["Work from any time zone within reason", "A week's walk together each autumn", "$1,500 gear budget", "Sabbatical month every third year"] },
+  tall: { n: "Tallow & Rye", what: "Tills and ordering for bakeries", size: 2, city: "São Paulo", mark: ["arch", "T"], lead: "Beatriz Nascimento", lr: "Head of Design", reply: "5 days",
+    about: "Two thousand bakeries across Brazil and Portugal run their counters on our tills. The busiest hour is at six in the morning, and most of our best ideas have come from standing behind the counter during it.",
+    perks: ["Thirteenth salary and profit share", "Thirty days' leave", "Health plan for you and your dependants", "Breakfast, obviously"] },
+};
+function mark(c) {
+  const [shape, L] = CO[c].mark, ink = "currentColor", paper = "var(--mbg)";
+  const sh = { square: `<rect width="40" height="40" fill="${ink}"/>`, circle: `<circle cx="20" cy="20" r="20" fill="${ink}"/>`,
+    cut: `<path d="M0 0h28l12 12v28H0z" fill="${ink}"/>`, arch: `<path d="M0 40V20a20 20 0 0 1 40 0v20z" fill="${ink}"/>`,
+    diamond: `<path d="M20 0 40 20 20 40 0 20z" fill="${ink}"/>`, slab: `<path d="M0 0h40v6H0zM0 10h40v30H0z" fill="${ink}"/>`,
+    split: `<path d="M0 0h40v40H0z" fill="${ink}"/><path d="M0 28 40 40H0z" fill="${paper}" opacity=".0"/>`,
+    notch: `<path d="M0 0h40v40H26v-8H14v8H0z" fill="${ink}"/>`, ring: `<circle cx="20" cy="20" r="18.5" fill="none" stroke="${ink}" stroke-width="3"/>` }[shape];
+  const y = shape === "arch" ? 30 : shape === "notch" ? 24 : shape === "slab" ? 32 : 27.5, fs = L.length > 1 ? 16 : shape === "diamond" ? 18 : 21;
+  const fill = shape === "ring" ? ink : paper;
+  const stripes = shape === "split" ? `<rect y="32" width="40" height="2" fill="${paper}"/>` : "";
+  return `<svg class="mk" viewBox="0 0 40 40" aria-hidden="true">${sh}${stripes}<text x="20" y="${shape === "split" ? 25 : y}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="${fill}" font-family="Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif">${L}</text></svg>`;
+}
+
+/* ---------- what each discipline does and needs ---------- */
+const FAM = {
+  product: { eng: 0, label: "product designers",
+    do: ["Take features from a messy problem to shipped screens, and stay with them after launch", "Sit in on customer calls every week, and bring what you hear back to the team", "Prototype in whatever gets you to an answer soonest"],
+    req: ["A portfolio that shows your thinking, including work that didn't ship", "Comfort with interaction detail and with arguing for it in plain language", "Experience working directly with engineers, with no hand-off document between you"] },
+  systems: { eng: 0, label: "design systems designers",
+    do: ["Own the components, tokens and documentation other teams build from", "Run weekly office hours, and treat every question as a bug report on the docs", "Pair with engineers on accessibility and theming"],
+    req: ["A library you've looked after over more than one release cycle", "Working knowledge of HTML and CSS, enough to read a diff", "A strong opinion on when a component should not exist"] },
+  brand: { eng: 0, label: "brand designers",
+    do: ["Look after the identity across product, print and the odd vehicle", "Art direct photography and illustration, including the briefing and the budget", "Make the marketing site feel like the same company as the product"],
+    req: ["Serious typography, shown in real work", "A record of finishing things, from brief to printer or production", "The confidence to say no to a sticker"] },
+  research: { eng: 0, label: "design researchers",
+    do: ["Plan and run studies with the people who use the product, in person wherever possible", "Turn what you find into decisions, rather than decks", "Teach designers and engineers to run smaller studies on their own"],
+    req: ["Experience with both interviews and basic quantitative methods", "Examples of research that changed what a team built", "Clear, unfussy writing"] },
+  frontend: { eng: 1, label: "frontend engineers",
+    do: ["Build the interfaces people use every day, in TypeScript and whatever framework earns its place", "Care about the 95th-percentile load time on a cheap phone", "Work alongside designers on motion, focus states and the details"],
+    req: ["Deep knowledge of the browser: layout, events, accessibility, performance", "Production experience with a component framework and its testing tools", "A habit of reading the network tab"] },
+  backend: { eng: 1, label: "backend engineers",
+    do: ["Design and run the services behind the product, including being on call for them", "Model messy real-world data in Postgres so that it stays honest", "Write the design notes before you write the code"],
+    req: ["Several years running production services in Go, Rust, Python or similar", "Solid SQL and an interest in query plans", "Calm in an incident and honest in the write-up"] },
+  infra: { eng: 1, label: "infrastructure engineers",
+    do: ["Keep deploys boring and the on-call rota quiet", "Own observability, networking and the build pipeline", "Spend a week each quarter removing something nobody needs"],
+    req: ["Experience running Linux and Kubernetes or Nomad at real load", "Infrastructure as code, reviewed like any other code", "Enough cost awareness to read a cloud bill for fun"] },
+  mobile: { eng: 1, label: "mobile engineers",
+    do: ["Ship the app on iOS and Android, sharing code only where it helps", "Make offline the default and syncing invisible", "Test on the phones your customers really own"],
+    req: ["Published apps in Swift or Kotlin that you can talk through", "Experience with local storage, sync and conflict handling", "Attention to platform conventions, and to when to break them"] },
+  ml: { eng: 1, label: "machine learning engineers",
+    do: ["Train, evaluate and ship models that make decisions in production", "Build the data pipelines and evaluation sets you wish you'd inherited", "Explain a model's mistakes to the people who rely on it"],
+    req: ["Production ML experience, and not just notebooks", "Strong Python and a working grasp of statistics", "Scepticism about your own results"] },
+};
+const ROLES = [["product", "Product design"], ["systems", "Design systems"], ["brand", "Brand and visual"], ["research", "Research"], ["frontend", "Frontend"], ["backend", "Backend"], ["infra", "Infrastructure"], ["mobile", "Mobile"], ["ml", "Machine learning"]];
+const SENS = ["Junior", "Mid", "Senior", "Staff+"];
+
+/* ---------- the jobs: seeded, so the page always opens the same ---------- */
+const J = [
+  { c: "ondine", t: "Senior Product Designer, Patient App", r: "product", s: 2, lo: 145, hi: 182, loc: "Toronto or remote, Canada", rem: 1, h: 3, tags: ["Healthcare", "Accessibility", "Figma"], visa: 1,
+    st: "Redesign how people on home dialysis start, run and log a treatment, with your first prototype on a ward within three weeks.", x: "Lead the redesign of the treatment flow, tested with patients on the ward every second Thursday", y: "You've designed for older users or under clinical regulation, or you want to learn from people who have" },
+  { c: "mire", t: "Staff Frontend Engineer", r: "frontend", s: 3, lo: 168, hi: 210, loc: "Lyon or remote, EU", rem: 1, h: 7, tags: ["TypeScript", "Offline-first", "Tablet"], visa: 1,
+    st: "Make a stock count on a five-year-old tablet feel instant, even with no signal in the walk-in fridge.", x: "Set the frontend direction for an app used offline in kitchens, on devices nobody would choose", y: "You've led large frontend work without becoming a manager" },
+  { c: "sext", t: "Senior Backend Engineer, Berth Planning", r: "backend", s: 2, lo: 172, hi: 225, loc: "Singapore", rem: 0, h: 20, tags: ["Rust", "Optimisation", "Postgres"], visa: 1,
+    st: "Re-plan a whole container terminal every few minutes, and be right about it at the moment a storm comes in.", x: "Work on the solver that assigns ships to berths and cranes to ships", y: "You've built systems where a late answer is a wrong answer" },
+  { c: "cart", t: "Design Systems Lead", r: "systems", s: 3, lo: 150, hi: 188, loc: "Seoul", rem: 0, h: 26, tags: ["Tokens", "Hangul and Latin", "Web"], visa: 1,
+    st: "Look after a system that has to set a legal certificate correctly in Korean, Thai and French.", x: "Rebuild our type and spacing tokens for mixed-script documents", y: "You've worked with more than one writing system, or you're keen to start" },
+  { c: "pat", t: "Android Engineer", r: "mobile", s: 1, lo: 74, hi: 102, loc: "Nairobi or remote, Africa", rem: 1, h: 30, tags: ["Kotlin", "Low bandwidth", "Mobile money"], visa: 0,
+    st: "Build the app a co-op's only engineer carries up a hill to read meters, on a three-year-old phone.", x: "Bring our meter-reading app under 8 MB and make it work for a week offline", y: "You've shipped for slow networks and low-end devices" },
+  { c: "kiln", t: "Founding Product Designer", r: "product", s: 2, lo: 92, hi: 124, loc: "Stoke-on-Trent, UK", rem: 0, h: 46, tags: ["Hardware", "Early stage", "Equity"], visa: 1,
+    st: "Be the first designer at a robotics company, and design the screen a line worker trusts next to a moving arm.", x: "Design the operator touchscreen for a factory floor, wearing gloves, with glaze on them", y: "You're happy being the only designer, in a workshop, in Stoke" },
+  { c: "anse", t: "Senior Frontend Engineer, Editor", r: "frontend", s: 2, lo: 118, hi: 152, loc: "Berlin", rem: 0, h: 50, tags: ["TypeScript", "Rich text", "CRDTs"], visa: 1,
+    st: "Build a notebook that can hold a protein sequence, a plate layout and a scientist's handwriting.", x: "Own our collaborative editor and its plugin system for scientific data", y: "You've worked with ProseMirror, Slate or a text model of your own" },
+  { c: "saff", t: "Principal Product Designer", r: "product", s: 3, lo: 190, hi: 245, loc: "Dubai", rem: 0, h: 72, tags: ["Fintech", "Low literacy", "Android"], visa: 1,
+    st: "Design the moment someone sends a month's wages home, in their third language, on a cracked phone.", x: "Set the design direction for remittance flows in nine languages", y: "You've done field research outside your own country" },
+  { c: "lant", t: "Senior Frontend Engineer, Player", r: "frontend", s: 2, lo: 125, hi: 150, loc: "Remote, Americas", rem: 1, h: 76, tags: ["Open source", "Audio", "Svelte"], visa: 0,
+    st: "Rebuild a public radio player for the listener with one earbud in and a phone at four per cent.", x: "Rebuild the live player and podcast pages, in public, under an open licence", y: "You've worked with web audio or media streams" },
+  { c: "otsu", t: "Mid-level Mobile Engineer, iOS", r: "mobile", s: 1, lo: 96, hi: 128, loc: "Remote, worldwide", rem: 1, h: 98, tags: ["Swift", "Maps", "Offline"], visa: 0,
+    st: "Keep a map working when you're six hours from a signal, and the battery has to last as long as the walk.", x: "Own the iOS map renderer, its offline tiles and battery use", y: "You've touched Metal or a map or game renderer" },
+  { c: "tall", t: "Brand Designer", r: "brand", s: 1, lo: 62, hi: 84, loc: "São Paulo", rem: 0, h: 100, tags: ["Identity", "Print", "Packaging"], visa: 0,
+    st: "Draw the receipts, shop-window stickers and flour-sack tags that make two thousand bakeries feel like one thing.", x: "Run the brand across tills, receipts, stickers and the annual baker's calendar", y: "You've seen a job through to the printer's floor" },
+  { c: "brack", t: "Machine Learning Engineer, Flood Models", r: "ml", s: 2, lo: 128, hi: 165, loc: "Rotterdam", rem: 0, h: 120, tags: ["Python", "Geospatial", "Climate"], visa: 1,
+    st: "Price a flood risk for one specific house, and explain why next door costs less.", x: "Train flood-loss models on hydrology, claims and street-level elevation", y: "You've worked with geospatial data or actuaries" },
+  { c: "sext", t: "Infrastructure Engineer", r: "infra", s: 2, lo: 150, hi: 195, loc: "Singapore or Jebel Ali", rem: 0, h: 124, tags: ["Kubernetes", "Edge", "On site"], visa: 1,
+    st: "Run critical software inside eleven ports that all have their own ideas about the internet.", x: "Run edge clusters at terminals, where a failover has to happen without a network", y: "You're willing to visit a port a few times a year, wearing a hard hat" },
+  { c: "ondine", t: "Design Researcher", r: "research", s: 2, lo: 118, hi: 148, loc: "Toronto or Hamilton", rem: 0, h: 150, tags: ["Clinical", "Field work", "Older adults"], visa: 0,
+    st: "Spend your weeks in patients' homes and on wards, and change what the team builds on Monday.", x: "Run home visits with dialysis patients and their carers", y: "You've worked under an ethics review, or you're ready to learn how" },
+  { c: "kiln", t: "Senior Robotics Software Engineer", r: "backend", s: 2, lo: 112, hi: 150, loc: "Stoke-on-Trent, UK", rem: 0, h: 168, tags: ["Rust", "ROS 2", "Equity"], visa: 1,
+    st: "Write motion software that a kiln-side operator can stop, inspect and restart without calling you.", x: "Build the planning and safety layer for arms that move wet ceramic", y: "You've shipped software to physical machines" },
+  { c: "cart", t: "Junior Product Designer", r: "product", s: 0, lo: 60, hi: 76, loc: "Seoul", rem: 0, h: 190, tags: ["Mentored", "Web", "Korean helpful"], visa: 1,
+    st: "Learn the craft alongside a senior designer, on a product where precision is the whole point.", x: "Design real features from your first month, paired with a senior designer", y: "A portfolio with two or three pieces of work you can talk about in depth" },
+  { c: "pat", t: "Staff Backend Engineer", r: "backend", s: 3, lo: 132, hi: 176, loc: "Remote, Africa or EU", rem: 1, h: 200, tags: ["Go", "Payments", "Time series"], visa: 0,
+    st: "Build a billing system that works when the meter last reported nine days ago, and the customer pays by text.", x: "Own metering and billing across sixty co-ops", y: "You've built or run payments or ledgers" },
+      { c: "lant", t: "Brand and Editorial Designer", r: "brand", s: 2, lo: 92, hi: 118, loc: "New Orleans or remote, US", rem: 1, h: 290, tags: ["Editorial", "Non-profit", "Union"], visa: 0,
+    st: "Give four million listeners something to look at, without losing the sound of the Gulf Coast.", x: "Design show identities, member campaigns and pledge-drive materials", y: "Editorial experience, in print or online" },
+  { c: "anse", t: "Staff Machine Learning Engineer", r: "ml", s: 3, lo: 182, hi: 240, loc: "Berlin or remote, EU", rem: 1, h: 340, tags: ["Protein models", "PyTorch", "Python"], visa: 1,
+    st: "Suggest a scientist's next experiment, and show the working clearly enough for them to disagree.", x: "Build experiment suggestion models from sixty labs' worth of notebooks", y: "You've worked with biological data or alongside people who do" },
+  { c: "otsu", t: "Infrastructure Engineer, Maps", r: "infra", s: 1, lo: 104, hi: 136, loc: "Remote, worldwide", rem: 1, h: 360, tags: ["Tile pipelines", "Nix", "Small team"], visa: 0,
+    st: "Rebuild the world's footpaths every night on a budget that would make most companies laugh.", x: "Run the nightly pipeline that turns map edits into offline tiles", y: "You've handled large geospatial or batch workloads cheaply" },
+  { c: "brack", t: "Senior Design Systems Engineer", r: "systems", s: 2, lo: 112, hi: 142, loc: "Rotterdam or remote, EU", rem: 1, h: 410, tags: ["Web components", "Accessibility", "Data viz"], visa: 1,
+    st: "Build the charts and components that make a flood map readable to a nervous homeowner.", x: "Build a component library with a serious map and chart layer", y: "You've made charts that passed an accessibility audit" },
+  ];
+J.forEach((j, i) => { j.id = i; j.co = CO[j.c]; j.mid = (j.lo + j.hi) / 2; });
+const ago = (h) => h < 24 ? `${h}h` : h < 24 * 14 ? `${Math.round(h / 24)}d` : `${Math.round(h / 168)}w`;
+const agoLong = (h) => h < 24 ? `${h} hours ago` : Math.round(h / 24) === 1 ? "Yesterday" : h < 24 * 14 ? `${Math.round(h / 24)} days ago` : `${Math.round(h / 168)} weeks ago`;
+const pay = (j) => `$${j.lo}–${j.hi}k`;
+const median = (a) => { const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+/* ---------- state ---------- */
+const F = { q: "", loc: "", remote: false, roles: new Set(), sens: new Set(), sizes: new Set(), visa: false, lo: 60, hi: 320 };
+const S = { tab: "all", sort: "match", sel: 0, saved: new Set([2, 7]), applied: new Map(), view: [], draft: { name: "", email: "", url: "" } };
+
+function match(j, skip) {
+  if (F.q) { const hay = `${j.t} ${j.co.n} ${j.tags.join(" ")} ${ROLES.find((r) => r[0] === j.r)[1]}`.toLowerCase(); if (!F.q.toLowerCase().split(/\s+/).every((w) => hay.includes(w))) return false; }
+  if (F.loc && !j.loc.toLowerCase().includes(F.loc.toLowerCase())) return false;
+  if (F.remote && !j.rem) return false;
+  if (skip !== "roles" && F.roles.size && !F.roles.has(j.r)) return false;
+  if (skip !== "sens" && F.sens.size && !F.sens.has(j.s)) return false;
+  if (skip !== "sizes" && F.sizes.size && !F.sizes.has(j.co.size)) return false;
+  if (skip !== "visa" && F.visa && !j.visa) return false;
+  if (j.hi < F.lo || j.lo > F.hi) return false;
+  return true;
+}
+const activeN = () => F.roles.size + F.sens.size + F.sizes.size + (F.visa ? 1 : 0) + (F.lo > 60 || F.hi < 320 ? 1 : 0);
+
+/* ---------- rail ---------- */
+function checks(boxId, opts, key, setName) {
+  $(boxId).innerHTML = opts.map(([v, label]) => `<label class="ck"><input type="checkbox" data-k="${setName}" value="${v}"><span>${label}</span><small data-c="${setName}-${v}"></small></label>`).join("");
+}
+checks("fRole", ROLES, "r", "roles");
+checks("fSen", SENS.map((s, i) => [i, s]), "s", "sens");
+checks("fSize", SIZES.map((s, i) => [i, s + " people"]), "size", "sizes");
+document.querySelector(".rail").addEventListener("change", (e) => {
+  const k = e.target.dataset.k; if (!k) return;
+  const v = k === "roles" ? e.target.value : +e.target.value;
+  e.target.checked ? F[k].add(v) : F[k].delete(v);
+  refresh();
+});
+$("visa").addEventListener("change", (e) => { F.visa = e.target.checked; refresh(); });
+function syncSalary(src) {
+  let a = +$("sMin").value, b = +$("sMax").value;
+  if (a > b - 10) { if (src === "min") { a = b - 10; $("sMin").value = a; } else { b = a + 10; $("sMax").value = b; } }
+  F.lo = a; F.hi = b;
+  $("sLo").textContent = a === 60 ? "$60k" : `$${a}k`; $("sHi").textContent = b === 320 ? "$320k+" : `$${b}k`;
+  $("sMin").setAttribute("aria-valuetext", `$${a},000`); $("sMax").setAttribute("aria-valuetext", `$${b},000`);
+  const pc = (v) => (v - 60) / 260 * 100;
+  $("sFill").style.left = pc(a) + "%"; $("sFill").style.width = pc(b) - pc(a) + "%";
+}
+$("sMin").addEventListener("input", () => { syncSalary("min"); refresh(); });
+$("sMax").addEventListener("input", () => { syncSalary("max"); refresh(); });
+$("pays").innerHTML = ROLES.map(([k, l]) => { const m = median(J.filter((j) => j.r === k).map((j) => j.mid)); return `<button type="button" data-pay="${k}" aria-pressed="false"><span>${l}</span><b>$${Math.round(m)}k</b></button>`; }).join("");
+$("pays").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-pay]"); if (!b) return;
+  const k = b.dataset.pay, inp = document.querySelector(`[data-k="roles"][value="${k}"]`);
+  inp.checked = !inp.checked; inp.checked ? F.roles.add(k) : F.roles.delete(k); refresh();
+});
+function clearFilters() {
+  F.roles.clear(); F.sens.clear(); F.sizes.clear(); F.visa = false; $("visa").checked = false;
+  document.querySelectorAll("[data-k]").forEach((c) => c.checked = false);
+  $("sMin").value = 60; $("sMax").value = 320; syncSalary();
+}
+function clearAll() { clearFilters(); F.q = ""; F.loc = ""; F.remote = false; $("q").value = ""; $("loc").value = ""; $("remote").checked = false; $("qBox").classList.remove("has"); $("locBox").classList.remove("has"); }
+$("reset").addEventListener("click", () => { clearFilters(); refresh(); });
+/* a sandboxed frame never fires submit, so every form here runs from its button and from Enter */
+const onEnter = (form, fn) => { form.addEventListener("submit", (e) => e.preventDefault()); form.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); fn(); } }); };
+
+/* ---------- list ---------- */
+function hl(t) {
+  if (!F.q) return esc(t);
+  let out = esc(t);
+  F.q.split(/\s+/).filter(Boolean).forEach((w) => { const safe = esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); out = out.replace(new RegExp(`(${safe})(?![^<]*>)`, "ig"), "<mark>$1</mark>"); });
+  return out;
+}
+function rowHTML(j) {
+  const on = S.saved.has(j.id), done = S.applied.has(j.id);
+  return `<li class="rowwrap" data-id="${j.id}"><button class="row" data-row="${j.id}" aria-current="${j.id === S.sel}">${mark(j.c)}
+    <span class="t">${hl(j.t)}</span><span class="pay">${pay(j)}</span>
+    <span class="co">${hl(j.co.n)} · ${esc(j.loc)}</span><span class="when"><span class="sr">Posted </span>${ago(j.h)}</span>
+    <span class="tags">${done ? `<span class="applied">Applied</span>` : ""}${j.tags.slice(0, 3).map((t) => `<span>${hl(t)}</span>`).join("")}</span></button>
+    <button class="rowsave" data-save="${j.id}" aria-pressed="${on}" aria-label="${on ? "Remove from saved" : "Save"}: ${esc(j.t)}">${ic("save")}</button></li>`;
+}
+function refresh(keepScroll) {
+  const pool = S.tab === "saved" ? J.filter((j) => S.saved.has(j.id)) : J.filter((j) => match(j));
+  const sorter = { match: (a, b) => a.id - b.id, new: (a, b) => a.h - b.h, pay: (a, b) => b.hi - a.hi }[S.sort];
+  S.view = [...pool].sort(sorter);
+  if (!S.view.some((j) => j.id === S.sel)) S.sel = S.view.length ? S.view[0].id : null;
+  const n = S.view.length;
+  $("count").textContent = S.tab === "saved" ? `${n} saved` : `${n} ${n === 1 ? "role" : "roles"}`;
+  $("nAll").textContent = J.filter((j) => match(j)).length; $("nSaved").textContent = S.saved.size;
+  const rows = $("rows"), top = rows.scrollTop;
+  rows.innerHTML = n ? S.view.map(rowHTML).join("") : (S.tab === "saved"
+    ? `<li class="blank"><h3>Nothing saved yet</h3><p>Press S on a role, or use the bookmark on its row, and it will wait for you here.</p><button class="btn" id="toAll">Browse all roles</button></li>`
+    : `<li class="blank"><h3>No roles match</h3><p>${blankHint()}</p><button class="btn" id="clearBlank">Clear search and filters</button></li>`);
+  rows.scrollTop = keepScroll ? top : 0;
+  // live counts
+  ROLES.forEach(([k]) => setCount(`roles-${k}`, J.filter((j) => j.r === k && match(j, "roles")).length));
+  SENS.forEach((_, i) => setCount(`sens-${i}`, J.filter((j) => j.s === i && match(j, "sens")).length));
+  SIZES.forEach((_, i) => setCount(`sizes-${i}`, J.filter((j) => j.co.size === i && match(j, "sizes")).length));
+  $("visaN").textContent = J.filter((j) => j.visa && match(j, "visa")).length;
+  document.querySelectorAll("[data-pay]").forEach((b) => b.setAttribute("aria-pressed", String(F.roles.has(b.dataset.pay))));
+  const a = activeN(); $("reset").hidden = !a; $("fN").textContent = a ? ` · ${a}` : "";
+  $("showN").textContent = n ? `Show ${n} role${n === 1 ? "" : "s"}` : "No roles match";
+  $("rail").toggleAttribute("inert", S.tab === "saved");
+  drawPost();
+}
+function setCount(k, v) { const el = document.querySelector(`[data-c="${k}"]`); el.textContent = v; el.parentElement.classList.toggle("none", v === 0 && !el.parentElement.querySelector("input").checked); }
+function blankHint() {
+  if (F.lo > 60 || F.hi < 320) return "The salary range may be narrowing this too far. Try widening it first.";
+  if (F.remote) return "No remote role fits these filters right now. Turning Remote off will bring more back.";
+  if (F.q || F.loc) return "Try a broader word, or check the spelling of that place.";
+  return "Taking off a filter or two usually helps. New roles run every weekday morning.";
+}
+
+/* ---------- posting ---------- */
+function band(j) {
+  const eng = FAM[j.r].eng, base = [[64, 92], [90, 128], [125, 172], [168, 228]][j.s];
+  const m = base.map((v) => Math.round(v * (eng ? 1.1 : 1) / 5) * 5);
+  const A = 40, B = 280, x = (v) => Math.max(0, Math.min(100, (v - A) / (B - A) * 100));
+  const mid = (m[0] + m[1]) / 2, gap = Math.round(j.mid - mid);
+  const verdict = Math.abs(gap) < 6 ? "right on the middle of" : gap > 0 ? `$${gap}k above the middle of` : `$${-gap}k below the middle of`;
+  const who = `${SENS[j.s].toLowerCase()} ${FAM[j.r].label}`;
+  return `<div class="band" role="img" aria-label="This role pays ${pay(j)}. The market for ${who} on Roster is $${m[0]}–${m[1]}k.">
+      <div class="ax"></div><div class="mk2" style="left:${x(m[0])}%;width:${x(m[1]) - x(m[0])}%"></div><div class="me" style="left:${x(j.lo)}%;width:${x(j.hi) - x(j.lo)}%"></div>
+      <span class="top" style="left:${Math.min(88, Math.max(10, x(j.mid)))}%">${pay(j)}</span><span class="bot" style="left:${Math.min(88, Math.max(10, x(mid)))}%">$${m[0]}–${m[1]}k</span>
+    </div>
+    <p class="legend"><span><i></i>This role</span><span><i class="h"></i>${who.charAt(0).toUpperCase() + who.slice(1)} on Roster</span></p>
+    <p style="margin-top:10px">The range is ${verdict} what comparable roles pay. Every role on Roster has to publish one.</p>`;
+}
+function drawPost(anim) {
+  const j = J[S.sel], box = $("scroll"), bar = $("bar");
+  if (S.sel == null || !j) {
+    bar.innerHTML = `<button class="back" data-back>${ic("left")}All roles</button>`;
+    box.innerHTML = `<div class="blank"><h3>${S.tab === "saved" ? "Pick something to read" : "Nothing to show"}</h3><p>${S.tab === "saved" ? "Roles you save will open here." : "When a role matches, its full posting opens here."}</p></div>`;
+    return;
+  }
+  const i = S.view.findIndex((v) => v.id === j.id), on = S.saved.has(j.id), done = S.applied.get(j.id);
+  bar.innerHTML = `<button class="back" data-back>${ic("left")}All roles</button>
+    <span class="pos">${i + 1} of ${S.view.length}</span>
+    <span class="prevnext"><button class="sq" data-step="-1" aria-label="Previous role" ${i <= 0 ? "disabled" : ""}>${ic("up")}</button><button class="sq" data-step="1" aria-label="Next role" ${i >= S.view.length - 1 ? "disabled" : ""}>${ic("down")}</button></span>
+    <span class="sp"></span>
+    <button class="btn" id="share" aria-label="Copy link to this role">${ic("link")}<span class="shareL">Copy link</span></button>
+    <button class="btn" id="saveBtn" aria-pressed="${on}">${ic("save")}${on ? "Saved" : "Save"}</button>
+    <button class="btn apply" data-apply ${done ? "disabled" : ""}>${done ? "Applied" : "Apply"}</button>`;
+  const fam = FAM[j.r];
+  const sim = J.filter((v) => v.id !== j.id && (v.r === j.r || (v.c === j.c))).sort((a, b) => (b.c === j.c) - (a.c === j.c) || Math.abs(a.mid - j.mid) - Math.abs(b.mid - j.mid)).slice(0, 3);
+  box.innerHTML = `<article class="${anim && !still ? "enter" : ""}">
+    <div class="byline">${mark(j.c)}<div><b>${esc(j.co.n)}</b><small>${esc(j.co.what)}</small></div></div>
+    <h2 class="title">${esc(j.t)}</h2>
+    <p class="standfirst">${esc(j.st)}</p>
+    <dl class="facts">
+      <div><dt>Where</dt><dd>${esc(j.loc)}</dd></div>
+      <div><dt>Level</dt><dd>${SENS[j.s]}</dd></div>
+      <div><dt>Company</dt><dd>${SIZES[j.co.size]} people</dd></div>
+      <div><dt>Visa</dt><dd>${j.visa ? "Sponsored" : "Must have the right to work"}</dd></div>
+    </dl>
+    <section class="sec"><h3>Salary</h3><div>${band(j)}</div></section>
+    <section class="sec"><h3>The team</h3><div><p>${esc(j.co.about)}</p><p>You'd report to ${esc(j.co.lead)}, ${esc(j.co.lr)}. Posted ${agoLong(j.h).toLowerCase()}; they usually reply within ${j.co.reply}.</p></div></section>
+    <section class="sec"><h3>What you'll do</h3><ul>${[j.x, ...fam.do].map((d) => `<li>${esc(d)}</li>`).join("")}</ul></section>
+    <section class="sec"><h3>What we look for</h3><ul>${[...fam.req, j.y].map((d) => `<li>${esc(d)}</li>`).join("")}</ul></section>
+    <section class="sec"><h3>Benefits</h3><ul>${j.co.perks.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></section>
+    <section class="sec"><h3>Similar roles</h3><ul class="sim">${sim.map((s) => `<li><button data-go="${s.id}"><span><b>${esc(s.t)}</b><small>${esc(s.co.n)} · ${esc(s.loc)}</small></span><span class="p">${pay(s)}</span></button></li>`).join("")}</ul></section>
+    <div class="endapply"><p>${done ? `You applied on ${done}. ${esc(j.co.lead)} has your details.` : `Applying takes about two minutes. ${esc(j.co.lead)} reads every one.`}</p><button class="btn apply" data-apply ${done ? "disabled" : ""}>${done ? "Applied" : `Apply to ${esc(j.co.n)}`}</button></div>
+  </article>`;
+}
+function select(id, opts = {}) {
+  if (id == null) return;
+  const prev = S.sel; S.sel = id;
+  document.querySelectorAll(".row").forEach((r) => r.setAttribute("aria-current", String(+r.dataset.row === id)));
+  drawPost(prev !== id); $("scroll").scrollTop = 0;
+  const row = document.querySelector(`[data-row="${id}"]`);
+  if (row) { row.closest(".rowwrap").scrollIntoView({ block: "nearest" }); if (opts.focus) row.focus({ preventScroll: true }); }
+  if (opts.read && !wideQ.matches) { document.body.classList.add("reading"); $("scroll").focus({ preventScroll: true }); }
+}
+function step(d) {
+  const i = S.view.findIndex((v) => v.id === S.sel), n = i + d;
+  if (i < 0 || n < 0 || n >= S.view.length) return;
+  select(S.view[n].id, { focus: document.activeElement && document.activeElement.classList.contains("row") });
+}
+function toggleSave(id, undoable) {
+  const on = S.saved.has(id);
+  on ? S.saved.delete(id) : S.saved.add(id);
+  refresh(true);
+  if (!wideQ.matches && document.body.classList.contains("reading") && S.sel == null) document.body.classList.remove("reading");
+  if (undoable) toast(on ? `Removed “${J[id].t}”` : `Saved “${J[id].t}”`, () => toggleSave(id, false));
+}
+
+/* ---------- clicks ---------- */
+document.addEventListener("click", (e) => {
+  const t = e.target;
+  const a = t.closest('a[href="#"]'); if (a) e.preventDefault();
+  if (t.closest("#home")) { setTab("all"); clearAll(); refresh(); return; }
+  const sv = t.closest("[data-save]"); if (sv) { toggleSave(+sv.dataset.save, S.tab === "saved"); const again = document.querySelector(`[data-save="${sv.dataset.save}"]`); if (again) again.focus({ preventScroll: true }); return; }
+  const row = t.closest("[data-row]"); if (row) { select(+row.dataset.row, { read: true }); return; }
+  const go = t.closest("[data-go]"); if (go) {
+    const id = +go.dataset.go;
+    if (!S.view.some((v) => v.id === id)) { setTab("all"); clearAll(); refresh(); }
+    select(id); return;
+  }
+  const st = t.closest("[data-step]"); if (st) { step(+st.dataset.step); return; }
+  if (t.closest("[data-back]")) { document.body.classList.remove("reading"); const r = document.querySelector(`[data-row="${S.sel}"]`); if (r) r.focus({ preventScroll: true }); return; }
+  if (t.closest("[data-apply]")) { openApply(); return; }
+  if (t.closest("#saveBtn")) { toggleSave(S.sel, S.tab === "saved"); return; }
+  if (t.closest("#share")) { copyLink(); return; }
+  if (t.closest("#toAll")) { setTab("all"); refresh(); return; }
+  if (t.closest("#clearBlank")) { clearAll(); refresh(); return; }
+});
+async function copyLink() {
+  const j = J[S.sel], url = `https://roster.example/jobs/${j.id + 4100}`;
+  try { await navigator.clipboard.writeText(url); } catch (err) { /* the sandbox may refuse: the state still shows */ }
+  const lab = document.querySelector(".shareL"), btn = $("share");
+  if (lab) { lab.textContent = "Copied"; btn.querySelector("use").setAttribute("href", "#i-check"); clearTimeout(copyLink.t); copyLink.t = setTimeout(() => { const l = document.querySelector(".shareL"); if (l) { l.textContent = "Copy link"; $("share").querySelector("use").setAttribute("href", "#i-link"); } }, 1800); }
+}
+function setTab(t) {
+  S.tab = t;
+  $("tabAll").toggleAttribute("aria-current", false); $("tabSaved").toggleAttribute("aria-current", false);
+  (t === "all" ? $("tabAll") : $("tabSaved")).setAttribute("aria-current", "page");
+  document.body.classList.remove("reading");
+}
+$("tabAll").addEventListener("click", () => { setTab("all"); refresh(); });
+$("tabSaved").addEventListener("click", () => { setTab("saved"); refresh(); });
+$("sort").addEventListener("change", (e) => { S.sort = e.target.value; refresh(); });
+
+/* ---------- search ---------- */
+onEnter($("find"), () => { const r = document.querySelector(`[data-row="${S.sel}"]`); if (r) r.focus({ preventScroll: true }); });
+const fieldUp = (inp, box, key) => inp.addEventListener("input", () => { F[key] = inp.value.trim(); box.classList.toggle("has", !!inp.value); if (S.tab !== "all") setTab("all"); refresh(); });
+fieldUp($("q"), $("qBox"), "q"); fieldUp($("loc"), $("locBox"), "loc");
+$("qx").addEventListener("click", (e) => { e.preventDefault(); $("q").value = ""; F.q = ""; $("qBox").classList.remove("has"); refresh(); $("q").focus(); });
+$("locx").addEventListener("click", (e) => { e.preventDefault(); $("loc").value = ""; F.loc = ""; $("locBox").classList.remove("has"); refresh(); $("loc").focus(); });
+$("remote").addEventListener("change", (e) => { F.remote = e.target.checked; if (S.tab !== "all") setTab("all"); refresh(); });
+$("places").innerHTML = [...new Set(["Toronto", "Lyon", "Singapore", "Seoul", "Nairobi", "Berlin", "Dubai", "São Paulo", "Rotterdam", "Stoke-on-Trent", "New Orleans", "EU", "Canada", "UK", "Brazil", "Africa"])].map((p) => `<option value="${p}">`).join("");
+
+/* ---------- filter drawer on small screens ---------- */
+function showRail(on) { document.body.classList.toggle("showrail", on); document.querySelectorAll(".mast, .find, .list, .post").forEach((n) => n.toggleAttribute("inert", on)); if (on) $("railClose").focus(); else $("filtersBtn").focus({ preventScroll: true }); }
+$("filtersBtn").addEventListener("click", () => showRail(true));
+$("railClose").addEventListener("click", () => showRail(false));
+$("showN").addEventListener("click", () => showRail(false));
+$("scrim").addEventListener("click", () => showRail(false));
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if ($("dlg").open) return;
+    if (document.body.classList.contains("showrail")) { showRail(false); return; }
+    if (document.body.classList.contains("reading")) { document.body.classList.remove("reading"); const r = document.querySelector(`[data-row="${S.sel}"]`); if (r) r.focus({ preventScroll: true }); return; }
+    if (document.activeElement && ["q", "loc"].includes(document.activeElement.id)) document.activeElement.blur();
+    return;
+  }
+  if (e.metaKey || e.ctrlKey || e.altKey || $("dlg").open) return;
+  const tag = (e.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "select" || tag === "textarea") return;
+  const k = e.key.toLowerCase();
+  if (k === "j" || (e.key === "ArrowDown" && e.target.classList && e.target.classList.contains("row"))) { e.preventDefault(); step(1); }
+  else if (k === "k" || (e.key === "ArrowUp" && e.target.classList && e.target.classList.contains("row"))) { e.preventDefault(); step(-1); }
+  else if (k === "s" && S.sel != null) { e.preventDefault(); toggleSave(S.sel, true); }
+  else if (k === "a" && S.sel != null && !S.applied.has(S.sel)) { e.preventDefault(); openApply(); }
+  else if (k === "/") { e.preventDefault(); $("q").focus(); $("q").select(); }
+});
+
+/* ---------- toast ---------- */
+function toast(text, undo) {
+  $("toastT").textContent = text; $("toast").classList.add("on");
+  $("toastU").hidden = !undo; toast.undo = undo;
+  clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").classList.remove("on"), 3600);
+}
+$("toastU").addEventListener("click", () => { $("toast").classList.remove("on"); if (toast.undo) { const u = toast.undo; toast.undo = null; const was = toast; u(); $("toast").classList.remove("on"); } });
+
+/* ---------- the application ---------- */
+const dlg = $("dlg");
+let cv = null, upT = null, curJob = null;
+function openApply() {
+  const j = J[S.sel]; if (!j || S.applied.has(j.id)) return;
+  curJob = j; if (cv && cv.state !== "done") cancelUpload();
+$("toast").classList.remove("on");
+  dlg.innerHTML = `<div class="dh"><div><h2 id="dT">Apply to ${esc(j.co.n)}</h2><p>${esc(j.t)} · <span style="white-space:nowrap">${pay(j)}</span></p></div><button class="dx" id="dClose" aria-label="Close">${ic("x")}</button></div>
+    <form class="ap" id="ap" novalidate>
+      <div class="f"><label for="aName">Full name</label><input type="text" id="aName" autocomplete="off" value="${esc(S.draft.name)}" aria-describedby="eName"><p class="err" id="eName"></p></div>
+      <div class="f"><label for="aEmail">Email</label><input type="email" id="aEmail" autocomplete="off" spellcheck="false" value="${esc(S.draft.email)}" aria-describedby="eEmail"><p class="err" id="eEmail"></p></div>
+      <div class="f"><label for="aUrl">Portfolio or GitHub link</label><input type="text" inputmode="url" id="aUrl" autocomplete="off" spellcheck="false" placeholder="studio.com/work" value="${esc(S.draft.url)}" aria-describedby="eUrl"><p class="err" id="eUrl"></p></div>
+      <div class="f"><span class="lab" id="cvL">CV <small>PDF or Word, up to 10 MB</small></span>
+        <button type="button" class="drop" id="drop" aria-labelledby="cvL dropT"><b id="dropT">Drop your CV here</b><small>or <u>choose a file</u></small></button>
+        <div class="file" id="file"><div class="h">${ic("doc")}<span class="nm" id="fName"></span><span class="st" id="fSt"></span><button type="button" class="lk" id="fAct"></button></div><div class="pg"><i id="fBar"></i></div></div>
+        <p class="err" id="eCv"></p>
+      </div>
+      <div class="da"><p>${esc(j.co.lead)} will see this, and nobody else. No account needed.</p><button type="button" class="btn apply" id="aSend">Send application</button></div>
+    </form>`;
+  if (cv && cv.state === "done") showFile(); 
+  dlg.showModal(); requestAnimationFrame(() => dlg.classList.add("in"));
+  $("dClose").addEventListener("click", closeApply);
+  wireForm();
+  $("aName").focus();
+}
+function closeApply() {
+  dlg.classList.remove("in");
+  const end = () => { if (dlg.open) dlg.close(); };
+  still ? end() : setTimeout(end, 180);
+}
+dlg.addEventListener("cancel", (e) => { e.preventDefault(); closeApply(); });
+dlg.addEventListener("pointerdown", (e) => { if (e.target === dlg) { const r = dlg.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeApply(); } });
+dlg.addEventListener("close", () => { const b = $("bar").querySelector("[data-apply]"); if (b && !b.disabled) b.focus({ preventScroll: true }); });
+
+const setErr = (inp, errId, msg) => {
+  const el = $(errId); if (inp) inp.setAttribute("aria-invalid", String(!!msg));
+  el.innerHTML = msg ? ic("alert") + `<span>${esc(msg)}</span>` : ""; el.classList.toggle("on", !!msg);
+  return !msg;
+};
+const CHECK = {
+  aName: (v) => !v ? "Tell us your name." : v.length < 2 ? "That seems too short for a name." : "",
+  aEmail: (v) => !v ? "We need an email to reply to." : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? "That doesn't look like an email address. Check for a missing @ or dot." : "",
+  aUrl: (v) => {
+    if (!v) return "Add a link to some of your work.";
+    try { const u = new URL(/^[a-z]+:\/\//i.test(v) ? v : "https://" + v); if (!/^https?:$/.test(u.protocol) || !/\.[a-z]{2,}$/i.test(u.hostname)) throw 0; return ""; } catch (err) { return "That link doesn't look complete. Try something like studio.com/work."; }
+  },
+};
+const ERR = { aName: "eName", aEmail: "eEmail", aUrl: "eUrl" };
+function wireForm() {
+  Object.keys(CHECK).forEach((id) => {
+    const inp = $(id);
+    inp.addEventListener("blur", () => { if (inp.value.trim() || inp.getAttribute("aria-invalid") === "true") setErr(inp, ERR[id], CHECK[id](inp.value.trim())); });
+    inp.addEventListener("input", () => { if (inp.getAttribute("aria-invalid") === "true") setErr(inp, ERR[id], CHECK[id](inp.value.trim())); });
+  });
+  const drop = $("drop");
+  drop.addEventListener("click", () => { $("cvFile").value = ""; $("cvFile").click(); });
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "dragend"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("over")));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) takeFile(f); });
+  $("fAct").addEventListener("click", () => { if (cv && cv.state === "up") cancelUpload(); else removeFile(); });
+  onEnter($("ap"), submit); $("aSend").addEventListener("click", submit);
+}
+// keep the page from opening a file dropped just outside the zone
+["dragover", "drop"].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault()));
+$("cvFile").addEventListener("change", (e) => { const f = e.target.files[0]; if (f) takeFile(f); });
+function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
+function takeFile(f) {
+  const ok = /\.(pdf|docx?)$/i.test(f.name);
+  if (!ok) { failDrop(`“${f.name}” isn't a PDF or Word file.`); return; }
+  if (f.size > 10 * 1048576) { failDrop(`That file is ${fmtSize(f.size)}. The limit is 10 MB.`); return; }
+  clearInterval(upT);
+  cv = { name: f.name, size: f.size, state: "up", p: 0 };
+  setErr(null, "eCv", ""); $("drop").classList.remove("bad"); showFile();
+  const inc = [9, 14, 6, 17, 11, 8, 19, 13];
+  let k = 0;
+  upT = setInterval(() => {
+    cv.p = Math.min(100, cv.p + inc[k++ % inc.length]);
+    if (cv.p >= 100) { clearInterval(upT); cv.state = "done"; }
+    showFile();
+    if (cv.state === "done") { const fa = $("fAct"); if (fa && document.activeElement === document.body) fa.focus(); }
+  }, still ? 40 : 110);
+}
+function failDrop(msg) { $("drop").classList.add("bad"); setErr(null, "eCv", msg); }
+function showFile() {
+  if (!$("file")) return;
+  $("drop").style.display = "none"; const box = $("file"); box.classList.add("on");
+  box.classList.toggle("done", cv.state === "done");
+  $("fName").textContent = cv.name; $("fName").title = cv.name;
+  $("fSt").textContent = cv.state === "done" ? fmtSize(cv.size) : cv.p + "%";
+  $("fAct").textContent = cv.state === "done" ? "Remove" : "Cancel";
+  $("fAct").setAttribute("aria-label", (cv.state === "done" ? "Remove " : "Cancel upload of ") + cv.name);
+  $("fBar").style.width = cv.p + "%";
+  if (cv.state === "done") setErr(null, "eCv", "");
+}
+function cancelUpload() { clearInterval(upT); cv = null; if ($("file")) resetDrop(); }
+function removeFile() { cv = null; resetDrop(); }
+function resetDrop() { $("file").classList.remove("on", "done"); $("drop").style.display = ""; $("drop").focus(); }
+function submit() {
+  if ($("aSend").disabled) return;
+  let firstBad = null;
+  Object.keys(CHECK).forEach((id) => { const inp = $(id), msg = CHECK[id](inp.value.trim()); setErr(inp, ERR[id], msg); if (msg && !firstBad) firstBad = inp; });
+  if (!cv) { setErr(null, "eCv", "Attach your CV, as a PDF or Word file."); $("drop").classList.add("bad"); firstBad = firstBad || $("drop"); }
+  else if (cv.state !== "done") { setErr(null, "eCv", "Your CV is still uploading. One moment."); firstBad = firstBad || $("fAct"); }
+  if (firstBad) { firstBad.focus(); return; }
+  S.draft = { name: $("aName").value.trim(), email: $("aEmail").value.trim(), url: $("aUrl").value.trim() };
+  const btn = $("aSend"); btn.disabled = true; btn.textContent = "Sending…";
+  setTimeout(() => {
+    const j = curJob, cvName = cv.name; S.applied.set(j.id, "4 November");
+    dlg.innerHTML = `<div class="sent"><svg class="tick" viewBox="0 0 48 48" fill="none" stroke="#cf3413" stroke-width="3" aria-hidden="true"><path d="M8 25l11 11L40 13"/></svg>
+      <h2 id="dT" tabindex="-1">Sent.</h2><p>${esc(j.co.lead)} at ${esc(j.co.n)} usually replies within ${j.co.reply}. We've sent a copy to ${esc(S.draft.email)}.</p>
+      <dl><dt>Role</dt><dd>${esc(j.t)}</dd><dt>CV</dt><dd>${esc(cvName)}</dd><dt>Work</dt><dd>${esc(S.draft.url)}</dd></dl>
+      <button class="btn ink" id="dDone" style="width:100%;height:44px">Back to the roles</button></div>`;
+    $("dDone").addEventListener("click", closeApply); $("dDone").focus();
+    refresh(true);
+  }, still ? 300 : 900);
+}
+
+/* ---------- start ---------- */
+syncSalary();
+refresh();
+</script>
+</body>
+</html>

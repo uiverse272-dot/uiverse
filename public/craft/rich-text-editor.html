@@ -1,0 +1,628 @@
+<!doctype html>
+<!-- Rich text editor — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A book-like document editor on contenteditable: a floating toolbar over selected text, a slash menu
+     for blocks, markdown shortcuts, checklists, a live outline and a word count. Undo is the browser's own. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Draftwell — The logbook habit</title>
+<style>
+  :root {
+    --paper: #fafaf7; --side: #f0f1ed; --line: #dfe1db; --hover: #e6e8e2;
+    --ink: #23262a; --soft: #5a6068; --faint: #737982; --accent: #1b5f6c; --accent-soft: #e1edee;
+    --marker: #fbeeb0; --sel: #cfe3e6; --night: #24272b; --night-2: #383c42; --night-ink: #f3f3ef; --night-soft: #b6bac0;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--paper); color: var(--ink); font: 13px/1.4 var(--sans); overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
+  .vh { position: absolute; top: 0; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .app { display: grid; grid-template-rows: 48px minmax(0, 1fr) 36px; height: 100svh; }
+
+  /* top bar */
+  .top { display: flex; align-items: center; gap: 8px; padding: 0 12px 0 16px; border-bottom: 1px solid var(--line); min-width: 0; }
+  .mark { display: flex; align-items: center; gap: 8px; font: 400 16px/1 var(--serif); letter-spacing: -.005em; flex: none; }
+  .mark svg { width: 20px; height: 20px; color: var(--accent); }
+  .crumb { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; color: var(--soft); }
+  .crumb::before { content: "/"; color: #a6abb0; margin-left: 2px; }
+  .crumb span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ib { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 6px; color: var(--soft); transition: background .15s, color .15s; flex: none; }
+  .ib:hover:not(:disabled) { background: var(--hover); color: var(--ink); }
+  .ib:disabled { color: #a9aeb3; cursor: default; }
+  .ib[aria-pressed="true"] { background: var(--hover); color: var(--ink); }
+  .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; flex: none; }
+
+  /* body */
+  .mid { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 0; transition: grid-template-columns .22s var(--ease); }
+  .mid.closed { grid-template-columns: 0 minmax(0, 1fr); }
+  .side { background: var(--side); border-right: 1px solid var(--line); overflow: hidden; min-width: 0; }
+  .side-in { width: 232px; height: 100%; overflow-y: auto; padding: 20px 12px; transition: opacity .15s; }
+  .mid.closed .side { border-right: 0; visibility: hidden; transition: visibility 0s .22s; }
+  .side h2 { font-size: 12px; font-weight: 600; color: var(--soft); padding: 0 8px 8px; }
+  .side ol { list-style: none; }
+  .side li button { display: block; width: 100%; padding: 6px 8px; border-radius: 5px; text-align: left; color: var(--soft); line-height: 1.35; transition: background .15s, color .15s; overflow-wrap: anywhere; }
+  .side li button:hover { background: var(--hover); color: var(--ink); }
+  .side li.l1 button { color: var(--ink); font-weight: 600; }
+  .side li.l3 button { padding-left: 20px; font-size: 12.5px; }
+  .side li button[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .side p { padding: 0 8px; color: var(--soft); line-height: 1.5; }
+
+  /* the page */
+  .page { overflow-y: auto; overflow-x: hidden; min-width: 0; scroll-padding-top: 32px; }
+  #doc { display: block; max-width: 668px; min-height: 100%; margin: 0 auto; padding: 56px 24px 120px; outline: none; font: 18px/1.65 var(--serif); caret-color: var(--accent); overflow-wrap: break-word; }
+  #doc ::selection { background: var(--sel); }
+  #doc > * + * { margin-top: 16px; }
+  #doc h1 { font: 400 38px/1.15 var(--serif); letter-spacing: -.015em; }
+  #doc h1 + p { font-size: 21px; line-height: 1.5; color: #3d4248; margin-top: 16px; }
+  #doc h2 { font: 400 26px/1.25 var(--serif); letter-spacing: -.008em; margin-top: 40px; }
+  #doc h3 { font: 400 20px/1.3 var(--serif); margin-top: 32px; color: #3d4248; }
+  #doc h2 + *, #doc h3 + * { margin-top: 8px; }
+  #doc a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  #doc b, #doc strong { font-weight: 700; }
+  #doc blockquote { padding: 4px 0 4px 32px; font-style: italic; font-size: 21px; line-height: 1.45; margin-top: 24px; margin-bottom: 24px; color: #3d4248; }
+  #doc aside { position: relative; padding: 12px 16px 12px 44px; border-radius: 6px; background: var(--accent-soft); font: 15.5px/1.55 var(--sans); }
+  #doc aside::before { content: ""; position: absolute; left: 14px; top: 14px; width: 18px; height: 18px; background: var(--accent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 11v5.5M12 7.8v.1'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 11v5.5M12 7.8v.1'/%3E%3C/svg%3E") center / contain no-repeat; }
+  #doc pre { padding: 14px 16px; border-radius: 6px; background: var(--side); border: 1px solid var(--line); font: 13.5px/1.6 var(--mono); white-space: pre-wrap; tab-size: 2; }
+  #doc hr { border: 0; height: 24px; margin: 24px 0; position: relative; }
+  #doc hr::after { content: ""; position: absolute; left: 50%; top: 11px; width: 72px; margin-left: -36px; border-top: 1px solid #b4b8b6; }
+  #doc ul, #doc ol { padding-left: 24px; }
+  #doc li + li { margin-top: 4px; }
+  #doc li::marker { color: var(--faint); }
+  #doc ul.check { list-style: none; padding-left: 0; }
+  #doc ul.check li { position: relative; padding-left: 32px; transition: color .15s; }
+  #doc ul.check li::before { content: ""; position: absolute; left: 2px; top: .34em; width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #8b9198; background: #fff; cursor: pointer; transition: background .15s, border-color .15s; }
+  #doc ul.check li::after { content: ""; position: absolute; left: 8.5px; top: calc(.34em + 3px); width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg) scale(.6); opacity: 0; pointer-events: none; transition: opacity .12s, transform .18s var(--ease); }
+  #doc ul.check li[data-done]::before { background: var(--accent); border-color: var(--accent); }
+  #doc ul.check li[data-done]::after { opacity: 1; transform: rotate(42deg) scale(1); }
+  #doc ul.check li[data-done] { color: var(--soft); text-decoration: line-through; text-decoration-color: #a9aeb3; text-decoration-thickness: 1px; }
+  #doc [data-ph]::before { content: attr(data-ph); color: var(--faint); pointer-events: none; position: absolute; font-style: normal; }
+
+  /* footer */
+  .foot { display: flex; align-items: center; gap: 16px; padding: 0 16px; border-top: 1px solid var(--line); color: var(--soft); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; }
+  .foot b { font-weight: 500; color: var(--ink); }
+  .foot .grow { flex: 1; }
+  .foot kbd { font: 11.5px var(--mono); padding: 0 4px; border-radius: 3px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+
+  /* floating selection toolbar */
+  .tb { position: fixed; left: 0; top: 0; z-index: 30; display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 4px; border-radius: 8px; background: var(--night); color: var(--night-ink); box-shadow: 0 1px 2px rgba(20, 22, 26, .25), 0 8px 22px -8px rgba(20, 22, 26, .45); transition: opacity .14s, transform .16s var(--ease); max-width: calc(100vw - 16px); }
+  .tb[hidden], .tb [hidden] { display: none !important; }
+  .tb.in { animation: tbin .16s var(--ease); }
+  @keyframes tbin { from { opacity: 0; transform: translateY(4px); } }
+  .tb button { min-width: 32px; height: 32px; padding: 0 6px; border-radius: 5px; display: grid; place-items: center; color: var(--night-ink); transition: background .12s, color .12s; font: 600 13px/1 var(--sans); }
+  .tb button:hover { background: var(--night-2); }
+  .tb button[aria-pressed="true"] { background: var(--night-ink); color: var(--night); }
+  .tb button:disabled { color: #7a7f86; cursor: default; background: none; }
+  .tb .glyph-b { font: 700 16px/1 var(--serif); }
+  .tb .glyph-i { font: italic 400 17px/1 var(--serif); }
+  .tb sub { font-size: 10px; vertical-align: baseline; margin-left: 1px; }
+  .tb .div { width: 1px; height: 20px; background: #4a4e55; margin: 0 4px; flex: none; }
+  .tb :focus-visible { outline: 2px solid #8cc7d1; outline-offset: -1px; }
+  .tb .urlf { display: flex; align-items: center; gap: 2px; }
+  .tb input { width: 232px; max-width: calc(100vw - 132px); height: 32px; padding: 0 8px; border: 0; border-radius: 5px; background: var(--night-2); color: var(--night-ink); font-size: 13px; outline: none; }
+  .tb input::placeholder { color: var(--night-soft); }
+  .tb input[aria-invalid="true"] { box-shadow: inset 0 0 0 1.5px #f0a39a; }
+  .tb .err { position: absolute; left: 4px; top: calc(100% + 6px); padding: 4px 8px; border-radius: 5px; background: var(--night); color: #f6c1ba; font-size: 12px; white-space: nowrap; }
+  .tb .err[hidden] { display: none; }
+
+  /* slash menu */
+  .slash { position: fixed; z-index: 30; width: 296px; max-width: calc(100vw - 24px); max-height: 304px; overflow-y: auto; padding: 4px; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px rgba(30, 34, 38, .1), 0 10px 28px -10px rgba(30, 34, 38, .32); animation: pop .13s var(--ease); }
+  .slash[hidden] { display: none; }
+  @keyframes pop { from { opacity: 0; transform: translateY(3px); } }
+  .slash [role="option"] { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; height: 44px; padding: 0 8px 0 6px; border-radius: 5px; text-align: left; cursor: pointer; }
+  .slash .gl { width: 32px; height: 32px; border-radius: 5px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--soft); background: var(--paper); font: 400 15px/1 var(--serif); }
+  .slash .gl svg { width: 16px; height: 16px; }
+  .slash strong { display: block; font-weight: 500; font-size: 13px; line-height: 1.25; }
+  .slash small { display: block; color: var(--soft); font-size: 12px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .slash kbd { font: 11.5px var(--mono); color: var(--soft); }
+  .slash [aria-selected="true"] { background: var(--accent-soft); }
+  .slash [aria-selected="true"] .gl { color: var(--accent); border-color: #bdd6d9; background: #fff; }
+  .slash mark { background: none; color: var(--accent); font-weight: 700; }
+  .slash .none { padding: 14px 10px; color: var(--soft); }
+
+  @media (max-width: 820px) {
+    .mid, .mid.closed { grid-template-columns: minmax(0, 1fr); position: relative; }
+    .side { position: absolute; z-index: 20; left: 0; top: 0; bottom: 0; width: min(280px, 84vw); border-right: 1px solid var(--line); box-shadow: 8px 0 24px -14px rgba(30, 34, 38, .35); transition: transform .22s var(--ease), visibility 0s; }
+    .side-in { width: 100%; }
+    .mid.closed .side { transform: translateX(-100%); transition: transform .22s var(--ease), visibility 0s .22s; border-right: 0; }
+    #doc { padding: 32px 16px 96px; font-size: 17.5px; }
+    #doc h1 { font-size: 32px; }
+    #doc h1 + p { font-size: 19px; }
+    #doc h2 { font-size: 24px; margin-top: 32px; }
+    #doc blockquote { padding-left: 16px; font-size: 19px; }
+    .foot .hint { display: none; }
+  }
+  @media (max-width: 460px) { .crumb { display: none; } .top .spring { flex: 1; } .foot { gap: 12px; } }
+  @media (min-width: 461px) { .top .spring { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="mark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l3 3v14H6z"/><path d="M12 8c-1.9 2.6-3 4.3-3 5.8a3 3 0 0 0 6 0C15 12.3 13.9 10.6 12 8z"/></svg>Draftwell</div>
+    <div class="crumb"><span id="crumb">The logbook habit</span></div>
+    <span class="spring"></span>
+    <button class="ib" id="undo" aria-label="Undo" title="Undo" disabled><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5 4 9.5 8.5 14"/><path d="M4 9.5h10a5.5 5.5 0 0 1 0 11h-3"/></svg></button>
+    <button class="ib" id="redo" aria-label="Redo" title="Redo" disabled><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 5 20 9.5 15.5 14"/><path d="M20 9.5H10a5.5 5.5 0 0 0 0 11h3"/></svg></button>
+    <span class="sep"></span>
+    <button class="ib" id="olBtn" aria-label="Outline" title="Outline" aria-pressed="true" aria-controls="side"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M8 12h12M8 18h12"/></svg></button>
+  </header>
+  <div class="mid" id="mid">
+    <nav class="side" id="side" aria-label="Outline"><div class="side-in"><h2>Outline</h2><div id="outline"></div></div></nav>
+    <main class="page" id="page">
+      <article id="doc" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Document" spellcheck="false">
+<h1>The logbook habit</h1>
+<p>Every ship I have worked on kept a logbook, and not one of them kept it for the sailors on watch. It was written for whoever came aboard next, tired and short of context, at three in the morning.</p>
+<h2>Write for the next watch</h2>
+<p>Most working documents fail the same way: they record what was decided and leave out what was known at the time. Six months later the decision looks strange, and nobody can say whether it still holds. A good entry is <b>plainer than you think it needs to be</b>: the hour, the conditions, what you did, and <em id="seed">what you expected to happen next</em>.</p>
+<p>Kofi Mensah, who taught me to keep one on the <a href="#torshavn-ferry">Tórshavn ferry</a>, had a rule. <span style="background-color: rgb(251, 238, 176);">If a stranger couldn’t take over your watch from the page</span>, you hadn’t finished writing.</p>
+<blockquote>Write the entry you will wish you had found.</blockquote>
+<h2>What goes in an entry</h2>
+<p>Four lines are enough, and the discipline is in keeping to them.</p>
+<ul>
+<li>The time, and who is writing.</li>
+<li>What you can see from where you stand.</li>
+<li>What you changed, and why you changed it.</li>
+<li>What you are watching for on the next check.</li>
+</ul>
+<aside>Leave out your opinion of the weather. Write down the barometer.</aside>
+<h3>A template worth stealing</h3>
+<pre>16:40  Y. Tanaka on watch
+Seen:  swell from NW, 2 m, easing
+Did:   reduced to 8 knots past the bar
+Next:  recheck depth at the red buoy</pre>
+<p>Swap the swell for a deploy, the bar for a release window, and it works just as well on land. The form matters less than the fact that it never changes, because a reader who knows the shape can find what they need half asleep.</p>
+<h2>Starting this week</h2>
+<p>Keep the first experiment small enough that nobody has to approve it.</p>
+<ul class="check">
+<li data-done="">Pick one project that changes hands often</li>
+<li data-done="">Agree on the four lines with the team</li>
+<li>Write an entry at every handover for two weeks</li>
+<li>Read them back on a Friday and cut what nobody used</li>
+</ul>
+<h2>What changes</h2>
+<p>The first thing you notice is that handovers get shorter. Nobody needs the story told twice when the page already has it, and the questions people do ask are better ones.</p>
+<p>The second takes longer. Around the third month, someone goes looking for why a thing was done and finds the answer in a stranger’s handwriting, with the hour beside it. Lucía Ferreira, our chief engineer, called that the only compliment a log ever receives.</p>
+<hr>
+<p>Next: how to read a year of entries without losing a week to it.</p>
+      </article>
+    </main>
+  </div>
+  <footer class="foot">
+    <span id="count"><b>0</b> words</span><span id="read">1 min read</span><span id="tasks"></span>
+    <span class="grow"></span>
+    <span class="hint">Type <kbd>/</kbd> on an empty line for blocks</span>
+    <span id="saved" role="status">Saved</span>
+  </footer>
+</div>
+
+<div class="tb" id="tb" role="toolbar" aria-label="Format selected text" hidden>
+  <div class="urlf" id="tbLink" hidden>
+    <label class="vh" for="url">Link address</label><input id="url" type="text" placeholder="Paste or type a link" autocomplete="off" spellcheck="false">
+    <button id="urlOk" aria-label="Apply link" title="Apply"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>
+    <button id="urlOff" aria-label="Remove link" title="Remove link"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 4h5M6.5 7l.8 13h9.4l.8-13"/></svg></button>
+    <span class="err" id="urlErr" role="alert" hidden>That doesn’t look like a link</span>
+  </div>
+  <div class="urlf" id="tbMain">
+    <button data-c="bold" aria-pressed="false" aria-label="Bold" title="Bold"><span class="glyph-b">B</span></button>
+    <button data-c="italic" aria-pressed="false" aria-label="Italic" title="Italic"><span class="glyph-i">I</span></button>
+    <button data-c="link" aria-pressed="false" aria-label="Link" title="Link"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+    <button data-c="mark" aria-pressed="false" aria-label="Highlight" title="Highlight"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 4.5 5 5L11 18H6v-5z"/><path d="m12 7 5 5M4 21h16"/></svg></button>
+    <span class="div"></span>
+    <button data-c="H1" aria-pressed="false" aria-label="Heading 1" title="Heading 1"><span>H<sub>1</sub></span></button>
+    <button data-c="H2" aria-pressed="false" aria-label="Heading 2" title="Heading 2"><span>H<sub>2</sub></span></button>
+    <button data-c="H3" aria-pressed="false" aria-label="Heading 3" title="Heading 3"><span>H<sub>3</sub></span></button>
+  </div>
+</div>
+<div class="slash" id="slash" role="listbox" aria-label="Insert a block" hidden></div>
+<div class="vh" id="live" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const doc = $("#doc"), page = $("#page"), tb = $("#tb"), slash = $("#slash"), mid = $("#mid");
+  const still = matchMedia("(prefers-reduced-motion: reduce)");
+  const sel = getSelection();
+  const exec = (c, v) => document.execCommand(c, false, v);
+  const narrow = () => innerWidth <= 820;
+  try { exec("defaultParagraphSeparator", "p"); } catch (_) {}
+  /* the source's newlines between blocks are not content */
+  [...doc.childNodes].forEach((n) => { if (n.nodeType === 3) n.remove(); });
+  doc.querySelectorAll("ul").forEach((u) => [...u.childNodes].forEach((n) => { if (n.nodeType === 3) n.remove(); }));
+
+  /* ---------- where the caret is ---------- */
+  const inDoc = (n) => n && doc.contains(n) && n !== doc;
+  const elOf = (n) => (n && n.nodeType === 1 ? n : n && n.parentElement);
+  function blockOf(n) { let e = elOf(n); if (!e || !doc.contains(e) || e === doc) return doc.firstElementChild; while (e.parentElement !== doc) e = e.parentElement; return e; }
+  function lineOf(n) { const e = elOf(n); const li = e && e.closest("li"); return li && doc.contains(li) ? li : blockOf(n); }
+  const rangeNow = () => (sel.rangeCount ? sel.getRangeAt(0) : null);
+  const inside = () => { const r = rangeNow(); return r && doc.contains(r.commonAncestorContainer) ? r : null; };
+  const isEmpty = (el) => !el.textContent.replace(/​/g, "").length;
+  function beforeCaret(line) { const r = rangeNow(); const p = document.createRange(); p.selectNodeContents(line); p.setEnd(r.startContainer, r.startOffset); return p; }
+  function afterCaret(line) { const r = rangeNow(); const p = document.createRange(); p.selectNodeContents(line); p.setStart(r.endContainer, r.endOffset); return p; }
+  function focusDoc() { if (document.activeElement === doc) return; const r = inside() && rangeNow().cloneRange(); doc.focus({ preventScroll: true }); if (r) { sel.removeAllRanges(); sel.addRange(r); } }
+  function caretRect() {
+    const r = rangeNow(); if (!r) return null;
+    const c = r.cloneRange(); c.collapse(true); let b = c.getClientRects()[0];
+    if (!b) { const e = elOf(r.startContainer); b = e.getBoundingClientRect(); return { left: b.left, top: b.top, bottom: b.top + 26 }; }
+    return b;
+  }
+
+  /* ---------- blocks: every change goes through execCommand, so the browser can undo it ---------- */
+  const FORM = { h1: "H1", h2: "H2", h3: "H3", quote: "BLOCKQUOTE", code: "PRE", callout: "ASIDE" };
+  function keepPara() { const l = doc.lastElementChild; if (!l || l.tagName !== "P") { const p = document.createElement("p"); p.append(document.createElement("br")); doc.append(p); } }
+  function applyBlock(kind) {
+    focusDoc();
+    if (FORM[kind]) exec("formatBlock", FORM[kind]);
+    else if (kind === "ul") listFrom("ul", "");
+    else if (kind === "ol") listFrom("ol", "");
+    else if (kind === "check") listFrom("ul", ' class="check"');
+    else if (kind === "hr") {
+      exec("insertHTML", "<hr><p><br></p>");
+      const at = lineOf(rangeNow().startContainer);
+      if (at.tagName === "HR") { keepPara(); caretTo(at.nextElementSibling); }
+    }
+    keepPara(); refresh(); showHint();
+  }
+  /* insertHTML rather than insertUnorderedList: the list command nests the list inside the paragraph */
+  function listFrom(tag, attrs) {
+    const line = lineOf(rangeNow().startContainer);
+    const inner = isEmpty(line) ? "<br>" : line.innerHTML;
+    const all = document.createRange(); all.selectNodeContents(line); sel.removeAllRanges(); sel.addRange(all);
+    exec("insertHTML", `<${tag}${attrs}><li>${inner}</li></${tag}>`);
+    const li = elOf(rangeNow().startContainer).closest("li");
+    if (li) caretTo(li);
+  }
+  function caretTo(el, atEnd) { const r = document.createRange(); r.selectNodeContents(el); r.collapse(!atEnd); sel.removeAllRanges(); sel.addRange(r); }
+
+  /* ---------- markdown shortcuts ---------- */
+  const MD = { "#": "h1", "##": "h2", "###": "h3", "-": "ul", "*": "ul", "+": "ul", "1.": "ol", "[]": "check", "[ ]": "check", "[x]": "check", ">": "quote", "!": "callout", "```": "code", "---": "hr" };
+  function markdown(e) {
+    if (e.inputType !== "insertText" || !(e.data === " " || e.data === " ")) return false;
+    const r = rangeNow(); if (!r || !r.collapsed) return false;
+    const line = lineOf(r.startContainer);
+    if (line.parentElement !== doc || !/^(P|DIV|H1|H2|H3)$/.test(line.tagName)) return false;
+    const typed = beforeCaret(line).toString().replace(/ /g, " ").replace(/ $/, "");
+    const kind = Object.prototype.hasOwnProperty.call(MD, typed) ? MD[typed] : null;
+    if (!kind) return false;
+    if (kind === "hr" && afterCaret(line).toString().length) return false;
+    const p = beforeCaret(line);
+    sel.removeAllRanges(); sel.addRange(p); exec("delete");
+    applyBlock(kind);
+    if (typed === "[x]") { const li = elOf(rangeNow().startContainer).closest("li"); if (li) li.setAttribute("data-done", ""); }
+    return true;
+  }
+
+  /* ---------- slash menu ---------- */
+  const I = (d) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  const BLOCKS = [
+    { k: "h1", t: "Heading 1", d: "The title of a part", key: "#", g: "<span>H<sub style='font-size:9px'>1</sub></span>", w: "title big" },
+    { k: "h2", t: "Heading 2", d: "A section", key: "##", g: "<span>H<sub style='font-size:9px'>2</sub></span>", w: "section" },
+    { k: "h3", t: "Heading 3", d: "A smaller section", key: "###", g: "<span>H<sub style='font-size:9px'>3</sub></span>", w: "subsection" },
+    { k: "ul", t: "Bulleted list", d: "Points in no special order", key: "-", g: I('<path d="M10 6.5h10M10 12h10M10 17.5h10"/><circle cx="5" cy="6.5" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="17.5" r="1"/>'), w: "unordered points" },
+    { k: "check", t: "Checklist", d: "Things to tick off", key: "[]", g: I('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/>'), w: "todo tasks" },
+    { k: "quote", t: "Quote", d: "Set a line apart", key: ">", g: I('<path d="M10 7H6a1.5 1.5 0 0 0-1.5 1.5V12H10zM10 12c0 3-1.5 5-4 5.5M19.5 7h-4A1.5 1.5 0 0 0 14 8.5V12h5.5zM19.5 12c0 3-1.5 5-4 5.5"/>'), w: "blockquote" },
+    { k: "hr", t: "Divider", d: "A pause between parts", key: "---", g: I('<path d="M4 12h16"/>'), w: "line rule separator" },
+    { k: "code", t: "Code block", d: "Monospaced, keeps its spacing", key: "```", g: I('<path d="m9 8-4 4 4 4M15 8l4 4-4 4"/>'), w: "pre snippet" },
+    { k: "callout", t: "Callout", d: "A note the reader shouldn’t miss", key: "!", g: I('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/>'), w: "note tip info aside" }
+  ];
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  let menu = null; // { line, list, i }
+  let dismissed = null;
+  function slashScan() {
+    const r = rangeNow();
+    if (!r || !r.collapsed || !inDoc(lineOf(r.startContainer))) return closeSlash();
+    const line = lineOf(r.startContainer);
+    const text = line.textContent.replace(/ /g, " ");
+    if (line.parentElement !== doc || line.tagName !== "P" || !/^\/[^/]*$/.test(text) || afterCaret(line).toString().length) { if (dismissed === line && text[0] !== "/") dismissed = null; return closeSlash(); }
+    if (dismissed === line) return;
+    openSlash(line, text.slice(1).trim().toLowerCase());
+  }
+  function openSlash(line, q) {
+    const list = BLOCKS.filter((b) => (b.t + " " + b.w + " " + b.k).toLowerCase().includes(q));
+    const keep = menu && menu.q === q ? menu.i : 0;
+    menu = { line, list, q, i: Math.min(keep, Math.max(0, list.length - 1)) };
+    drawSlash(); placeSlash();
+  }
+  function markText(t, q) { const i = q ? t.toLowerCase().indexOf(q) : -1; return i < 0 ? esc(t) : esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q.length)) + "</mark>" + esc(t.slice(i + q.length)); }
+  function drawSlash() {
+    slash.hidden = false;
+    slash.innerHTML = menu.list.length
+      ? menu.list.map((b, i) => `<div role="option" id="sl-${b.k}" data-k="${b.k}" aria-selected="${i === menu.i}"><span class="gl">${b.g}</span><span><strong>${markText(b.t, menu.q)}</strong><small>${b.d}</small></span><kbd>${esc(b.key)}</kbd></div>`).join("")
+      : `<div class="none">No block called “${esc(menu.q)}”. Press Esc to keep typing.</div>`;
+    const cur = menu.list[menu.i];
+    doc.setAttribute("aria-haspopup", "listbox");
+    if (cur) doc.setAttribute("aria-activedescendant", "sl-" + cur.k); else doc.removeAttribute("aria-activedescendant");
+    const el = cur && document.getElementById("sl-" + cur.k); if (el) el.scrollIntoView({ block: "nearest" });
+  }
+  function placeSlash() {
+    if (!menu) return;
+    const c = caretRect(); if (!c) return;
+    const w = slash.offsetWidth, h = slash.offsetHeight;
+    const below = c.bottom + 6 + h < innerHeight - 8;
+    slash.style.left = Math.max(8, Math.min(menu.line.getBoundingClientRect().left - 4, innerWidth - w - 8)) + "px";
+    slash.style.top = (below ? c.bottom + 6 : Math.max(8, c.top - h - 6)) + "px";
+  }
+  function closeSlash() { if (!menu) return; menu = null; slash.hidden = true; doc.removeAttribute("aria-activedescendant"); }
+  function pickSlash(i) {
+    if (!menu || !menu.list[i]) return;
+    const { line } = menu, kind = menu.list[i].k;
+    closeSlash(); focusDoc();
+    const r = document.createRange(); r.selectNodeContents(line); sel.removeAllRanges(); sel.addRange(r);
+    exec("delete");
+    applyBlock(kind);
+    say(menu ? "" : BLOCKS.find((b) => b.k === kind).t + " inserted");
+  }
+  slash.addEventListener("pointerdown", (e) => e.preventDefault());
+  slash.addEventListener("click", (e) => { const o = e.target.closest("[data-k]"); if (o && menu) pickSlash(menu.list.findIndex((b) => b.k === o.dataset.k)); });
+  slash.addEventListener("pointermove", (e) => { const o = e.target.closest("[data-k]"); if (!o || !menu) return; const i = menu.list.findIndex((b) => b.k === o.dataset.k); if (i !== menu.i) { menu.i = i; slash.querySelectorAll("[role=option]").forEach((n, j) => n.setAttribute("aria-selected", j === i)); } });
+
+  /* ---------- typing ---------- */
+  /* open an empty paragraph right after a block; inserting inside it would nest the paragraph */
+  function leaveBlock(block) {
+    keepPara();
+    const next = block.nextElementSibling;
+    if (next.tagName === "P" && isEmpty(next)) caretTo(next);
+    else { caretTo(next); exec("insertParagraph"); caretTo(block.nextElementSibling); }
+    refresh(); showHint();
+  }
+  function atBlockStart(line) { const r = rangeNow(); return r && r.collapsed && !beforeCaret(line).toString().length; }
+  doc.addEventListener("keydown", (e) => {
+    const mod = e.metaKey || e.ctrlKey;
+    if (menu) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if (menu.list.length) { menu.i = (menu.i + (e.key === "ArrowDown" ? 1 : -1) + menu.list.length) % menu.list.length; drawSlash(); } return; }
+      if ((e.key === "Enter" || e.key === "Tab") && menu.list.length) { e.preventDefault(); pickSlash(menu.i); return; }
+      if (e.key === "Escape") { e.preventDefault(); dismissed = menu.line; closeSlash(); return; }
+    }
+    if (e.key === "Escape" && !tb.hidden) { e.preventDefault(); const r = rangeNow(); if (r) { r.collapse(false); sel.removeAllRanges(); sel.addRange(r); } hideTb(); return; }
+    if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); if (!tb.hidden) openLink(); return; }
+    if (mod && e.shiftKey && e.key.toLowerCase() === "h") { e.preventDefault(); if (!tb.hidden) toggleMark(); return; }
+    if (e.altKey && e.key === "F10") { e.preventDefault(); if (!tb.hidden) tb.querySelector("#tbMain button:not(:disabled)").focus(); return; }
+    const r = rangeNow(); if (!r) return;
+    const line = lineOf(r.startContainer), block = blockOf(r.startContainer);
+    if (mod && e.key === "Enter" && line.tagName === "LI" && line.parentElement.classList.contains("check")) { e.preventDefault(); toggleCheck(line); return; }
+    if (e.key === "Tab" && line.tagName === "LI") { e.preventDefault(); exec(e.shiftKey ? "outdent" : "indent"); refresh(); return; }
+    if (e.key === "Enter" && !e.shiftKey && !mod && r.collapsed) {
+      if (block.tagName === "PRE") {
+        e.preventDefault();
+        const before = beforeCaret(block), after = afterCaret(block);
+        const tailBr = (() => { const f = before.cloneContents(); const l = f.lastChild; return !!l && (l.nodeName === "BR" || (l.nodeType === 3 && /\n$/.test(l.data))); })();
+        const nothingAfter = !after.toString().replace(/\n/g, "").length;
+        if (nothingAfter && (tailBr || !before.toString().length)) { // a blank last line leaves the code block
+          if (tailBr) exec("delete");
+          leaveBlock(block); return;
+        }
+        exec("insertLineBreak"); refresh(); return;
+      }
+      if ((block.tagName === "BLOCKQUOTE" || block.tagName === "ASIDE") && !afterCaret(block).toString().length) {
+        e.preventDefault();
+        if (isEmpty(block)) exec("formatBlock", "P"); else leaveBlock(block);
+        keepPara(); refresh(); return;
+      }
+    }
+    if (e.key === "Backspace" && r.collapsed && /^(H1|H2|H3|BLOCKQUOTE|ASIDE|PRE)$/.test(line.tagName) && atBlockStart(line)) { e.preventDefault(); exec("formatBlock", "P"); refresh(); return; }
+  });
+  doc.addEventListener("input", (e) => {
+    if (markdown(e)) return;
+    doc.querySelectorAll("ul.check li[data-done]").forEach((li) => { if (isEmpty(li) && li === lineOf(rangeNow() && rangeNow().startContainer)) li.removeAttribute("data-done"); });
+    if (!doc.firstElementChild) { exec("formatBlock", "P"); }
+    keepPara(); slashScan(); refresh(); marked();
+  });
+  doc.addEventListener("paste", (e) => {
+    e.preventDefault();
+    let t = ""; try { t = e.clipboardData.getData("text/plain"); } catch (_) {}
+    if (t) exec("insertText", t);
+  });
+  doc.addEventListener("click", (e) => { const a = e.target.closest("a"); if (a) e.preventDefault(); });
+  doc.addEventListener("pointerdown", (e) => {
+    const li = e.target.closest && e.target.closest("ul.check > li");
+    if (li && e.clientX - li.getBoundingClientRect().left < 26) { e.preventDefault(); toggleCheck(li); }
+  });
+  function toggleCheck(li) {
+    const on = !li.hasAttribute("data-done");
+    li.toggleAttribute("data-done", on);
+    say((on ? "Done: " : "Not done: ") + li.textContent); refresh(); marked();
+  }
+  const say = (t) => { $("#live").textContent = t; };
+
+  /* ---------- floating toolbar ---------- */
+  let dragging = false, linkOn = false, saved = null;
+  doc.addEventListener("pointerdown", () => { dragging = true; });
+  addEventListener("pointerup", () => { if (dragging) { dragging = false; setTimeout(syncSel, 0); } });
+  document.addEventListener("selectionchange", () => { if (!dragging) syncSel(); else hideTb(); showHint(); });
+  function syncSel() {
+    if (linkOn) return;
+    const r = inside();
+    wordCount();
+    if (!r || r.collapsed || !sel.toString().trim()) { if (!tb.contains(document.activeElement)) hideTb(); if (menu) slashScan(); return; }
+    closeSlash();
+    const code = blockOf(r.startContainer).tagName === "PRE" && blockOf(r.endContainer).tagName === "PRE";
+    if (code) return hideTb();
+    showTb(); paintTb(); placeTb();
+  }
+  function showTb() { if (tb.hidden) { tb.hidden = false; tb.classList.remove("in"); void tb.offsetWidth; tb.classList.add("in"); } }
+  function hideTb() { tb.hidden = true; if (linkOn) leaveLink(); }
+  function placeTb() {
+    const r = rangeNow(); if (!r || !doc.contains(r.commonAncestorContainer)) return;
+    const rects = [...r.getClientRects()].filter((b) => b.width > 0);
+    const f = rects[0] || r.getBoundingClientRect();
+    const u = r.getBoundingClientRect();
+    const box = page.getBoundingClientRect();
+    if (u.bottom < box.top || f.top > box.bottom) { tb.style.visibility = "hidden"; return; }
+    tb.style.visibility = "";
+    const w = tb.offsetWidth, h = tb.offsetHeight;
+    const line = rects.filter((b) => Math.abs(b.top - f.top) < 4);
+    const mid = line.length ? (line[0].left + line[line.length - 1].right) / 2 : u.left + u.width / 2;
+    let top = f.top - h - 8;
+    if (top < box.top + 4) top = u.bottom + 8;
+    tb.style.left = Math.round(Math.max(8, Math.min(mid - w / 2, innerWidth - w - 8))) + "px";
+    tb.style.top = Math.round(Math.max(8, Math.min(top, innerHeight - h - 8))) + "px";
+  }
+  function markedNode(n) { for (let e = elOf(n); e && e !== doc; e = e.parentElement) { const c = e.style && e.style.backgroundColor; if (c && c !== "transparent" && c !== "rgba(0, 0, 0, 0)") return e; } return null; }
+  function paintTb() {
+    const r = rangeNow(); if (!r) return;
+    const set = (c, v) => tb.querySelector(`[data-c="${c}"]`).setAttribute("aria-pressed", v);
+    const start = r.startContainer.nodeType === 3 && r.startOffset === r.startContainer.length && r.startContainer.nextSibling ? r.startContainer.nextSibling : r.startContainer;
+    set("bold", document.queryCommandState("bold"));
+    set("italic", document.queryCommandState("italic"));
+    set("link", !!(elOf(start).closest("a") || (start.nodeType === 1 && start.querySelector && start.querySelector("a"))));
+    set("mark", !!markedNode(start.nodeType === 3 ? start : (start.firstChild || start)));
+    const tag = lineOf(start).tagName, li = tag === "LI" || tag === "PRE";
+    ["H1", "H2", "H3"].forEach((h) => { const b = tb.querySelector(`[data-c="${h}"]`); b.setAttribute("aria-pressed", tag === h); b.disabled = li; });
+  }
+  function toggleMark() {
+    focusDoc();
+    const on = tb.querySelector('[data-c="mark"]').getAttribute("aria-pressed") === "true";
+    exec("styleWithCSS", true);
+    exec("hiliteColor", on ? "transparent" : "#fbeeb0");
+    exec("styleWithCSS", false);
+    refresh(); paintTb();
+  }
+  tb.addEventListener("pointerdown", (e) => { if (!e.target.closest("input")) e.preventDefault(); });
+  tb.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-c]"); if (!b || b.disabled) return;
+    const c = b.dataset.c;
+    focusDoc();
+    if (c === "bold" || c === "italic") { exec("styleWithCSS", false); exec(c); }
+    else if (c === "mark") return toggleMark();
+    else if (c === "link") return openLink();
+    else { exec("formatBlock", b.getAttribute("aria-pressed") === "true" ? "P" : c); keepPara(); }
+    refresh(); paintTb(); placeTb();
+    if (document.activeElement !== doc && !tb.contains(document.activeElement)) doc.focus({ preventScroll: true });
+  });
+  tb.addEventListener("keydown", (e) => {
+    if (e.target.id === "url") return;
+    const all = [...tb.querySelectorAll("#tbMain button:not(:disabled)")], i = all.indexOf(document.activeElement);
+    if (e.key === "ArrowRight") { e.preventDefault(); all[(i + 1) % all.length].focus(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); all[(i - 1 + all.length) % all.length].focus(); }
+    else if (e.key === "Escape") { e.preventDefault(); doc.focus({ preventScroll: true }); }
+  });
+
+  /* link field */
+  const url = $("#url"), urlErr = $("#urlErr");
+  function existingLink() { const r = saved; if (!r) return null; const a = elOf(r.startContainer).closest("a") || elOf(r.commonAncestorContainer).closest("a"); if (a) return a; const w = document.createTreeWalker(r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : doc, NodeFilter.SHOW_ELEMENT); for (let n = w.currentNode; n; n = w.nextNode()) if (n.tagName === "A" && r.intersectsNode(n)) return n; return null; }
+  function openLink() {
+    saved = rangeNow().cloneRange(); linkOn = true;
+    const a = existingLink();
+    $("#tbMain").hidden = true; $("#tbLink").hidden = false;
+    $("#urlOff").hidden = !a; url.value = a ? a.getAttribute("href") : ""; url.setAttribute("aria-invalid", "false"); urlErr.hidden = true;
+    placeTb(); url.focus(); url.select();
+  }
+  function leaveLink(back) {
+    linkOn = false; $("#tbMain").hidden = false; $("#tbLink").hidden = true; urlErr.hidden = true;
+    if (back && saved) { doc.focus({ preventScroll: true }); sel.removeAllRanges(); sel.addRange(saved); }
+    saved = null;
+  }
+  function tidyUrl(v) {
+    v = v.trim();
+    if (/^(https?:\/\/\S+|mailto:\S+@\S+|#\S*|\/\S*)$/i.test(v)) return v;
+    if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)) return "https://" + v;
+    if (/^\S+@\S+\.\S+$/.test(v)) return "mailto:" + v;
+    return null;
+  }
+  function applyLink() {
+    const v = url.value.trim();
+    if (!v) { const had = !$("#urlOff").hidden; leaveLink(true); if (had) exec("unlink"); syncSel(); return; }
+    const u = tidyUrl(v);
+    if (!u) { url.setAttribute("aria-invalid", "true"); urlErr.hidden = false; return; }
+    leaveLink(true); exec("createLink", u); refresh(); syncSel(); say("Link added");
+  }
+  url.addEventListener("input", () => { url.setAttribute("aria-invalid", "false"); urlErr.hidden = true; });
+  url.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") { e.preventDefault(); applyLink(); }
+    else if (e.key === "Escape") { e.preventDefault(); leaveLink(true); syncSel(); }
+  });
+  $("#urlOk").addEventListener("click", applyLink);
+  $("#urlOff").addEventListener("click", () => { leaveLink(true); exec("unlink"); refresh(); syncSel(); });
+  url.addEventListener("blur", () => setTimeout(() => { if (linkOn && !tb.contains(document.activeElement)) { saved = null; linkOn = false; $("#tbMain").hidden = false; $("#tbLink").hidden = true; syncSel(); } }, 0));
+
+  /* ---------- outline, counts ---------- */
+  const outline = $("#outline"); let heads = [], curHead = -1;
+  function drawOutline() {
+    heads = [...doc.querySelectorAll("#doc > h1, #doc > h2, #doc > h3")].filter((h) => h.textContent.trim());
+    outline.innerHTML = heads.length
+      ? `<ol>${heads.map((h, i) => `<li class="l${h.tagName[1]}"><button data-h="${i}">${esc(h.textContent.trim() || "Untitled")}</button></li>`).join("")}</ol>`
+      : `<p>Headings you add will gather here.</p>`;
+    curHead = -1; spy();
+    const t = (doc.querySelector("h1") || {}).textContent;
+    $("#crumb").textContent = (t && t.trim()) || "Untitled";
+  }
+  function spy() {
+    const top = page.getBoundingClientRect().top + 72;
+    let cur = heads.length ? 0 : -1;
+    heads.forEach((h, i) => { if (h.getBoundingClientRect().top <= top) cur = i; });
+    if (page.scrollTop + page.clientHeight >= page.scrollHeight - 4 && heads.length) cur = heads.length - 1;
+    if (cur === curHead) return; curHead = cur;
+    outline.querySelectorAll("button").forEach((b, i) => { if (i === cur) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current"); });
+  }
+  outline.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-h]"); if (!b) return;
+    const h = heads[+b.dataset.h]; if (!h) return;
+    const top = h.getBoundingClientRect().top - page.getBoundingClientRect().top + page.scrollTop - 28;
+    page.scrollTo({ top, behavior: still.matches ? "auto" : "smooth" });
+    doc.focus({ preventScroll: true }); caretTo(h, true);
+    if (narrow()) setOutline(false);
+  });
+  page.addEventListener("scroll", () => { spy(); if (!tb.hidden) placeTb(); placeSlash(); }, { passive: true });
+  addEventListener("resize", () => { if (!tb.hidden) placeTb(); placeSlash(); });
+
+  const words = (s) => (s.replace(/​/g, "").match(/[\p{L}\p{N}][\p{L}\p{N}'’.-]*/gu) || []).length;
+  function wordCount() {
+    const total = words(doc.innerText);
+    const r = inside(), part = r && !r.collapsed ? words(sel.toString()) : 0;
+    $("#count").innerHTML = part ? `<b>${part.toLocaleString("en")}</b> of ${total.toLocaleString("en")} words` : `<b>${total.toLocaleString("en")}</b> ${total === 1 ? "word" : "words"}`;
+    $("#read").textContent = total ? Math.max(1, Math.ceil(total / 220)) + " min read" : "Nothing to read yet";
+    const all = doc.querySelectorAll("ul.check > li"), done = doc.querySelectorAll("ul.check > li[data-done]");
+    $("#tasks").textContent = all.length ? `${done.length} of ${all.length} tasks` : "";
+  }
+  function undoState() { $("#undo").disabled = !document.queryCommandEnabled("undo"); $("#redo").disabled = !document.queryCommandEnabled("redo"); }
+  let saveT = 0;
+  function marked() { $("#saved").textContent = "Saving…"; clearTimeout(saveT); saveT = setTimeout(() => { $("#saved").textContent = "Saved"; }, 700); }
+  function refresh() { drawOutline(); wordCount(); undoState(); }
+
+  /* ---------- the "/" hint on an empty line ---------- */
+  function showHint() {
+    doc.querySelectorAll("[data-ph]").forEach((n) => n.removeAttribute("data-ph"));
+    const r = inside(); if (!r || !r.collapsed || document.activeElement !== doc) return;
+    const line = lineOf(r.startContainer);
+    if (line.parentElement === doc && line.tagName === "P" && isEmpty(line)) line.setAttribute("data-ph", "Type / for blocks");
+    else if (line.parentElement === doc && /^H[123]$/.test(line.tagName) && isEmpty(line)) line.setAttribute("data-ph", line.tagName === "H1" && !line.previousElementSibling ? "Title" : "Heading");
+  }
+  doc.addEventListener("focus", showHint);
+  doc.addEventListener("blur", () => { setTimeout(() => { if (document.activeElement !== doc) { doc.querySelectorAll("[data-ph]").forEach((n) => n.removeAttribute("data-ph")); closeSlash(); } }, 0); });
+
+  /* ---------- top bar ---------- */
+  const noFocusSteal = (e) => e.preventDefault();
+  [$("#undo"), $("#redo")].forEach((b) => b.addEventListener("pointerdown", noFocusSteal));
+  $("#undo").addEventListener("click", () => { focusDoc(); exec("undo"); refresh(); });
+  $("#redo").addEventListener("click", () => { focusDoc(); exec("redo"); refresh(); });
+  function setOutline(on) { if (on && narrow()) hideTb(); mid.classList.toggle("closed", !on); $("#olBtn").setAttribute("aria-pressed", on); }
+  $("#olBtn").addEventListener("click", () => setOutline(mid.classList.contains("closed")));
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && narrow() && !mid.classList.contains("closed")) setOutline(false); });
+  addEventListener("pointerdown", (e) => { if (narrow() && !mid.classList.contains("closed") && !e.target.closest("#side, #olBtn")) setOutline(false); });
+
+  /* ---------- open on a phrase in the middle of being edited ---------- */
+  if (narrow()) setOutline(false);
+  refresh();
+  const seed = $("#seed"); const first = document.createRange(); first.selectNodeContents(seed);
+  seed.removeAttribute("id");
+  sel.removeAllRanges(); sel.addRange(first);
+  syncSel();
+})();
+</script>
+</body>
+</html>

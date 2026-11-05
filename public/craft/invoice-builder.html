@@ -1,0 +1,1025 @@
+<!doctype html>
+<!-- Invoice builder — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     An invoice editor beside a live printed page: pick or add a client, set terms and the due date follows,
+     drag line items into order, switch currency, then send it with an email preview and stamp it paid. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tallyhouse — Invoice 2026-048</title>
+<style>
+  :root {
+    --bg: #f2f2ef; --panel: #ffffff; --desk: #e6e6e1; --paper: #fffffc;
+    --ink: #17181a; --soft: #5e6067; --faint: #8b8d93; --line: #e4e4df; --line2: #d3d3cd; --hover: #f5f5f2;
+    --accent: #1f3c88; --accent-2: #18306e; --accent-soft: #eef1f8; --bad: #b42318;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); font-variant-numeric: tabular-nums; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .app { display: grid; grid-template-rows: 56px 1fr; height: 100svh; }
+
+  /* top bar */
+  .top { display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 15px; letter-spacing: -.01em; }
+  .brand svg { width: 24px; height: 24px; }
+  .crumbs { display: flex; align-items: center; gap: 8px; color: var(--soft); min-width: 0; padding-left: 16px; border-left: 1px solid var(--line); height: 24px; }
+  .crumbs a { color: var(--soft); text-decoration: none; }
+  .crumbs a:hover { color: var(--ink); }
+  .crumbs b { color: var(--ink); font-weight: 550; white-space: nowrap; }
+  .crumbs svg { width: 14px; height: 14px; color: var(--faint); }
+  .saved { margin-left: auto; color: var(--soft); font-size: 13px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .saved svg { width: 16px; height: 16px; }
+  .chipwrap { position: relative; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 9px; border-radius: 15px; border: 1px solid var(--line2); font-size: 13px; font-weight: 550; background: var(--panel); transition: background .2s, border-color .2s, color .2s; }
+  #chipIc { display: inline-flex; }
+  .chip svg.i { width: 15px; height: 15px; }
+  .chip .chev { width: 13px; height: 13px; color: var(--soft); }
+  .chip[data-s="sent"] { border-color: #c9d2ea; background: var(--accent-soft); color: var(--accent); }
+  .chip[data-s="paid"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .chip[data-s="paid"] .chev { color: #c9d2ea; }
+  .menu { position: absolute; right: 0; top: calc(100% + 6px); width: 264px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px; box-shadow: 0 12px 32px -12px rgba(20, 22, 30, .22), 0 2px 6px rgba(20, 22, 30, .05); z-index: 30; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity .16s ease-out, transform .16s ease-out; }
+  .menu.on { opacity: 1; transform: none; pointer-events: auto; }
+  .menu [role="menuitemradio"] { display: grid; grid-template-columns: 20px 1fr; gap: 2px 10px; width: 100%; text-align: left; padding: 8px 10px; border-radius: 6px; }
+  .menu [role="menuitemradio"]:hover, .menu [role="menuitemradio"]:focus-visible { background: var(--hover); outline: none; }
+  .menu [role="menuitemradio"] svg { grid-row: span 2; margin-top: 1px; color: var(--soft); }
+  .menu [aria-checked="true"] svg { color: var(--accent); }
+  .menu b { font-weight: 550; font-size: 13.5px; }
+  .menu small { color: var(--soft); font-size: 12.5px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: var(--r); font-weight: 550; font-size: 13.5px; white-space: nowrap; transition: background .15s, border-color .15s, opacity .15s; }
+  .btn svg.i { width: 16px; height: 16px; }
+  .btn.pri { background: var(--accent); color: #fff; }
+  .btn.pri:hover { background: var(--accent-2); }
+  .btn.sec { border: 1px solid var(--line2); background: var(--panel); }
+  .btn.sec:hover { background: var(--hover); }
+  .btn.ghost { color: var(--soft); }
+  .btn.ghost:hover { color: var(--ink); background: var(--hover); }
+  .btn[hidden] { display: none; }
+
+  /* body */
+  .body { display: grid; grid-template-columns: minmax(520px, 600px) 1fr; min-height: 0; overflow: hidden; }
+  .tabs { display: none; }
+  .editor { position: relative; background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+  .editor-in { padding: 8px 32px 48px; }
+  .part { padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .part:last-child { border-bottom: 0; }
+  .part > h2 { font-size: 14px; font-weight: 650; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; letter-spacing: -.005em; }
+  .part > h2 small { font-weight: 400; color: var(--soft); font-size: 13px; }
+  fieldset { border: 0; min-width: 0; }
+  fieldset:disabled .grip, fieldset:disabled .del, fieldset:disabled .add { visibility: hidden; }
+  .lock { display: none; align-items: center; gap: 10px; margin: 20px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-2); font-size: 13px; }
+  .lock.on { display: flex; }
+  .lock span { flex: 1; }
+  .lock button { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .f { display: grid; gap: 6px; min-width: 0; }
+  .f > span { font-size: 12.5px; color: var(--soft); font-weight: 500; }
+  .in, .sel { width: 100%; height: 36px; padding: 0 10px; border: 1px solid var(--line2); border-radius: var(--r); background: var(--panel); transition: border-color .15s, box-shadow .15s; }
+  textarea.in { height: auto; min-height: 76px; padding: 8px 10px; resize: vertical; line-height: 1.5; }
+  .in:hover, .sel:hover { border-color: #bdbdb6; }
+  .in:focus, .sel:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31, 60, 136, .14); }
+  .in[aria-invalid="true"] { border-color: var(--bad); }
+  .sel { appearance: none; padding-right: 30px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e6067' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; }
+  .ro { height: 36px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; border-radius: var(--r); background: var(--hover); border: 1px dashed var(--line2); }
+  .ro b { font-weight: 550; }
+  .ro small { color: var(--soft); font-size: 12.5px; }
+  .hint { font-size: 12.5px; color: var(--soft); margin-top: 10px; }
+  .hint:empty { display: none; }
+  .rem { display: grid; }
+  .rem li { list-style: none; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .rem li:first-child { border-top: 0; padding-top: 0; }
+  .rem b { display: block; font-weight: 550; }
+  .rem small { color: var(--soft); font-size: 12.5px; }
+  .sw { position: relative; width: 36px; height: 20px; border-radius: 10px; background: var(--line2); transition: background .18s ease-out; flex: none; }
+  .sw::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .18s ease-out; }
+  .sw[aria-checked="true"] { background: var(--accent); }
+  .sw[aria-checked="true"]::after { transform: translateX(16px); }
+  fieldset:disabled .sw { opacity: .5; cursor: default; }
+
+  /* client picker */
+  .picker { position: relative; }
+  .pickbtn { width: 100%; display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: 8px; text-align: left; background: var(--panel); transition: border-color .15s; }
+  .pickbtn:hover { border-color: #bdbdb6; }
+  .mono { width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; font-weight: 650; font-size: 14px; background: var(--hover); border: 1px solid var(--line); color: var(--ink); }
+  .pickbtn b { display: block; font-weight: 600; font-size: 14.5px; }
+  .pickbtn small { display: block; color: var(--soft); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pickbtn > span { min-width: 0; }
+  .pop { position: absolute; left: 0; right: 0; top: calc(100% + 6px); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 36px -14px rgba(20, 22, 30, .25), 0 2px 6px rgba(20, 22, 30, .05); z-index: 20; overflow: hidden; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity .16s ease-out, transform .16s ease-out; }
+  .pop.on { opacity: 1; transform: none; pointer-events: auto; }
+  .pop .search { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 42px; border-bottom: 1px solid var(--line); color: var(--soft); }
+  .pop .search input { flex: 1; border: 0; outline: none; background: none; color: var(--ink); height: 100%; }
+  .opts { max-height: 260px; overflow-y: auto; padding: 4px; }
+  .opt { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 6px; cursor: pointer; }
+  .opt .mono { width: 30px; height: 30px; font-size: 12px; border-radius: 6px; }
+  .opt b { display: block; font-weight: 550; font-size: 13.5px; }
+  .opt small { color: var(--soft); font-size: 12.5px; }
+  .opt .cur { font-size: 12px; color: var(--soft); font-family: var(--mono); }
+  .opt[aria-selected="true"] { background: var(--hover); }
+  .opt .tick { color: var(--accent); }
+  .opt.new { grid-template-columns: 30px 1fr; color: var(--accent); font-weight: 550; border-top: 1px solid var(--line); border-radius: 0 0 6px 6px; margin-top: 4px; }
+  .opt.new .mono { background: var(--accent-soft); border-color: #d6ddef; color: var(--accent); }
+  .empty-opt { padding: 14px 10px; color: var(--soft); font-size: 13px; }
+  .newclient { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease-out; }
+  .newclient.on { grid-template-rows: 1fr; }
+  .newclient > div { overflow: hidden; }
+  .newclient .ncf { margin-top: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #fbfbfa; display: grid; gap: 14px; }
+  .newclient h3 { font-size: 13.5px; font-weight: 650; }
+  .newclient .row { display: flex; justify-content: flex-end; gap: 8px; }
+  .err { color: var(--bad); font-size: 12px; min-height: 0; }
+
+  /* line items */
+  .lines { position: relative; display: grid; }
+  .line { position: relative; display: grid; grid-template-columns: 24px 1fr 112px 28px; gap: 8px 10px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); background: var(--panel); }
+  .line:first-child { border-top: 0; padding-top: 2px; }
+  .line.lifting { z-index: 5; box-shadow: 0 10px 28px -10px rgba(20, 22, 30, .3); border-radius: 8px; border-top-color: transparent; padding-left: 8px; padding-right: 8px; margin: 0 -8px; }
+  .line.lifting + .line { border-top-color: transparent; }
+  .lines.sorting .line:not(.lifting) { transition: transform .2s ease-out; }
+  .line.enter { animation: enter .24s ease-out; }
+  @keyframes enter { from { opacity: 0; transform: translateY(-6px); } }
+  .line.leave { overflow: hidden; transition: opacity .18s, max-height .22s ease-out, padding .22s ease-out; max-height: 0 !important; opacity: 0; padding-top: 0; padding-bottom: 0; }
+  .grip { width: 24px; height: 32px; display: grid; place-items: center; border-radius: 4px; color: var(--faint); cursor: grab; touch-action: none; }
+  .grip:hover { color: var(--ink); background: var(--hover); }
+  .lifting .grip { cursor: grabbing; color: var(--ink); }
+  .grip svg { width: 16px; height: 16px; fill: currentColor; stroke: none; }
+  .desc { height: 34px; border: 1px solid transparent; border-radius: var(--r); padding: 0 8px; margin-left: -8px; font-weight: 550; width: calc(100% + 8px); background: none; text-overflow: ellipsis; transition: border-color .15s, background .15s; }
+  .desc:hover { background: var(--hover); }
+  .desc:focus { outline: none; background: var(--panel); border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31, 60, 136, .14); }
+  .desc::placeholder { color: var(--faint); font-weight: 400; }
+  .amt { text-align: right; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .del { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 4px; color: var(--faint); }
+  .del:hover { color: var(--bad); background: #fbefed; }
+  .nums { grid-column: 2 / 4; display: grid; grid-template-columns: 1fr 1.5fr 1fr 1fr; gap: 8px; }
+  .mini { display: flex; align-items: center; height: 32px; border: 1px solid var(--line2); border-radius: var(--r); padding: 0 8px; gap: 6px; transition: border-color .15s, box-shadow .15s; min-width: 0; }
+  .mini:hover { border-color: #bdbdb6; }
+  .mini:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31, 60, 136, .14); }
+  .mini.bad { border-color: var(--bad); }
+  .mini span { font-size: 12px; color: var(--soft); white-space: nowrap; }
+  .mini input { flex: 1; min-width: 0; border: 0; outline: none; background: none; text-align: right; height: 100%; }
+  .mini i { font-style: normal; font-size: 12.5px; color: var(--soft); }
+  .add { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px 0 8px; border-radius: var(--r); color: var(--accent); font-weight: 600; font-size: 13.5px; }
+  .add:hover { background: var(--accent-soft); }
+  .noline { padding: 22px 0 8px; text-align: center; color: var(--soft); font-size: 13.5px; }
+  .noline b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+  .sums { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 6px; margin-left: 34px; margin-right: 38px; }
+  .sums div { display: flex; justify-content: space-between; color: var(--soft); }
+  .sums div b { color: var(--ink); font-weight: 500; }
+  .sums .tot { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--ink); font-weight: 650; font-size: 15px; }
+  .sums .tot b { font-weight: 700; }
+
+  /* preview */
+  .pane { position: relative; overflow: hidden; min-height: 0; display: grid; grid-template-rows: 48px 1fr; background: var(--desk); }
+  .ptools { display: flex; align-items: center; gap: 12px; padding: 0 20px; color: var(--soft); font-size: 13px; border-bottom: 1px solid #dadad4; background: #ececE8; }
+  .ptools b { color: var(--ink); font-weight: 600; }
+  .zoom { margin-left: auto; display: flex; gap: 2px; padding: 2px; background: #dfdfd9; border-radius: 7px; }
+  .zoom button { height: 26px; padding: 0 10px; border-radius: 5px; font-size: 12.5px; font-weight: 550; color: var(--soft); }
+  .zoom button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .scroller { overflow: auto; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 32px 32px 40px; overscroll-behavior: contain; }
+  .stage { flex: none; }
+  .sheet { position: relative; width: var(--sw); height: var(--sh); flex: none; }
+  .paper { position: absolute; left: 0; top: 0; width: 680px; min-height: 962px; transform-origin: 0 0; transform: scale(var(--s)); background: var(--paper); border-radius: 2px;
+    box-shadow: 0 1px 1px rgba(30, 30, 20, .06), 0 2px 4px rgba(30, 30, 20, .05), 0 18px 40px -22px rgba(30, 30, 20, .3); padding: 56px 56px 44px; display: flex; flex-direction: column; color: #1a1a1c; }
+  .aside { width: var(--sw); margin-top: 28px; font-size: 13px; color: var(--soft); }
+  .aside h3 { font-size: 12.5px; font-weight: 600; color: var(--ink); margin-bottom: 10px; display: flex; justify-content: space-between; gap: 12px; }
+  .aside h3 small { font-weight: 400; font-size: 12.5px; color: var(--soft); }
+  .tl { position: relative; height: 2px; background: #cfcfc8; margin: 8px 0 12px; }
+  .tl .run { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink); transition: width .25s ease-out; }
+  .tl i.t { position: absolute; top: -4px; width: 2px; height: 10px; margin-left: -1px; background: var(--soft); transition: left .25s ease-out; }
+  .tl i.t.due { top: -6px; height: 14px; width: 3px; background: var(--accent); }
+  .tl-l { position: relative; height: 38px; }
+  .tl-l span { position: absolute; top: 0; white-space: nowrap; font-size: 12.5px; line-height: 1.45; transition: left .25s ease-out; }
+  .tl-l b { display: block; color: var(--ink); font-weight: 550; }
+  .tl-l .r { transform: translateX(-100%); text-align: right; }
+  .tl-n { margin-top: 8px; font-size: 12.5px; }
+  .hist { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .hist td { padding: 7px 0; border-top: 1px solid #d9d9d3; text-align: right; white-space: nowrap; }
+  .hist tr:first-child td { border-top: 0; padding-top: 0; }
+  .hist td:first-child { text-align: left; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .hist td:nth-child(2) { text-align: left; padding-left: 16px; }
+  .hist td:nth-child(3) { color: var(--ink); }
+  .hist td:last-child { padding-left: 20px; width: 92px; }
+  .activity { width: var(--sw); margin-top: 28px; font-size: 13px; color: var(--soft); }
+  .activity h3 { font-size: 12.5px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .activity ol { list-style: none; display: grid; gap: 0; }
+  .activity li { display: grid; grid-template-columns: 14px 1fr auto; gap: 12px; align-items: center; padding: 7px 0; border-top: 1px solid #d9d9d3; }
+  .activity li:first-child { border-top: 0; }
+  .activity li i { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--faint); justify-self: center; }
+  .activity li.k i { border-color: var(--accent); background: var(--accent); }
+  .activity li b { color: var(--ink); font-weight: 550; }
+  .activity time { font-size: 12.5px; }
+  .activity li.enter { animation: enter .24s ease-out; }
+
+  /* the page itself */
+  .p-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+  .p-mark { display: flex; gap: 14px; align-items: flex-start; }
+  .p-mark svg { width: 42px; height: 42px; flex: none; }
+  .p-studio { font: 600 19px/1.15 var(--serif); letter-spacing: -.005em; }
+  .p-addr { font-size: 10.5px; color: #5b5c62; line-height: 1.55; margin-top: 6px; }
+  .p-title { text-align: right; }
+  .p-title h3 { font: 400 40px/1 var(--serif); letter-spacing: -.02em; }
+  .p-title p { font-size: 11px; color: #5b5c62; margin-top: 8px; letter-spacing: .02em; }
+  .p-title p b { color: #1a1a1c; font-weight: 600; font-family: var(--mono); font-size: 10.5px; }
+  .p-meta { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 24px; margin-top: 44px; padding: 18px 0; border-top: 1.5px solid #1a1a1c; border-bottom: 1px solid #deded8; }
+  .p-meta h4, .p-notes h4 { font-size: 9px; font-weight: 650; text-transform: uppercase; letter-spacing: .1em; color: #6a6b70; margin-bottom: 6px; }
+  .p-meta p { font-size: 11px; line-height: 1.55; color: #3c3d42; }
+  .p-meta p b { color: #1a1a1c; font-size: 12px; font-weight: 600; display: block; }
+  .p-due-amt { margin-top: 26px; display: flex; justify-content: space-between; align-items: baseline; }
+  .p-due-amt span { font-size: 11px; color: #5b5c62; }
+  .p-due-amt strong { font: 400 30px/1 var(--serif); letter-spacing: -.01em; }
+  .p-table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 11px; }
+  .p-table th { font-size: 9px; font-weight: 650; text-transform: uppercase; letter-spacing: .1em; color: #6a6b70; text-align: right; padding: 0 0 8px; border-bottom: 1px solid #1a1a1c; }
+  .p-table th:first-child, .p-table td:first-child { text-align: left; }
+  .p-table th + th, .p-table td + td { padding-left: 14px; white-space: nowrap; }
+  .p-table td { padding: 10px 0; border-bottom: 1px solid #e6e6e0; text-align: right; vertical-align: top; color: #3c3d42; }
+  .p-table td:first-child { color: #1a1a1c; font-weight: 550; padding-right: 16px; }
+  .p-table td:first-child small { display: block; color: #6a6b70; font-weight: 400; font-size: 10px; margin-top: 2px; }
+  .p-table td:last-child { color: #1a1a1c; font-weight: 550; }
+  .p-table .ph { color: #9a9ba0; font-style: italic; font-weight: 400; }
+  .p-table .none td { text-align: center; color: #8a8b90; padding: 22px 0; font-weight: 400; }
+  .p-totals { margin: 16px 0 0 auto; width: 260px; font-size: 11px; }
+  #pTaxes { display: block; padding: 0; }
+  .p-totals div { display: flex; justify-content: space-between; padding: 4px 0; color: #3c3d42; }
+  .p-totals .grand { margin-top: 8px; padding-top: 10px; border-top: 1.5px solid #1a1a1c; color: #1a1a1c; align-items: baseline; }
+  .p-totals .grand span { font-weight: 600; font-size: 11.5px; }
+  .p-totals .grand b { font: 400 22px/1 var(--serif); }
+  .p-notes { margin-top: auto; padding-top: 32px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; }
+  .p-notes p { font-size: 10.5px; line-height: 1.6; color: #3c3d42; white-space: pre-line; overflow-wrap: anywhere; }
+  .p-notes dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 10.5px; color: #3c3d42; }
+  .p-notes dt { color: #6a6b70; }
+  .p-notes dd { font-family: var(--mono); font-size: 10px; overflow-wrap: anywhere; color: #1a1a1c; }
+  .p-foot { margin-top: 28px; padding-top: 12px; border-top: 1px solid #e6e6e0; display: flex; justify-content: space-between; font-size: 9.5px; color: #75767b; }
+  .p-sum { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 16px; }
+  .p-sum .p-totals { margin-top: 0; }
+  .stamp { width: 178px; margin-left: 40px; color: var(--accent); opacity: 0; transform: rotate(-9deg) scale(1.25); pointer-events: none; transition: opacity .22s ease-out, transform .28s cubic-bezier(.2, .9, .3, 1.2); mix-blend-mode: multiply; }
+  .stamp.on { opacity: .9; transform: rotate(-9deg) scale(1); }
+  .stamp svg { width: 100%; height: auto; display: block; }
+
+  /* dialog */
+  dialog { margin: auto; width: min(560px, calc(100% - 32px)); max-height: calc(100% - 32px); border: 0; border-radius: 12px; padding: 0; background: var(--panel); color: var(--ink); box-shadow: 0 24px 64px -16px rgba(15, 18, 30, .4), 0 0 0 1px rgba(0, 0, 0, .05); overflow: hidden; }
+  dialog[open] { display: flex; flex-direction: column; animation: pop .2s ease-out; }
+  dialog::backdrop { background: rgba(23, 24, 26, .38); animation: fade .2s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+  @keyframes fade { from { opacity: 0; } }
+  .dh { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .dh h2 { font-size: 15px; font-weight: 650; }
+  .x { width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; color: var(--soft); }
+  .x:hover { background: var(--hover); color: var(--ink); }
+  .db { padding: 4px 20px 16px; overflow-y: auto; }
+  .mrow { display: grid; grid-template-columns: 64px 1fr; align-items: center; border-bottom: 1px solid var(--line); min-height: 44px; }
+  .mrow label { color: var(--soft); font-size: 13px; }
+  .mrow input { border: 0; outline: none; height: 42px; background: none; width: 100%; }
+  .mrow:focus-within { border-bottom-color: var(--accent); }
+  .mrow.bad { border-bottom-color: var(--bad); }
+  .mrow .from { color: var(--ink); }
+  .mrow .from small { color: var(--soft); }
+  .msg { width: 100%; border: 0; outline: none; resize: none; min-height: 188px; padding: 14px 0; line-height: 1.55; background: none; }
+  .mail { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fafaf8; }
+  .mail-top { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .mail-top svg { width: 28px; height: 28px; }
+  .mail-top b { font-weight: 600; font-size: 13.5px; display: block; }
+  .mail-top small { font-size: 12px; color: var(--soft); }
+  .mail-mid { padding: 16px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .mail-mid small { display: block; color: var(--soft); font-size: 12px; }
+  .mail-mid strong { display: block; font: 400 28px/1.1 var(--serif); letter-spacing: -.01em; margin-top: 2px; }
+  .mail-mid .fake { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 6px; background: var(--ink); color: #fff; font-weight: 550; font-size: 13px; }
+  .att { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--soft); }
+  .att b { color: var(--ink); font-weight: 550; }
+  .seen { font-size: 12px; color: var(--soft); margin: 14px 0 8px; font-weight: 550; }
+  .df { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--line); background: #fbfbfa; }
+  .df label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--soft); }
+  .df input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+  .df div { display: flex; gap: 8px; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 16px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 13.5px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; transition: opacity .2s ease-out, transform .2s ease-out; z-index: 50; max-width: calc(100% - 32px); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast button { color: #b9c6ea; font-weight: 600; padding: 4px 6px; border-radius: 4px; }
+  .toast button[hidden] { display: none; }
+  .toast button:focus-visible { outline-color: #fff; }
+
+  /* narrower screens: one pane at a time */
+  @media (max-width: 1100px) {
+    .app { grid-template-rows: 56px auto 1fr; }
+    .body { grid-template-columns: 1fr; grid-row: 3; }
+    .tabs { display: flex; justify-content: center; grid-row: 2; gap: 4px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+    .tabs button { flex: 1; max-width: 200px; height: 32px; border-radius: 6px; font-weight: 550; color: var(--soft); font-size: 13.5px; }
+    .tabs button[aria-selected="true"] { background: var(--hover); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+    .body[data-view="edit"] .pane, .body[data-view="preview"] .editor { display: none; }
+    .editor { border-right: 0; }
+    .editor-in { max-width: 680px; margin: 0 auto; }
+  }
+  @media (max-width: 640px) {
+    .top { gap: 10px; padding: 0 12px; }
+    .crumbs, .saved { display: none; }
+    .brand span { display: none; }
+    .chipwrap { margin-left: auto; }
+    .editor-in { padding: 4px 16px 40px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .line { grid-template-columns: 24px 1fr 28px; }
+    .amt { grid-column: 2; grid-row: 2; text-align: left; font-size: 13px; color: var(--soft); }
+    .del { grid-column: 3; grid-row: 1; }
+    .nums { grid-column: 2 / 4; grid-row: 3; grid-template-columns: 1fr 1fr; }
+    .sums { margin-left: 0; margin-right: 0; }
+    .scroller { padding: 16px; }
+    .ptools { padding: 0 16px; }
+    .ptools .pg { display: none; }
+    .df { flex-direction: column; align-items: stretch; }
+    .df div { justify-content: flex-end; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#17181a"/><path d="M7 6.5v11M10.5 6.5v11M14 6.5v11M17.5 6.5v11M5 15.5 19 8.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Tallyhouse</span>
+    </div>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="#" id="crumbAll">Invoices</a>
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      <b id="crumbNo" aria-current="page">2026-048</b>
+    </nav>
+    <span class="saved" id="saved" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg><span>Saved</span></span>
+    <div class="chipwrap">
+      <button class="chip" id="chip" data-s="draft" aria-haspopup="menu" aria-expanded="false" aria-controls="statusMenu"><span id="chipIc"></span><span id="chipTx">Draft</span><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
+      <div class="menu" id="statusMenu" role="menu" aria-label="Invoice status"></div>
+    </div>
+    <button class="btn pri" id="primary"></button>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button role="tab" id="tabEdit" aria-selected="true" aria-controls="editor">Edit</button>
+    <button role="tab" id="tabPrev" aria-selected="false" aria-controls="pane">Preview</button>
+  </div>
+
+  <main class="body" id="body" data-view="edit">
+    <section class="editor" id="editor" aria-label="Invoice editor">
+      <div class="editor-in">
+        <div class="lock" id="lock" role="status"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="lockTx">Paid in full. Fields are locked.</span><button id="reopen">Reopen as draft</button></div>
+        <fieldset id="fs">
+        <div class="part">
+          <h2 id="billH">Bill to</h2>
+          <div class="picker" id="picker">
+            <button class="pickbtn" id="pickBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="billH pickName">
+              <span class="mono" id="pickMono" aria-hidden="true"></span>
+              <span><b id="pickName"></b><small id="pickSub"></small></span>
+              <svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color:var(--soft)"><path d="m7 10 5 5 5-5"/></svg>
+            </button>
+            <div class="pop" id="pop">
+              <label class="search"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><span class="sr">Search clients</span><input id="cq" placeholder="Search clients" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="opts" aria-autocomplete="list"></label>
+              <div class="opts" id="opts" role="listbox" aria-label="Clients"></div>
+            </div>
+          </div>
+          <div class="newclient" id="newClient">
+            <div>
+              <div id="ncForm" class="ncf" role="group" aria-labelledby="ncH">
+                <h3 id="ncH">New client</h3>
+                <div class="grid2">
+                  <label class="f"><span>Company</span><input class="in" id="ncName" autocomplete="off" placeholder="Fenwick Bakery Co."></label>
+                  <label class="f"><span>Contact name</span><input class="in" id="ncContact" autocomplete="off" placeholder="Priya Raman"></label>
+                  <label class="f"><span>Billing email</span><input class="in" id="ncEmail" type="email" autocomplete="off" placeholder="accounts@fenwick.co.uk"></label>
+                  <label class="f"><span>City, country</span><input class="in" id="ncCity" autocomplete="off" placeholder="Bristol, United Kingdom"></label>
+                </div>
+                <p class="err" id="ncErr" role="alert"></p>
+                <div class="row"><button type="button" class="btn ghost" id="ncCancel">Cancel</button><button type="button" class="btn sec" id="ncSave">Save client</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="part">
+          <h2>Details</h2>
+          <div class="grid2">
+            <label class="f"><span>Invoice number</span><input class="in" id="num" value="2026-048" autocomplete="off" spellcheck="false"></label>
+            <label class="f"><span>Currency</span>
+              <select class="sel" id="cur">
+                <option value="EUR">EUR — Euro</option><option value="USD">USD — US dollar</option><option value="GBP">GBP — Pound sterling</option><option value="DKK">DKK — Danish krone</option><option value="JPY">JPY — Japanese yen</option><option value="AED">AED — UAE dirham</option>
+              </select></label>
+            <label class="f"><span>Issue date</span><input class="in" id="issue" type="date" value="2026-11-04"></label>
+            <label class="f"><span>Payment terms</span>
+              <select class="sel" id="terms"><option value="0">Due on receipt</option><option value="15">Net 15</option><option value="30" selected>Net 30</option><option value="60">Net 60</option></select></label>
+            <div class="f" style="grid-column: 1 / -1"><span id="dueL">Due date</span><div class="ro" aria-labelledby="dueL" role="group"><b id="dueTx" aria-live="polite"></b><small id="dueSub"></small></div></div>
+          </div>
+          <p class="hint" id="curHint" aria-live="polite"></p>
+        </div>
+
+        <div class="part">
+          <h2>Line items <small id="lineCount"></small></h2>
+          <div class="lines" id="lines"></div>
+          <button type="button" class="add" id="addLine"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add line</button>
+          <div class="sums" aria-label="Totals">
+            <div><span>Subtotal</span><b id="sSub"></b></div>
+            <div><span>Discounts</span><b id="sDisc"></b></div>
+            <div id="sTaxRow"><span>Tax</span><b id="sTax"></b></div>
+            <div class="tot"><span>Total due</span><b id="sTot"></b></div>
+          </div>
+        </div>
+
+        <div class="part">
+          <h2>Notes</h2>
+          <label class="f"><span class="sr">Notes printed on the invoice</span><textarea class="in" id="notes" rows="3">Thank you, Mette — it was a pleasure shaping the new studio with you. Print files and the signage drawings are in the shared folder.</textarea></label>
+        </div>
+
+        <div class="part">
+          <h2>Reminders <small id="remCount"></small></h2>
+          <ul class="rem" id="rem"></ul>
+        </div>
+
+        <div class="part">
+          <h2>Payment details</h2>
+          <div class="grid2">
+            <label class="f" style="grid-column: 1 / -1"><span>Account name</span><input class="in" id="pName" value="Oduya &amp; Lind ApS" autocomplete="off"></label>
+            <label class="f"><span>IBAN</span><input class="in" id="pIban" value="DK50 0040 0440 1162 43" autocomplete="off" spellcheck="false" style="font-family:var(--mono);font-size:13px"></label>
+            <label class="f"><span>BIC / SWIFT</span><input class="in" id="pBic" value="NDEADKKK" autocomplete="off" spellcheck="false" style="font-family:var(--mono);font-size:13px"></label>
+          </div>
+        </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="pane" id="pane" aria-label="Invoice preview">
+      <div class="ptools"><span><b>Preview</b> <span class="pg">· A4, 1 page</span></span>
+        <div class="zoom" role="group" aria-label="Zoom"><button id="zFit" aria-pressed="true">Fit</button><button id="z100" aria-pressed="false">100%</button></div>
+      </div>
+      <div class="scroller" id="scroller">
+        <div class="stage">
+        <div class="sheet" id="sheet">
+          <article class="paper" id="paper" aria-label="Invoice as printed">
+            <div class="p-head">
+              <div class="p-mark">
+                <svg viewBox="0 0 42 42" aria-hidden="true"><circle cx="16" cy="21" r="13" fill="none" stroke="#1a1a1c" stroke-width="2.4"/><path d="M27 8v26h9" fill="none" stroke="#1a1a1c" stroke-width="2.4" stroke-linecap="square"/></svg>
+                <div><div class="p-studio">Oduya &amp; Lind</div><div class="p-addr">Brand and spatial design<br>Refshalevej 163A, 1432 København K<br>hello@oduyalind.studio</div></div>
+              </div>
+              <div class="p-title"><h3>Invoice</h3><p>No. <b id="pNo"></b></p></div>
+            </div>
+            <div class="p-meta">
+              <div><h4>Billed to</h4><p id="pClient"></p></div>
+              <div><h4>Issued</h4><p><b id="pIssue"></b></p></div>
+              <div><h4>Due</h4><p><b id="pDue"></b><span id="pTerms"></span></p></div>
+            </div>
+            <div class="p-due-amt"><span>Amount due (<span id="pCur"></span>)</span><strong id="pBig"></strong></div>
+            <table class="p-table">
+              <thead><tr><th scope="col">Description</th><th scope="col">Qty</th><th scope="col">Rate</th><th scope="col">Tax</th><th scope="col">Amount</th></tr></thead>
+              <tbody id="pRows"></tbody>
+            </table>
+            <div class="p-sum">
+              <div class="stamp" id="stamp" aria-hidden="true">
+              <svg viewBox="0 0 200 92">
+                <defs><filter id="rough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.45" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter></defs>
+                <g filter="url(#rough)" fill="currentColor" stroke="currentColor">
+                  <rect x="3" y="3" width="194" height="86" rx="10" fill="none" stroke-width="3.5"/>
+                  <rect x="10" y="10" width="180" height="72" rx="6" fill="none" stroke-width="1.4"/>
+                  <text x="100" y="56" text-anchor="middle" stroke="none" font-family="Georgia, serif" font-size="40" font-weight="700" letter-spacing="8">PAID</text>
+                  <text id="stampDate" x="100" y="73" text-anchor="middle" stroke="none" font-family="Menlo, Consolas, monospace" font-size="9.5" letter-spacing="2.5">4 NOV 2026</text>
+                </g>
+              </svg>
+            </div>
+            <div class="p-totals">
+              <div><span>Subtotal</span><span id="pSub"></span></div>
+              <div id="pDiscRow"><span>Discounts</span><span id="pDisc"></span></div>
+              <div id="pTaxes"></div>
+              <div class="grand"><span>Total</span><b id="pTot"></b></div>
+            </div>
+            </div>
+            <div class="p-notes">
+              <div><h4>Notes</h4><p id="pNotes"></p></div>
+              <div><h4>Pay by bank transfer</h4><dl><dt>Account</dt><dd id="pPName"></dd><dt>IBAN</dt><dd id="pPIban"></dd><dt>BIC</dt><dd id="pPBic"></dd><dt>Reference</dt><dd id="pRef"></dd></dl></div>
+            </div>
+            <div class="p-foot"><span>Oduya &amp; Lind ApS · CVR 41 87 22 03</span><span>Page 1 of 1</span></div>
+          </article>
+        </div>
+        <section class="aside" aria-labelledby="schedH"><h3 id="schedH">Payment schedule <small id="schedTerm"></small></h3><div class="tl" id="tl" aria-hidden="true"></div><div class="tl-l" id="tlL"></div><p class="tl-n" id="tlN"></p></section>
+        <section class="aside" aria-labelledby="histH"><h3><span id="histH"></span><small id="histAvg"></small></h3><table class="hist"><tbody id="hist"></tbody></table></section>
+        <div class="activity"><h3>Activity</h3><ol id="log"></ol></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="sendDlg" aria-labelledby="sendH">
+  <div id="sendForm" style="display:contents">
+    <div class="dh"><h2 id="sendH">Send invoice 2026-048</h2><button type="button" class="x" id="sendX" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="db">
+      <div class="mrow"><span style="color:var(--soft);font-size:13px">From</span><span class="from">Ama Oduya <small>ama@oduyalind.studio</small></span></div>
+      <div class="mrow" id="toRow"><label for="mTo">To</label><input id="mTo" type="email" autocomplete="off" aria-describedby="toErr"></div>
+      <div class="mrow"><label for="mSubj">Subject</label><input id="mSubj" autocomplete="off"></div>
+      <label class="sr" for="mMsg">Message</label>
+      <textarea class="msg" id="mMsg"></textarea>
+      <p class="err" id="toErr" role="alert"></p>
+      <p class="seen" id="seenH">What <span id="seenName"></span> will see</p>
+      <div class="mail" aria-labelledby="seenH" role="group">
+        <div class="mail-top"><svg viewBox="0 0 42 42" aria-hidden="true"><circle cx="16" cy="21" r="13" fill="none" stroke="#1a1a1c" stroke-width="2.4"/><path d="M27 8v26h9" fill="none" stroke="#1a1a1c" stroke-width="2.4" stroke-linecap="square"/></svg><span><b>Oduya &amp; Lind sent you an invoice</b><small id="mailSub"></small></span></div>
+        <div class="mail-mid"><span><small>Amount due</small><strong id="mailAmt"></strong></span><span class="fake" aria-hidden="true">View and pay</span></div>
+        <div class="att"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span><b id="attName"></b> · PDF, 1 page</span></div>
+      </div>
+    </div>
+    <div class="df"><label><input type="checkbox" id="mCopy" checked> Send me a copy</label><div><button type="button" class="btn sec" id="sendCancel">Cancel</button><button type="button" class="btn pri" id="sendGo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>Send invoice</button></div></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTx"></span><button id="toastUndo" hidden>Undo</button></div>
+<p class="sr" id="live" aria-live="assertive"></p>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const ICON = {
+    grip: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+    trash: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+    draft: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></svg>',
+    sent: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>',
+    paid: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>',
+    check: '<svg class="i tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17l9-10"/></svg>',
+    plus: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    cash: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/></svg>',
+  };
+
+  /* ---------- data (seeded so the first paint never changes) ---------- */
+  const clients = [
+    { id: "halden", name: "Halden Arkitekter", contact: "Mette Halden", email: "mette@halden-ark.dk", addr: "Mejlgade 41, 8000 Aarhus C", country: "Denmark", cur: "EUR" },
+    { id: "brasa", name: "Brasa Kitchen Group", contact: "Inês Carvalho", email: "ines.carvalho@brasa.pt", addr: "Rua da Boavista 82, 1200-066 Lisboa", country: "Portugal", cur: "EUR" },
+    { id: "okonkwo", name: "Okonkwo Health", contact: "Chidi Okonkwo", email: "finance@okonkwohealth.ng", addr: "14 Adeola Odeku St, Victoria Island, Lagos", country: "Nigeria", cur: "USD" },
+    { id: "kaze", name: "Kaze Ceramics", contact: "Haruka Mori", email: "mori@kaze-ceramics.jp", addr: "3-12 Gojozaka, Higashiyama-ku, Kyoto", country: "Japan", cur: "JPY" },
+    { id: "northlight", name: "Northlight Press", contact: "Callum Reid", email: "accounts@northlightpress.co.uk", addr: "22 Leith Walk, Edinburgh EH6 5AA", country: "United Kingdom", cur: "GBP" },
+    { id: "almansouri", name: "Al Mansouri Hospitality", contact: "Layla Al Mansouri", email: "ap@almansouri-hospitality.ae", addr: "Al Wasl Road, Jumeirah 2, Dubai", country: "United Arab Emirates", cur: "AED" },
+  ];
+  /* what each client has already been billed: number, date, amount, days to pay */
+  const HIST = {
+    halden: [["2026-031", "12 Jun 2026", 8400, 21], ["2026-012", "3 Mar 2026", 3150, 28], ["2025-067", "14 Nov 2025", 12600, 19]],
+    brasa: [["2026-027", "21 May 2026", 6200, 33], ["2025-058", "2 Oct 2025", 11480, 41]],
+    okonkwo: [["2026-019", "8 Apr 2026", 14500, 58], ["2026-002", "15 Jan 2026", 2750, 44], ["2025-049", "9 Sep 2025", 7300, 52]],
+    kaze: [["2026-036", "2 Jul 2026", 480000, 12]],
+    northlight: [["2026-041", "18 Aug 2026", 3900, 14], ["2026-024", "29 Apr 2026", 5275, 16], ["2025-071", "4 Dec 2025", 1860, 13]],
+    almansouri: [["2026-009", "19 Feb 2026", 46000, 37], ["2025-062", "30 Oct 2025", 28500, 45]],
+  };
+  let lineSeq = 5;
+  const S = {
+    client: "halden", number: "2026-048", issue: "2026-11-04", terms: 30, cur: "EUR", status: "draft",
+    lines: [
+      { id: 1, desc: "Brand identity — wordmark, type, colour", qty: 1, rate: 9800, disc: 0, tax: 25 },
+      { id: 2, desc: "Wayfinding signage, 14 signs", qty: 14, rate: 260, disc: 10, tax: 25 },
+      { id: 3, desc: "Art direction, two-day photo shoot", qty: 2, rate: 1150, disc: 0, tax: 25 },
+      { id: 4, desc: "Print production management (hours)", qty: 6, rate: 95, disc: 0, tax: 25 },
+    ],
+  };
+  const log = [
+    { t: "Created by Ama Oduya", d: "28 Oct, 16:02" },
+    { t: "Line items edited by Freja Lind", d: "3 Nov, 11:40" },
+    { t: "Draft saved", d: "Today, 09:12" },
+  ];
+
+  /* ---------- formatting ---------- */
+  const fmts = {};
+  const money = (v, cur = S.cur) => (fmts[cur] ||= new Intl.NumberFormat("en-GB", { style: "currency", currency: cur, currencyDisplay: "narrowSymbol" })).format(v).replace("-", "\u2212");
+  const dfmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const dlong = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  const parseDate = (s) => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+  const num = (s) => { const t = String(s).replace(/[\s,]/g, ""); if (t === "") return 0; return /^-?\d*\.?\d+$/.test(t) ? Number(t) : NaN; };
+  const client = () => clients.find((c) => c.id === S.client);
+  const mono = (name) => name.replace(/[^A-Za-zÀ-ÿ ]/g, "").split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  const lineNet = (l) => l.qty * l.rate * (1 - l.disc / 100);
+
+  function totals() {
+    let sub = 0, disc = 0; const taxes = {};
+    for (const l of S.lines) { const g = l.qty * l.rate; sub += g; disc += g * l.disc / 100; if (l.tax) taxes[l.tax] = (taxes[l.tax] || 0) + lineNet(l) * l.tax / 100; }
+    const tax = Object.values(taxes).reduce((a, b) => a + b, 0);
+    return { sub, disc, taxes, tax, total: sub - disc + tax };
+  }
+
+  /* numbers glide from their old value to the new one */
+  function tween(el, v, cur = S.cur) {
+    const from = el._v ?? v; el._v = v;
+    if (el._cur !== cur || still || from === v || el._init !== true) { el._cur = cur; el._init = true; cancelAnimationFrame(el._raf); el.textContent = money(v, cur); return; }
+    cancelAnimationFrame(el._raf);
+    const t0 = performance.now(), dur = 320;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = money(from + (v - from) * e, cur); if (k < 1) el._raf = requestAnimationFrame(step); };
+    el._raf = requestAnimationFrame(step);
+  }
+
+  /* ---------- editor: line items ---------- */
+  const linesEl = $("lines");
+  function lineHTML(l, i) {
+    const n = S.lines.length;
+    return `<div class="line" data-id="${l.id}" role="group" aria-label="Line ${i + 1}">
+      <button type="button" class="grip" aria-label="Reorder line ${i + 1} of ${n}. Drag, or use the arrow keys" aria-describedby="live">${ICON.grip}</button>
+      <input class="desc" data-k="desc" value="${esc(l.desc)}" placeholder="Describe the work" aria-label="Description, line ${i + 1}" autocomplete="off">
+      <span class="amt" data-amt></span>
+      <button type="button" class="del" aria-label="Delete line ${i + 1}">${ICON.trash}</button>
+      <div class="nums">
+        <label class="mini"><span>Qty</span><input data-k="qty" inputmode="decimal" value="${l.qty}" autocomplete="off"></label>
+        <label class="mini"><span>Rate</span><input data-k="rate" inputmode="decimal" value="${l.rate.toLocaleString("en-GB")}" autocomplete="off"></label>
+        <label class="mini"><span>Disc.</span><input data-k="disc" inputmode="decimal" value="${l.disc}" autocomplete="off"><i>%</i></label>
+        <label class="mini"><span>Tax</span><input data-k="tax" inputmode="decimal" value="${l.tax}" autocomplete="off"><i>%</i></label>
+      </div></div>`;
+  }
+  function renderLines(focusId, focusSel) {
+    linesEl.innerHTML = S.lines.length ? S.lines.map(lineHTML).join("") : `<div class="noline"><b>No line items</b>Add the work you're billing for and the page fills in as you type.</div>`;
+    linesEl.querySelectorAll(".line").forEach((row) => {
+      row.querySelector(".grip").addEventListener("pointerdown", (e) => startDrag(e, row));
+      row.querySelector(".grip").addEventListener("keydown", (e) => keyMove(e, row));
+      row.querySelector(".del").addEventListener("click", () => removeLine(+row.dataset.id));
+    });
+    $("lineCount").textContent = S.lines.length ? `${S.lines.length} ${S.lines.length === 1 ? "item" : "items"}` : "";
+    if (focusId != null) linesEl.querySelector(`.line[data-id="${focusId}"] ${focusSel}`)?.focus();
+    update();
+  }
+  linesEl.addEventListener("input", (e) => {
+    const k = e.target.dataset.k; if (!k) return;
+    const row = e.target.closest(".line"); const l = S.lines.find((x) => x.id === +row.dataset.id);
+    if (k === "desc") l.desc = e.target.value;
+    else {
+      let v = num(e.target.value); const bad = !Number.isFinite(v) || v < 0 || ((k === "disc" || k === "tax") && v > 100);
+      e.target.closest(".mini").classList.toggle("bad", bad); e.target.setAttribute("aria-invalid", String(bad));
+      l[k] = bad ? 0 : v;
+    }
+    touched(); update();
+  });
+  linesEl.addEventListener("focusout", (e) => {
+    const k = e.target.dataset.k; if (!k || k === "desc") return;
+    const row = e.target.closest(".line"); const l = S.lines.find((x) => x.id === +row?.dataset.id); if (!l) return;
+    if (!e.target.closest(".mini").classList.contains("bad")) e.target.value = k === "rate" ? l.rate.toLocaleString("en-GB", { maximumFractionDigits: 2 }) : String(l[k]);
+  });
+  $("addLine").addEventListener("click", () => {
+    const last = S.lines[S.lines.length - 1];
+    const l = { id: lineSeq++, desc: "", qty: 1, rate: 0, disc: 0, tax: last ? last.tax : 25 };
+    S.lines.push(l); renderLines(l.id, ".desc");
+    linesEl.querySelector(`.line[data-id="${l.id}"]`)?.classList.add("enter");
+    touched();
+  });
+  let undoFn = null;
+  function removeLine(id) {
+    const i = S.lines.findIndex((x) => x.id === id); if (i < 0) return;
+    const [l] = S.lines.splice(i, 1);
+    const row = linesEl.querySelector(`.line[data-id="${id}"]`);
+    const done = () => { renderLines(); const nxt = linesEl.querySelectorAll(".line")[Math.min(i, S.lines.length - 1)]; (nxt ? nxt.querySelector(".del") : $("addLine")).focus(); };
+    if (row && !still) { row.style.maxHeight = row.offsetHeight + "px"; row.offsetHeight; row.classList.add("leave"); setTimeout(done, 220); } else done();
+    touched();
+    toast(`Deleted “${l.desc || "Untitled item"}”`, () => { S.lines.splice(i, 0, l); renderLines(l.id, ".desc"); touched(); });
+  }
+
+  /* drag to reorder: the row follows the pointer, the others make room */
+  function startDrag(e, row) {
+    if (e.button !== 0 || S.status === "paid") return;
+    e.preventDefault();
+    const grip = e.currentTarget; grip.setPointerCapture(e.pointerId); grip.focus({ preventScroll: true });
+    const startY = e.clientY, top0 = row.offsetTop; let ty = 0, moved = false;
+    row.classList.add("lifting"); linesEl.classList.add("sorting");
+    const flip = (fn) => {
+      const rows = [...linesEl.children].filter((r) => r !== row), before = rows.map((r) => r.offsetTop);
+      fn();
+      rows.forEach((r, k) => { const d = before[k] - r.offsetTop; if (!d || still) return; r.style.transition = "none"; r.style.transform = `translateY(${d}px)`; r.offsetHeight; r.style.transition = ""; r.style.transform = ""; });
+    };
+    const move = (ev) => {
+      const want = top0 + (ev.clientY - startY), mid = want + row.offsetHeight / 2;
+      if (Math.abs(ev.clientY - startY) > 3) moved = true;
+      const next = row.nextElementSibling, prev = row.previousElementSibling;
+      if (next && mid > next.offsetTop + next.offsetHeight / 2) flip(() => linesEl.insertBefore(next, row));
+      else if (prev && mid < prev.offsetTop + prev.offsetHeight / 2) flip(() => linesEl.insertBefore(row, prev));
+      const max = linesEl.offsetHeight - row.offsetHeight;
+      ty = Math.max(-row.offsetTop, Math.min(max - row.offsetTop, want - row.offsetTop));
+      row.style.transform = `translateY(${ty}px)`;
+    };
+    const up = () => {
+      grip.removeEventListener("pointermove", move); grip.removeEventListener("pointerup", up); grip.removeEventListener("pointercancel", up);
+      row.style.transition = still ? "none" : "transform .18s ease-out"; row.style.transform = "";
+      setTimeout(() => {
+        row.classList.remove("lifting"); linesEl.classList.remove("sorting"); row.style.transition = "";
+        const order = [...linesEl.querySelectorAll(".line")].map((r) => +r.dataset.id);
+        const changed = order.some((id, k) => S.lines[k].id !== id);
+        S.lines.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+        if (changed) { renderLines(row.dataset.id, ".grip"); touched(); say(`Moved to position ${order.indexOf(+row.dataset.id) + 1} of ${order.length}`); }
+      }, still ? 0 : 180);
+      if (!moved) row.classList.remove("lifting");
+    };
+    grip.addEventListener("pointermove", move); grip.addEventListener("pointerup", up); grip.addEventListener("pointercancel", up);
+  }
+  function keyMove(e, row) {
+    const d = e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0; if (!d) return;
+    e.preventDefault();
+    const i = S.lines.findIndex((x) => x.id === +row.dataset.id), j = i + d;
+    if (j < 0 || j >= S.lines.length) { say(j < 0 ? "Already the first line" : "Already the last line"); return; }
+    const [l] = S.lines.splice(i, 1); S.lines.splice(j, 0, l);
+    renderLines(l.id, ".grip"); touched();
+    say(`“${l.desc || "Untitled item"}” moved to position ${j + 1} of ${S.lines.length}`);
+  }
+
+  /* ---------- reminders follow the due date ---------- */
+  const REM = [
+    { d: -3, t: "Three days before it's due", on: true },
+    { d: 0, t: "On the due date", on: true },
+    { d: 7, t: "A week later, if still unpaid", on: false },
+  ];
+  $("rem").innerHTML = REM.map((r, i) => `<li><span><b id="rt${i}">${r.t}</b><small id="rd${i}"></small></span><button type="button" class="sw" role="switch" aria-checked="${r.on}" aria-labelledby="rt${i}" aria-describedby="rd${i}" data-i="${i}"></button></li>`).join("");
+  $("rem").addEventListener("click", (e) => {
+    const b = e.target.closest(".sw"); if (!b) return;
+    const r = REM[+b.dataset.i]; r.on = !r.on; b.setAttribute("aria-checked", String(r.on)); touched(); update();
+  });
+  function paintRem() {
+    const due = parseDate(S.issue) + S.terms * 864e5, now = parseDate(S.issue);
+    REM.forEach((r, i) => {
+      const at = due + r.d * 864e5;
+      $("rd" + i).textContent = S.status === "paid" ? "Not needed, the invoice is paid" : !r.on ? "Off" : at < now ? "Skipped, the date is before the issue date" : `Emails ${client().contact.split(" ")[0]} on ${dfmt.format(at)}`;
+    });
+    const n = REM.filter((r) => r.on).length;
+    $("remCount").textContent = n ? `${n} scheduled` : "None";
+  }
+
+  /* ---------- the page ---------- */
+  function update() {
+    const c = client(), t = totals();
+    const due = parseDate(S.issue || "2026-11-04") + S.terms * 864e5;
+    $("dueTx").textContent = dfmt.format(due);
+    $("dueSub").textContent = S.terms ? `${S.terms} days after issue` : "Same day as issue";
+    linesEl.querySelectorAll(".line").forEach((row) => { const l = S.lines.find((x) => x.id === +row.dataset.id); tween(row.querySelector("[data-amt]"), lineNet(l)); });
+    tween($("sSub"), t.sub); tween($("sDisc"), t.disc ? -t.disc : 0); tween($("sTax"), t.tax); tween($("sTot"), t.total);
+
+    $("pNo").textContent = S.number || "—"; $("crumbNo").textContent = S.number || "Untitled";
+    $("pClient").innerHTML = `<b>${esc(c.name)}</b>Attn. ${esc(c.contact)}<br>${esc(c.addr)}<br>${esc(c.country)}`;
+    $("pIssue").textContent = S.issue ? dfmt.format(parseDate(S.issue)) : "—";
+    $("pDue").textContent = dfmt.format(due);
+    $("pTerms").textContent = S.terms ? `Net ${S.terms}` : "Due on receipt";
+    $("pCur").textContent = S.cur;
+    $("pRows").innerHTML = S.lines.length ? S.lines.map((l) => {
+      const fmtQ = (+l.qty.toFixed(2)).toLocaleString("en-GB");
+      return `<tr><td>${l.desc ? esc(l.desc) : '<span class="ph">Untitled item</span>'}${l.disc ? `<small>${+l.disc.toFixed(2)}% discount, ${money(-l.qty * l.rate * l.disc / 100)}</small>` : ""}</td><td>${fmtQ}</td><td>${money(l.rate)}</td><td>${l.tax ? +l.tax.toFixed(2) + "%" : "—"}</td><td>${money(lineNet(l))}</td></tr>`;
+    }).join("") : `<tr class="none"><td colspan="5">No items on this invoice yet</td></tr>`;
+    tween($("pSub"), t.sub); tween($("pDisc"), t.disc ? -t.disc : 0); $("pDiscRow").hidden = !t.disc;
+    const rates = Object.keys(t.taxes).map(Number).sort((a, b) => b - a);
+    const box = $("pTaxes"); const keyNow = rates.join("|") + S.cur;
+    if (box._k !== keyNow) { box._k = keyNow; box.innerHTML = rates.map((r) => `<div><span>VAT ${+r.toFixed(2)}%</span><span data-r="${r}"></span></div>`).join(""); }
+    rates.forEach((r) => tween(box.querySelector(`[data-r="${r}"]`), t.taxes[r]));
+    $("sTaxRow").querySelector("span").textContent = rates.length === 1 ? `Tax (${+rates[0].toFixed(2)}%)` : "Tax";
+    tween($("pTot"), t.total); tween($("pBig"), t.total);
+    $("pNotes").textContent = $("notes").value.trim() || "—";
+    $("pPName").textContent = $("pName").value || "—"; $("pPIban").textContent = $("pIban").value || "—"; $("pPBic").textContent = $("pBic").value || "—";
+    $("pRef").textContent = S.number || "—";
+    paintRem(); paintSchedule(due); paintHistory(c); fit();
+  }
+
+  /* the road from issue to due date, redrawn whenever terms or reminders change */
+  function paintSchedule(due) {
+    const start = parseDate(S.issue), day = 864e5, on = REM.filter((r) => r.on);
+    const end = Math.max(due, ...on.map((r) => due + r.d * day), start + day);
+    const pos = (at) => ((at - start) / (end - start)) * 100;
+    const stops = on.map((r) => due + r.d * day).filter((at) => at >= start);
+    const paid = S.status === "paid", p = pos(due);
+    $("tl").innerHTML = `<i class="run" style="width:${paid ? 100 : S.status === "sent" ? 2 : 0}%"></i>` + stops.filter((at) => at !== due).map((at) => `<i class="t" style="left:${pos(at)}%"></i>`).join("") + `<i class="t due" style="left:${p}%"></i>`;
+    const near = p < 28;
+    $("tlL").innerHTML = `<span style="left:0"><b>${dfmt.format(start)}</b>Issued</span><span class="${near ? "" : "r"}" style="left:${near ? 34 : p}%"><b>${dfmt.format(due)}</b>Due</span>`;
+    $("schedTerm").textContent = S.terms ? `Net ${S.terms}` : "Due on receipt";
+    const first = client().contact.split(" ")[0], dates = stops.map((at) => dfmt.format(at).replace(/ \d{4}$/, ""));
+    $("tlN").textContent = paid ? "Settled. No more reminders will go out." : !dates.length ? `No reminders will go to ${first}.` : `${first} gets ${dates.length === 1 ? "one reminder" : dates.length === 2 ? "two reminders" : "three reminders"}: ${dates.join(", ").replace(/, ([^,]*)$/, " and $1")}.`;
+  }
+  function paintHistory(c) {
+    const rows = HIST[c.id] || [];
+    $("histH").textContent = `Past invoices to ${c.name}`;
+    $("hist").innerHTML = rows.length ? rows.map(([n, d, a, days]) => `<tr><td>${n}</td><td>${d}</td><td>${money(a, c.cur)}</td><td>Paid in ${days} days</td></tr>`).join("") : `<tr><td style="font:inherit;color:var(--soft)">This is your first invoice to them.</td></tr>`;
+    $("histAvg").textContent = rows.length ? `Pays in ${Math.round(rows.reduce((s, r) => s + r[3], 0) / rows.length)} days on average` : "";
+  }
+
+  /* ---------- client picker ---------- */
+  let active = 0, shown = [];
+  function paintPick() {
+    const c = client();
+    $("pickMono").textContent = mono(c.name); $("pickName").textContent = c.name; $("pickSub").textContent = `${c.contact} · ${c.email}`;
+  }
+  function renderOpts() {
+    const q = $("cq").value.trim().toLowerCase();
+    shown = clients.filter((c) => !q || `${c.name} ${c.contact} ${c.country}`.toLowerCase().includes(q));
+    const items = shown.map((c, i) => `<div class="opt" role="option" id="o${i}" data-i="${i}" aria-selected="${i === active}"><span class="mono" aria-hidden="true">${mono(c.name)}</span><span><b>${esc(c.name)}</b><small>${esc(c.contact)} · ${esc(c.country)}</small></span>${c.id === S.client ? ICON.check : `<span class="cur">${c.cur}</span>`}</div>`);
+    if (!shown.length) items.push(`<p class="empty-opt">No client called “${esc($("cq").value.trim())}”.</p>`);
+    items.push(`<div class="opt new" role="option" id="o${shown.length}" data-i="${shown.length}" aria-selected="${active === shown.length}"><span class="mono" aria-hidden="true">${ICON.plus}</span><span>${q ? `Add “${esc($("cq").value.trim())}” as a new client` : "New client"}</span></div>`);
+    $("opts").innerHTML = items.join("");
+    $("cq").setAttribute("aria-activedescendant", "o" + active);
+    $("opts").querySelector(`[aria-selected="true"]`)?.scrollIntoView({ block: "nearest" });
+  }
+  const pickOpen = () => $("pop").classList.contains("on");
+  function openPick() {
+    $("pop").classList.add("on"); $("pickBtn").setAttribute("aria-expanded", "true");
+    $("cq").value = ""; active = Math.max(0, clients.findIndex((c) => c.id === S.client)); renderOpts(); $("cq").focus();
+  }
+  function closePick(refocus = true) { if (!pickOpen()) return; $("pop").classList.remove("on"); $("pickBtn").setAttribute("aria-expanded", "false"); if (refocus) $("pickBtn").focus(); }
+  function choose(i) {
+    if (i === shown.length) { const seed = $("cq").value.trim(); closePick(false); openNew(seed); return; }
+    const c = shown[i]; if (!c) return;
+    const prev = S.client; S.client = c.id; closePick(); paintPick();
+    if (prev !== c.id) {
+      log.push({ t: `Client changed to ${c.name}`, d: "Just now" }); paintLog(true);
+      if (c.cur !== S.cur) { S.cur = c.cur; $("cur").value = c.cur; hint(`Currency switched to ${c.cur}, ${c.name}'s billing currency. Rates are not converted.`); }
+      else hint("");
+      touched(); update();
+    }
+  }
+  $("pickBtn").addEventListener("click", () => (pickOpen() ? closePick() : openPick()));
+  $("pickBtn").addEventListener("keydown", (e) => { if (e.key === "ArrowDown" && !pickOpen()) { e.preventDefault(); openPick(); } });
+  $("cq").addEventListener("input", () => { active = 0; renderOpts(); });
+  $("cq").addEventListener("keydown", (e) => {
+    const n = shown.length + 1;
+    if (e.key === "ArrowDown") { e.preventDefault(); active = (active + 1) % n; renderOpts(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = (active - 1 + n) % n; renderOpts(); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePick(); }
+    else if (e.key === "Tab") closePick(false);
+  });
+  $("opts").addEventListener("mousemove", (e) => { const o = e.target.closest(".opt"); if (o && +o.dataset.i !== active) { active = +o.dataset.i; $("opts").querySelectorAll(".opt").forEach((x) => x.setAttribute("aria-selected", String(+x.dataset.i === active))); $("cq").setAttribute("aria-activedescendant", "o" + active); } });
+  $("opts").addEventListener("click", (e) => { const o = e.target.closest(".opt"); if (o) choose(+o.dataset.i); });
+
+  function openNew(seed = "") {
+    $("newClient").classList.add("on"); $("ncErr").textContent = "";
+    ["ncName", "ncContact", "ncEmail", "ncCity"].forEach((id) => { $(id).value = ""; $(id).removeAttribute("aria-invalid"); });
+    $("ncName").value = seed; setTimeout(() => $(seed ? "ncContact" : "ncName").focus(), still ? 0 : 60);
+  }
+  function closeNew() { $("newClient").classList.remove("on"); $("pickBtn").focus(); }
+  $("ncCancel").addEventListener("click", closeNew);
+  $("ncForm").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeNew(); } });
+  $("ncForm").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); saveClient(); } });
+  $("ncSave").addEventListener("click", saveClient);
+  function saveClient() {
+    const name = $("ncName").value.trim(), contact = $("ncContact").value.trim(), email = $("ncEmail").value.trim(), city = $("ncCity").value.trim();
+    const errs = [];
+    $("ncName").setAttribute("aria-invalid", String(!name)); if (!name) errs.push("a company name");
+    const okMail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+    $("ncEmail").setAttribute("aria-invalid", String(!okMail)); if (!okMail) errs.push(email ? "a valid billing email" : "a billing email");
+    if (errs.length) { $("ncErr").textContent = `Add ${errs.join(" and ")} to save this client.`; $(!name ? "ncName" : "ncEmail").focus(); return; }
+    const [town, ...rest] = city.split(",");
+    const c = { id: "c" + clients.length, name, contact: contact || name, email, addr: town ? town.trim() : "Address to follow", country: rest.join(",").trim() || "", cur: S.cur };
+    clients.push(c); S.client = c.id; $("newClient").classList.remove("on"); paintPick(); $("pickBtn").focus();
+    log.push({ t: `New client ${name} added`, d: "Just now" }); paintLog(true);
+    toast(`${name} saved and billed on this invoice`); touched(); update();
+  }
+
+  /* ---------- details ---------- */
+  function hint(t) { $("curHint").textContent = t; }
+  $("num").addEventListener("input", (e) => { S.number = e.target.value.trim(); e.target.setAttribute("aria-invalid", String(!S.number)); touched(); update(); syncSendTitle(); });
+  $("issue").addEventListener("change", (e) => { if (e.target.value) S.issue = e.target.value; else e.target.value = S.issue; touched(); update(); });
+  $("terms").addEventListener("change", (e) => { S.terms = +e.target.value; touched(); update(); });
+  $("cur").addEventListener("change", (e) => { S.cur = e.target.value; const c = client(); hint(c.cur !== S.cur ? `${c.name} is usually billed in ${c.cur}. Amounts are not converted.` : ""); touched(); update(); });
+  ["notes", "pName", "pIban", "pBic"].forEach((id) => $(id).addEventListener("input", () => { touched(); update(); }));
+
+  /* ---------- autosave indicator ---------- */
+  function touched() {
+    const s = $("saved"); s.querySelector("span").textContent = "Saving…"; s.querySelector("svg").style.visibility = "hidden";
+    clearTimeout(touched.h); touched.h = setTimeout(() => { s.querySelector("span").textContent = "Saved"; s.querySelector("svg").style.visibility = ""; }, 700);
+  }
+
+  /* ---------- status: Draft → Sent → Paid ---------- */
+  const STAT = {
+    draft: ["Draft", "Only you and your team can see it"],
+    sent: ["Sent", "Waiting for payment"],
+    paid: ["Paid", "Settled in full, editing locked"],
+  };
+  function paintMenu() {
+    $("statusMenu").innerHTML = Object.entries(STAT).map(([k, [t, d]]) => `<button role="menuitemradio" aria-checked="${S.status === k}" data-s="${k}" tabindex="-1">${ICON[k]}<b>${t}</b><small>${d}</small></button>`).join("");
+  }
+  function setStatus(s, how) {
+    const was = S.status; if (was === s) return; S.status = s;
+    const chip = $("chip"); chip.dataset.s = s; $("chipIc").innerHTML = ICON[s]; $("chipTx").textContent = STAT[s][0];
+    chip.setAttribute("aria-label", `Status: ${STAT[s][0]}. Change status`);
+    const p = $("primary");
+    if (s === "draft") { p.hidden = false; p.innerHTML = ICON.sent + "<span>Send invoice</span>"; }
+    else if (s === "sent") { p.hidden = false; p.innerHTML = ICON.cash + "<span>Record payment</span>"; }
+    else p.hidden = true;
+    const paid = s === "paid";
+    $("fs").disabled = paid; $("lock").classList.toggle("on", paid);
+    $("lockTx").textContent = `Paid in full on ${dfmt.format(Date.UTC(2026, 10, 4))} by bank transfer. Fields are locked.`;
+    $("stamp").classList.toggle("on", paid); if (how !== "init") update();
+    if (how !== "init") {
+      if (s === "sent") log.push({ t: how === "email" ? `Sent to ${$("mTo").value.trim()}` : "Marked as sent", d: "Just now", k: 1 });
+      if (s === "paid") log.push({ t: `Payment of ${money(totals().total)} recorded`, d: "Just now", k: 1 });
+      if (s === "draft") log.push({ t: "Reopened as a draft", d: "Just now" });
+      paintLog(true); say(`Status: ${STAT[s][0]}`);
+    }
+  }
+  function menuOpen(on) {
+    const m = $("statusMenu"); m.classList.toggle("on", on); $("chip").setAttribute("aria-expanded", String(on));
+    if (on) { paintMenu(); (m.querySelector('[aria-checked="true"]') || m.firstChild).focus(); }
+  }
+  $("chip").addEventListener("click", () => menuOpen(!$("statusMenu").classList.contains("on")));
+  $("chip").addEventListener("keydown", (e) => { if (e.key === "ArrowDown") { e.preventDefault(); menuOpen(true); } });
+  $("statusMenu").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-s]"); if (!b) return;
+    menuOpen(false); $("chip").focus();
+    const prev = S.status; setStatus(b.dataset.s);
+    if (prev !== S.status) toast(`Marked as ${STAT[S.status][0].toLowerCase()}`, () => setStatus(prev));
+  });
+  $("statusMenu").addEventListener("keydown", (e) => {
+    const items = [...$("statusMenu").children], i = items.indexOf(document.activeElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length].focus(); }
+    if (e.key === "Home") { e.preventDefault(); items[0].focus(); }
+    if (e.key === "End") { e.preventDefault(); items[items.length - 1].focus(); }
+    if (e.key === "Escape" || e.key === "Tab") { e.preventDefault(); menuOpen(false); $("chip").focus(); }
+  });
+  $("primary").addEventListener("click", () => {
+    if (S.status === "draft") openSend();
+    else if (S.status === "sent") { setStatus("paid"); $("chip").focus(); toast(`Payment recorded. ${$("crumbNo").textContent} is paid`, () => setStatus("sent")); }
+  });
+  $("reopen").addEventListener("click", () => { setStatus("draft"); $("pickBtn").focus(); });
+
+  /* ---------- send dialog ---------- */
+  const dlg = $("sendDlg");
+  function syncSendTitle() { $("sendH").textContent = `Send invoice ${S.number || ""}`.trim(); }
+  function openSend() {
+    if (!S.lines.length) { toast("Add at least one line item before sending"); $("addLine").focus(); return; }
+    if (!S.number) { toast("Give the invoice a number before sending"); $("num").focus(); return; }
+    const c = client(), t = totals(), due = dfmt.format(parseDate(S.issue) + S.terms * 864e5);
+    syncSendTitle();
+    $("mTo").value = c.email; $("toRow").classList.remove("bad"); $("toErr").textContent = "";
+    $("mSubj").value = `Invoice ${S.number} from Oduya & Lind`;
+    $("mMsg").value = `Hi ${c.contact.split(" ")[0]},\n\nAttached is invoice ${S.number} for ${money(t.total)}, due ${due}. You can pay by bank transfer or card from the link below.\n\nThank you,\nAma`;
+    $("seenName").textContent = c.contact.split(" ")[0];
+    $("mailSub").textContent = `Invoice ${S.number} · due ${due}`;
+    $("mailAmt").textContent = money(t.total);
+    $("attName").textContent = `Invoice-${S.number}.pdf`;
+    dlg.showModal(); $("mMsg").focus(); $("mMsg").setSelectionRange(0, 0); $("mMsg").scrollTop = 0;
+  }
+  $("sendX").addEventListener("click", () => dlg.close());
+  $("sendCancel").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener("close", () => { if (S.status === "draft") $("primary").focus(); });
+  $("mTo").addEventListener("input", () => { $("toRow").classList.remove("bad"); $("toErr").textContent = ""; $("mTo").removeAttribute("aria-invalid"); });
+  dlg.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const f = [...dlg.querySelectorAll("button, input, textarea")].filter((x) => !x.disabled), first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  $("sendForm").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); send(); } });
+  $("sendGo").addEventListener("click", send);
+  function send() {
+    const to = $("mTo").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) { $("toRow").classList.add("bad"); $("mTo").setAttribute("aria-invalid", "true"); $("toErr").textContent = to ? "That email address doesn't look right." : "Add the email address to send it to."; $("mTo").focus(); return; }
+    dlg.close(); setStatus("sent", "email"); $("primary").focus();
+    toast(`Invoice sent to ${to}${$("mCopy").checked ? ", with a copy to you" : ""}`);
+  }
+
+  /* ---------- activity ---------- */
+  function paintLog(fresh) {
+    $("log").innerHTML = log.slice(-5).reverse().map((x, i) => `<li class="${x.k ? "k" : ""}${fresh && i === 0 ? " enter" : ""}"><i></i><span>${esc(x.t)}</span><time>${x.d}</time></li>`).join("");
+  }
+
+  /* ---------- preview fit and zoom ---------- */
+  let zoom = "fit";
+  function fit() {
+    const sc = $("scroller"); if (!sc.clientWidth) return;
+    const paper = $("paper"), h = paper.offsetHeight, cs = getComputedStyle(sc);
+    const aw = sc.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ah = sc.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    let s = zoom === "fit" ? Math.min(aw / 680, ah / 962, 1.15) : 1;
+    if (zoom === "fit" && innerWidth <= 640) s = aw / 680;
+    s = Math.max(.3, s);
+    const sheet = $("sheet"); sheet.style.setProperty("--s", s); paper.style.setProperty("--s", s);
+    sheet.style.setProperty("--sw", 680 * s + "px"); sheet.style.setProperty("--sh", h * s + "px");
+    sheet.parentElement.style.setProperty("--sw", 680 * s + "px");
+  }
+  [["zFit", "fit"], ["z100", "100"]].forEach(([id, z]) => $(id).addEventListener("click", () => { zoom = z; $("zFit").setAttribute("aria-pressed", String(z === "fit")); $("z100").setAttribute("aria-pressed", String(z === "100")); fit(); }));
+  new ResizeObserver(fit).observe($("scroller"));
+
+  /* ---------- narrow screens: edit / preview tabs ---------- */
+  function view(v) {
+    $("body").dataset.view = v; $("tabEdit").setAttribute("aria-selected", String(v === "edit")); $("tabPrev").setAttribute("aria-selected", String(v === "preview"));
+    $("tabEdit").tabIndex = v === "edit" ? 0 : -1; $("tabPrev").tabIndex = v === "preview" ? 0 : -1; fit();
+  }
+  $("tabEdit").addEventListener("click", () => view("edit")); $("tabPrev").addEventListener("click", () => view("preview"));
+  [$("tabEdit"), $("tabPrev")].forEach((t) => t.addEventListener("keydown", (e) => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); const v = $("body").dataset.view === "edit" ? "preview" : "edit"; view(v); $(v === "edit" ? "tabEdit" : "tabPrev").focus(); } }));
+
+  /* ---------- small things ---------- */
+  function toast(t, undo) {
+    $("toastTx").textContent = t; undoFn = undo || null; $("toastUndo").hidden = !undo; $("toast").classList.add("on");
+    clearTimeout(toast.h); toast.h = setTimeout(() => { $("toast").classList.remove("on"); undoFn = null; }, undo ? 5000 : 2600);
+  }
+  $("toastUndo").addEventListener("click", () => { const f = undoFn; undoFn = null; $("toast").classList.remove("on"); if (f) f(); });
+  function say(t) { $("live").textContent = ""; setTimeout(() => ($("live").textContent = t), 30); }
+  $("crumbAll").addEventListener("click", (e) => { e.preventDefault(); toast("All invoices would open here. This invoice stays saved"); });
+  document.addEventListener("pointerdown", (e) => {
+    if (pickOpen() && !$("picker").contains(e.target)) closePick(false);
+    if ($("statusMenu").classList.contains("on") && !e.target.closest(".chipwrap")) menuOpen(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if ($("statusMenu").classList.contains("on")) { menuOpen(false); $("chip").focus(); }
+    else if (pickOpen()) closePick();
+  });
+  document.addEventListener("submit", (e) => e.preventDefault());
+
+  paintPick(); paintLog(); paintMenu(); setStatus("draft", "init"); S.status = "draft";
+  $("chipIc").innerHTML = ICON.draft; $("primary").innerHTML = ICON.sent + "<span>Send invoice</span>"; $("chip").setAttribute("aria-label", "Status: Draft. Change status");
+  renderLines();
+})();
+</script>
+</body>
+</html>

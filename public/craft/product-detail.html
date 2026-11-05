@@ -1,0 +1,1038 @@
+<!doctype html>
+<!-- Product page — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A furniture product page whose chair is modelled in code and drawn as SVG from any angle: drag it
+     round, pick a wood and a cloth and every view, price and delivery date follows. Add to cart flies
+     the picture to the bag and opens a mini-cart; below sit dimensions, delivery, reviews and pairings. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lenka lounge chair — Ostrava</title>
+<style>
+  :root {
+    --bg: #f3eee6; --paper: #fbf8f3; --stage: #e6ddd0; --stage-2: #dccfbf; --ink: #1f1b16; --soft: #675e54; --faint: #8b8176;
+    --line: #e1d8cb; --line-2: #cfc4b4; --green: #2d4535; --green-2: #243a2c; --clay: #9a5a3a; --star: #b0772f;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); font-variant-numeric: tabular-nums; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; cursor: pointer; }
+  a { color: inherit; }
+  svg { display: block; }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 2px; }
+  [hidden] { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 0 40px; }
+
+  /* header */
+  .top { position: sticky; top: 0; z-index: 30; background: rgba(243, 238, 230, .94); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; height: 64px; gap: 40px; }
+  .brand { display: flex; align-items: baseline; gap: 2px; font: 600 22px/1 var(--serif); letter-spacing: .01em; text-decoration: none; }
+  .brand i { width: 6px; height: 6px; border-radius: 50%; background: var(--clay); display: inline-block; }
+  .nav { display: flex; gap: 28px; font-size: 14px; }
+  .nav a { text-decoration: none; color: var(--soft); padding: 4px 0; }
+  .nav a:hover, .nav a[aria-current] { color: var(--ink); }
+  .nav a[aria-current] { box-shadow: inset 0 -1px 0 var(--ink); }
+  .tools { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+  .tool { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--ink); }
+  .tool:hover { background: rgba(31, 27, 22, .06); }
+  .badge { position: absolute; top: 3px; right: 1px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--green); color: #fff; font: 600 11px/18px var(--sans); text-align: center; transform: scale(0); transition: transform .2s var(--ease); }
+  .badge.on { transform: scale(1); }
+  .badge.bump { animation: bump .32s var(--ease); }
+  @keyframes bump { 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+  .crumbs { display: flex; gap: 8px; font-size: 13px; color: var(--soft); padding: 20px 0 20px; }
+  .crumbs a { text-decoration: none; } .crumbs a:hover { color: var(--ink); text-decoration: underline; }
+  .crumbs span[aria-hidden] { color: var(--faint); }
+
+  /* product area */
+  .pdp { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 64px; align-items: start; }
+  .gallery { display: grid; gap: 12px; }
+  .stage { position: relative; aspect-ratio: 4 / 3; border-radius: 4px; overflow: hidden; background: radial-gradient(120% 90% at 40% 30%, #ede5da 0%, var(--stage) 55%, var(--stage-2) 100%); touch-action: pan-y; }
+  .stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(rgba(120, 95, 70, 0), rgba(120, 95, 70, .06)); pointer-events: none; }
+  .stage .view { position: absolute; inset: 0; }
+  .stage .view svg { width: 100%; height: 100%; }
+  .stage .view.fade { animation: fadein .26s var(--ease) both; }
+  @keyframes fadein { from { opacity: 0; } }
+  .stage.spin { cursor: grab; }
+  .stage.spin.grabbing { cursor: grabbing; }
+  .stage-note { position: absolute; left: 20px; bottom: 18px; z-index: 2; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--soft); }
+  .stage-tag { position: absolute; right: 20px; top: 18px; z-index: 2; font-size: 12px; color: var(--soft); letter-spacing: .02em; }
+  .dial { position: absolute; right: 16px; bottom: 14px; z-index: 2; display: none; align-items: center; gap: 6px; }
+  .stage.spin .dial { display: flex; }
+  .dial button { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: rgba(251, 248, 243, .9); border: 1px solid var(--line-2); }
+  .dial button:hover { background: var(--paper); }
+  .ticks { display: flex; gap: 4px; margin: 0 6px; }
+  .ticks i { width: 4px; height: 4px; border-radius: 50%; background: rgba(31, 27, 22, .2); transition: background .15s, transform .15s; }
+  .ticks i.on { background: var(--ink); transform: scale(1.4); }
+  .thumbs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .thumb { position: relative; aspect-ratio: 4 / 3; border-radius: 4px; overflow: hidden; background: var(--stage); box-shadow: inset 0 0 0 1px transparent; transition: box-shadow .15s; }
+  .thumb svg { width: 100%; height: 100%; }
+  .thumb:hover { box-shadow: inset 0 0 0 1px var(--line-2); }
+  .thumb[aria-selected="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+  .thumb.t360 { display: grid; place-items: center; align-content: center; gap: 4px; color: var(--ink); font-size: 13px; font-weight: 600; }
+  .thumb.t360 .ico { width: 28px; height: 28px; }
+
+  /* buy panel */
+  .buy { position: sticky; top: 88px; display: grid; gap: 24px; padding-bottom: 8px; }
+  .buy h1 { font: 400 40px/1.08 var(--serif); letter-spacing: -.01em; }
+  .buy .sub { color: var(--soft); margin-top: 8px; font-size: 15px; }
+  .rating { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14px; }
+  .stars { display: flex; gap: 1px; color: var(--star); }
+  .stars svg { width: 15px; height: 15px; }
+  .rating button { color: var(--soft); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+  .rating button:hover { color: var(--ink); }
+  .price { display: flex; align-items: baseline; gap: 12px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .price b { font: 400 30px/1 var(--serif); letter-spacing: -.01em; }
+  .price small { color: var(--soft); font-size: 13px; }
+  .opt-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; margin-bottom: 12px; }
+  .opt-h b { font-weight: 600; }
+  .opt-h span { color: var(--soft); }
+  fieldset { border: 0; min-width: 0; }
+  legend { float: left; width: 100%; }
+  legend + * { clear: both; }
+  .woods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .wood { position: relative; display: grid; align-content: start; gap: 1px; padding: 12px 10px 12px 46px; border: 1px solid var(--line-2); border-radius: 4px; cursor: pointer; background: var(--paper); font-size: 13px; line-height: 1.35; transition: border-color .15s, box-shadow .15s; }
+  .wood:hover { border-color: var(--soft); }
+  .wood i { position: absolute; left: 12px; top: 50%; width: 26px; height: 26px; margin-top: -13px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+  .wood b { font-weight: 600; }
+  .wood span { color: var(--soft); font-size: 12px; }
+  .wood span.slow { color: var(--clay); }
+  input[type="radio"].sr:checked + .wood { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  input[type="radio"].sr:focus-visible + .wood, input[type="radio"].sr:focus-visible + .cloth i { outline: 2px solid var(--green); outline-offset: 2px; }
+  .cloths { display: flex; gap: 12px; flex-wrap: wrap; }
+  .cloth { display: grid; justify-items: center; align-content: start; gap: 6px; cursor: pointer; font-size: 12px; color: var(--soft); width: 52px; text-align: center; line-height: 1.25; }
+  .cloth i { width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); outline: 1px solid transparent; outline-offset: 3px; transition: outline-color .15s; }
+  .cloth:hover i { outline-color: var(--line-2); }
+  input[type="radio"].sr:checked + .cloth i { outline: 1.5px solid var(--ink); outline-offset: 3px; }
+  input[type="radio"].sr:checked + .cloth { color: var(--ink); }
+  .cloth em { font-style: normal; color: var(--clay); display: block; }
+  .ship { display: flex; gap: 12px; padding: 14px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; font-size: 14px; }
+  .ship .ico { margin-top: 1px; color: var(--soft); }
+  .ship b { font-weight: 600; }
+  .ship p + p { color: var(--soft); font-size: 13px; }
+  .ship.changed { animation: flash .6s var(--ease); }
+  @keyframes flash { 0% { background: #efe3cf; } 100% { background: var(--paper); } }
+  .ctas { display: grid; gap: 8px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 24px; border-radius: 4px; font-weight: 600; font-size: 15px; transition: background .15s, transform .1s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-main { background: var(--green); color: #fff; }
+  .btn-main:hover { background: var(--green-2); }
+  .btn-main .sep { width: 1px; height: 18px; background: rgba(255,255,255,.3); }
+  .btn-line { border: 1px solid var(--line-2); background: transparent; }
+  .btn-line:hover { border-color: var(--ink); }
+  .btn-line[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
+  .perks { display: grid; gap: 10px; font-size: 13px; color: var(--soft); list-style: none; }
+  .perks li { display: flex; gap: 10px; align-items: center; }
+  .perks .ico { width: 18px; height: 18px; color: var(--ink); }
+
+  /* sections */
+  .sect { padding: 72px 0 0; }
+  .sect h2 { font: 400 28px/1.15 var(--serif); letter-spacing: -.005em; }
+  .sect .lede { color: var(--soft); margin-top: 8px; max-width: 56ch; }
+  .sect-h { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
+  .seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 4px; padding: 2px; }
+  .seg button { padding: 6px 14px; border-radius: 2px; font-size: 13px; color: var(--soft); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .dims { display: grid; grid-template-columns: 1fr 1fr 300px; gap: 16px 24px; align-items: start; }
+  .dim { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 16px; }
+  .dim figcaption { font-size: 13px; color: var(--soft); }
+  .dim svg { width: 100%; height: auto; }
+  .dim .d-line { stroke: var(--ink); stroke-width: 1; }
+  .dim .d-ext { stroke: var(--faint); stroke-width: .75; stroke-dasharray: 3 3; }
+  .dim text { font: 500 13px var(--sans); fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .dim .d-bg { fill: var(--paper); }
+  .specs { display: grid; align-content: start; border-top: 1px solid var(--line); }
+  .specs div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .specs dt { color: var(--soft); }
+  .specs dd { font-weight: 500; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .duo .shot { aspect-ratio: 1; border-radius: 4px; overflow: hidden; background: radial-gradient(120% 90% at 40% 30%, #ede5da 0%, var(--stage) 55%, var(--stage-2) 100%); }
+  .duo .shot svg { width: 100%; height: 100%; }
+  .duo figcaption { font-size: 13px; color: var(--soft); margin-top: 8px; }
+  .mc { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 24px; }
+  .mc h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .mc dl { display: grid; grid-template-columns: 112px 1fr; gap: 10px 16px; font-size: 14px; }
+  .mc dt { color: var(--soft); }
+  .mc ul { list-style: none; display: grid; gap: 10px; font-size: 14px; }
+  .mc li { padding-left: 18px; position: relative; }
+  .mc li::before { content: ""; position: absolute; left: 0; top: .7em; width: 8px; height: 1px; background: var(--soft); }
+  .est { margin-top: 24px; display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 32px; align-items: start; padding: 24px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; }
+  .est label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .est .row { display: flex; gap: 8px; }
+  .est input { flex: 1; min-width: 0; height: 48px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 4px; background: #fff; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; }
+  .est input::placeholder { text-transform: none; letter-spacing: 0; color: var(--faint); }
+  .est input:focus-visible { outline: 2px solid var(--green); outline-offset: 0; border-color: var(--green); }
+  .est input[aria-invalid="true"] { border-color: #a43c2a; }
+  .est .btn { height: 48px; }
+  .est .hint { margin-top: 8px; font-size: 13px; color: var(--soft); min-height: 20px; }
+  .est .hint.err { color: #a43c2a; }
+  .est-out { font-size: 14px; color: var(--soft); }
+  .est-out b { display: block; font: 400 24px/1.2 var(--serif); color: var(--ink); margin: 4px 0 8px; }
+  .est-steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .est-steps li { border-top: 2px solid var(--line-2); padding-top: 8px; font-size: 13px; }
+  .est-steps li.done { border-color: var(--green); }
+  .est-steps li span { display: block; color: var(--ink); font-weight: 600; }
+
+  /* reviews */
+  .rev { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 64px; }
+  .score { display: flex; align-items: baseline; gap: 12px; }
+  .score b { font: 400 56px/1 var(--serif); }
+  .score span { color: var(--soft); font-size: 14px; }
+  .hist { list-style: none; display: grid; gap: 4px; margin-top: 20px; }
+  .hist button { width: 100%; display: grid; grid-template-columns: 52px 1fr 36px; align-items: center; gap: 12px; padding: 6px 8px; margin: 0 -8px; width: calc(100% + 16px); border-radius: 4px; font-size: 13px; color: var(--soft); text-align: left; }
+  .hist button:hover { background: rgba(31,27,22,.04); color: var(--ink); }
+  .hist button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .hist .bar { display: block; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+  .hist .bar i { display: block; height: 100%; background: var(--star); border-radius: 4px; }
+  .hist .n { text-align: right; }
+  .rev-tools { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--soft); min-height: 49px; }
+  .clear { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; }
+  .reviews { list-style: none; }
+  .review { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .review .who b { display: block; font-weight: 600; font-size: 14px; }
+  .review .who span { display: block; color: var(--soft); font-size: 13px; }
+  .review h3 { font-size: 16px; font-weight: 600; margin: 6px 0 6px; }
+  .review p { font-size: 15px; max-width: 68ch; }
+  .review .meta { display: flex; gap: 16px; align-items: center; margin-top: 10px; font-size: 13px; color: var(--soft); }
+  .review .meta button { display: inline-flex; gap: 6px; align-items: center; color: var(--soft); padding: 4px 0; }
+  .review .meta button:hover { color: var(--ink); }
+  .review .meta button[aria-pressed="true"] { color: var(--green); }
+  .review .meta .ico { width: 16px; height: 16px; }
+  .review .meta i { font-style: normal; }
+  .more { margin-top: 24px; }
+  .rev > div:first-child { position: sticky; top: 96px; align-self: start; }
+  .reply { margin-top: 12px; padding: 12px 16px; border-left: 2px solid var(--line-2); font-size: 14px; color: var(--soft); }
+  .reply b { color: var(--ink); font-weight: 600; }
+  .review.enter { animation: rise .26s var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+  /* pairs */
+  .pairs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .pair { display: grid; gap: 12px; }
+  .pair .art { aspect-ratio: 1; border-radius: 4px; background: var(--stage); overflow: hidden; }
+  .pair .art svg { width: 100%; height: 100%; }
+  .pair .row { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+  .pair b { display: block; font-weight: 600; font-size: 15px; }
+  .pair span { color: var(--soft); font-size: 14px; }
+  .pair .add { flex: none; height: 36px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 4px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .pair .add:hover { border-color: var(--ink); }
+  .pair .add .ico { width: 16px; height: 16px; }
+
+  footer { margin-top: 96px; border-top: 1px solid var(--line); padding: 32px 0 48px; font-size: 13px; color: var(--soft); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  footer nav { display: flex; gap: 24px; flex-wrap: wrap; }
+  footer a { text-decoration: none; } footer a:hover { color: var(--ink); }
+
+  /* fly + drawer */
+  .fly { position: fixed; z-index: 60; pointer-events: none; border-radius: 4px; overflow: hidden; background: var(--stage); box-shadow: 0 10px 30px -10px rgba(40, 25, 10, .35); }
+  .fly svg { width: 100%; height: 100%; }
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(31, 24, 16, .32); opacity: 0; pointer-events: none; transition: opacity .25s var(--ease); }
+  .drawer { position: fixed; z-index: 50; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--paper); display: flex; flex-direction: column; transform: translateX(100%); visibility: hidden; transition: transform .3s var(--ease), visibility 0s .3s; box-shadow: -20px 0 40px -24px rgba(40, 25, 10, .3); }
+  .cart-open .scrim { opacity: 1; pointer-events: auto; }
+  .cart-open .drawer { transform: none; visibility: visible; transition: transform .3s var(--ease), visibility 0s; }
+  .dr-h { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+  .dr-h h2 { font: 400 22px/1.2 var(--serif); }
+  .dr-h h2 span { color: var(--soft); font: 400 14px var(--sans); margin-left: 6px; }
+  .free { padding: 16px 24px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--soft); }
+  .free b { color: var(--ink); font-weight: 600; }
+  .meter { height: 4px; background: var(--line); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 2px; transition: width .35s var(--ease); }
+  .lines { flex: 1; overflow-y: auto; list-style: none; padding: 0 24px; }
+  .line { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .line .pic { aspect-ratio: 1; background: var(--stage); border-radius: 4px; overflow: hidden; }
+  .line .pic svg { width: 100%; height: 100%; }
+  .line .top-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .line .top-row b { font-weight: 600; }
+  .line .opts { font-size: 13px; color: var(--soft); margin-top: 2px; }
+  .line .ctl { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .step { display: inline-flex; align-items: center; border: 1px solid var(--line-2); border-radius: 4px; height: 36px; }
+  .step button { width: 36px; height: 34px; display: grid; place-items: center; color: var(--ink); }
+  .step button:disabled { color: var(--line-2); cursor: default; }
+  .step button .ico { width: 16px; height: 16px; }
+  .step output { min-width: 28px; text-align: center; font-size: 14px; font-weight: 600; }
+  .rm { font-size: 13px; color: var(--soft); text-decoration: underline; text-underline-offset: 3px; }
+  .rm:hover { color: var(--ink); }
+  .empty { padding: 48px 0; text-align: center; color: var(--soft); font-size: 14px; }
+  .empty b { display: block; font: 400 20px var(--serif); color: var(--ink); margin-bottom: 6px; }
+  .dr-f { padding: 20px 24px 24px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 14px; }
+  .dr-f .sum { display: flex; justify-content: space-between; }
+  .dr-f .sum.total { font-weight: 600; font-size: 16px; margin: 4px 0 8px; }
+  .dr-f .soft { color: var(--soft); }
+  .dr-f .note { font-size: 13px; color: var(--green); text-align: center; min-height: 18px; }
+  .x { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; margin-right: -10px; }
+  .x:hover { background: rgba(31,27,22,.06); }
+
+  /* phone buy bar */
+  .bar { display: none; }
+  .toast { position: fixed; left: 50%; bottom: 24px; z-index: 70; transform: translate(-50%, 12px); opacity: 0; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 4px; font-size: 14px; pointer-events: none; transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 1180px) {
+    .pdp { grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; }
+    .nav { display: none; }
+    .rev { grid-template-columns: 260px minmax(0, 1fr); gap: 40px; }
+    .review { grid-template-columns: 1fr; gap: 4px; }
+  }
+  @media (max-width: 900px) {
+    .wrap { padding: 0 24px; }
+    .pdp { grid-template-columns: 1fr; gap: 32px; }
+    .buy { position: static; }
+    .rev { grid-template-columns: 1fr; gap: 24px; }
+    .pairs { grid-template-columns: repeat(2, 1fr); }
+    .est { grid-template-columns: 1fr; gap: 20px; }
+    .duo { display: none; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .top .wrap { gap: 16px; }
+    .crumbs { padding: 14px 0; }
+    .thumbs { gap: 6px; }
+    .thumb .lbl { display: none; }
+    .thumb.t360 span { font-size: 11px; }
+    .thumb.t360 .ico { width: 22px; height: 22px; }
+    .stage { aspect-ratio: 1; margin: 0 -16px; border-radius: 0; }
+    .stage-note { left: 16px; }
+    .buy h1 { font-size: 32px; }
+    .woods { grid-template-columns: repeat(3, 1fr); }
+    .wood { padding: 10px; }
+    .wood i { position: static; margin: 0 0 6px; }
+    .duo { display: none; }
+    .cloths { gap: 8px; justify-content: space-between; }
+    .buy .ctas .btn-main { display: none; }
+    .dims { grid-template-columns: 1fr; }
+    .mc { grid-template-columns: 1fr; gap: 32px; }
+    .mc dl { grid-template-columns: 96px 1fr; }
+    .sect { padding-top: 56px; }
+    .sect-h { flex-wrap: wrap; align-items: start; }
+    .pairs { gap: 16px; }
+    .pair .row { flex-direction: column; }
+    .est-steps { grid-template-columns: 1fr; }
+    body { padding-bottom: 80px; }
+    .bar { position: fixed; z-index: 35; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--paper); border-top: 1px solid var(--line); }
+    .bar div { flex: 1; min-width: 0; font-size: 13px; color: var(--soft); line-height: 1.3; }
+    .bar div b { display: block; font: 400 20px var(--serif); color: var(--ink); }
+    .bar div span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar .btn { height: 48px; flex: none; }
+    .toast { bottom: 92px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="contact" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="3"/></filter>
+    <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
+    <symbol id="i-star-o" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#" data-nolink>Ostrava<i aria-hidden="true"></i></a>
+    <nav class="nav" aria-label="Shop">
+      <a href="#" data-nolink aria-current="page">Seating</a><a href="#" data-nolink>Tables</a><a href="#" data-nolink>Storage</a><a href="#" data-nolink>Lighting</a><a href="#" data-nolink>Textiles</a><a href="#" data-nolink>Workshop</a>
+    </nav>
+    <div class="tools">
+      <button class="tool" type="button" aria-label="Search" data-toast="Search opens here"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
+      <button class="tool" type="button" aria-label="Account" data-toast="Signed in as Mirela Horáková"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg></button>
+      <button class="tool" type="button" id="cartBtn" aria-label="Cart, empty" aria-controls="drawer" aria-expanded="false"><svg class="ico" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg><span class="badge" id="badge" aria-hidden="true">0</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="#" data-nolink>Seating</a><span aria-hidden="true">/</span><a href="#" data-nolink>Lounge chairs</a><span aria-hidden="true">/</span><span aria-current="page">Lenka</span></nav>
+
+  <div class="pdp">
+    <div class="left">
+      <section class="gallery" aria-label="Pictures of the chair">
+        <div class="stage" id="stage" tabindex="-1" aria-roledescription="gallery view">
+          <div class="view" id="view"></div>
+          <span class="stage-tag" id="stageTag">Three-quarter view</span>
+          <p class="stage-note" id="stageNote" hidden><svg class="ico" viewBox="0 0 24 24"><path d="M4 12a8 4 0 0016 0"/><path d="M4 12a8 4 0 0116 0" stroke-dasharray="2 3"/><path d="M17 15.5l3-3.5 1 4.5"/></svg>Drag, or use the arrow keys, to turn it</p>
+          <div class="dial">
+            <button type="button" id="spinL" aria-label="Turn left"><svg class="ico" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
+            <span class="ticks" id="ticks" aria-hidden="true"></span>
+            <button type="button" id="spinR" aria-label="Turn right"><svg class="ico" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+        <div class="thumbs" role="tablist" aria-label="Views" id="thumbs"></div>
+        <div class="duo">
+          <figure><div class="shot" id="shotDetail"></div><figcaption>Through-tenons in the arms, pegged and left proud</figcaption></figure>
+          <figure><div class="shot" id="shotPair"></div><figcaption>With the Lenka footstool, sold separately</figcaption></figure>
+        </div>
+      </section>
+
+    </div>
+
+    <aside class="buy" id="buy" aria-label="Choose and buy">
+      <div>
+        <h1>Lenka lounge chair</h1>
+        <p class="sub">A low, deep chair on a solid-wood frame, built to be sat in for an evening.</p>
+        <div class="rating"><span class="stars" aria-hidden="true" id="topStars"></span><span><b>4.7</b> of 5</span><button type="button" id="toReviews">126 reviews</button></div>
+      </div>
+      <div class="price"><b id="price">€1,480</b><small>incl. VAT · free delivery over €1,500</small></div>
+      <fieldset>
+        <legend class="opt-h"><b>Frame</b><span id="woodName">Oak</span></legend>
+        <div class="woods" id="woods"></div>
+      </fieldset>
+      <fieldset>
+        <legend class="opt-h"><b>Upholstery</b><span id="clothName">Wool bouclé, oat</span></legend>
+        <div class="cloths" id="cloths"></div>
+      </fieldset>
+      <div class="ship" id="ship" aria-live="polite">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 6.5h11v10H3z"/><path d="M14 9.5h4l3 3.5v3.5h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg>
+        <div><p><b id="shipWhen">Ships in 1–2 weeks</b></p><p id="shipWhy">Oak and bouclé are in the workshop now.</p></div>
+      </div>
+      <div class="ctas">
+        <button class="btn btn-main" type="button" id="add"><span>Add to cart</span><span class="sep" aria-hidden="true"></span><span id="addPrice">€1,480</span></button>
+        <button class="btn btn-line" type="button" id="samples" aria-pressed="false">Send me free cloth samples</button>
+      </div>
+      <ul class="perks">
+        <li><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l7 3v5c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9v-5z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>Ten-year guarantee on the frame</li>
+        <li><svg class="ico" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5v3.8h3.8"/></svg>Thirty nights at home to decide, free return</li>
+        <li><svg class="ico" viewBox="0 0 24 24"><path d="M4 20l7-7"/><path d="M13 4c3.5 0 7 3.5 7 7-3.5 0-4.5-1-6-2.5S13 6.5 13 4z"/><path d="M11 13c-2-2-2-5 0-7 2 2 2 5 0 7z"/></svg>Wood from managed forests in the Beskydy</li>
+      </ul>
+    </aside>
+  </div>
+
+  <section class="sect" id="dims" aria-labelledby="dimsH">
+    <div class="sect-h">
+      <div><h2 id="dimsH">Dimensions</h2><p class="lede">Low and deep, with arms set at a height that suits a book or a cup.</p></div>
+      <div class="seg" role="group" aria-label="Units"><button type="button" aria-pressed="true" data-unit="cm">cm</button><button type="button" aria-pressed="false" data-unit="in">in</button></div>
+    </div>
+    <div class="dims">
+      <figure class="dim"><svg id="dimFront" viewBox="0 0 440 340" role="img" aria-label="Front elevation with width and height"></svg><figcaption>Front</figcaption></figure>
+      <figure class="dim"><svg id="dimSide" viewBox="0 0 440 340" role="img" aria-label="Side elevation with depth, seat height and arm height"></svg><figcaption>Side</figcaption></figure>
+      <dl class="specs" id="specs"></dl>
+    </div>
+
+  </section>
+
+  <section class="sect" aria-labelledby="mcH">
+    <h2 id="mcH">Materials and care</h2>
+    <div class="mc">
+      <div>
+        <h3>Materials</h3>
+        <dl>
+          <dt>Frame</dt><dd id="mFrame">Solid European oak, oiled, mortise-and-tenon joints</dd>
+          <dt>Cushions</dt><dd>Pocket springs in the seat, feather and foam wrap in the back</dd>
+          <dt>Cover</dt><dd id="mCover">Wool bouclé, 82% wool, 18% polyamide, 40,000 rubs</dd>
+          <dt>Made in</dt><dd>Our workshop in Frýdek, by hand, to order</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>Care</h3>
+        <ul id="care"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect" aria-labelledby="estH">
+    <h2 id="estH">When it would arrive</h2>
+    <p class="lede">Two people bring it to the room you choose, unwrap it and take the packaging away.</p>
+    <div class="est" id="estForm" role="group" aria-labelledby="estH">
+      <div>
+        <label for="postcode">Your postcode</label>
+        <div class="row"><input id="postcode" autocomplete="postal-code" placeholder="e.g. 702 00" maxlength="10" aria-describedby="estHint"><button class="btn btn-line" type="button" id="estGo">Check</button></div>
+        <p class="hint" id="estHint" aria-live="polite">We deliver across mainland Europe.</p>
+      </div>
+      <div class="est-out" id="estOut" aria-live="polite">
+        Made for you in <span id="estLead">1–2 weeks</span>, then on the road for 2 to 6 days depending on where you are.
+        <ol class="est-steps"><li class="done"><span>Ordered</span>Today</li><li><span>Made</span>In our workshop</li><li><span>Delivered</span>To your room</li></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect" id="reviews" aria-labelledby="revH">
+    <div class="rev">
+      <div>
+        <h2 id="revH">What owners say</h2>
+        <div class="score" style="margin-top:16px"><b>4.7</b><span>out of 5<br>from 126 reviews</span></div>
+        <ul class="hist" id="hist" aria-label="Filter reviews by rating"></ul>
+      </div>
+      <div>
+        <div class="rev-tools"><span id="revCount" aria-live="polite"></span><button class="clear" type="button" id="revClear" hidden>Show all reviews</button></div>
+        <ul class="reviews" id="revList"></ul>
+        <button class="btn btn-line more" type="button" id="revMore">Show 5 more reviews</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect" aria-labelledby="pairH">
+    <div class="sect-h"><div><h2 id="pairH">Pairs well with</h2><p class="lede">Made in the same workshop, in the same woods.</p></div></div>
+    <div class="pairs" id="pairs"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Ostrava Furniture · Frýdek workshop, open Saturdays 10–16</span>
+    <nav aria-label="Footer"><a href="#" data-nolink>Delivery</a><a href="#" data-nolink>Returns</a><a href="#" data-nolink>Care guides</a><a href="#" data-nolink>Visit the workshop</a></nav>
+  </div>
+</footer>
+
+<div class="bar" id="bar"><div><b id="barPrice">€1,480</b><span id="barOpts">Oak · Wool bouclé, oat</span></div><button class="btn btn-main" type="button" id="barAdd">Add to cart</button></div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drH">
+  <div class="dr-h"><h2 id="drH">Your cart<span id="drCount"></span></h2><button class="x" type="button" id="drClose" aria-label="Close cart"><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="free" id="free"><span id="freeText"></span><div class="meter" role="progressbar" aria-label="Progress to free delivery" aria-valuemin="0" aria-valuemax="1500" id="meter"><i id="meterFill"></i></div></div>
+  <ul class="lines" id="lines"></ul>
+  <div class="dr-f">
+    <div class="sum"><span class="soft">Subtotal</span><span id="subtotal">€0</span></div>
+    <div class="sum"><span class="soft">White-glove delivery</span><span id="delivery">€89</span></div>
+    <div class="sum total"><span>Total</span><span id="total">€0</span></div>
+    <button class="btn btn-main" type="button" id="checkout">Go to checkout</button>
+    <button class="btn btn-line" type="button" id="keep">Keep looking</button>
+    <p class="note" id="coNote" aria-live="polite"></p>
+  </div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const eur = (n) => "€" + n.toLocaleString("en-GB");
+
+  /* ---------- a small renderer: convex parts in centimetres, projected and shaded into SVG ---------- */
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const unit = (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  const part = (mat, faces, c, bias = 0) => {
+    if (!c) { const s = [0, 0, 0]; let n = 0; for (const f of faces) for (const p of f) { s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; n++; } c = s.map((v) => v / n); }
+    return { mat, faces, c, bias };
+  };
+  const quad = (a, b, c, d) => [a, b, c, d];
+  function block(x0, x1, y0, y1, z0, z1, mat) {
+    const P = (x, y, z) => [x, y, z];
+    return part(mat, [
+      quad(P(x0, y0, z0), P(x1, y0, z0), P(x1, y0, z1), P(x0, y0, z1)), quad(P(x0, y1, z0), P(x0, y1, z1), P(x1, y1, z1), P(x1, y1, z0)),
+      quad(P(x0, y0, z1), P(x1, y0, z1), P(x1, y1, z1), P(x0, y1, z1)), quad(P(x0, y0, z0), P(x0, y1, z0), P(x1, y1, z0), P(x1, y0, z0)),
+      quad(P(x0, y0, z0), P(x0, y0, z1), P(x0, y1, z1), P(x0, y1, z0)), quad(P(x1, y0, z0), P(x1, y1, z0), P(x1, y1, z1), P(x1, y0, z1))]);
+  }
+  /* a square-section member from a to b, w across and d deep, tapering by t toward b */
+  function beam(a, b, w, d, mat, t = 0) {
+    const ax = unit(sub(b, a)), up = Math.abs(ax[1]) > .9 ? [1, 0, 0] : [0, 1, 0];
+    const u = unit(crs(ax, up)), v = unit(crs(u, ax));
+    const ring = (p, s) => [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => [0, 1, 2].map((k) => p[k] + u[k] * i * w / 2 * s + v[k] * j * d / 2 * s));
+    const A = ring(a, 1), B = ring(b, 1 - t), f = [A, B];
+    for (let i = 0; i < 4; i++) f.push(quad(A[i], A[(i + 1) % 4], B[(i + 1) % 4], B[i]));
+    return part(mat, f);
+  }
+  function cyl(cx, cz, y0, y1, r0, r1, n, mat) {
+    const f = [], ring = (y, r) => Array.from({ length: n }, (_, i) => [cx + Math.cos(i / n * Math.PI * 2) * r, y, cz + Math.sin(i / n * Math.PI * 2) * r]);
+    const A = ring(y0, r0), B = ring(y1, r1);
+    for (let i = 0; i < n; i++) f.push(quad(A[i], A[(i + 1) % n], B[(i + 1) % n], B[i]));
+    f.push(A, B);
+    return part(mat, f, [cx, (y0 + y1) / 2, cz]);
+  }
+  /* a cushion: a box with rounded edges, one face crowned, tilted about x */
+  function cushion(c, h, r, mat, { crown = 0, face = 1, tilt = 0 } = {}) {
+    const axis = (hh) => {
+      const s = [], k = hh - r, m = Math.max(1, Math.min(3, Math.round(2 * k / 9)));
+      for (let i = 4; i >= 1; i--) s.push(-k - r * Math.sin(i * Math.PI / 8));
+      for (let i = 0; i <= m; i++) s.push(-k + 2 * k * i / m);
+      for (let i = 1; i <= 4; i++) s.push(k + r * Math.sin(i * Math.PI / 8));
+      return s;
+    };
+    const S = h.map(axis), inner = h.map((v) => v - r), ca = Math.cos(tilt), sa = Math.sin(tilt), f = [];
+    const other = face === 1 ? 2 : 1;
+    const at = (p) => {
+      const q = p.map((v, i) => Math.max(-inner[i], Math.min(inner[i], v)));
+      const n = unit(sub(p, q));
+      const o = q.map((v, i) => v + n[i] * r);
+      o[face] += crown * Math.max(0, n[face]) * (1 - (o[0] / h[0]) ** 2) * (1 - (o[other] / h[other]) ** 2);
+      return [o[0] + c[0], o[1] * ca - o[2] * sa + c[1], o[1] * sa + o[2] * ca + c[2]];
+    };
+    for (let ax = 0; ax < 3; ax++) for (const sgn of [-1, 1]) {
+      const a1 = (ax + 1) % 3, a2 = (ax + 2) % 3, U = S[a1], W = S[a2];
+      for (let i = 0; i < U.length - 1; i++) for (let j = 0; j < W.length - 1; j++) {
+        const pt = (ii, jj) => { const p = [0, 0, 0]; p[ax] = sgn * h[ax]; p[a1] = U[ii]; p[a2] = W[jj]; return at(p); };
+        f.push(quad(pt(i, j), pt(i + 1, j), pt(i + 1, j + 1), pt(i, j + 1)));
+      }
+    }
+    return part(mat, f, c);
+  }
+
+  /* ---------- light and colour ---------- */
+  const lin = (h) => [1, 3, 5].map((i) => { const v = parseInt(h.slice(i, i + 2), 16) / 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; });
+  const srgb = (c) => "#" + c.map((v) => { v = Math.max(0, Math.min(1, v)); v = v <= .0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - .055; return Math.round(v * 255).toString(16).padStart(2, "0"); }).join("");
+  const LIGHT = unit([-.5, .75, .55]), FILL = unit([.8, .1, .5]), HALF = unit([LIGHT[0], LIGHT[1], LIGHT[2] + 1]);
+  const KIND = {
+    wood: { amb: .2, dif: .72, fil: .2, sky: .1, spec: .06, sh: 16 },
+    cloth: { amb: .26, dif: .64, fil: .18, sky: .14, spec: 0, sh: 1 },
+    hide: { amb: .2, dif: .66, fil: .14, sky: .1, spec: .16, sh: 20 },
+    metal: { amb: .2, dif: .5, fil: .2, sky: .2, spec: .45, sh: 40 },
+    shade: { amb: .62, dif: .38, fil: .2, sky: .1, spec: 0, sh: 1 },
+    flat: { amb: .78, dif: .18, fil: .06, sky: .04, spec: 0, sh: 1 },
+  };
+  function shade(base, n, k) {
+    const d = Math.max(0, dot(n, LIGHT)), fl = Math.max(0, dot(n, FILL)), sk = .5 + .5 * n[1];
+    const s = Math.max(0, dot(n, HALF)) ** k.sh * k.spec;
+    const m = k.amb + k.dif * d + k.fil * fl + k.sky * sk;
+    return srgb(base.map((v) => v * m + s));
+  }
+  function camera({ yaw = 0, pitch = .2, f = 5, cx = 400, cy = 330, look = [0, 37, 0], D = 420, ortho = false }) {
+    const cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const view = (p) => {
+      const x = p[0] - look[0], y = p[1] - look[1], z = p[2] - look[2];
+      const x1 = x * cyw + z * syw, z1 = -x * syw + z * cyw;
+      return [x1, y * cp - z1 * sp, y * sp + z1 * cp];
+    };
+    const flat = (q) => { const k = ortho ? f : f * D / (D - q[2]); return [cx + q[0] * k, cy - q[1] * k]; };
+    return { view, flat, D, ortho, at: (p) => flat(view(p)) };
+  }
+  const pts = (a) => "M" + a.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z";
+  function draw(parts, cam, paint) {
+    const eye = [0, 0, cam.D];
+    const list = parts.map((p, i) => ({ p, i, vf: p.faces.map((f) => f.map(cam.view)), c: cam.view(p.c) }));
+    list.sort((a, b) => (a.c[2] + a.p.bias) - (b.c[2] + b.p.bias));
+    let s = "";
+    for (const e of list) {
+      const pt = paint(e.p.mat), k = KIND[pt.kind];
+      const tone = pt.kind === "wood" ? .92 + .14 * (((Math.sin((e.i + 1) * 12.9898) * 43758.5453) % 1 + 1) % 1) : 1, base = pt.base.map((v) => v * tone);
+      for (const f of e.vf) {
+        const m = [0, 0, 0]; for (const q of f) { m[0] += q[0]; m[1] += q[1]; m[2] += q[2]; }
+        m[0] /= f.length; m[1] /= f.length; m[2] /= f.length;
+        let n = unit(crs(sub(f[2], f[0]), sub(f[f.length - 1], f[1])));
+        if (dot(n, sub(m, e.c)) < 0) n = n.map((v) => -v);
+        if (dot(n, cam.ortho ? [0, 0, 1] : sub(eye, m)) <= 0) continue;
+        const col = shade(base, n, k);
+        s += `<path d="${pts(f.map(cam.flat))}" fill="${col}" stroke="${col}" stroke-width="1.1" stroke-linejoin="round"/>`;
+      }
+    }
+    return s;
+  }
+
+  /* ---------- the chair, in centimetres: x across, y up, z toward you ---------- */
+  function chair() {
+    const P = [], W = "wood", S = "seat";
+    for (const s of [-1, 1]) {
+      const x = s * 34.6;
+      P.push(beam([x, 53.6, 31], [x, 0, 33], 4.4, 4.4, W, .25));
+      P.push(beam([x, 76, -43], [x, 0, -31], 4.4, 4.4, W, .25));
+      P.push(block(x - 3.2, x + 3.2, 53.5, 56.5, -38.5, 37.5, W));
+      P.push(block(x - 1.6, x + 1.6, 25, 31, -32, 30, W));
+      P.push(part("end", block(x - 1.9, x + 1.9, 56.5, 57.1, 29.6, 33.4, W).faces, null, .5));
+      P.push(part("end", block(x - 1.9, x + 1.9, 56.5, 57.1, -39.6, -35.8, W).faces, null, .5));
+      P.push(part("end", beam([x + s * 3.1, 55, 31], [x + s * 3.45, 55, 31], 1.2, 1.2, W).faces, null, .6));
+    }
+    P.push(block(-32.4, 32.4, 24.5, 31, 29.2, 33, W));
+    P.push(block(-32.4, 32.4, 24.5, 31, -35, -31.5, W));
+    P.push(beam([-32.4, 71, -42.3], [32.4, 71, -42.3], 3, 5.5, W));
+    P.push(cushion([0, 37.5, 0], [32, 5.6, 30], 4.6, S, { crown: 1.3, tilt: -.07 }));
+    P.push(cushion([0, 57.5, -33.5], [31, 16.5, 6.2], 4.8, S, { crown: 1.5, face: 2, tilt: -.17 }));
+    return P;
+  }
+  function stool() {
+    const P = [], W = "wood", S = "seat";
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) P.push(beam([sx * 24, 24, sz * 18], [sx * 25, 0, sz * 19.5], 4, 4, W, .25));
+    P.push(block(-26, 26, 18, 24, -20, 20, W));
+    P.push(cushion([0, 29.5, 0], [25, 5.5, 19], 4.5, S, { crown: 1.2 }));
+    return P;
+  }
+  function sideTable() {
+    const P = [], W = "wood";
+    for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + .5; P.push(beam([Math.cos(a) * 15, 49, Math.sin(a) * 15], [Math.cos(a) * 21, 0, Math.sin(a) * 21], 3.4, 3.4, W, .3)); }
+    P.push(cyl(0, 0, 49, 52, 24, 24, 40, W));
+    return P;
+  }
+  function lamp() {
+    const P = [], M = "metal";
+    P.push(cyl(0, 0, 0, 2.2, 15, 14, 32, M));
+    P.push(beam([0, 2, 0], [0, 118, 0], 2, 2, "wood"));
+    P.push(cyl(0, 0, 112, 142, 25, 17, 36, "shade"));
+    return P;
+  }
+
+  /* ---------- options ---------- */
+  const WOODS = [
+    { id: "oak", name: "Oak", hex: "#b48a60", plus: 0, weeks: 0, sw: "linear-gradient(115deg,#c99d6d 0 30%,#b88655 30% 34%,#c49766 34% 62%,#ad7b4c 62% 66%,#c69a69 66%)", care: "Oiled oak: wipe with a dry cloth; re-oil once a year with the bottle we send.", desc: "Solid European oak, oiled, mortise-and-tenon joints" },
+    { id: "walnut", name: "Walnut", hex: "#5d3a25", plus: 240, weeks: 3, sw: "linear-gradient(115deg,#6b4430 0 28%,#53331f 28% 33%,#684231 33% 60%,#4b2d1b 60% 66%,#664029 66%)", care: "Oiled walnut: keep out of strong sun for the first months while it settles in colour.", desc: "Solid American black walnut, oiled, mortise-and-tenon joints" },
+    { id: "ash", name: "Black ash", hex: "#2c2824", plus: 120, weeks: 0, sw: "linear-gradient(115deg,#34302b 0 30%,#24211e 30% 34%,#322e29 34% 62%,#201d1a 62% 66%,#302c27 66%)", care: "Stained ash: a damp cloth is enough; scratches touch up with the wax stick we send.", desc: "Solid ash stained black, lacquered, mortise-and-tenon joints" },
+  ];
+  const CLOTHS = [
+    { id: "oat", name: "Wool bouclé, oat", short: "Oat", hex: "#d4c9b6", kind: "cloth", plus: 0, weeks: 0, cover: "Wool bouclé, 82% wool, 18% polyamide, 40,000 rubs" },
+    { id: "moss", name: "Wool twill, moss", short: "Moss", hex: "#646a43", kind: "cloth", plus: 0, weeks: 0, cover: "Wool twill, 90% wool, 10% polyamide, 50,000 rubs" },
+    { id: "rust", name: "Wool twill, rust", short: "Rust", hex: "#9b4628", kind: "cloth", plus: 0, weeks: 0, cover: "Wool twill, 90% wool, 10% polyamide, 50,000 rubs" },
+    { id: "slate", name: "Wool twill, slate", short: "Slate", hex: "#4b5462", kind: "cloth", plus: 0, weeks: 0, cover: "Wool twill, 90% wool, 10% polyamide, 50,000 rubs" },
+    { id: "cognac", name: "Aniline leather, cognac", short: "Cognac", hex: "#7c3f1d", kind: "hide", plus: 420, weeks: 2, cover: "Full-grain aniline leather, vegetable tanned, 1.2 mm" },
+  ];
+  const BASE = 1480, FREE_AT = 1500, DELIVERY = 89;
+  const state = { wood: WOODS[0], cloth: CLOTHS[0], view: 0, spin: 0, unit: "cm", stars: 0 };
+  const paintFor = (wood, cloth) => (mat) => mat === "seat" ? { base: lin(cloth.hex), kind: cloth.kind }
+    : mat === "metal" ? { base: lin("#2a2724"), kind: "metal" } : mat === "shade" ? { base: lin("#efe6d6"), kind: "shade" }
+    : mat === "end" ? { base: lin(wood.hex).map((v) => v * .72), kind: "wood" } : { base: lin(wood.hex), kind: "wood" };
+  const priceOf = () => BASE + state.wood.plus + state.cloth.plus;
+  const leadOf = () => { const w = state.wood.weeks + state.cloth.weeks; return [1 + w, 2 + w]; };
+
+  /* ---------- views ---------- */
+  const SPIN = 12;
+  const VIEWS = [
+    { id: "three", label: "Three-quarter", cam: { yaw: -.62, pitch: .2 } },
+    { id: "front", label: "Front", cam: { yaw: 0, pitch: .14 } },
+    { id: "side", label: "Side", cam: { yaw: -Math.PI / 2, pitch: .1, cx: 410 } },
+    { id: "back", label: "Back", cam: { yaw: Math.PI * .78, pitch: .22 } },
+    { id: "detail", label: "Joint detail", cam: { yaw: -.55, pitch: .34, f: 10, look: [28, 45, 22], cy: 320 } },
+    { id: "spin", label: "Turn it round" },
+  ];
+  const spinCam = (i) => ({ yaw: -.62 + i / SPIN * Math.PI * 2, pitch: .2 });
+  const CHAIR = chair();
+  function shadowFor(cam, parts, w = 40, d = 42, feet = [], ox = 0, oz = 0) {
+    const q = [[-w, 0, -d], [w, 0, -d], [w, 0, d], [-w, 0, d]].map((p) => cam.at([p[0] + ox, 0, p[2] + oz]));
+    let s = `<path d="${pts(q)}" fill="#5a4330" opacity=".2" filter="url(#soft)"/>`;
+    for (const f of feet) { const [x, y] = cam.at(f); s += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="11" ry="3.4" fill="#3b2a1c" opacity=".4" filter="url(#contact)"/>`; }
+    return s;
+  }
+  const FEET = [[-34.6, 0, 33], [34.6, 0, 33], [-34.6, 0, -31], [34.6, 0, -31]];
+  const cache = new Map();
+  function render(camOpts, wood = state.wood, cloth = state.cloth, vb = "0 0 800 640") {
+    const key = JSON.stringify(camOpts) + wood.id + cloth.id + vb;
+    if (cache.has(key)) return cache.get(key);
+    const cam = camera(camOpts);
+    const out = `<svg viewBox="${vb}" aria-hidden="true" focusable="false">${shadowFor(cam, CHAIR, 40, 42, FEET)}${draw(CHAIR, cam, paintFor(wood, cloth))}</svg>`;
+    if (cache.size > 160) cache.clear();
+    cache.set(key, out);
+    return out;
+  }
+  const camOf = (i) => (VIEWS[i].id === "spin" ? spinCam(state.spin) : VIEWS[i].cam);
+
+  const stage = $("#stage"), view = $("#view"), thumbs = $("#thumbs");
+  VIEWS.forEach((v, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "thumb" + (v.id === "spin" ? " t360" : ""); b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", i === 0 ? "true" : "false"); b.tabIndex = i === 0 ? 0 : -1;
+    b.setAttribute("aria-label", v.label); b.title = v.label; b.setAttribute("aria-controls", "stage");
+    if (v.id === "spin") b.innerHTML = `<svg class="ico" viewBox="0 0 24 24"><path d="M20 12a8 3.5 0 01-8 3.5"/><path d="M4 12a8 3.5 0 0110.5-3.3"/><path d="M14.5 13.3L12 15.5l2.5 2.2"/><path d="M12 5v4"/></svg><span>360°</span>`;
+    b.addEventListener("click", () => select(i));
+    b.addEventListener("keydown", (e) => {
+      const k = { ArrowRight: 1, ArrowLeft: -1, Home: -99, End: 99 }[e.key];
+      if (k == null) return;
+      e.preventDefault();
+      const n = Math.max(0, Math.min(VIEWS.length - 1, k === 99 ? VIEWS.length - 1 : k === -99 ? 0 : i + k));
+      select(n); thumbs.children[n].focus();
+    });
+    thumbs.appendChild(b);
+  });
+  const ticks = $("#ticks");
+  ticks.innerHTML = Array.from({ length: SPIN }, () => "<i></i>").join("");
+
+  const moved = (parts, dx, dz) => parts.map((p) => ({ ...p, faces: p.faces.map((f) => f.map((q) => [q[0] + dx, q[1], q[2] + dz])), c: [p.c[0] + dx, p.c[1], p.c[2] + dz] }));
+  const SCENE = CHAIR.concat(moved(stool(), 14, 86));
+  function paintDuo() {
+    $("#shotDetail").innerHTML = render({ yaw: -.62, pitch: .36, f: 11, look: [30, 47, 22], cy: 400 }, state.wood, state.cloth, "0 0 800 800");
+    const cam = camera({ yaw: -.75, pitch: .26, f: 4.4, look: [8, 26, 30], cy: 430 });
+    $("#shotPair").innerHTML = `<svg viewBox="0 0 800 800" aria-hidden="true">${shadowFor(cam, SCENE, 40, 42, FEET)}${shadowFor(cam, [], 28, 22, [], 14, 86)}${draw(SCENE, cam, paintFor(state.wood, state.cloth))}</svg>`;
+  }
+  function paintThumbs() {
+    VIEWS.forEach((v, i) => { if (v.id !== "spin") thumbs.children[i].innerHTML = render(v.cam, state.wood, state.cloth, v.id === "detail" ? "0 0 800 640" : "60 40 680 510"); });
+  }
+  function paintStage(fade) {
+    const html = render(camOf(state.view));
+    if (fade && !reduce.matches) {
+      const n = document.createElement("div"); n.className = "view fade"; n.innerHTML = html;
+      view.after(n);
+      setTimeout(() => { view.innerHTML = html; n.remove(); }, 270);
+    } else view.innerHTML = html;
+    const spin = VIEWS[state.view].id === "spin";
+    stage.classList.toggle("spin", spin);
+    $("#stageNote").hidden = !spin;
+    $("#stageTag").textContent = spin ? `${(state.spin * 30 + 360) % 360}°` : VIEWS[state.view].label + (VIEWS[state.view].id === "detail" ? "" : " view");
+    [...ticks.children].forEach((t, i) => t.classList.toggle("on", i === state.spin));
+    if (spin) { stage.setAttribute("aria-valuenow", String(state.spin * 30)); stage.setAttribute("aria-valuetext", `Turned ${state.spin * 30} degrees`); }
+  }
+  function select(i) {
+    state.view = i;
+    [...thumbs.children].forEach((t, j) => { t.setAttribute("aria-selected", j === i ? "true" : "false"); t.tabIndex = j === i ? 0 : -1; });
+    const spin = VIEWS[i].id === "spin";
+    if (spin) { stage.setAttribute("role", "slider"); stage.tabIndex = 0; stage.setAttribute("aria-label", "Turn the chair"); stage.setAttribute("aria-valuemin", "0"); stage.setAttribute("aria-valuemax", "330"); }
+    else { stage.removeAttribute("role"); stage.tabIndex = -1; ["aria-label", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-valuetext"].forEach((a) => stage.removeAttribute(a)); }
+    paintStage(true);
+  }
+  function turn(d) { state.spin = (state.spin + d + SPIN) % SPIN; paintStage(false); }
+  $("#spinL").addEventListener("click", () => turn(-1));
+  $("#spinR").addEventListener("click", () => turn(1));
+  stage.addEventListener("keydown", (e) => {
+    if (VIEWS[state.view].id !== "spin") return;
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") { e.preventDefault(); turn(-1); }
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") { e.preventDefault(); turn(1); }
+    if (e.key === "Home") { e.preventDefault(); state.spin = 0; paintStage(false); }
+  });
+  let drag = null;
+  stage.addEventListener("pointerdown", (e) => {
+    if (VIEWS[state.view].id !== "spin" || e.target.closest("button")) return;
+    drag = { x: e.clientX, acc: 0 }; stage.setPointerCapture(e.pointerId); stage.classList.add("grabbing");
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    drag.acc += e.clientX - drag.x; drag.x = e.clientX;
+    const step = Math.max(28, stage.clientWidth / 24);
+    while (drag.acc > step) { drag.acc -= step; turn(-1); }
+    while (drag.acc < -step) { drag.acc += step; turn(1); }
+  });
+  const endDrag = () => { drag = null; stage.classList.remove("grabbing"); };
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  /* warm the spin frames once the page is idle */
+  const warm = () => { for (let i = 0; i < SPIN; i++) render(spinCam(i)); };
+
+  /* ---------- options UI ---------- */
+  const woods = $("#woods"), cloths = $("#cloths");
+  woods.innerHTML = WOODS.map((w, i) => `<input class="sr" type="radio" name="wood" id="w-${w.id}" value="${i}"${i === 0 ? " checked" : ""}><label class="wood" for="w-${w.id}"><i style="background:${w.sw}"></i><b>${w.name}</b><span>${w.plus ? "+" + eur(w.plus) : "Included"}</span><span class="${w.weeks ? "slow" : ""}">${w.weeks ? `+${w.weeks} weeks` : "In stock"}</span></label>`).join("");
+  cloths.innerHTML = CLOTHS.map((c, i) => {
+    const bg = c.kind === "hide" ? `radial-gradient(circle at 35% 30%,#a5643a,${c.hex} 60%,#5e2d14)` : c.id === "oat" ? `radial-gradient(circle at 30% 30%,#e3dac9 0 2px,transparent 2.5px) 0 0/6px 6px,radial-gradient(circle at 70% 70%,#c2b59f 0 1.6px,transparent 2px) 0 0/5px 5px,${c.hex}` : `repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 2px,rgba(0,0,0,.08) 2px 4px),${c.hex}`;
+    return `<input class="sr" type="radio" name="cloth" id="c-${c.id}" value="${i}"${i === 0 ? " checked" : ""} aria-label="${c.name}${c.plus ? `, plus ${eur(c.plus)}, adds ${c.weeks} weeks` : ""}"><label class="cloth" for="c-${c.id}"><i style="background:${bg}"></i>${c.short}${c.weeks ? `<em>+${c.weeks} wks</em>` : ""}</label>`;
+  }).join("");
+  $$("input[name=wood]").forEach((r) => r.addEventListener("change", () => { state.wood = WOODS[+r.value]; options(); }));
+  $$("input[name=cloth]").forEach((r) => r.addEventListener("change", () => { state.cloth = CLOTHS[+r.value]; options(); }));
+
+  function options(first) {
+    const p = priceOf(), [a, b] = leadOf();
+    $("#price").textContent = eur(p); $("#addPrice").textContent = eur(p); $("#barPrice").textContent = eur(p);
+    $("#woodName").textContent = state.wood.name + (state.wood.plus ? ` · +${eur(state.wood.plus)}` : "");
+    $("#clothName").textContent = state.cloth.name + (state.cloth.plus ? ` · +${eur(state.cloth.plus)}` : "");
+    $("#barOpts").textContent = `${state.wood.name} · ${state.cloth.name}`;
+    const slow = [state.wood, state.cloth].filter((o) => o.weeks);
+    const when = `Ships in ${a}–${b} weeks`;
+    const lbl = (o) => o.kind === "hide" ? "cognac leather" : o.name.toLowerCase(), wk = slow.reduce((n, o) => n + o.weeks, 0);
+    const why = slow.length ? `${slow.map(lbl).join(" and ").replace(/^./, (m) => m.toUpperCase())} ${slow.length > 1 ? "are" : "is"} made to order, adding ${wk} weeks.` : `${state.wood.name} and ${state.cloth.short.toLowerCase()} ${state.cloth.kind === "hide" ? "leather" : "cloth"} are in the workshop now.`;
+    const ship = $("#ship");
+    if (!first && $("#shipWhen").textContent !== when) { ship.classList.remove("changed"); void ship.offsetWidth; ship.classList.add("changed"); }
+    $("#shipWhen").textContent = when; $("#shipWhy").textContent = why;
+    $("#estLead").textContent = `${a}–${b} weeks`;
+    $("#mFrame").textContent = state.wood.desc; $("#mCover").textContent = state.cloth.cover;
+    $("#care").innerHTML = [state.wood.care, state.cloth.kind === "hide" ? "Leather: dust weekly, feed twice a year with the balm we send; it darkens and softens with use." : "Cloth: vacuum with a soft brush; blot spills straight away, never rub.", "Turn and plump the seat cushion each week so it wears evenly.", "Keep a hand's width from radiators and out of all-day sun."].map((t) => `<li>${t}</li>`).join("");
+    paintStage(!first); paintThumbs(); paintDuo(); paintPairs(); dims(); if (lastPost) estimate(lastPost, true);
+    if (!first) setTimeout(warm, 50);
+  }
+
+  /* ---------- dimensions ---------- */
+  const DIM = { w: 74, d: 81, h: 76, seat: 40, arm: 56.5, sd: 54 };
+  const fmt = (cm) => state.unit === "cm" ? `${Math.round(cm)} cm` : `${(cm / 2.54).toFixed(1)} in`;
+  function dimLine(x1, y1, x2, y2, label, side = "top") {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, v = x1 === x2;
+    const tick = (x, y) => v ? `<path class="d-line" d="M${x - 5} ${y}h10"/>` : `<path class="d-line" d="M${x} ${y - 5}v10"/>`;
+    const tw = label.length * 7.4 + 12;
+    const box = v ? `<rect class="d-bg" x="${mx - tw / 2}" y="${my - 11}" width="${tw}" height="22"/>` : `<rect class="d-bg" x="${mx - tw / 2}" y="${my - 11}" width="${tw}" height="22"/>`;
+    return `<path class="d-line" d="M${x1} ${y1}L${x2} ${y2}"/>${tick(x1, y1)}${tick(x2, y2)}${box}<text x="${mx}" y="${my + 4.5}" text-anchor="middle">${label}</text>`;
+  }
+  function dims() {
+    const flatPaint = (mat) => ({ base: lin(mat === "seat" ? "#ddd3c4" : "#c9bba7"), kind: "flat" });
+    const f = camera({ yaw: 0, pitch: 0, f: 3.1, cx: 220, cy: 290, look: [0, 0, 0], ortho: true });
+    const fx = (x) => 220 + x * 3.1, fy = (y) => 290 - y * 3.1;
+    let s = draw(CHAIR, f, flatPaint);
+    s += `<path class="d-ext" d="M${fx(-37)} ${fy(0) + 4}V${fy(0) + 26}M${fx(37)} ${fy(0) + 4}V${fy(0) + 26}M${fx(37.8) + 6} ${fy(DIM.h)}H${fx(37.8) + 44}M${fx(37.8) + 6} ${fy(0)}H${fx(37.8) + 44}"/>`;
+    s += dimLine(fx(-37), fy(0) + 20, fx(37), fy(0) + 20, fmt(DIM.w));
+    s += dimLine(fx(37.8) + 38, fy(DIM.h), fx(37.8) + 38, fy(0), fmt(DIM.h));
+    $("#dimFront").innerHTML = `<line x1="20" x2="420" y1="${fy(0)}" y2="${fy(0)}" stroke="#cfc4b4"/>` + s;
+    const sd = camera({ yaw: -Math.PI / 2, pitch: 0, f: 3.1, cx: 150, cy: 290, look: [0, 0, 0], ortho: true });
+    const sx = (z) => 150 - z * 3.1;
+    let t = draw(CHAIR, sd, flatPaint);
+    t += `<path class="d-ext" d="M${sx(37.5)} ${fy(0) + 4}V${fy(0) + 26}M${sx(-43.5)} ${fy(0) + 4}V${fy(0) + 26}M${sx(-45) + 6} ${fy(DIM.arm)}H${sx(-45) + 112}M${sx(-45) + 6} ${fy(DIM.seat + 3)}H${sx(-45) + 58}M${sx(-45) + 6} ${fy(0)}H${sx(-45) + 112}"/>`;
+    t += dimLine(sx(37.5), fy(0) + 20, sx(-43.5), fy(0) + 20, fmt(DIM.d));
+    t += dimLine(sx(-45) + 52, fy(DIM.seat + 3), sx(-45) + 52, fy(0), fmt(DIM.seat));
+    t += dimLine(sx(-45) + 106, fy(DIM.arm), sx(-45) + 106, fy(0), fmt(DIM.arm));
+    $("#dimSide").innerHTML = `<line x1="20" x2="420" y1="${fy(0)}" y2="${fy(0)}" stroke="#cfc4b4"/>` + t;
+    $("#specs").innerHTML = [["Width", fmt(DIM.w)], ["Depth", fmt(DIM.d)], ["Height", fmt(DIM.h)], ["Seat height", fmt(DIM.seat)], ["Seat depth", fmt(DIM.sd)], ["Arm height", fmt(DIM.arm)], ["Weight", state.unit === "cm" ? "19 kg" : "42 lb"], ["Fits through a door", fmt(70) + " wide"]].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+  }
+  $$(".seg button").forEach((b) => b.addEventListener("click", () => {
+    state.unit = b.dataset.unit;
+    $$(".seg button").forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+    dims();
+  }));
+
+  /* ---------- delivery estimator ---------- */
+  let lastPost = "";
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const day = (d) => `${DAYS[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+  const workday = (d) => { while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d; };
+  function estimate(raw, quiet) {
+    const v = raw.trim().toUpperCase().replace(/\s+/g, " "), hint = $("#estHint"), input = $("#postcode");
+    if (!v) { input.setAttribute("aria-invalid", "true"); hint.className = "hint err"; hint.textContent = "Type your postcode first, like 702 00 or 10115."; return; }
+    if (!/^[A-Z0-9][A-Z0-9 -]{2,9}$/.test(v) || (v.match(/\d/g) || []).length < 2) { input.setAttribute("aria-invalid", "true"); hint.className = "hint err"; hint.textContent = "That doesn't look like a postcode. Use letters and numbers only, like 702 00."; return; }
+    input.removeAttribute("aria-invalid"); lastPost = v;
+    const digits = v.replace(/\D/g, ""), n = +digits[0], near = n <= 3 ? 2 : n <= 6 ? 4 : 6;
+    const [a, b] = leadOf(), now = new Date();
+    const from = workday(new Date(now.getFullYear(), now.getMonth(), now.getDate() + a * 7 + near));
+    const to = workday(new Date(from.getFullYear(), from.getMonth(), from.getDate() + (b - a) * 7 + 2));
+    hint.className = "hint"; hint.textContent = `Delivering to ${v} · ${near <= 2 ? "our own van" : "our partner crew"}, two people`;
+    $("#estOut").innerHTML = `Your ${state.wood.name.toLowerCase()} and ${state.cloth.short.toLowerCase()} Lenka would arrive between<b>${day(from)} and ${day(to)}</b>We'll text you a two-hour window the day before.<ol class="est-steps"><li class="done"><span>Ordered</span>Today</li><li><span>Made</span>${a}–${b} weeks</li><li><span>Delivered</span>${near} days on the road</li></ol>`;
+    
+  }
+  $("#estGo").addEventListener("click", () => estimate($("#postcode").value));
+  $("#postcode").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); estimate($("#postcode").value); } });
+  $("#postcode").addEventListener("input", () => { if ($("#postcode").getAttribute("aria-invalid")) { $("#postcode").removeAttribute("aria-invalid"); $("#estHint").className = "hint"; $("#estHint").textContent = "We deliver across mainland Europe."; } });
+
+  /* ---------- reviews ---------- */
+  const star = (on) => `<svg viewBox="0 0 24 24"><use href="#i-star${on ? "" : "-o"}"/></svg>`;
+  const stars = (n) => Array.from({ length: 5 }, (_, i) => star(i < n)).join("");
+  $("#topStars").innerHTML = stars(5);
+  const HIST = { 5: 96, 4: 22, 3: 5, 2: 2, 1: 1 };
+  const REVIEWS = [
+    { n: "Ingrid Solberg", where: "Bergen", s: 5, when: "October 2026", t: "Sits lower than I expected, in the best way", b: "I'm tall and most lounge chairs leave my knees in the air. This one lets me sink back with my feet flat on the floor. The arms are wide enough for a mug, which I didn't know I needed.", o: "Walnut · Wool twill, moss", h: 41 },
+    { n: "Tomás Ferreira", where: "Porto", s: 5, when: "October 2026", t: "The joinery is the reason I paid the price", b: "You can see the tenons come through the arms. Eight months in, nothing has loosened, and the oak has gone a shade warmer by the window.", o: "Oak · Wool bouclé, oat", h: 28 },
+    { n: "Aiko Matsuda", where: "Leeds", s: 4, when: "September 2026", t: "Back cushion is firm for the first fortnight", b: "Lovely chair, but the back cushion felt stiff at first. After two weeks of plumping it every evening it shaped itself to me. I'd tell people to expect that.", o: "Black ash · Wool twill, slate", h: 19, reply: "Thank you, Aiko. The feather wrap needs a little use to loft properly; we'll say so in the box from now on." },
+    { n: "Kwame Asante", where: "Rotterdam", s: 5, when: "September 2026", t: "Delivery crew carried it up four flights", b: "No lift in our building. They brought it up, unwrapped it, levelled the feet on our old floorboards and took every bit of cardboard away.", o: "Oak · Wool twill, rust", h: 17 },
+    { n: "Priya Raman", where: "Dublin", s: 3, when: "August 2026", t: "Beautiful, but the slot moved twice", b: "The chair itself is wonderful. Delivery was rescheduled twice with a day's notice, which was hard to plan around with work.", o: "Walnut · Aniline leather, cognac", h: 9, reply: "We're sorry, Priya. A ferry delay pushed our Irish route twice that month; we've added a second crew since." },
+    { n: "Lukáš Novák", where: "Brno", s: 5, when: "August 2026", t: "Bought one, came back for the footstool", b: "Within a week we had the matching stool. Together they're where everyone in the house ends up reading.", o: "Oak · Wool twill, moss", h: 12 },
+    { n: "Fatima Zahra El Idrissi", where: "Lyon", s: 4, when: "July 2026", t: "Leather is softer than the sample", b: "The sample felt stiff, so I nearly chose wool. The real hide is supple and it's already picking up a gentle patina on the arms.", o: "Black ash · Aniline leather, cognac", h: 8 },
+    { n: "Daniel Okafor", where: "Hamburg", s: 2, when: "June 2026", t: "Rust colour is darker than on screen", b: "Well made, no complaints about comfort, but the rust wool reads almost brown in our north-facing room. Order the samples first.", o: "Oak · Wool twill, rust", h: 22 },
+    { n: "Sven Lindqvist", where: "Uppsala", s: 1, when: "May 2026", t: "Rear leg split in transit", b: "Arrived with a crack along the back leg. The replacement frame took three weeks, which was a long time to look at it.", o: "Walnut · Wool bouclé, oat", h: 6, reply: "Sven, that should never happen. We've changed how the frames are braced in the crate and refunded your delivery." },
+  ];
+  const hist = $("#hist");
+  hist.innerHTML = [5, 4, 3, 2, 1].map((s) => `<li><button type="button" aria-pressed="false" data-s="${s}" aria-label="Show ${s}-star reviews, ${HIST[s]} in total"><span>${s} star${s > 1 ? "s" : ""}</span><span class="bar"><i style="width:${(HIST[s] / 96 * 100).toFixed(1)}%"></i></span><span class="n">${HIST[s]}</span></button></li>`).join("");
+  $$("button", hist).forEach((b) => b.addEventListener("click", () => { const s = +b.dataset.s; state.stars = state.stars === s ? 0 : s; showReviews(true); }));
+  $("#revClear").addEventListener("click", () => { state.stars = 0; showReviews(true); hist.querySelector("button").focus(); });
+  function showReviews(anim) {
+    $$("button", hist).forEach((b) => b.setAttribute("aria-pressed", +b.dataset.s === state.stars ? "true" : "false"));
+    const all = REVIEWS.filter((r) => !state.stars || r.s === state.stars), list = state.stars || state.more ? all : all.slice(0, 4);
+    $("#revCount").textContent = state.stars ? `Showing ${list.length} of ${HIST[state.stars]} ${state.stars}-star review${HIST[state.stars] > 1 ? "s" : ""}` : `Most helpful first · showing ${list.length} of 126`;
+    $("#revMore").hidden = !!state.stars || state.more;
+    $("#revClear").hidden = !state.stars;
+    $("#revList").innerHTML = list.map((r, i) => `<li class="review${anim ? " enter" : ""}" style="animation-delay:${i * 40}ms"><div class="who"><b>${r.n}</b><span>${r.where}</span><span>${r.when}</span></div><div><span class="stars" role="img" aria-label="${r.s} out of 5 stars">${stars(r.s)}</span><h3>${r.t}</h3><p>${r.b}</p>${r.reply ? `<p class="reply"><b>Ostrava workshop:</b> ${r.reply}</p>` : ""}<div class="meta"><span>${r.o}</span><button type="button" aria-pressed="false" data-h="${r.h}"><svg class="ico" viewBox="0 0 24 24"><path d="M7 11v9H4v-9z"/><path d="M7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a1.6 1.6 0 011.6 1.9l-1.3 6.6A2 2 0 0117.3 20H7"/></svg><span>Helpful (<i>${r.h}</i>)</span></button></div></div></li>`).join("");
+  }
+  $("#revMore").addEventListener("click", () => { state.more = true; showReviews(false); const li = $$("#revList .review")[4]; li?.classList.add("enter"); li?.querySelector("button")?.focus(); });
+  $("#revList").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-h]"); if (!b) return;
+    const on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", String(on)); b.querySelector("i").textContent = +b.dataset.h + (on ? 1 : 0);
+    const r = REVIEWS.find((x) => x.h === +b.dataset.h); if (r) r.h2 = on;
+  });
+  $("#toReviews").addEventListener("click", () => { $("#reviews").scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth" }); hist.querySelector("button").focus({ preventScroll: true }); });
+
+  /* ---------- pairs ---------- */
+  const PAIRS = [
+    { id: "stool", name: "Lenka footstool", price: 540, parts: stool(), cam: { yaw: -.62, pitch: .32, f: 6.8, look: [0, 18, 0], cy: 330 }, opts: () => `${state.wood.name} · ${state.cloth.name}`, sh: [30, 24] },
+    { id: "table", name: "Pell side table", price: 390, parts: sideTable(), cam: { yaw: -.4, pitch: .3, f: 6.4, look: [0, 26, 0], cy: 330 }, opts: () => state.wood.name, sh: [24, 24] },
+    { id: "lamp", name: "Sorrel floor lamp", price: 460, parts: lamp(), cam: { yaw: -.3, pitch: .12, f: 3.9, look: [0, 70, 0], cy: 400 }, opts: () => "Linen shade · " + state.wood.name, sh: [16, 16] },
+    { id: "throw", name: "Valašsko wool throw", price: 120, opts: () => "Undyed, 130 × 180 cm" },
+  ];
+  function pairArt(p) {
+    if (p.id === "throw") {
+      const lay = (y, c, e) => `<path d="M214 ${y}h372c16 0 24 10 24 22s-8 22-24 22H214c-16 0-24-10-24-22s8-22 24-22z" fill="${c}"/><path d="M214 ${y + 40}h372" stroke="${e}" stroke-width="2"/>`;
+      const fr = (y) => Array.from({ length: 9 }, (_, i) => `<path d="M610 ${y + 6 + i * 4.5}q14 1 22 4" stroke="#c9bca5" stroke-width="2.4" fill="none" stroke-linecap="round"/>`).join("");
+      return `<svg viewBox="0 0 800 800" aria-hidden="true"><ellipse cx="400" cy="560" rx="250" ry="26" fill="#5a4330" opacity=".22" filter="url(#soft)"/>${lay(498, "#ddd3c2", "#cbbfab")}${fr(498)}${lay(456, "#e6dccc", "#d3c7b3")}${fr(456)}${lay(414, "#ece4d6", "#d9cdb9")}${fr(414)}<path d="M214 372h372c16 0 24 10 24 22s-8 22-24 22H214c-16 0-24-10-24-22s8-22 24-22z" fill="#f2ebdf"/>${Array.from({ length: 11 }, (_, i) => `<path d="M${236 + i * 33} 378l12 16-12 16" stroke="#ddd2bf" stroke-width="3" fill="none"/>`).join("")}<path d="M190 437h420M190 479h420" stroke="#8e7556" stroke-width="3" opacity=".5"/>${fr(372)}</svg>`;
+    }
+    const cam = camera(p.cam), [w, d] = p.sh;
+    return `<svg viewBox="0 0 800 800" aria-hidden="true">${shadowFor(cam, p.parts, w, d)}${draw(p.parts, cam, paintFor(state.wood, state.cloth))}</svg>`;
+  }
+  function paintPairs() {
+    const box = $("#pairs");
+    if (!box.children.length) box.innerHTML = PAIRS.map((p) => `<article class="pair"><div class="art" data-art="${p.id}"></div><div class="row"><div><b>${p.name}</b><span data-o="${p.id}"></span><br><span>${eur(p.price)}</span></div><button class="add" type="button" data-add="${p.id}" aria-label="Add ${p.name} to cart"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add</button></div></article>`).join("");
+    for (const p of PAIRS) { if (p.id !== "throw" || !box.querySelector(`[data-art=throw]`).innerHTML) box.querySelector(`[data-art=${p.id}]`).innerHTML = pairArt(p); box.querySelector(`[data-o=${p.id}]`).textContent = p.opts(); }
+  }
+  $("#pairs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-add]"); if (!b) return;
+    const p = PAIRS.find((x) => x.id === b.dataset.add);
+    addLine({ key: p.id + (p.id === "throw" ? "" : state.wood.id + (p.id === "stool" ? state.cloth.id : "")), name: p.name, opts: p.opts(), price: p.price, art: pairArt(p) }, b.closest(".pair").querySelector(".art"), b);
+  });
+
+  /* ---------- cart ---------- */
+  const cart = [];
+  const root = document.documentElement, drawer = $("#drawer"), badge = $("#badge"), cartBtn = $("#cartBtn");
+  let opener = null;
+  function addLine(item, from, trigger) {
+    const ex = cart.find((l) => l.key === item.key);
+    if (ex) ex.qty = Math.min(9, ex.qty + 1); else cart.push({ ...item, qty: 1 });
+    const done = () => { updateCart(true); openCart(trigger); };
+    if (reduce.matches || !from) return done();
+    const r = from.getBoundingClientRect(), t = cartBtn.getBoundingClientRect();
+    const fly = document.createElement("div"); fly.className = "fly"; fly.innerHTML = item.art;
+    Object.assign(fly.style, { left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px" });
+    document.body.appendChild(fly);
+    const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2), s = 36 / r.width;
+    const a = fly.animate([
+      { transform: "translate(0,0) scale(1)", opacity: 1, borderRadius: "4px" },
+      { transform: `translate(${dx * .55}px,${dy * .35 - 40}px) scale(${Math.max(s, .35)})`, opacity: 1, offset: .55 },
+      { transform: `translate(${dx}px,${dy}px) scale(${s})`, opacity: .2, borderRadius: "50%" },
+    ], { duration: 560, easing: "cubic-bezier(.45,.05,.3,1)" });
+    a.onfinish = () => { fly.remove(); done(); };
+  }
+  function addChair(trigger) {
+    addLine({ key: "lenka" + state.wood.id + state.cloth.id, name: "Lenka lounge chair", opts: `${state.wood.name} · ${state.cloth.name}`, price: priceOf(), art: render(VIEWS[0].cam) }, matchMedia("(max-width: 640px)").matches ? stage : stage, trigger);
+  }
+  $("#add").addEventListener("click", (e) => addChair(e.currentTarget));
+  $("#barAdd").addEventListener("click", (e) => addChair(e.currentTarget));
+  function updateCart(bump) {
+    const count = cart.reduce((s, l) => s + l.qty, 0), sub = cart.reduce((s, l) => s + l.qty * l.price, 0);
+    badge.textContent = count; badge.classList.toggle("on", count > 0);
+    cartBtn.setAttribute("aria-label", count ? `Cart, ${count} item${count > 1 ? "s" : ""}` : "Cart, empty");
+    if (bump && !reduce.matches) { badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump"); }
+    $("#drCount").textContent = count ? `${count} item${count > 1 ? "s" : ""}` : "";
+    const free = sub >= FREE_AT;
+    $("#freeText").innerHTML = !count ? `Free white-glove delivery on orders over <b>${eur(FREE_AT)}</b>.` : free ? `<b>Free white-glove delivery</b> is on this order.` : `You're <b>${eur(FREE_AT - sub)}</b> away from free white-glove delivery.`;
+    $("#meterFill").style.width = Math.min(100, sub / FREE_AT * 100) + "%";
+    $("#meter").setAttribute("aria-valuenow", String(Math.min(sub, FREE_AT)));
+    $("#subtotal").textContent = eur(sub);
+    $("#delivery").textContent = !count ? "—" : free ? "Free" : eur(DELIVERY);
+    $("#total").textContent = eur(sub + (count && !free ? DELIVERY : 0));
+    $("#checkout").disabled = !count; $("#checkout").style.opacity = count ? 1 : .45;
+    $("#coNote").textContent = "";
+    $("#lines").innerHTML = count ? cart.map((l, i) => `<li class="line"><div class="pic">${l.art}</div><div><div class="top-row"><b>${l.name}</b><span>${eur(l.price * l.qty)}</span></div><div class="opts">${l.opts}${l.qty > 1 ? ` · ${eur(l.price)} each` : ""}</div><div class="ctl"><div class="step" role="group" aria-label="Quantity of ${l.name}"><button type="button" data-q="${i}" data-d="-1" aria-label="One fewer"${l.qty <= 1 ? " disabled" : ""}><svg class="ico" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button><output aria-live="polite">${l.qty}</output><button type="button" data-q="${i}" data-d="1" aria-label="One more"${l.qty >= 9 ? " disabled" : ""}><svg class="ico" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button></div><button class="rm" type="button" data-rm="${i}">Remove</button></div></div></li>`).join("")
+      : `<li class="empty"><b>Nothing in here yet</b>Choose a wood and a cloth, then add the chair.</li>`;
+  }
+  $("#lines").addEventListener("click", (e) => {
+    const q = e.target.closest("[data-q]"), rm = e.target.closest("[data-rm]");
+    if (q) { const l = cart[+q.dataset.q]; l.qty = Math.max(1, Math.min(9, l.qty + +q.dataset.d)); const idx = +q.dataset.q, d = q.dataset.d; updateCart(true); const again = $(`[data-q="${idx}"][data-d="${d}"]`); (again && !again.disabled ? again : $(`[data-q="${idx}"]:not(:disabled)`))?.focus(); }
+    if (rm) { cart.splice(+rm.dataset.rm, 1); updateCart(false); ($("#lines [data-rm]") || $("#keep")).focus(); }
+  });
+  function openCart(trigger) {
+    opener = trigger || document.activeElement;
+    root.classList.add("cart-open"); cartBtn.setAttribute("aria-expanded", "true");
+    setTimeout(() => $("#drClose").focus({ preventScroll: true }), reduce.matches ? 0 : 60);
+  }
+  function closeCart() {
+    if (!root.classList.contains("cart-open")) return;
+    root.classList.remove("cart-open"); cartBtn.setAttribute("aria-expanded", "false");
+    (opener && document.contains(opener) ? opener : cartBtn).focus({ preventScroll: true });
+  }
+  cartBtn.addEventListener("click", () => { updateCart(false); openCart(cartBtn); });
+  $("#drClose").addEventListener("click", closeCart);
+  $("#keep").addEventListener("click", closeCart);
+  $("#scrim").addEventListener("click", closeCart);
+  $("#checkout").addEventListener("click", () => { $("#coNote").textContent = "Checkout would open here, with your cart kept."; });
+  document.addEventListener("keydown", (e) => {
+    if (!root.classList.contains("cart-open")) return;
+    if (e.key === "Escape") { e.preventDefault(); closeCart(); }
+    if (e.key === "Tab") {
+      const f = $$("button:not(:disabled)", drawer); if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+      else if (!drawer.contains(document.activeElement)) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+
+  /* ---------- small things ---------- */
+  const toast = $("#toast"); let tt;
+  const say = (m) => { toast.textContent = m; toast.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove("on"), 2200); };
+  $$("[data-toast]").forEach((b) => b.addEventListener("click", () => say(b.dataset.toast)));
+  $$("a[data-nolink]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); if (!a.classList.contains("brand")) say(`${a.textContent} isn't part of this demo`); }));
+  $("#samples").addEventListener("click", (e) => {
+    const b = e.currentTarget, on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", String(on));
+    b.textContent = on ? "Samples on their way · undo" : "Send me free cloth samples";
+    say(on ? "Five cloth samples will be posted to you this week" : "Sample request cancelled");
+  });
+
+  updateCart(false);
+  options(true);
+  showReviews(false);
+  if ("requestIdleCallback" in window) requestIdleCallback(warm); else setTimeout(warm, 400);
+})();
+</script>
+</body>
+</html>

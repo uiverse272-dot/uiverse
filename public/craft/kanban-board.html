@@ -1,0 +1,882 @@
+<!doctype html>
+<!-- Kanban board — Uiverse Originals. Free to use and adapt (MIT). One file, no dependencies.
+     A sprint board for an invented tracker, Bramble, in hard borders and flat colour. Drag cards with mouse or
+     touch (they lift, tilt and the others make room), or move them by keyboard; In progress warns past its WIP
+     limit, avatars filter the board, each column can add a card inline, and cards dropped in Done get stamped. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bramble — Sprint 22</title>
+<style>
+  :root {
+    --bg: #e6e5df; --ink: #111111; --paper: #ffffff; --body: #f4f3ee; --soft: #3f3f3f; --dim: #595959;
+    --yellow: #ffd23f; --pink: #ff9ccb; --mint: #7fe3b4; --sky: #93d1ff; --orange: #ffa467; --lilac: #cbbcff; --red: #cf2a1c;
+    --grot: "Helvetica Neue", Arial, sans-serif; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px; --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.4 var(--grot); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  button, input, textarea { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; }
+  ol, ul { list-style: none; }
+  svg { display: block; }
+  .ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .sr { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .mono { font-family: var(--mono); }
+
+  .app { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; height: 100svh; min-height: 760px; }
+
+  /* ———— top bar ———— */
+  .top { display: flex; align-items: center; gap: 24px; height: 56px; padding: 0 24px; background: var(--ink); color: #fff; }
+  .logo { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+  .logo svg { width: 28px; height: 28px; }
+  .crumbs { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: #c8c8c8; min-width: 0; }
+  .crumbs b { color: #fff; font-weight: 600; }
+  .crumbs i { font-style: normal; color: #7c7c7c; }
+  .top-r { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+  .today { font: 500 12px var(--mono); letter-spacing: .06em; color: #c8c8c8; white-space: nowrap; }
+  .kbtn { position: relative; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 2px solid #fff; border-radius: var(--r); font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: #fff; transition: background-color .15s, color .15s; }
+  .kbtn:hover, .kbtn[aria-expanded="true"] { background: #fff; color: var(--ink); }
+  .kbtn:focus-visible { outline-color: #fff; }
+  .keys { position: absolute; z-index: 60; top: 64px; right: 72px; width: 300px; padding: 16px; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 6px 6px 0 var(--ink); transition: opacity .15s, translate .15s var(--ease); }
+  .keys[hidden] { display: block; opacity: 0; translate: 0 -4px; visibility: hidden; pointer-events: none; }
+  .keys h2 { font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+  .keys dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; font-size: 13px; }
+  .keys dt { display: flex; gap: 4px; }
+  kbd { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border: 2px solid var(--ink); border-radius: 4px; background: var(--body); font: 600 11px var(--mono); box-shadow: 2px 2px 0 var(--ink); }
+  .me { width: 32px; height: 32px; }
+
+  /* ———— board header ———— */
+  .bh { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px 32px; padding: 24px 24px 20px; }
+  h1 { font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
+  .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-top: 8px; font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--soft); }
+  .meta b { color: var(--ink); font-weight: 700; }
+  .prog { display: flex; gap: 2px; padding: 2px; border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); }
+  .prog i { width: 8px; height: 10px; border-radius: 1px; background: var(--body); transition: background-color .25s; }
+  .prog i.on { background: var(--ink); }
+  .bh-r { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px; }
+  .lbl { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--soft); }
+  .people { display: flex; align-items: center; gap: 6px; }
+  .people .lbl { margin-right: 6px; }
+  .pf { width: 36px; height: 36px; border-radius: 50%; padding: 0; transition: translate .15s var(--ease), box-shadow .15s var(--ease), opacity .15s; }
+  .pf .face { width: 36px; height: 36px; font-size: 12px; }
+  .pf:hover { translate: -2px -2px; box-shadow: 2px 2px 0 var(--ink); }
+  .pf[aria-pressed="true"] { translate: -2px -2px; box-shadow: 3px 3px 0 var(--ink); }
+  .pf[aria-pressed="true"] .face { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .filtering .pf[aria-pressed="false"] .face { background: var(--paper); color: var(--dim); }
+  .pf:focus-visible { outline-offset: 4px; border-radius: 50%; }
+  .chip { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 2px solid var(--ink); border-radius: var(--r); background: var(--paper); font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; box-shadow: 3px 3px 0 var(--ink); transition: translate .12s var(--ease), box-shadow .12s var(--ease), background-color .15s, color .15s; }
+  .chip:hover { translate: -1px -1px; box-shadow: 4px 4px 0 var(--ink); }
+  .chip:active { translate: 2px 2px; box-shadow: 1px 1px 0 var(--ink); }
+  .chip b { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 3px; background: var(--red); color: #fff; font-weight: 700; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .chip[aria-pressed="true"] b { background: #fff; color: var(--red); }
+  .clear { height: 36px; padding: 0 4px; font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  .clear[hidden] { display: none; }
+
+  /* ———— faces, tags ———— */
+  .face { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ink); background: var(--c); font: 700 10px var(--mono); letter-spacing: .02em; color: var(--ink); flex: none; transition: background-color .15s, color .15s; }
+  .faces { display: flex; }
+  .faces .face + .face { margin-left: -4px; box-shadow: -2px 0 0 var(--paper); }
+  .tag { display: inline-flex; align-items: center; gap: 6px; font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  .tag i { width: 10px; height: 10px; border: 2px solid var(--ink); border-radius: 2px; background: var(--c); }
+
+  /* ———— board ———— */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; min-height: 0; padding: 0 30px 30px 24px; }
+  .col { position: relative; display: flex; flex-direction: column; min-height: 0; background: var(--body); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 6px 6px 0 var(--ink); }
+  .col-h { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 52px; padding: 0 12px 0 16px; background: var(--hc); border-bottom: 2px solid var(--ink); border-radius: 4px 4px 0 0; flex: none; transition: background-color .2s; }
+  .col-h h2 { display: flex; align-items: center; gap: 8px; font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 3px 0; transition: background-color .2s, color .2s, padding .2s; border-radius: 3px; }
+  .col-n { display: grid; place-items: center; min-width: 32px; height: 26px; padding: 0 6px; border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); font: 700 12px var(--mono); }
+  .col-h .r { display: flex; align-items: center; gap: 8px; }
+  .wip { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; transition: background-color .2s, color .2s; }
+  .wip .ico { width: 14px; height: 14px; display: none; }
+  .col.at .wip { background: var(--ink); color: var(--yellow); }
+  .col.over .col-h { background: repeating-linear-gradient(-45deg, var(--yellow) 0 10px, var(--ink) 10px 20px); }
+  .col.over .col-h h2 { background: var(--ink); color: var(--yellow); padding: 3px 8px; }
+  .col.over .wip { background: var(--red); color: #fff; }
+  .col.over .wip .ico { display: block; }
+  .col.over .col-n { display: none; }
+  .col.bump .col-h { animation: bump .32s var(--ease); }
+  @keyframes bump { 30% { translate: 3px 0; } 60% { translate: -2px 0; } }
+
+  .col-b { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 12px 16px; scrollbar-width: thin; scrollbar-color: var(--ink) transparent; }
+  .list { position: relative; display: flex; flex-direction: column; gap: 12px; min-height: 8px; }
+  .empty { display: none; padding: 20px 8px; border: 2px dashed #9a9a94; border-radius: var(--r); text-align: center; font: 500 12px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+  .col.is-empty .empty { display: block; }
+  .col.is-empty .list { min-height: 0; }
+
+  /* ———— cards ———— */
+  .card { position: relative; display: grid; gap: 8px; padding: 12px 14px 12px; background: var(--paper); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 3px 3px 0 var(--ink); cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; transition: translate .14s var(--ease), box-shadow .14s var(--ease), opacity .2s; }
+  .card:hover { translate: -2px -2px; box-shadow: 5px 5px 0 var(--ink); }
+  .card[hidden] { display: none; }
+  .c-top { display: flex; align-items: center; gap: 12px; min-height: 18px; padding-right: 72px; }
+  .cid { font: 500 11px var(--mono); color: var(--dim); letter-spacing: .02em; }
+  .c-title { font-size: 15px; font-weight: 700; line-height: 20px; letter-spacing: -.01em; }
+  .c-foot { display: flex; align-items: center; gap: 12px; margin-top: 4px; min-height: 26px; }
+  .due { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 6px; margin-left: auto; border-radius: 3px; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  .due .ico { width: 13px; height: 13px; }
+  .due.due-today { background: var(--yellow); border: 2px solid var(--ink); padding: 0 5px; }
+  .due.late { background: var(--red); color: #fff; }
+  .subs { display: inline-flex; align-items: center; gap: 6px; font: 600 11px var(--mono); }
+  .subs .bar { width: 36px; height: 8px; border: 2px solid var(--ink); border-radius: 2px; overflow: hidden; }
+  .subs .bar i { display: block; height: 100%; background: var(--ink); }
+  .faces + .due, .faces + .subs { margin-left: auto; }
+  .due + .subs { margin-left: 0; }
+  .stamp { position: absolute; top: 8px; right: 10px; display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 6px; border: 2px solid var(--ink); border-radius: 3px; background: var(--mint); font: 800 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; rotate: -5deg; box-shadow: 2px 2px 0 var(--ink); pointer-events: none; }
+  .stamp .ico { width: 12px; height: 12px; stroke-width: 3; }
+  .card.fresh { animation: fresh .26s var(--ease); }
+  @keyframes fresh { from { opacity: 0; translate: 0 8px; } }
+
+  /* lifted by the pointer */
+  .card.lifted { position: fixed; z-index: 80; left: 0; top: 0; margin: 0; pointer-events: none; cursor: grabbing; box-shadow: 10px 10px 0 var(--ink); translate: none; will-change: transform; }
+  .card.landing { box-shadow: 3px 3px 0 var(--ink); }
+  /* picked up by the keyboard */
+  .card.grabbed, .card.grabbed:focus-visible { rotate: 1.5deg; translate: -3px -3px; box-shadow: 8px 8px 0 var(--ink); z-index: 2; background: #fff3b8; outline: 0; }
+  .ph { flex: none; border: 2px dashed var(--ink); border-radius: var(--r); background: repeating-linear-gradient(-45deg, transparent 0 7px, rgba(17, 17, 17, .07) 7px 9px); }
+  .dragging, .dragging * { cursor: grabbing !important; }
+  .dragging .card:not(.lifted):hover { translate: none; box-shadow: 3px 3px 0 var(--ink); }
+
+  /* ———— add card ———— */
+  .add { margin-top: 12px; }
+  .add-btn { display: flex; align-items: center; gap: 8px; width: 100%; height: 40px; padding: 0 12px; border: 2px dashed #8d8d87; border-radius: var(--r); font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--soft); transition: border-color .15s, color .15s, background-color .15s; }
+  .add-btn:hover { border-color: var(--ink); border-style: solid; color: var(--ink); background: var(--paper); }
+  .add-btn[hidden] { display: none; }
+  .composer { display: grid; gap: 8px; }
+  .composer[hidden] { display: none; }
+  .composer textarea { display: block; width: 100%; min-height: 64px; max-height: 128px; padding: 10px 12px; resize: none; border: 2px solid var(--ink); border-radius: var(--r); background: var(--paper); font: 700 15px/20px var(--grot); box-shadow: 3px 3px 0 var(--ink); outline: none; }
+  .composer textarea::placeholder { color: #767676; font-weight: 500; }
+  .composer textarea:focus-visible { box-shadow: 3px 3px 0 var(--ink), 0 0 0 2px var(--yellow); }
+  .composer textarea[aria-invalid="true"] { border-color: var(--red); box-shadow: 3px 3px 0 var(--red); }
+  .composer .err { font: 600 12px var(--mono); color: var(--red); }
+  .composer .err[hidden] { display: none; }
+  .c-row { display: flex; align-items: center; gap: 8px; }
+  .btn { height: 34px; padding: 0 12px; border: 2px solid var(--ink); border-radius: var(--r); font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); transition: translate .12s var(--ease), box-shadow .12s var(--ease); }
+  .btn:hover { translate: -1px -1px; box-shadow: 3px 3px 0 var(--ink); }
+  .btn:active { translate: 2px 2px; box-shadow: 0 0 0 var(--ink); }
+  .btn.ghost { background: var(--paper); }
+  .c-row small { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); white-space: nowrap; }
+  .shake { animation: shake .3s var(--ease); }
+  @keyframes shake { 25% { translate: -4px 0; } 50% { translate: 3px 0; } 75% { translate: -2px 0; } }
+
+  /* ———— bar: instructions and notes ———— */
+  .bar-msg { position: fixed; z-index: 90; left: 50%; bottom: 24px; display: flex; align-items: center; gap: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; background: var(--ink); color: #fff; border-radius: var(--r); box-shadow: 4px 4px 0 var(--yellow); font: 500 12px var(--mono); letter-spacing: .02em; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s var(--ease); }
+  .bar-msg.on { opacity: 1; transform: translate(-50%, 0); }
+  .bar-msg b { font-weight: 700; color: var(--yellow); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+  .bar-msg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-msg kbd { background: #2a2a2a; color: #fff; border-color: #fff; box-shadow: none; height: 22px; min-width: 22px; }
+  .bar-msg .k { display: flex; align-items: center; gap: 6px; white-space: nowrap; color: #ddd; }
+
+  /* ———— sprint health: shown when the frame is tall enough, and on tablet and phone ———— */
+  .dock { display: none; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; padding: 0 30px 30px 24px; }
+  @media (min-height: 1300px), (max-width: 1080px) { .dock { display: grid; } }
+  .panel { display: flex; flex-direction: column; min-width: 0; background: var(--paper); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 6px 6px 0 var(--ink); }
+  .p-h { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 12px 0 16px; border-bottom: 2px solid var(--ink); flex: none; }
+  .p-h h2 { font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  .p-meta { font: 500 12px var(--mono); color: var(--soft); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pace { display: flex; align-items: center; height: 26px; margin-left: auto; padding: 0 8px; border: 2px solid var(--ink); border-radius: 4px; background: var(--mint); font: 700 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; transition: background-color .2s, color .2s; }
+  .pace.behind { background: var(--red); color: #fff; }
+  .burn { height: 268px; padding: 16px 16px 12px; }
+  .burn svg { width: 100%; height: 100%; overflow: visible; font: 600 11px var(--mono); }
+  .burn .g { stroke: #d6d5cf; stroke-width: 1; }
+  .burn .wk { fill: var(--body); }
+  .burn .ax { fill: var(--dim); letter-spacing: .04em; }
+  .burn .ideal { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 6 5; }
+  .burn .area { fill: var(--pink); }
+  .burn .line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: miter; }
+  .burn .pt { fill: var(--ink); }
+  .burn .now { stroke: var(--ink); stroke-width: 2; }
+  .burn .nowpt { fill: var(--yellow); stroke: var(--ink); stroke-width: 2; }
+  .burn .tagbg { fill: var(--ink); }
+  .burn .tagtx { fill: var(--yellow); font-weight: 700; letter-spacing: .06em; }
+  .burn .key { fill: var(--soft); letter-spacing: .04em; }
+  .act { flex: 1; min-height: 0; max-height: 300px; overflow-y: auto; padding: 0 16px; scrollbar-width: thin; scrollbar-color: var(--ink) transparent; }
+  .act li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-top: 2px solid var(--body); }
+  .act li:first-child { border-top: 0; }
+  .act p { flex: 1; min-width: 0; font-size: 13px; line-height: 18px; padding-top: 4px; }
+  .act p b { font-weight: 700; }
+  .act p q { quotes: "\201C" "\201D"; }
+  .act time { flex: none; padding-top: 5px; font: 500 11px var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  .act li.fresh { animation: fresh .26s var(--ease); }
+
+  /* ———— tablet: two by two ———— */
+  @media (max-width: 1080px) {
+    .app { height: auto; min-height: 100svh; }
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; }
+    .col-b { overflow: visible; }
+    .crumbs i:first-of-type, .crumbs span:first-child { display: none; }
+    .keys { right: 24px; }
+  }
+  /* ———— phone: one column ———— */
+  @media (max-width: 640px) {
+    .top { gap: 12px; padding: 0 16px; }
+    .logo span, .today, .kbtn span { display: none; }
+    .kbtn { padding: 0 8px; }
+    .crumbs { font-size: 11px; overflow: hidden; }
+    .crumbs > *:not(:last-child) { display: none; }
+    .bh { padding: 20px 16px 16px; gap: 16px; }
+    h1 { font-size: 24px; }
+    .bh-r { width: 100%; justify-content: space-between; }
+    .people .lbl { display: none; }
+    .board { grid-template-columns: minmax(0, 1fr); padding: 0 22px 28px 16px; gap: 20px; }
+    .keys { right: 16px; left: 16px; width: auto; }
+    .bar-msg { flex-wrap: wrap; gap: 8px 12px; bottom: 16px; }
+    .bar-msg .k:nth-of-type(n+3) { display: none; }
+    .dock { grid-template-columns: minmax(0, 1fr); padding: 0 22px 28px 16px; }
+    .burn { height: 232px; padding: 12px 12px 8px; }
+    .p-meta { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+    .card.grabbed { rotate: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v5M16 3v5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L20 7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3L2 21h20zM12 10v5M12 18v.5"/></symbol>
+  <symbol id="i-keys" viewBox="0 0 24 24"><path d="M2 6h20v12H2zM6 10h1M10 10h1M14 10h1M18 10h0M7 14h10"/></symbol>
+  <symbol id="i-sub" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 12l3 3 5-6"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <span class="logo">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="5" fill="#ff9ccb" stroke="#fff" stroke-width="2"/><path d="M14 4.5c0 2.5 1 3.5 3.5 4" fill="none" stroke="#111" stroke-width="2"/><g fill="#111"><circle cx="10.5" cy="12" r="3"/><circle cx="17.5" cy="12" r="3"/><circle cx="14" cy="17" r="3"/><circle cx="8.5" cy="18" r="2.4"/><circle cx="19.5" cy="18" r="2.4"/><circle cx="14" cy="22.5" r="2.4"/></g></svg>
+      <span>Bramble</span>
+    </span>
+    <p class="crumbs"><span>Harbour Clinic</span><i>/</i><span>Patient app</span><i>/</i><b>Sprint 22</b></p>
+    <div class="top-r">
+      <span class="today">Tue · Nov 3</span>
+      <button class="kbtn" id="keysBtn" aria-expanded="false" aria-controls="keys"><svg class="ico" aria-hidden="true"><use href="#i-keys"/></svg><span>Shortcuts</span><i class="sr">Keyboard shortcuts</i></button>
+      <span class="face me" style="--c:var(--pink)" title="Sofía Restrepo (you)" aria-label="Signed in as Sofía Restrepo">SR</span>
+    </div>
+    <div class="keys" id="keys" role="dialog" aria-label="Keyboard shortcuts" hidden>
+      <h2>Move cards by keyboard</h2>
+      <dl>
+        <dt><kbd>Tab</kbd></dt><dd>Reach the first card</dd>
+        <dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Go from card to card</dd>
+        <dt><kbd>Space</kbd></dt><dd>Pick up, then drop</dd>
+        <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>Carry to the next column</dd>
+        <dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Carry up or down</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Put it back where it was</dd>
+      </dl>
+    </div>
+  </header>
+
+  <div class="bh" id="bh">
+    <div>
+      <h1>Patient app, Sprint 22</h1>
+      <p class="meta"><span>Oct 26 – Nov 6</span><span><b>3 days</b> left</span><span id="doneTxt"></span><span class="prog" id="prog" aria-hidden="true"></span></p>
+    </div>
+    <div class="bh-r">
+      <div class="people" role="group" aria-labelledby="pplLbl"><span class="lbl" id="pplLbl">Filter</span></div>
+      <button class="chip" id="lateBtn" aria-pressed="false">Overdue <b id="lateN">0</b></button>
+      <button class="clear" id="clearBtn" hidden>Clear filters</button>
+    </div>
+  </div>
+
+  <main class="board" id="board" aria-label="Sprint board"></main>
+
+  <section class="dock" aria-label="Sprint health">
+    <div class="panel">
+      <header class="p-h"><h2 id="burnT">Burndown</h2><span class="p-meta" id="burnMeta"></span><span class="pace" id="pace"></span></header>
+      <div class="burn" id="burn" role="img" aria-labelledby="burnT burnSum"><span class="sr" id="burnSum"></span></div>
+    </div>
+    <div class="panel">
+      <header class="p-h"><h2>Activity</h2><span class="p-meta">Sprint 22</span></header>
+      <ol class="act" id="act"></ol>
+    </div>
+  </section>
+</div>
+
+<p class="sr" id="help">Press Space to pick the card up. Arrow keys move between cards.</p>
+<p class="sr" id="say" aria-live="assertive"></p>
+<div class="bar-msg" id="bar" aria-hidden="true"></div>
+
+<script>
+(function () {
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+  const mm = matchMedia("(prefers-reduced-motion: reduce)");
+  const still = () => mm.matches;
+  const ico = (n) => '<svg class="ico" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const TODAY = 1103;           /* Tue, Nov 3 2026, fixed so the first paint never changes */
+  const LIMIT = 4;
+
+  const PEOPLE = {
+    SR: ["Sofía Restrepo", "var(--pink)"], KW: ["Kenji Watanabe", "var(--mint)"], AN: ["Amara Nwosu", "var(--yellow)"],
+    TW: ["Tomasz Wójcik", "var(--sky)"], PR: ["Priya Raman", "var(--orange)"], YD: ["Yusuf Demir", "var(--lilac)"],
+  };
+  const TAGS = {
+    design: ["Design", "var(--pink)"], eng: ["Eng", "var(--mint)"], bug: ["Bug", "var(--red)"],
+    research: ["Research", "var(--yellow)"], content: ["Content", "var(--sky)"], task: ["Task", "var(--paper)"],
+  };
+  const COLS = [
+    { id: "backlog", name: "Backlog", c: "var(--paper)" },
+    { id: "progress", name: "In progress", c: "var(--yellow)", limit: LIMIT },
+    { id: "review", name: "Review", c: "var(--pink)" },
+    { id: "done", name: "Done", c: "var(--mint)" },
+  ];
+  /* column, id, tag, title, people, due (mmdd), subtasks [done, total], done on (mmdd) */
+  const CARDS = [
+    ["backlog", 241, "research", "Interview five night-shift nurses about handover", ["PR"], 1112, [0, 5]],
+    ["backlog", 238, "design", "Empty states for the medication list", ["SR", "KW"], 1110, [1, 4]],
+    ["backlog", 236, "bug", "Reminders fire twice after a time-zone change", ["TW"], 1030, [0, 3]],
+    ["backlog", 243, "content", "Consent screen in plain language", ["AN"], 1114, [0, 2]],
+    ["backlog", 244, "eng", "Queue vitals entered without signal and sync later", ["KW"], 1113, [0, 4]],
+    ["backlog", 245, "design", "Larger tap targets on the dose timeline", ["SR", "PR"], 1111, [0, 3]],
+    ["progress", 229, "eng", "Barcode scan for dose check-in", ["KW", "YD"], 1105, [3, 6]],
+    ["progress", 231, "design", "Shift handover summary, second pass", ["SR"], 1104, [2, 5]],
+    ["progress", 233, "bug", "Crash when camera permission is denied on Android 15", ["TW"], 1102, [1, 3]],
+    ["progress", 226, "eng", "Rate-limit the patient search endpoint", ["YD"], 1106, [4, 5]],
+    ["review", 224, "design", "Dark mode for night wards", ["SR", "AN"], 1103, [5, 5]],
+    ["review", 221, "eng", "Export the audit log as CSV", ["PR"], 1107, [3, 3]],
+    ["review", 219, "content", "Error messages that say what to do next", ["AN"], 1031, [6, 6]],
+    ["review", 228, "bug", "Search loses focus after clearing the field", ["YD"], 1104, [2, 2]],
+    ["done", 212, "content", "Plain-language labels for the ward filters", ["AN"], 1028, [2, 2], 1028],
+    ["done", 214, "eng", "Single sign-on with the hospital directory", ["YD", "KW"], 1029, [4, 4], 1029],
+    ["done", 216, "design", "Ward picker on the home screen", ["SR"], 1030, [3, 3], 1030],
+    ["done", 218, "eng", "Retry failed dose syncs in the background", ["KW"], 1030, [3, 3], 1030],
+    ["done", 220, "bug", "Vitals chart drops the last reading", ["TW"], 1102, [2, 2], 1102],
+    ["done", 217, "research", "Usability test of the dose check-in prototype", ["PR", "SR"], 1102, [5, 5], 1102],
+  ];
+  let nextId = 246;
+  const md = (n) => MON[Math.floor(n / 100) - 1] + " " + (n % 100);
+
+  /* ———— build ———— */
+  const board = $("#board");
+  COLS.forEach((c) => {
+    const s = document.createElement("section");
+    s.className = "col"; s.dataset.col = c.id; s.style.setProperty("--hc", c.c);
+    s.setAttribute("aria-labelledby", "t-" + c.id);
+    s.innerHTML =
+      '<header class="col-h"><h2 id="t-' + c.id + '">' + c.name + "</h2>" +
+      '<span class="r">' + (c.limit ? '<span class="wip" id="wip">' + ico("warn") + '<span id="wipT"></span></span>' : "") + '<span class="col-n" aria-hidden="true"></span></span></header>' +
+      '<div class="col-b"><ol class="list" aria-labelledby="t-' + c.id + '"></ol><p class="empty">Nothing here yet</p>' +
+      '<div class="add"><button class="add-btn" aria-expanded="false">' + ico("plus") + "Add card</button>" +
+      '<form class="composer" hidden novalidate><label class="sr" for="new-' + c.id + '">Title of the new card in ' + c.name + "</label>" +
+      '<textarea id="new-' + c.id + '" rows="2" maxlength="120" placeholder="What needs doing?" aria-describedby="err-' + c.id + '"></textarea>' +
+      '<p class="err" id="err-' + c.id + '" hidden>Give the card a title first.</p>' +
+      '<div class="c-row"><button class="btn" type="button" data-add>Add card</button><button class="btn ghost" type="button" data-x>Cancel</button><small>↵ adds · Esc closes</small></div></form></div></div>';
+    board.appendChild(s);
+  });
+  const colEl = (id) => $('.col[data-col="' + id + '"]');
+  const listOf = (id) => $(".list", colEl(id));
+  const colOf = (el) => el.closest(".col").dataset.col;
+
+  function makeCard(d) {
+    const [col, id, tag, title, who, due, subs, doneOn] = d;
+    const li = document.createElement("li");
+    li.className = "card"; li.tabIndex = 0;
+    li.dataset.id = "BRM-" + id; li.dataset.who = who.join(" "); li.dataset.title = title;
+    if (due) li.dataset.due = due;
+    if (doneOn) li.dataset.doneOn = doneOn;
+    li.setAttribute("aria-describedby", "help");
+    const t = TAGS[tag];
+    let foot = '<span class="faces">' + who.map((w) => '<span class="face" style="--c:' + PEOPLE[w][1] + '" title="' + PEOPLE[w][0] + '">' + w + "</span>").join("") + "</span>";
+    if (due) foot += '<span class="due">' + ico("cal") + "<span></span></span>";
+    if (subs && subs[1]) foot += '<span class="subs" title="' + subs[0] + " of " + subs[1] + ' subtasks done"><span class="bar"><i style="width:' + (subs[0] / subs[1] * 100) + '%"></i></span>' + subs[0] + "/" + subs[1] + "</span>";
+    li.innerHTML = '<div class="c-top"><span class="tag"><i style="--c:' + t[1] + '"></i>' + t[0] + '</span><span class="cid">BRM-' + id + '</span></div><h3 class="c-title"></h3><div class="c-foot">' + foot + "</div>";
+    $(".c-title", li).textContent = title;
+    li._d = { tag: t[0], who, due, subs };
+    return li;
+  }
+  CARDS.forEach((d) => listOf(d[0]).appendChild(makeCard(d)));
+
+  /* ———— people filter ———— */
+  const people = $(".people");
+  Object.entries(PEOPLE).forEach(([k, [name, c]]) => {
+    const b = document.createElement("button");
+    b.className = "pf"; b.dataset.p = k; b.setAttribute("aria-pressed", "false");
+    b.setAttribute("aria-label", name); b.title = name;
+    b.innerHTML = '<span class="face" style="--c:' + c + '" aria-hidden="true">' + k + "</span>";
+    people.appendChild(b);
+  });
+
+  /* ———— derived state: counts, WIP, due chips, stamps, progress ———— */
+  const prog = $("#prog");
+  for (let i = 0; i < 15; i++) prog.appendChild(document.createElement("i"));
+  let wasOver = false;
+  function refresh() {
+    COLS.forEach((c) => {
+      const col = colEl(c.id), list = $(".list", col);
+      const n = $$(":scope > .card, :scope > .ph", list).length;
+      const shown = $$(":scope > .card:not([hidden]), :scope > .ph", list).length;
+      $(".col-n", col).textContent = String(n).padStart(2, "0");
+      col.classList.toggle("is-empty", shown === 0);
+      if (c.limit) {
+        const over = n > c.limit;
+        col.classList.toggle("over", over); col.classList.toggle("at", n === c.limit);
+        $("#wipT").textContent = over ? "Over limit " + n + "/" + c.limit : "WIP " + n + "/" + c.limit;
+        if (over && !wasOver && !still()) { col.classList.remove("bump"); void col.offsetWidth; col.classList.add("bump"); }
+        wasOver = over;
+      }
+    });
+    let late = 0;
+    $$(".card").forEach((card) => {
+      const done = card.closest('.col[data-col="done"]') || (card.classList.contains("lifted") && false);
+      const due = +card.dataset.due || 0, el = $(".due", card);
+      if (el) {
+        const isLate = !done && due && due < TODAY, isToday = !done && due === TODAY;
+        el.className = "due" + (isLate ? " late" : isToday ? " due-today" : "");
+        $("span", el).textContent = isLate ? "Late · " + md(due) : isToday ? "Today" : md(due);
+        el.hidden = !!done;
+        if (isLate) late++;
+        card.dataset.late = isLate ? "1" : "";
+      }
+    });
+    $("#lateN").textContent = late;
+    const all = $$(".list > .card").length + (drag.card ? 1 : 0), done = $$(".list > .card", colEl("done")).length + $$(".ph", colEl("done")).length;
+    $("#doneTxt").innerHTML = "<b>" + done + "/" + all + "</b> done";
+    while (prog.children.length < all) prog.appendChild(document.createElement("i"));
+    while (prog.children.length > all) prog.lastChild.remove();
+    [...prog.children].forEach((e, i) => e.classList.toggle("on", i < done));
+    $$(".card").forEach(label);
+    drawBurn();
+  }
+
+  /* ———— burndown: committed cards (In progress, Review, Done) against the ideal line ———— */
+  const DAYS = [1026, 1027, 1028, 1029, 1030, 1031, 1101, 1102, 1103, 1104, 1105, 1106];
+  const TI = DAYS.indexOf(TODAY);
+  const NS = "http://www.w3.org/2000/svg";
+  function drawBurn() {
+    const box = $("#burn"), W = box.clientWidth - 32, H = box.clientHeight - 28;
+    if (W <= 0 || H <= 0) return;
+    const committed = $$(".card").filter((c) => {
+      if (c.classList.contains("lifted")) return drag.fromCol !== "backlog";
+      const col = c.closest(".col"); return col && col.dataset.col !== "backlog";
+    });
+    const total = committed.length, dones = committed.map((c) => +c.dataset.doneOn || 0).filter(Boolean);
+    const rem = DAYS.slice(0, TI + 1).map((d) => total - dones.filter((x) => x <= d).length);
+    const top = Math.max(5, Math.ceil(total / 5) * 5), n = DAYS.length;
+    const L = 28, R = 8, T = 8, B = 24, w = W - L - R, h = H - T - B, step = w / (n - 1);
+    const x = (i) => L + i * step, y = (v) => T + h * (1 - v / top);
+    let g = "";
+    g += '<rect class="wk" x="' + (x(5) - step / 2) + '" y="' + T + '" width="' + step * 2 + '" height="' + h + '"/>';
+    for (let v = 0; v <= top; v += 5) g += '<line class="g" x1="' + L + '" x2="' + (L + w) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text class="ax" x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + "</text>";
+    const every = step < 34 ? 3 : step < 52 ? 2 : 1;
+    DAYS.forEach((d, i) => {
+      if (i % every && i !== TI) return;
+      if (i !== TI && Math.abs(i - TI) < every) return;
+      if (i === 1 && every === 1 && step < 80) return;
+      const lbl = i === 0 || d === 1101 ? MON[Math.floor(d / 100) - 1].toUpperCase() + " " + (d % 100) : String(d % 100);
+      g += '<text class="ax" x="' + x(i) + '" y="' + (H - 4) + '" text-anchor="' + (i === 0 ? "start" : i === n - 1 ? "end" : "middle") + '"' + (i === TI ? ' style="fill:var(--ink)"' : "") + ">" + lbl + "</text>";
+    });
+    const pts = rem.map((v, i) => x(i) + "," + y(v)).join(" ");
+    g += '<polygon class="area" points="' + x(0) + "," + y(0) + " " + pts + " " + x(TI) + "," + y(0) + '"/>';
+    g += '<line class="ideal" x1="' + x(0) + '" y1="' + y(total) + '" x2="' + x(n - 1) + '" y2="' + y(0) + '"/>';
+    g += '<polyline class="line" points="' + pts + '"/>';
+    rem.slice(0, -1).forEach((v, i) => { g += '<rect class="pt" x="' + (x(i) - 3) + '" y="' + (y(v) - 3) + '" width="6" height="6"/>'; });
+    const left = rem[TI], tx = x(TI), ty = y(left);
+    g += '<line class="now" x1="' + tx + '" x2="' + tx + '" y1="' + T + '" y2="' + (T + h) + '"/>';
+    g += '<rect class="nowpt" x="' + (tx - 7) + '" y="' + (ty - 7) + '" width="14" height="14"/>';
+    const tag = left + " LEFT", tw = tag.length * 7 + 14, onRight = tx + 10 + tw < L + w;
+    const tgx = onRight ? tx + 10 : tx - 10 - tw;
+    g += '<rect class="tagbg" x="' + tgx + '" y="' + T + '" width="' + tw + '" height="22" rx="3"/><text class="tagtx" x="' + (tgx + 7) + '" y="' + (T + 15) + '">' + tag + "</text>";
+    g += '<line class="ideal" x1="' + (L + w - 118) + '" x2="' + (L + w - 92) + '" y1="' + (T + 11) + '" y2="' + (T + 11) + '"/><text class="key" x="' + (L + w - 84) + '" y="' + (T + 15) + '">IDEAL PACE</text>';
+    box.innerHTML = '<span class="sr" id="burnSum"></span><svg viewBox="0 0 ' + W + " " + H + '" aria-hidden="true">' + g + "</svg>";
+    const ideal = Math.round(total * (1 - TI / (n - 1))), diff = left - ideal;
+    $("#burnMeta").textContent = left + " of " + total + " committed left";
+    const pace = $("#pace");
+    pace.textContent = diff > 0 ? "Behind by " + diff : diff < 0 ? "Ahead by " + -diff : "On pace";
+    pace.classList.toggle("behind", diff > 0);
+    $("#burnSum").textContent = left + " of " + total + " committed cards left with 3 days to go. The ideal pace has " + ideal + " left today.";
+  }
+  addEventListener("resize", drawBurn);
+
+  /* ———— activity log ———— */
+  const act = $("#act");
+  function log(who, html, when, animate) {
+    const li = document.createElement("li");
+    li.innerHTML = '<span class="face" style="--c:' + PEOPLE[who][1] + '" aria-hidden="true">' + who + "</span><p>" + html + "</p><time>" + when + "</time>";
+    act.prepend(li);
+    if (animate && !still()) li.classList.add("fresh");
+    while (act.children.length > 12) act.lastChild.remove();
+  }
+  const q = (t) => "<q>" + esc(t) + "</q>";
+  [["PR", "<b>Priya Raman</b> moved " + q("Usability test of the dose check-in prototype") + " to Done", "Yesterday"],
+   ["TW", "<b>Tomasz Wójcik</b> moved " + q("Vitals chart drops the last reading") + " to Done", "Yesterday"],
+   ["YD", "<b>Yusuf Demir</b> picked up " + q("Rate-limit the patient search endpoint"), "3h ago"],
+   ["AN", "<b>Amara Nwosu</b> sent " + q("Error messages that say what to do next") + " to Review", "2h ago"],
+   ["SR", "<b>You</b> moved " + q("Dark mode for night wards") + " to Review", "40m ago"]].forEach((a) => log(a[0], a[1], a[2]));
+  function label(card) {
+    if (card.classList.contains("lifted")) return;
+    const d = card._d, col = card.closest(".col");
+    const where = col ? COLS.find((c) => c.id === col.dataset.col).name : "";
+    const parts = [card.dataset.title, d.tag, "assigned to " + d.who.map((w) => PEOPLE[w][0]).join(" and ")];
+    if (col && col.dataset.col === "done") parts.push("done");
+    else if (d.due) parts.push((card.dataset.late ? "overdue since " : "due ") + md(d.due));
+    if (d.subs && d.subs[1]) parts.push(d.subs[0] + " of " + d.subs[1] + " subtasks");
+    card.setAttribute("aria-label", parts.join(", ") + (where ? ". In " + where : ""));
+  }
+  function stamp(card, animate) {
+    const inDone = !!card.closest('.col[data-col="done"]');
+    let s = $(".stamp", card);
+    if (!inDone) { if (s) s.remove(); delete card.dataset.doneOn; return; }
+    if (s) return;
+    if (!card.dataset.doneOn) card.dataset.doneOn = TODAY;
+    s = document.createElement("span");
+    s.className = "stamp"; s.setAttribute("aria-hidden", "true");
+    s.innerHTML = ico("check") + "Done " + md(+card.dataset.doneOn);
+    card.appendChild(s);
+    if (animate && !still()) s.animate([{ opacity: 0, scale: 1.9, rotate: "-14deg" }, { opacity: 1, scale: .94, rotate: "-4deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "-5deg" }], { duration: 300, easing: "cubic-bezier(.2,.7,.2,1)" });
+  }
+
+  /* ———— live messages ———— */
+  const sayEl = $("#say"), bar = $("#bar");
+  function say(t) { sayEl.textContent = ""; setTimeout(() => { sayEl.textContent = t; }, 40); }
+  let barT = 0;
+  function note(html, ms) { bar.innerHTML = html; bar.classList.add("on"); clearTimeout(barT); if (ms) barT = setTimeout(() => bar.classList.remove("on"), ms); }
+  function hideBar() { clearTimeout(barT); bar.classList.remove("on"); }
+
+  /* ———— FLIP: measure, change, then slide everything from where it was ———— */
+  function flip(change, extra) {
+    if (still()) { change(); return; }
+    const els = $$(".list > .card:not([hidden]):not(.lifted), .add, .empty").concat(extra || []);
+    const first = new Map(els.map((e) => [e, e.getBoundingClientRect()]));
+    change();
+    els.forEach((e) => {
+      if (!e.isConnected) return;
+      const a = first.get(e), b = e.getBoundingClientRect();
+      const dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) < .5 && Math.abs(dy) < .5) return;
+      e.animate([{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }], { duration: 240, easing: "cubic-bezier(.2,.7,.2,1)", composite: "add" });
+    });
+  }
+  const visible = (list) => $$(":scope > .card:not([hidden]):not(.lifted)", list);
+  const posText = (card) => {
+    const list = card.parentElement, v = visible(list), i = v.indexOf(card);
+    return COLS.find((c) => c.id === colOf(list)).name + ", position " + (i + 1) + " of " + v.length;
+  };
+  function afterMove(card, fromCol, cancelled) {
+    const to = colOf(card);
+    if (!cancelled && to !== fromCol) log("SR", "<b>You</b> moved " + q(card.dataset.title) + " to " + COLS.find((c) => c.id === to).name, "Just now", true);
+    stamp(card, !cancelled && to === "done" && fromCol !== "done");
+    refresh();
+    const col = colEl("progress");
+    if (!cancelled && to === "progress" && col.classList.contains("over")) say("Dropped " + card.dataset.title + " in " + posText(card) + ". In progress is over its limit of " + LIMIT + ".");
+    else if (!cancelled) say("Dropped " + card.dataset.title + " in " + posText(card) + ".");
+    else say("Cancelled. " + card.dataset.title + " is back in " + posText(card) + ".");
+  }
+
+  /* ———— pointer drag ———— */
+  const drag = { pending: null, card: null };
+  let busy = false;
+  board.addEventListener("pointerdown", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || busy || kb.card || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const r = card.getBoundingClientRect();
+    drag.pending = { card, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, pid: e.pointerId, touch: e.pointerType !== "mouse" };
+    if (drag.pending.touch) drag.timer = setTimeout(() => { if (drag.pending) start(drag.pending.x, drag.pending.y); }, 240);
+  });
+  addEventListener("pointermove", (e) => {
+    const p = drag.pending;
+    if (p && e.pointerId === p.pid) {
+      p.x = e.clientX; p.y = e.clientY;
+      const d = Math.hypot(e.clientX - p.x0, e.clientY - p.y0);
+      if (p.touch) { if (d > 8) cancelPending(); }
+      else if (d > 4) start(e.clientX, e.clientY);
+    }
+    if (drag.card && e.pointerId === drag.pid) move(e.clientX, e.clientY);
+  });
+  addEventListener("pointerup", (e) => { if (drag.card && e.pointerId === drag.pid) end(false); else cancelPending(); });
+  addEventListener("pointercancel", (e) => { if (drag.card && e.pointerId === drag.pid) end(true); else cancelPending(); });
+  document.addEventListener("touchmove", (e) => { if (drag.card) e.preventDefault(); }, { passive: false });
+  board.addEventListener("contextmenu", (e) => { if (e.target.closest(".card")) e.preventDefault(); });
+  function cancelPending() { clearTimeout(drag.timer); drag.pending = null; }
+
+  function start(x, y) {
+    const p = drag.pending; cancelPending();
+    const card = p.card, r = card.getBoundingClientRect();
+    closeComposers();
+    Object.assign(drag, { card, pid: p.pid, ox: p.ox, oy: p.oy, x, y, lx: x, vx: 0, tilt: 0, s: 1, from: card.parentElement, fromNext: card.nextElementSibling, fromCol: colOf(card), raf: 0 });
+    const ph = document.createElement("li");
+    ph.className = "ph"; ph.style.height = r.height + "px"; ph.setAttribute("aria-hidden", "true");
+    card.parentElement.insertBefore(ph, card);
+    drag.ph = ph;
+    card.style.width = r.width + "px"; card.style.height = r.height + "px";
+    card.classList.add("lifted");
+    document.body.appendChild(card);
+    document.documentElement.classList.add("dragging");
+    paint();
+    refresh();
+    note("<b>Moving</b><span>" + esc(card.dataset.title) + '</span><span class="k"><kbd>Esc</kbd> cancel</span>');
+    drag.raf = requestAnimationFrame(loop);
+  }
+  function paint() {
+    const c = drag.card;
+    c.style.transform = "translate3d(" + (drag.x - drag.ox) + "px," + (drag.y - drag.oy) + "px,0) rotate(" + drag.tilt.toFixed(2) + "deg) scale(" + drag.s.toFixed(3) + ")";
+  }
+  function loop() {
+    if (!drag.card || drag.settling) return;
+    const goal = still() ? 0 : Math.max(-6, Math.min(8, 2.5 + drag.vx * .35));
+    drag.tilt += (goal - drag.tilt) * .18;
+    drag.s += ((still() ? 1 : 1.03) - drag.s) * .25;
+    drag.vx *= .8;
+    paint();
+    autoscroll();
+    drag.raf = requestAnimationFrame(loop);
+  }
+  function autoscroll() {
+    const y = drag.y, edge = 56;
+    if (innerWidth > 1080) {
+      const col = colAt(drag.x, y); if (!col) return;
+      const b = $(".col-b", col), r = b.getBoundingClientRect();
+      if (y < r.top + edge && y > r.top - 60) b.scrollTop -= Math.ceil((r.top + edge - y) / 5);
+      else if (y > r.bottom - edge) b.scrollTop += Math.ceil((y - r.bottom + edge) / 5);
+      else return;
+      target(drag.x, y);
+    } else {
+      if (y < edge) scrollBy(0, -Math.ceil((edge - y) / 4));
+      else if (y > innerHeight - edge) scrollBy(0, Math.ceil((y - innerHeight + edge) / 4));
+      else return;
+      target(drag.x, y);
+    }
+  }
+  function move(x, y) {
+    drag.vx += x - drag.lx; drag.lx = x;
+    drag.x = x; drag.y = y;
+    if (still()) paint();
+    target(x, y);
+  }
+  function colAt(x, y) {
+    const el = document.elementFromPoint(x, y), c = el && el.closest(".col");
+    if (c) return c;
+    let best = null, bd = 1e9;
+    $$(".col").forEach((col) => {
+      const r = col.getBoundingClientRect();
+      const dx = x < r.left ? r.left - x : x > r.right ? x - r.right : 0;
+      const dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+      const d = dx + dy; if (d < bd) { bd = d; best = col; }
+    });
+    return bd < 48 ? best : null;
+  }
+  function target(x, y) {
+    const col = colAt(x, y); if (!col) return;
+    const list = $(".list", col), lr = list.getBoundingClientRect();
+    let before = null;
+    for (const c of visible(list)) {
+      const top = lr.top + c.offsetTop, mid = top + c.offsetHeight / 2;
+      if (y < mid) { before = c; break; }
+    }
+    const ph = drag.ph;
+    if (ph.parentElement === list) {
+      let n = ph.nextElementSibling; while (n && (n.hidden || n === ph)) n = n.nextElementSibling;
+      if (n === before) return;
+    }
+    const fresh = ph.parentElement !== list;
+    flip(() => list.insertBefore(ph, before));
+    if (fresh && !still()) ph.animate([{ opacity: 0, transform: "scaleY(.7)" }, { opacity: 1, transform: "none" }], { duration: 180, easing: "ease-out" });
+    refresh();
+  }
+  function end(cancel) {
+    const { card, ph } = drag;
+    cancelAnimationFrame(drag.raf);
+    drag.settling = true; busy = true;
+    if (cancel) {
+      const nx = drag.fromNext && drag.fromNext.parentElement === drag.from ? drag.fromNext : null;
+      flip(() => drag.from.insertBefore(ph, nx));
+    }
+    const r = ph.getBoundingClientRect();
+    const finish = () => {
+      flip(() => { ph.replaceWith(card); card.classList.remove("lifted", "landing"); card.style.cssText = ""; });
+      document.documentElement.classList.remove("dragging");
+      const fromCol = drag.fromCol;
+      Object.assign(drag, { card: null, ph: null, settling: false });
+      busy = false;
+      hideBar();
+      afterMove(card, fromCol, cancel);
+      card.focus({ preventScroll: true });
+    };
+    if (still()) { finish(); return; }
+    card.classList.add("landing");
+    card.style.transition = "transform .2s cubic-bezier(.2,.7,.2,1), box-shadow .2s";
+    card.style.transform = "translate3d(" + r.left + "px," + r.top + "px,0) rotate(0deg) scale(1)";
+    setTimeout(finish, 210);
+  }
+
+  /* ———— keyboard ———— */
+  const kb = { card: null };
+  let moving = false;
+  const colIds = COLS.map((c) => c.id);
+  function neighbourCol(card, dir) {
+    let i = colIds.indexOf(colOf(card));
+    for (i += dir; i >= 0 && i < colIds.length; i += dir) { if (kb.card || visible(listOf(colIds[i])).length) return colIds[i]; }
+    return null;
+  }
+  function relocate(card, list, before) {
+    moving = true;
+    flip(() => list.insertBefore(card, before));
+    card.focus({ preventScroll: true });
+    card.scrollIntoView({ block: "nearest" });
+    moving = false;
+  }
+  function pickUp(card) {
+    closeComposers();
+    kb.card = card; kb.from = card.parentElement; kb.fromNext = card.nextElementSibling; kb.fromCol = colOf(card);
+    card.classList.add("grabbed");
+    note('<b>Moving</b><span>' + esc(card.dataset.title) + '</span><span class="k"><kbd>←</kbd><kbd>→</kbd> column</span><span class="k"><kbd>↑</kbd><kbd>↓</kbd> order</span><span class="k"><kbd>Space</kbd> drop</span><span class="k"><kbd>Esc</kbd> cancel</span>');
+    say("Picked up " + card.dataset.title + ". " + posText(card) + ". Use the arrow keys to move it, Space to drop it, Escape to cancel.");
+  }
+  function drop(cancel) {
+    const card = kb.card; if (!card) return;
+    if (cancel) relocate(card, kb.from, kb.fromNext && kb.fromNext.parentElement === kb.from ? kb.fromNext : null);
+    card.classList.remove("grabbed");
+    kb.card = null; hideBar();
+    afterMove(card, kb.fromCol, cancel);
+  }
+  board.addEventListener("keydown", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || e.target !== card || drag.card) return;
+    const k = e.key;
+    if (kb.card === card) {
+      const list = card.parentElement, v = visible(list), i = v.indexOf(card);
+      if (k === " " || k === "Enter") { e.preventDefault(); drop(false); }
+      else if (k === "Escape") { e.preventDefault(); drop(true); }
+      else if (k === "ArrowUp" || k === "ArrowDown") {
+        e.preventDefault();
+        const j = k === "ArrowUp" ? i - 1 : i + 1;
+        if (j < 0 || j >= v.length) { say(j < 0 ? "Already at the top of the column." : "Already at the bottom of the column."); return; }
+        relocate(card, list, k === "ArrowUp" ? v[j] : v[j].nextElementSibling);
+        refresh(); say(posText(card));
+      } else if (k === "ArrowLeft" || k === "ArrowRight") {
+        e.preventDefault();
+        const to = neighbourCol(card, k === "ArrowLeft" ? -1 : 1);
+        if (!to) { say("No column further " + (k === "ArrowLeft" ? "left." : "right.")); return; }
+        const tl = listOf(to), tv = visible(tl);
+        relocate(card, tl, tv[Math.min(i, tv.length)] || null);
+        refresh();
+        say(posText(card) + (to === "progress" && colEl("progress").classList.contains("over") ? ". Over the limit of " + LIMIT + "." : ""));
+      } else if (k === "Tab") drop(false);
+      return;
+    }
+    if (k === " " || k === "Enter") { e.preventDefault(); pickUp(card); return; }
+    const list = card.parentElement, v = visible(list), i = v.indexOf(card);
+    let next = null;
+    if (k === "ArrowDown") next = v[i + 1];
+    else if (k === "ArrowUp") next = v[i - 1];
+    else if (k === "ArrowLeft" || k === "ArrowRight") { const to = neighbourCol(card, k === "ArrowLeft" ? -1 : 1); if (to) { const tv = visible(listOf(to)); next = tv[Math.min(i, tv.length - 1)]; } }
+    else if (k === "Home") next = v[0]; else if (k === "End") next = v[v.length - 1];
+    else return;
+    e.preventDefault();
+    if (next) { next.focus({ preventScroll: true }); next.scrollIntoView({ block: "nearest" }); }
+  });
+  board.addEventListener("focusout", (e) => { if (kb.card && e.target === kb.card && !moving) drop(false); });
+
+  /* ———— filters ———— */
+  const sel = new Set();
+  let lateOnly = false;
+  function applyFilter(announce) {
+    const on = sel.size > 0 || lateOnly;
+    flip(() => {
+      $$(".list > .card").forEach((c) => {
+        const okP = !sel.size || c._d.who.some((w) => sel.has(w));
+        const okL = !lateOnly || c.dataset.late === "1";
+        const show = okP && okL;
+        if (show && c.hidden && !still()) { c.classList.remove("fresh"); void c.offsetWidth; c.classList.add("fresh"); }
+        c.hidden = !show;
+      });
+    });
+    document.body.classList.toggle("filtering", sel.size > 0);
+    $$(".pf").forEach((b) => b.setAttribute("aria-pressed", sel.has(b.dataset.p)));
+    $("#lateBtn").setAttribute("aria-pressed", lateOnly);
+    $("#clearBtn").hidden = !on;
+    refresh();
+    if (announce) {
+      const n = $$(".list > .card:not([hidden])").length;
+      const who = [...sel].map((w) => PEOPLE[w][0]);
+      say(on ? "Showing " + n + (lateOnly ? " overdue" : "") + " card" + (n === 1 ? "" : "s") + (who.length ? " for " + who.join(" or ") : "") + "." : "Showing all cards.");
+    }
+  }
+  people.addEventListener("click", (e) => {
+    const b = e.target.closest(".pf"); if (!b) return;
+    sel.has(b.dataset.p) ? sel.delete(b.dataset.p) : sel.add(b.dataset.p);
+    applyFilter(true);
+  });
+  $("#lateBtn").addEventListener("click", () => { lateOnly = !lateOnly; applyFilter(true); });
+  $("#clearBtn").addEventListener("click", () => { sel.clear(); lateOnly = false; applyFilter(true); $("#lateBtn").focus(); });
+
+  /* ———— add a card ———— */
+  function closeComposers(except) {
+    $$(".composer").forEach((f) => {
+      if (f === except || f.hidden) return;
+      f.hidden = true; const b = $(".add-btn", f.parentElement); b.hidden = false; b.setAttribute("aria-expanded", "false");
+      const t = $("textarea", f); t.value = ""; t.removeAttribute("aria-invalid"); $(".err", f).hidden = true; t.style.height = "";
+    });
+  }
+  board.addEventListener("click", (e) => {
+    const ab = e.target.closest(".add-btn");
+    if (ab) {
+      const f = $(".composer", ab.parentElement);
+      closeComposers(f);
+      ab.hidden = true; ab.setAttribute("aria-expanded", "true"); f.hidden = false;
+      $("textarea", f).focus();
+      return;
+    }
+    const x = e.target.closest("[data-x]");
+    if (x) { const add = x.closest(".add"); closeComposers(); $(".add-btn", add).focus(); }
+  });
+  board.addEventListener("submit", (e) => e.preventDefault());
+  function addFrom(f) {
+    const t = $("textarea", f), v = t.value.replace(/\s+/g, " ").trim();
+    const col = colOf(f);
+    if (!v) {
+      t.setAttribute("aria-invalid", "true"); $(".err", f).hidden = false; t.focus();
+      if (!still()) { t.classList.remove("shake"); void t.offsetWidth; t.classList.add("shake"); }
+      say("Give the card a title first.");
+      return;
+    }
+    const card = makeCard([col, nextId++, "task", v, ["SR"], 0, null]);
+    const list = listOf(col);
+    flip(() => list.appendChild(card));
+    if (!still()) card.classList.add("fresh");
+    stamp(card, col === "done");
+    t.value = ""; t.style.height = ""; t.removeAttribute("aria-invalid"); $(".err", f).hidden = true;
+    const hiddenByFilter = (sel.size && !sel.has("SR")) || lateOnly;
+    if (hiddenByFilter) card.hidden = true;
+    refresh();
+    const name = COLS.find((c) => c.id === col).name;
+    log("SR", "<b>You</b> added " + q(v) + " to " + name, "Just now", true);
+    say("Added " + v + " to " + name + (hiddenByFilter ? ". Your filters hide it." : "."));
+    if (hiddenByFilter) note("<b>Added</b><span>" + esc(v) + " · hidden by your filters</span>", 2600);
+    else card.scrollIntoView({ block: "nearest" });
+    t.focus();
+  }
+  board.addEventListener("click", (e) => { const b = e.target.closest("[data-add]"); if (b) addFrom(b.closest("form")); });
+  board.addEventListener("input", (e) => {
+    const t = e.target; if (t.tagName !== "TEXTAREA") return;
+    if (t.value.trim()) { t.removeAttribute("aria-invalid"); $(".err", t.form).hidden = true; }
+    t.style.height = ""; t.style.height = Math.min(128, t.scrollHeight + 4) + "px";
+  });
+  board.addEventListener("keydown", (e) => {
+    const t = e.target; if (t.tagName !== "TEXTAREA") return;
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); addFrom(t.form); }
+    if (e.key === "Escape") { e.preventDefault(); const add = t.closest(".add"); closeComposers(); $(".add-btn", add).focus(); }
+  });
+  document.addEventListener("pointerdown", (e) => {
+    $$(".composer").forEach((f) => { if (!f.hidden && !f.parentElement.contains(e.target) && !$("textarea", f).value.trim()) closeComposers(); });
+    if (!keys.hidden && !e.target.closest("#keys") && !e.target.closest("#keysBtn")) toggleKeys(false);
+  });
+
+  /* ———— shortcuts ———— */
+  const keys = $("#keys"), keysBtn = $("#keysBtn");
+  function toggleKeys(on) { keys.hidden = !on; keysBtn.setAttribute("aria-expanded", on); }
+  keysBtn.addEventListener("click", () => toggleKeys(keys.hidden));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !keys.hidden) { toggleKeys(false); keysBtn.focus(); }
+    if (e.key === "Escape" && drag.card) end(true);
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
